@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-sky-800 to-teal-700
-                      pt-24 flex gap-10 px-6">
+                      pt-24 px-4 lg:px-8 flex lg:grid lg:grid-cols-[260px_1fr] lg:gap-10 xl:gap-16 max-w-screen-2xl mx-auto">
         <ScrollSpySidebar />
         <main className="flex-1 space-y-32">
           <Section id="intro" title="Intro">
