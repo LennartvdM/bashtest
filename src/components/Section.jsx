@@ -1,3 +1,4 @@
+import React from "react";
 export default function Section({ id, title, children }) {
   return (
     <section id={id} className="scroll-mt-24 py-24">
