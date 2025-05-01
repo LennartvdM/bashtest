@@ -1,5 +1,6 @@
-
+import React from 'react';
 import { Link } from 'react-router-dom';
+
 export default function Navbar() {
   const links = ["intro", "features", "gallery", "contact"];
   return (
@@ -12,9 +13,10 @@ export default function Navbar() {
             </a>
           </li>
         ))}
-        <li><a href="/Sidebar.html" className="hover:text-white duration-150 sidebar-link">SIDEBAR</a></li>
-        <li><a href="/sidebar.html" className="hover:text-white duration-150">SIDEBAR</a></li>
-        <li><Link to="/sidebar" className="hover:text-white duration-150">SIDEBAR</Link></li>
+        <li>
+          <Link to="/sidebar" className="hover:text-white duration-150">SIDEBAR</Link>
+        </li>
       </ul>
     </nav>
   );
+}
