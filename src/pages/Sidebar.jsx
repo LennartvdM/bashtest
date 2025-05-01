@@ -1,5 +1,5 @@
 import React from "react";
-import SidebarScrollSpyDemo from "../components/ScrollSpySidebar";  // or adjust path
+import SidebarScrollSpyDemo from "../SidebarScrollSpyDemo";
 
 export default function Sidebar() {
   return <SidebarScrollSpyDemo />;
