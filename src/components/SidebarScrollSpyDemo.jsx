@@ -6,7 +6,7 @@ import { motion, Variants } from 'framer-motion';
 const SECTIONS = [
   { id: 'preface', raw: 'Preface' },
   { id: 'narrative', raw: 'Narrative Review' },
-  { id: 'provider', raw: \"Provider’s Perspective\" },
+  { id: 'provider', raw: "Provider’s Perspective" },
   { id: 'reflect', raw: 'Record, Reflect, Refine' },
   { id: 'guidance', raw: 'Practical Guidance' },
   { id: 'research', raw: 'Driving Research' },
