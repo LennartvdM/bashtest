@@ -13,6 +13,7 @@ export default function Navbar() {
         ))}
         <li><a href="/Sidebar.html" className="hover:text-white duration-150 sidebar-link">SIDEBAR</a></li>
         <li><a href="/sidebar.html" className="hover:text-white duration-150">SIDEBAR</a></li>
+        <li><Link to="/sidebar" className="hover:text-white duration-150">SIDEBAR</Link></li>
       </ul>
     </nav>
   );
