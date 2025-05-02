@@ -1,7 +1,7 @@
 // SidebarScrollSpyDemo.jsx (plain JS)
 // React 18 · Tailwind CSS 3 · framer-motion 10
 import React, { useLayoutEffect, useState } from 'react';
-import { motion, Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const SECTIONS = [
   { id: 'preface', raw: 'Preface' },
