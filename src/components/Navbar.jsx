@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import React from 'react';
+=======
+import React from "react";
+
+>>>>>>> f1b8d9f (wip: commit before rebase)
 import { Link } from 'react-router-dom';
 
 export default function Navbar() {
