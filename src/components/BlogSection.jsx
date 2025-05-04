@@ -20,15 +20,36 @@ function useScrollSpy(ids) {
     const els = ids.map((id) => document.getElementById(id)).filter(Boolean);
     if (!els.length) return;
 
-    const TRIGGER = 0;
     let ticking = false;
 
     const calc = () => {
       ticking = false;
-      const y = window.innerHeight * TRIGGER;
-      const past = els.filter((h) => h.getBoundingClientRect().top - y <= 0);
-      const current = (past.at(-1) ?? els[0]).id;
-      setActive(current);
+      const scrollPosition = window.scrollY + window.innerHeight * 0.3; // 30% from top of viewport
+      
+      // Find the section that's closest to the scroll position
+      const currentSection = els.reduce((closest, el) => {
+        const box = el.getBoundingClientRect();
+        const elementTop = box.top + window.scrollY;
+        const elementBottom = elementTop + box.height;
+        
+        // If the scroll position is within this section's bounds
+        if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
+          return el;
+        }
+        
+        // If we haven't found a section yet, use the first one
+        if (!closest) return el;
+        
+        // Otherwise, find the section whose top is closest to the scroll position
+        const closestTop = closest.getBoundingClientRect().top + window.scrollY;
+        const currentTop = elementTop;
+        
+        return Math.abs(scrollPosition - currentTop) < Math.abs(scrollPosition - closestTop) ? el : closest;
+      }, null);
+
+      if (currentSection) {
+        setActive(currentSection.id);
+      }
     };
 
     const onScroll = () => {
