@@ -21,31 +21,19 @@ function useScrollSpy(ids) {
     if (!els.length) return;
 
     let ticking = false;
+    const OFFSET = 100; // px from top of viewport (adjust as needed)
 
     const calc = () => {
       ticking = false;
-      const scrollPosition = window.scrollY + window.innerHeight * 0.5; // 50% from top of viewport
-      
-      // Find the section that's closest to the scroll position
-      const currentSection = els.reduce((closest, el) => {
-        const box = el.getBoundingClientRect();
-        const elementTop = box.top + window.scrollY;
-        const elementBottom = elementTop + box.height;
-        
-        // Only consider a section active if the reference point is within its bounds
-        if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
-          return el;
+      // Find the last section whose top is above the reference line
+      const tops = els.map(el => el.getBoundingClientRect().top);
+      let idx = 0;
+      for (let i = 0; i < tops.length; i++) {
+        if (tops[i] - OFFSET <= 0) {
+          idx = i;
         }
-        
-        // If we haven't found a section yet, use the first one
-        if (!closest) return els[0];
-        
-        return closest;
-      }, null);
-
-      if (currentSection) {
-        setActive(currentSection.id);
       }
+      setActive(els[idx].id);
     };
 
     const onScroll = () => {
@@ -144,9 +132,13 @@ export default function BlogSection() {
         </aside>
 
         {/* article */}
-        <article className="space-y-24 rounded-lg bg-white/10 px-10 py-14 shadow-lg backdrop-blur-md" itemScope itemType="https://schema.org/Article">
+        <article className="space-y-16 rounded-lg px-10 py-14">
           {SECTIONS.map((s, idx) => (
-            <section key={s.id} id={s.id} className="scroll-mt-28">
+            <section
+              key={s.id}
+              id={s.id}
+              className="scroll-mt-28 mb-8 rounded-xl bg-white/20 shadow-lg p-8"
+            >
               <h2 className="mb-6 text-3xl font-extrabold text-white">{idx === 0 ? s.raw : `${idx}. ${s.raw}`}</h2>
               <p className="prose prose-invert max-w-none whitespace-pre-wrap">{LONG_LOREM}</p>
             </section>
