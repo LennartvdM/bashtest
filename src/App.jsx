@@ -1,14 +1,13 @@
-// src/App.jsx — SPA with Home and Sidebar routes
+// src/App.jsx — SPA with Home and Blog routes
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Section from './components/Section';
-import BlogSection from './components/BlogSection';
+import Blog from './pages/Blog';
 
-export default function App() {
+function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-200 pb-20">
-      <Navbar />
-      
       <Section id="intro" title="Welcome">
         <p className="text-lg">
           Your introduction content here...
@@ -28,10 +27,6 @@ export default function App() {
         </div>
       </Section>
 
-      <Section id="blog" title="Blog">
-        <BlogSection />
-      </Section>
-
       <Section id="gallery" title="Gallery">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Add your gallery items here */}
@@ -44,5 +39,19 @@ export default function App() {
         </div>
       </Section>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-200">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/blog" element={<Blog />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
