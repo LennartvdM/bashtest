@@ -2,6 +2,7 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Section from './components/Section';
+import BlogSection from './components/BlogSection';
 
 export default function App() {
   return (
@@ -25,6 +26,10 @@ export default function App() {
             <p>Feature 2 description...</p>
           </div>
         </div>
+      </Section>
+
+      <Section id="blog" title="Blog">
+        <BlogSection />
       </Section>
 
       <Section id="gallery" title="Gallery">
