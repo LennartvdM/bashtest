@@ -10,16 +10,14 @@ const SECTIONS = [
   { id: 'guidance',  raw: 'Practical Guidance' },
   { id: 'research',  raw: 'Driving Research' },
   { id: 'collab',    raw: 'International Collaboration' },
-] as const;
-
-type SectionId = (typeof SECTIONS)[number]['id'];
+];
 
 // Scroll-spy hook
-function useScrollSpy(ids: readonly SectionId[]) {
-  const [active, setActive] = useState<SectionId>(ids[0]);
+function useScrollSpy(ids) {
+  const [active, setActive] = useState(ids[0]);
 
   useLayoutEffect(() => {
-    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    const els = ids.map((id) => document.getElementById(id)).filter(Boolean);
     if (!els.length) return;
 
     const TRIGGER = 0;
@@ -29,7 +27,7 @@ function useScrollSpy(ids: readonly SectionId[]) {
       ticking = false;
       const y = window.innerHeight * TRIGGER;
       const past = els.filter((h) => h.getBoundingClientRect().top - y <= 0);
-      const current = (past.at(-1) ?? els[0]).id as SectionId;
+      const current = (past.at(-1) ?? els[0]).id;
       setActive(current);
     };
 
@@ -50,9 +48,9 @@ function useScrollSpy(ids: readonly SectionId[]) {
   }, [ids]);
 
   useLayoutEffect(() => {
-    const handler = (e: Event) => setActive((e as CustomEvent<SectionId>).detail);
-    window.addEventListener('nav-activate', handler as EventListener);
-    return () => window.removeEventListener('nav-activate', handler as EventListener);
+    const handler = (e) => setActive(e.detail);
+    window.addEventListener('nav-activate', handler);
+    return () => window.removeEventListener('nav-activate', handler);
   }, []);
 
   return active;
