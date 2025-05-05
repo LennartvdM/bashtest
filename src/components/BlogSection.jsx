@@ -209,14 +209,14 @@ export default function BlogSection() {
               <motion.section
                 key={s.id}
                 id={s.id}
-                className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-[#f7f8fa] via-[#f3f4f6] to-[#eaeaea] shadow-lg p-6 md:p-8"
+                className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-[#f7f8fa] via-[#f3f4f6] to-[#e5e7eb] border border-[#ececec] shadow-lg p-6 md:p-8"
                 variants={sectionVariants}
                 initial="hidden"
                 animate="visible"
                 custom={idx}
               >
-                <h2 className="mb-6 text-3xl font-extrabold text-[#232324]">{idx === 0 ? s.raw : `${idx}. ${s.raw}`}</h2>
-                <p className="prose max-w-md mx-0 whitespace-pre-wrap text-[#232324] [&_a]:text-[#1a1a1a] [&_a:hover]:underline">{LONG_LOREM}</p>
+                <h2 className="mb-6 text-3xl font-bold text-[#232324]">{idx === 0 ? s.raw : `${idx}. ${s.raw}`}</h2>
+                <p className="prose max-w-md mx-0 whitespace-pre-wrap text-[#44434a] [&_a]:text-[#232324] [&_a:hover]:underline">{LONG_LOREM}</p>
               </motion.section>
             ))}
             {/* Spacer for scroll-spy alignment */}
