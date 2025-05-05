@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MobileNav from './MobileNav';
 
 // Section metadata
 const SECTIONS = [
@@ -118,19 +119,38 @@ const LONG_LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Int
 
 export default function BlogSection() {
   const active = useScrollSpy(SECTIONS.map((s) => s.id));
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   React.useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (!mobile) setIsSidebarOpen(false);
+      if (!mobile) setIsMobileNavOpen(false);
     };
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Auto-activate and scroll to the top section on mount (with longer delay for sidebar animation, desktop only)
+  React.useEffect(() => {
+    if (!window.location.hash && window.innerWidth >= 768) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('nav-activate', { detail: SECTIONS[0].id }));
+        document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        history.replaceState(null, '', `#${SECTIONS[0].id}`);
+        window.dispatchEvent(new Event('scroll'));
+      }, 1500);
+    }
+  }, []);
+
+  const handleSectionClick = (id) => {
+    window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', `#${id}`);
+    setIsMobileNavOpen(false);
+  };
 
   // Sidebar animation config
   const sidebarMotion = {
@@ -153,41 +173,26 @@ export default function BlogSection() {
     }),
   };
 
-  // Centered toggle button with arrow (flush to left edge)
-  const buttonIcon = isSidebarOpen ? (
-    // Left arrow
-    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-  ) : (
-    // Right arrow
-    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900/40 to-slate-800/40">
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
-        {/* Toggle Button */}
+        {/* Mobile Navigation */}
         {isMobile && (
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="fixed left-0 top-1/2 z-50 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-r-full bg-slate-900/80 text-white shadow-lg backdrop-blur-md transition-transform hover:scale-110 md:hidden"
-            aria-label="Toggle sidebar"
-            style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          >
-            {buttonIcon}
-          </button>
+          <MobileNav
+            isOpen={isMobileNavOpen}
+            onClose={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            activeSection={active}
+            onSectionClick={handleSectionClick}
+          />
         )}
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-[260px_1fr]">
-          {/* sidebar */}
+        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-12 md:gap-8 sm:gap-4 items-start max-w-6xl mx-auto">
+          {/* Desktop Sidebar */}
           <AnimatePresence>
-            {(!isMobile || isSidebarOpen) && (
+            {!isMobile && (
               <motion.aside
                 {...sidebarMotion}
-                className={`fixed left-0 top-24 z-40 h-[calc(100vh-6rem)] w-64 overflow-y-auto rounded-r-lg bg-slate-900/80 px-6 py-8 backdrop-blur-md md:sticky md:left-auto md:top-24 md:h-max md:w-64 select-none`}
+                className="sticky top-24 w-72 px-6 pr-10 py-8 rounded-r-lg bg-slate-900/80 shadow-lg select-none"
               >
                 <ul role="list" className="space-y-1">
                   {SECTIONS.map((s, idx) => (
@@ -198,8 +203,8 @@ export default function BlogSection() {
             )}
           </AnimatePresence>
 
-          {/* article */}
-          <article className="space-y-16 rounded-lg px-4 py-14 md:px-10">
+          {/* Article Content */}
+          <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
             {SECTIONS.map((s, idx) => (
               <motion.section
                 key={s.id}
@@ -211,7 +216,7 @@ export default function BlogSection() {
                 custom={idx}
               >
                 <h2 className="mb-6 text-3xl font-extrabold text-white">{idx === 0 ? s.raw : `${idx}. ${s.raw}`}</h2>
-                <p className="prose prose-invert max-w-none whitespace-pre-wrap">{LONG_LOREM}</p>
+                <p className="prose prose-invert max-w-md mx-0 whitespace-pre-wrap">{LONG_LOREM}</p>
               </motion.section>
             ))}
             {/* Spacer for scroll-spy alignment */}
