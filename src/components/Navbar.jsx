@@ -5,7 +5,7 @@ export default function Navbar() {
   const links = [
     { id: "intro", path: "/#intro" },
     { id: "features", path: "/#features" },
-    { id: "blog", path: "/blog" },
+    { id: "blog", path: "/blog#preface" },
     { id: "contact", path: "/#contact" }
   ];
 
