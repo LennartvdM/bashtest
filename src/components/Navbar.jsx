@@ -9,16 +9,21 @@ const NAV_LINKS = [
   { label: 'Toolbox', to: '/toolbox' },
 ];
 
+const BLOB_HEIGHT_SETTLED = 32;
+const BLOB_HEIGHT_MOVING = 16;
+
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const linkRefs = useRef([]);
   const [blob, setBlob] = useState(null); // { left, width, height }
-  const [blobHeight, setBlobHeight] = useState(40); // px
+  const [blobHeight, setBlobHeight] = useState(BLOB_HEIGHT_SETTLED); // px
   const [blobOpacity, setBlobOpacity] = useState(0.5);
   const [hoverTimer, setHoverTimer] = useState(null);
   const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [isSettled, setIsSettled] = useState(true);
+  const settleTimeout = useRef(null);
 
   // Section-based active logic
   const isActive = (to) => {
@@ -42,9 +47,15 @@ export default function Navbar() {
         left: rect.left - containerRect.left,
         width: rect.width,
       });
-      setBlobHeight(32); // Flubber: shrink height on hover
       setHoveredIdx(idx);
       setBlobOpacity(0.5);
+      setIsSettled(false);
+      setBlobHeight(BLOB_HEIGHT_MOVING);
+      if (settleTimeout.current) clearTimeout(settleTimeout.current);
+      settleTimeout.current = setTimeout(() => {
+        setIsSettled(true);
+        setBlobHeight(BLOB_HEIGHT_SETTLED);
+      }, 140); // 120-150ms after last movement
       if (hoverTimer) clearInterval(hoverTimer);
       // Animate opacity up to 1.0 over 2 seconds
       const timer = setInterval(() => {
@@ -61,12 +72,14 @@ export default function Navbar() {
   };
   const handleMouseLeave = () => {
     setBlob(null);
-    setBlobHeight(40); // Reset to default height
+    setBlobHeight(BLOB_HEIGHT_SETTLED); // Reset to default height
     setBlobOpacity(0.5);
     setHoveredIdx(null);
+    setIsSettled(true);
     if (hoverTimer) clearInterval(hoverTimer);
+    if (settleTimeout.current) clearTimeout(settleTimeout.current);
   };
-  useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); }, [hoverTimer]);
+  useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); if (settleTimeout.current) clearTimeout(settleTimeout.current); }, [hoverTimer]);
 
   return (
     <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center">
@@ -88,27 +101,31 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight, top: 12 }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight, top: 0 }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
                   height: blobHeight,
-                  top: 12, // Center vertically under the links
+                  top: 0, // Centered using inset-0 like the active pill
                   transition: {
                     opacity: { duration: 0.18 },
-                    left: { type: 'spring', stiffness: 90, damping: 10, mass: 1.2, velocity: 1.5 },
-                    width: { type: 'spring', stiffness: 90, damping: 10, mass: 1.2, velocity: 1.5 },
-                    height: { type: 'spring', stiffness: 60, damping: 8, mass: 1.2 },
-                    top: { type: 'spring', stiffness: 60, damping: 8, mass: 1.2 },
+                    left: { type: 'spring', stiffness: 90, damping: 50, mass: 1.2, velocity: 1.5 },
+                    width: { type: 'spring', stiffness: 90, damping: 50, mass: 1.2, velocity: 1.5 },
+                    height: { type: 'spring', stiffness: 60, damping: 40, mass: 1.2 },
+                    top: { type: 'spring', stiffness: 60, damping: 40, mass: 1.2 },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
+                className="absolute inset-0 flex items-center"
                 style={{
                   borderRadius: '9999px',
                   background: '#b0b8c1',
-                  position: 'absolute',
                   zIndex: 1,
+                  pointerEvents: 'none',
+                  height: blobHeight,
+                  left: blob.left,
+                  width: blob.width,
                 }}
               />
             )}
@@ -131,7 +148,7 @@ export default function Navbar() {
                 {/* Active pill (always on top) */}
                 {active && (
                   <span
-                    className={`absolute inset-0 z-20 rounded-full ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
+                    className={`absolute inset-0 z-20 rounded-full flex items-center justify-center ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
                     style={{
                       boxShadow: isToolbox
                         ? '0 2px 8px 0 rgba(35,35,36,0.10)'
