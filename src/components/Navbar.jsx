@@ -11,6 +11,7 @@ const NAV_LINKS = [
 
 const BLOB_HEIGHT_FULL = 32;
 const BLOB_HEIGHT_FLAT = 8;
+const NAV_CELL_HEIGHT = 36;
 
 export default function Navbar() {
   const location = useLocation();
@@ -135,12 +136,12 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: 27 }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: NAV_CELL_HEIGHT }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: 27,
+                  height: traveling ? NAV_CELL_HEIGHT * 0.75 : NAV_CELL_HEIGHT,
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
@@ -158,7 +159,7 @@ export default function Navbar() {
                   margin: 'auto 0',
                   left: blob.left,
                   width: blob.width,
-                  height: 27,
+                  height: traveling ? NAV_CELL_HEIGHT * 0.75 : NAV_CELL_HEIGHT,
                 }}
               />
             )}
@@ -175,7 +176,7 @@ export default function Navbar() {
                 onMouseEnter={() => handleMouseEnter(idx)}
                 onFocus={() => handleMouseEnter(idx)}
                 tabIndex={-1}
-                style={{ zIndex: isToolbox ? 2 : 2 }}
+                style={{ minHeight: NAV_CELL_HEIGHT, height: NAV_CELL_HEIGHT, zIndex: isToolbox ? 2 : 2 }}
               >
                 {/* Active pill (always on top) */}
                 {active && (
@@ -186,37 +187,12 @@ export default function Navbar() {
                         ? '0 2px 8px 0 rgba(35,35,36,0.10)'
                         : '0 2px 8px 0 rgba(79,166,166,0.10)',
                       pointerEvents: 'none',
+                      height: NAV_CELL_HEIGHT,
+                      minHeight: NAV_CELL_HEIGHT,
+                      maxHeight: NAV_CELL_HEIGHT,
                     }}
                   />
                 )}
-                {/* Animated hover blob */}
-                <AnimatePresence>
-                  {blob && hoveredIdx === idx && (
-                    <motion.div
-                      key="blob"
-                      initial={{ opacity: 0, left: 0, width: '100%', height: '100%' }}
-                      animate={{
-                        opacity: blobOpacity,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        transition: {
-                          opacity: { duration: 0.18 },
-                          left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
-                          width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
-                          height: { duration: 0.18, ease: [0.42, 0, 0.58, 1] },
-                        },
-                      }}
-                      exit={{ opacity: 0, transition: { duration: 0.18 } }}
-                      className="absolute inset-0 rounded-full bg-[#b0b8c1]"
-                      style={{
-                        zIndex: 1,
-                        pointerEvents: 'none',
-                        margin: 'auto 0',
-                      }}
-                    />
-                  )}
-                </AnimatePresence>
                 <Link
                   to={link.to}
                   className={`relative z-30 flex items-center justify-center px-6 py-2 rounded-full transition-colors duration-150 transform-gpu
@@ -229,6 +205,8 @@ export default function Navbar() {
                     fontFamily: 'Montserrat, sans-serif',
                     fontWeight: 500,
                     fontSize: 18,
+                    height: NAV_CELL_HEIGHT,
+                    lineHeight: NAV_CELL_HEIGHT + 'px',
                   }}
                 >
                   {link.label}
