@@ -13,7 +13,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const linkRefs = useRef([]);
-  const [hoveredIdx, setHoveredIdx] = useState(null);
   const [blob, setBlob] = useState(null); // { left, width }
 
   // Determine current route for active styling
@@ -35,11 +34,9 @@ export default function Navbar() {
         left: rect.left - containerRect.left,
         width: rect.width,
       });
-      setHoveredIdx(idx);
     }
   };
   const handleMouseLeave = () => {
-    setHoveredIdx(null);
     setBlob(null);
   };
 
@@ -52,7 +49,11 @@ export default function Navbar() {
       </div>
       {/* Center nav - right-aligned */}
       <div className="flex-1 flex justify-end items-center gap-2 md:gap-6 text-base font-medium">
-        <div ref={containerRef} className="relative flex items-center gap-2 md:gap-6">
+        <div
+          ref={containerRef}
+          className="relative flex items-center gap-2 md:gap-6"
+          onMouseLeave={handleMouseLeave}
+        >
           {/* Animated blob */}
           <AnimatePresence>
             {blob && (
@@ -86,10 +87,7 @@ export default function Navbar() {
                 ref={el => linkRefs.current[idx] = el}
                 className="relative flex items-center"
                 onMouseEnter={() => handleMouseEnter(idx)}
-                onMouseMove={() => handleMouseEnter(idx)}
                 onFocus={() => handleMouseEnter(idx)}
-                onMouseLeave={handleMouseLeave}
-                onBlur={handleMouseLeave}
                 tabIndex={-1}
               >
                 {/* Active pill (always on top) */}
@@ -104,10 +102,9 @@ export default function Navbar() {
                 <Link
                   to={link.to}
                   className={`relative z-20 px-4 py-2 rounded-full transition-colors duration-150
-                    ${active ? 'text-white font-bold' : 'text-[#232324] font-semibold hover:text-[#232324]'}
+                    ${active ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
                   `}
                   style={{
-                    // Prevent pointer events on the active pill
                     pointerEvents: active ? 'none' : undefined,
                   }}
                 >
