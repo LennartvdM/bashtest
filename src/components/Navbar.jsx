@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { label: 'Neoflix', to: '/neoflix' },
   { label: 'Blog', to: '/blog' },
   { label: 'Contact', to: '/neoflix#collab' },
+  { label: 'Toolbox', to: '/toolbox' },
 ];
 
 export default function Navbar() {
@@ -45,16 +46,16 @@ export default function Navbar() {
       setHoveredIdx(idx);
       setBlobOpacity(0.5);
       if (hoverTimer) clearInterval(hoverTimer);
-      // Animate opacity up to 0.9
+      // Animate opacity up to 1.0 over 2 seconds
       const timer = setInterval(() => {
         setBlobOpacity((prev) => {
-          if (prev >= 0.9) {
+          if (prev >= 1.0) {
             clearInterval(timer);
-            return 0.9;
+            return 1.0;
           }
-          return +(prev + 0.04).toFixed(2);
+          return +(prev + 0.0125).toFixed(4); // 0.5 -> 1.0 in 2s (40*0.0125=0.5)
         });
-      }, 40);
+      }, 25);
       setHoverTimer(timer);
     }
   };
@@ -80,32 +81,34 @@ export default function Navbar() {
           ref={containerRef}
           className="relative flex items-center gap-6 md:gap-10"
           onMouseLeave={handleMouseLeave}
+          style={{ alignItems: 'center', height: '64px', position: 'relative' }}
         >
           {/* Animated blob */}
           <AnimatePresence>
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight, top: 12 }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
                   height: blobHeight,
+                  top: 12, // Center vertically under the links
                   transition: {
                     opacity: { duration: 0.18 },
-                    left: { type: 'spring', stiffness: 180, damping: 18, mass: 0.7, velocity: 2 },
-                    width: { type: 'spring', stiffness: 180, damping: 18, mass: 0.7, velocity: 2 },
-                    height: { type: 'spring', stiffness: 120, damping: 12, mass: 0.7 },
+                    left: { type: 'spring', stiffness: 90, damping: 10, mass: 1.2, velocity: 1.5 },
+                    width: { type: 'spring', stiffness: 90, damping: 10, mass: 1.2, velocity: 1.5 },
+                    height: { type: 'spring', stiffness: 60, damping: 8, mass: 1.2 },
+                    top: { type: 'spring', stiffness: 60, damping: 8, mass: 1.2 },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 style={{
-                  top: 0,
                   borderRadius: '9999px',
-                  background: '#6bb3b3',
+                  background: '#b0b8c1',
                   position: 'absolute',
-                  zIndex: 0,
+                  zIndex: 1,
                 }}
               />
             )}
@@ -113,6 +116,8 @@ export default function Navbar() {
           {/* Nav links */}
           {NAV_LINKS.map((link, idx) => {
             const active = isActive(link.to);
+            // Toolbox gets special styling
+            const isToolbox = link.label === 'Toolbox';
             return (
               <div
                 key={link.to}
@@ -121,21 +126,24 @@ export default function Navbar() {
                 onMouseEnter={() => handleMouseEnter(idx)}
                 onFocus={() => handleMouseEnter(idx)}
                 tabIndex={-1}
-                style={{ minHeight: 40 }}
+                style={{ minHeight: 40, zIndex: isToolbox ? 2 : 2 }}
               >
                 {/* Active pill (always on top) */}
                 {active && (
                   <span
-                    className="absolute inset-0 z-10 rounded-full bg-[#4fa6a6]"
+                    className={`absolute inset-0 z-20 rounded-full ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
                     style={{
-                      boxShadow: '0 2px 8px 0 rgba(79,166,166,0.10)',
+                      boxShadow: isToolbox
+                        ? '0 2px 8px 0 rgba(35,35,36,0.10)'
+                        : '0 2px 8px 0 rgba(79,166,166,0.10)',
                     }}
                   />
                 )}
                 <Link
                   to={link.to}
-                  className={`relative z-20 px-4 py-2 rounded-full transition-colors duration-150
-                    ${active ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
+                  className={`relative z-30 px-4 py-2 rounded-full transition-colors duration-150
+                    ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
+                    ${isToolbox ? 'bg-[#232324] shadow' : ''}
                   `}
                   style={{
                     pointerEvents: active ? 'none' : undefined,
@@ -146,15 +154,6 @@ export default function Navbar() {
               </div>
             );
           })}
-        </div>
-        {/* Toolbox button */}
-        <div className="flex items-center h-full pr-6 pl-4">
-          <Link
-            to="/toolbox"
-            className="px-5 py-2 rounded-full bg-[#232324] text-white font-bold shadow transition-all duration-150 hover:bg-[#529C9C] hover:text-white"
-          >
-            Toolbox
-          </Link>
         </div>
       </div>
     </nav>
