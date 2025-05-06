@@ -132,15 +132,16 @@ export default function Navbar() {
         >
           {/* Animated blob */}
           <AnimatePresence>
-            {blob && (
+            {blob && hoveredIdx !== null && hoveredIdx !== NAV_LINKS.findIndex(l => isActive(l.to)) && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blob.height * 0.75 }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blob.height * 0.75, top: blob.top || 0 }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
                   height: blobHeight * 0.75,
+                  top: 0,
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
@@ -149,7 +150,7 @@ export default function Navbar() {
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
-                className="absolute inset-0 flex items-center"
+                className="absolute flex items-center"
                 style={{
                   borderRadius: '9999px',
                   background: '#b0b8c1',
@@ -158,6 +159,8 @@ export default function Navbar() {
                   margin: 'auto 0',
                   left: blob.left,
                   width: blob.width,
+                  height: blobHeight * 0.75,
+                  top: 0,
                 }}
               />
             )}
@@ -185,12 +188,13 @@ export default function Navbar() {
                         ? '0 2px 8px 0 rgba(35,35,36,0.10)'
                         : '0 2px 8px 0 rgba(79,166,166,0.10)',
                       height: '75%',
+                      minHeight: 36,
                     }}
                   />
                 )}
                 <Link
                   to={link.to}
-                  className={`relative z-30 px-4 py-2 rounded-full transition-colors duration-150 transform-gpu
+                  className={`relative z-30 px-6 py-2 rounded-full transition-colors duration-150 transform-gpu
                     hover:scale-110 focus:scale-110 transition-transform duration-120
                     ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
                     ${isToolbox ? 'bg-[#232324] shadow' : ''}
@@ -200,6 +204,7 @@ export default function Navbar() {
                     fontFamily: 'Montserrat, sans-serif',
                     fontWeight: 500,
                     fontSize: 18,
+                    height: 36,
                   }}
                 >
                   {link.label}
