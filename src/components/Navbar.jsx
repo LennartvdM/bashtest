@@ -126,7 +126,7 @@ export default function Navbar() {
       <div className="flex-1 flex justify-end items-center h-full pr-16">
         <div
           ref={containerRef}
-          className="relative flex items-center gap-10"
+          className="relative flex items-center gap-[3.75rem]"
           onMouseLeave={handleMouseLeave}
           style={{ alignItems: 'center', height: '60px', position: 'relative' }}
         >
@@ -189,7 +189,8 @@ export default function Navbar() {
                 )}
                 <Link
                   to={link.to}
-                  className={`relative z-30 px-4 py-2 rounded-full transition-colors duration-150
+                  className={`relative z-30 px-4 py-2 rounded-full transition-colors duration-150 transform-gpu
+                    hover:scale-110 focus:scale-110 transition-transform duration-120
                     ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
                     ${isToolbox ? 'bg-[#232324] shadow' : ''}
                   `}
