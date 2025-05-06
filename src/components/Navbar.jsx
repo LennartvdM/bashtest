@@ -17,11 +17,10 @@ export default function Navbar() {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const linkRefs = useRef([]);
-  const [blob, setBlob] = useState(null); // { left, width }
+  const [blob, setBlob] = useState(null); // { left, width, height }
   const [blobOpacity, setBlobOpacity] = useState(0.5);
   const [hoverTimer, setHoverTimer] = useState(null);
   const [hoveredIdx, setHoveredIdx] = useState(null);
-  const [isSettled, setIsSettled] = useState(true);
   const settleTimeout = useRef(null);
 
   // Section-based active logic
@@ -37,7 +36,6 @@ export default function Navbar() {
 
   // On hover/focus, update blob position/size and animate opacity
   const handleMouseEnter = (idx) => {
-    if (isActive(NAV_LINKS[idx].to)) return; // Don't show blob for active
     const el = linkRefs.current[idx];
     if (el && containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
@@ -45,14 +43,12 @@ export default function Navbar() {
       setBlob({
         left: rect.left - containerRect.left,
         width: rect.width,
+        height: rect.height,
       });
       setHoveredIdx(idx);
       setBlobOpacity(0.5);
-      setIsSettled(false);
       if (settleTimeout.current) clearTimeout(settleTimeout.current);
-      settleTimeout.current = setTimeout(() => {
-        setIsSettled(true);
-      }, 80); // much faster settle
+      settleTimeout.current = setTimeout(() => {}, 80);
       if (hoverTimer) clearInterval(hoverTimer);
       // Animate opacity up to 1.0 over 2 seconds
       const timer = setInterval(() => {
@@ -61,7 +57,7 @@ export default function Navbar() {
             clearInterval(timer);
             return 1.0;
           }
-          return +(prev + 0.0125).toFixed(4); // 0.5 -> 1.0 in 2s (40*0.0125=0.5)
+          return +(prev + 0.0125).toFixed(4);
         });
       }, 25);
       setHoverTimer(timer);
@@ -71,7 +67,6 @@ export default function Navbar() {
     setBlob(null);
     setBlobOpacity(0.5);
     setHoveredIdx(null);
-    setIsSettled(true);
     if (hoverTimer) clearInterval(hoverTimer);
     if (settleTimeout.current) clearTimeout(settleTimeout.current);
   };
@@ -107,7 +102,7 @@ export default function Navbar() {
         <div></div>
         <div
           ref={containerRef}
-          className="relative flex items-center gap-12 md:gap-20"
+          className="relative flex items-center gap-14 md:gap-20"
           onMouseLeave={handleMouseLeave}
           style={{ alignItems: 'center', height: '64px', position: 'relative' }}
         >
@@ -116,12 +111,12 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: BLOB_HEIGHT_FULL }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blob.height }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL],
+                  height: [blob.height, blob.height * 0.25, blob.height],
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
@@ -146,7 +141,6 @@ export default function Navbar() {
           {/* Nav links */}
           {NAV_LINKS.map((link, idx) => {
             const active = isActive(link.to);
-            // Toolbox gets special styling
             const isToolbox = link.label === 'Toolbox';
             return (
               <div
