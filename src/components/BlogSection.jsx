@@ -4,13 +4,13 @@ import MobileNav from './MobileNav';
 
 // Section metadata
 const SECTIONS = [
-  { id: 'preface',   raw: 'Preface' },
-  { id: 'narrative', raw: 'Narrative Review' },
-  { id: 'provider',  raw: "Provider's Perspective" },
-  { id: 'reflect',   raw: 'Record, Reflect, Refine' },
-  { id: 'guidance',  raw: 'Practical Guidance' },
-  { id: 'research',  raw: 'Driving Research' },
-  { id: 'collab',    raw: 'International Collaboration' },
+  { id: 'init',   raw: 'Initialization Sequence' },
+  { id: 'matrix', raw: 'Matrix Uplink' },
+  { id: 'cyber',  raw: 'Cybernetic Reflections' },
+  { id: 'console',raw: 'Console Logs' },
+  { id: 'protocol',raw: 'Protocol Guidance' },
+  { id: 'datastream',raw: 'Datastream Research' },
+  { id: 'collective',raw: 'The Collective' },
 ];
 
 // Scroll-spy hook
@@ -83,7 +83,7 @@ function SidebarItem({ id, title, active }) {
 
   return (
     <li
-      className="flex items-center gap-3 py-1"
+      className="flex items-center gap-3 py-1 font-medium"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -105,7 +105,9 @@ function SidebarItem({ id, title, active }) {
       <a
         href={`#${id}`}
         onClick={handleClick}
-        className={`block text-sm transition-colors ${active ? 'text-white font-semibold' : 'text-slate-300 hover:text-white'}`}
+        className={`block text-sm transition-colors duration-150
+          ${active ? 'text-[#ffffff] font-bold' : hovered ? 'text-[#cfd2d6]' : 'text-[#6e7783]'}
+        `}
         aria-current={active ? 'location' : undefined}
       >
         {title}
@@ -114,8 +116,8 @@ function SidebarItem({ id, title, active }) {
   );
 }
 
-// Placeholder content
-const LONG_LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer in mi quis risus vehicula pretium. Sed luctus nibh et libero aliquet, quis maximus arcu pellentesque. Suspendisse potenti. Mauris sed sagittis purus. Curabitur ullamcorper, tortor sed cursus dictum, libero nisi interdum nulla, vel ultrices quam erat quis leo.`;
+// Gibson-style placeholder content
+const LOREM_GIBSON = `The sky above the port was the color of television, tuned to a dead channel. Case was twenty-four. At night, when the bars closed, the matrix would light up with a million neon dreams. Chrome and data, flesh and code, all blurred in the afterimage of cyberspace. He'd never seen the sprawl from above, only the endless grids of light, the hum of the console, the ghost in the machine.\n\nHe jacked in, felt the ice, the static, the pulse of distant AIs. The street found its own uses for things.\n\nWintermute, Neuromancer, the tessellated shadows of the future.\n\nAll he could do was run. All he could do was survive.`;
 
 export default function BlogSection() {
   const active = useScrollSpy(SECTIONS.map((s) => s.id));
@@ -145,9 +147,36 @@ export default function BlogSection() {
     }
   }, []);
 
+  // Custom smooth scroll function for slower sidebar scroll
+  function smoothScrollTo(targetY, duration = 1350) {
+    const startY = window.scrollY;
+    const diff = targetY - startY;
+    let start;
+    function easeInOut(t) {
+      return 0.5 * (1 - Math.cos(Math.PI * t));
+    }
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = easeInOut(t);
+      window.scrollTo(0, startY + diff * eased);
+      if (t < 1) {
+        window.requestAnimationFrame(step);
+      }
+    }
+    window.requestAnimationFrame(step);
+  }
+
+  // Sidebar item click handler
   const handleSectionClick = (id) => {
     window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const el = document.getElementById(id);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      const targetY = rect.top + window.scrollY;
+      smoothScrollTo(targetY, 1350); // 50% slower and eased
+    }
     history.replaceState(null, '', `#${id}`);
     setIsMobileNavOpen(false);
   };
@@ -166,8 +195,8 @@ export default function BlogSection() {
       opacity: 1,
       y: 0,
       transition: {
-        delay: i === 0 ? 0 : 0.25 + i * 0.18,
-        duration: 0.7,
+        delay: i === 0 ? 0 : 0.25 + i * 0.27,
+        duration: 1.05,
         ease: 'easeOut',
       },
     }),
@@ -192,7 +221,7 @@ export default function BlogSection() {
             {!isMobile && (
               <motion.aside
                 {...sidebarMotion}
-                className="sticky top-24 w-72 px-6 pr-10 py-8 rounded-r-lg bg-slate-900/80 shadow-lg select-none"
+                className="sticky top-24 w-72 px-6 pr-10 py-8 rounded-lg bg-[#112038] shadow-lg select-none"
               >
                 <ul role="list" className="space-y-1">
                   {SECTIONS.map((s, idx) => (
@@ -209,14 +238,43 @@ export default function BlogSection() {
               <motion.section
                 key={s.id}
                 id={s.id}
-                className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-[#f7f8fa] via-[#f3f4f6] to-[#e5e7eb] border border-[#ececec] shadow-lg p-6 md:p-8"
+                className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-stone-50 to-fuchsia-50 border border-[#e7dfd7] shadow-md p-6 md:p-8"
                 variants={sectionVariants}
                 initial="hidden"
                 animate="visible"
                 custom={idx}
               >
-                <h2 className="mb-6 text-3xl font-bold text-[#232324]">{idx === 0 ? s.raw : `${idx}. ${s.raw}`}</h2>
-                <p className="prose max-w-md mx-0 whitespace-pre-wrap text-[#44434a] [&_a]:text-[#232324] [&_a:hover]:underline">{LONG_LOREM}</p>
+                <h2
+                  className="mb-6 not-prose"
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 900,
+                    fontSize: '40px',
+                    color: '#383437',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {s.raw}
+                </h2>
+                <p
+                  className="mb-4"
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 500,
+                    fontSize: '16px',
+                    color: '#666666',
+                    maxWidth: '28rem',
+                    marginLeft: 0,
+                    marginRight: 0,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                  // Custom link styling for all <a> inside
+                  dangerouslySetInnerHTML={{
+                    __html: LOREM_GIBSON.replace(/(\bhttps?:\/\/\S+)/g, (url) =>
+                      `<a href="${url}" style="font-family: Inter, sans-serif; font-weight: 700; font-size: 16px; color: #152536; text-decoration: none; transition: color 150ms;" onmouseover="this.style.color='#529C9C';this.style.textDecoration='underline'" onmouseout="this.style.color='#152536';this.style.textDecoration='none'">${url}</a>`
+                    ),
+                  }}
+                />
               </motion.section>
             ))}
             {/* Spacer for scroll-spy alignment */}
