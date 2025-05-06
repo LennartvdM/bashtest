@@ -10,7 +10,7 @@ const NAV_LINKS = [
 ];
 
 const BLOB_HEIGHT_FULL = 32;
-const BLOB_HEIGHT_FLAT = 16;
+const BLOB_HEIGHT_FLAT = 8;
 
 export default function Navbar() {
   const location = useLocation();
@@ -85,10 +85,10 @@ export default function Navbar() {
     // Animate to flat, then to full
     const controls = animate(
       height,
-      [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL],
+      [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL], // pronounced shrink/expand
       {
-        duration: 0.06, // much faster vertical shrink/expand
-        ease: [0.42, 0, 0.58, 1], // easeInOut
+        duration: 0.18, // slower for more visible shrink/expand
+        ease: [0.42, 0, 0.58, 1],
       }
     );
     return controls.stop;
@@ -103,11 +103,11 @@ export default function Navbar() {
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
       </div>
       {/* Center nav - right-aligned, with extra right padding using grid */}
-      <div className="flex-1 grid grid-cols-[1fr_auto_0.1fr] items-center h-full">
+      <div className="flex-1 grid grid-cols-[1fr_auto_0.5fr] items-center h-full">
         <div></div>
         <div
           ref={containerRef}
-          className="relative flex items-center gap-8 md:gap-14"
+          className="relative flex items-center gap-12 md:gap-20"
           onMouseLeave={handleMouseLeave}
           style={{ alignItems: 'center', height: '64px', position: 'relative' }}
         >
@@ -121,12 +121,12 @@ export default function Navbar() {
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: height,
+                  height: [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL],
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
                     width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
-                    height: { duration: 0.06, ease: [0.42, 0, 0.58, 1] },
+                    height: { times: [0, 0.5, 1], duration: 0.18, ease: [0.42, 0, 0.58, 1] },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
@@ -176,7 +176,7 @@ export default function Navbar() {
                     ${isToolbox ? 'bg-[#232324] shadow' : ''}
                   `}
                   style={{
-                    pointerEvents: active ? 'none' : undefined,
+                    pointerEvents: 'auto',
                   }}
                 >
                   {link.label}
