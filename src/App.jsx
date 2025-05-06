@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Section from './components/Section';
 import Blog from './pages/Blog';
+import Toolbox from './pages/Toolbox';
 import SidebarScrollSpyDemo from './components/Sidebar';
 
 function Home() {
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/neoflix" element={<SidebarScrollSpyDemo />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/toolbox" element={<Toolbox />} />
         </Routes>
       </div>
     </Router>
