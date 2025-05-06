@@ -169,17 +169,20 @@ export default function Navbar() {
           {NAV_LINKS.map((link, idx) => {
             const active = isActive(link.to);
             const isToolbox = link.label === 'Toolbox';
+            const hovered = hoveredIdx === idx;
             return (
               <div
                 key={link.to}
                 ref={el => linkRefs.current[idx] = el}
                 className="relative flex items-center justify-center"
-                onMouseEnter={() => handleMouseEnter(idx)}
-                onFocus={() => handleMouseEnter(idx)}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                onFocus={() => setHoveredIdx(idx)}
+                onBlur={() => setHoveredIdx(null)}
                 tabIndex={-1}
                 style={{ zIndex: isToolbox ? 2 : 2 }}
               >
-                {/* Active pill (always on top, pointer-events: none) */}
+                {/* Active pill (pointer-events: none) */}
                 {active && (
                   <span
                     className={`absolute inset-0 z-10 rounded-full flex items-center justify-center ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
@@ -192,15 +195,10 @@ export default function Navbar() {
                   />
                 )}
                 {/* Hover blob (pointer-events: none, only if not active) */}
-                {blob && hoveredIdx === idx && !active && (
-                  <motion.span
-                    layoutId="hover-blob"
+                {hovered && !active && (
+                  <span
                     className="absolute inset-0 z-0 rounded-full bg-[#b0b8c1]"
-                    style={{ pointerEvents: 'none' }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: blobOpacity }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.18 }}
+                    style={{ pointerEvents: 'none', transition: 'opacity 0.18s' }}
                   />
                 )}
                 <Link
