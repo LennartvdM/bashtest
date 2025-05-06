@@ -116,20 +116,19 @@ export default function Navbar() {
   }, [blob?.left, blob?.width, blob?.height]);
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center">
+    <nav className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}>
       {/* Logo */}
       <div className="flex items-center h-full pl-6 pr-4 cursor-pointer" onClick={() => navigate('/')}> 
         <span className="sr-only">Home</span>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
       </div>
-      {/* Center nav - right-aligned, with extra right padding using grid */}
-      <div className="flex-1 grid grid-cols-[1fr_auto_0.5fr] items-center h-full">
-        <div></div>
+      {/* Nav links moved closer to right edge */}
+      <div className="flex-1 flex justify-end items-center h-full pr-16">
         <div
           ref={containerRef}
-          className="relative flex items-center gap-14 md:gap-20"
+          className="relative flex items-center gap-10"
           onMouseLeave={handleMouseLeave}
-          style={{ alignItems: 'center', height: '64px', position: 'relative' }}
+          style={{ alignItems: 'center', height: '60px', position: 'relative' }}
         >
           {/* Animated blob */}
           <AnimatePresence>
@@ -196,6 +195,9 @@ export default function Navbar() {
                   `}
                   style={{
                     pointerEvents: 'auto',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 500,
+                    fontSize: 18,
                   }}
                 >
                   {link.label}
@@ -204,7 +206,6 @@ export default function Navbar() {
             );
           })}
         </div>
-        <div></div>
       </div>
     </nav>
   );
