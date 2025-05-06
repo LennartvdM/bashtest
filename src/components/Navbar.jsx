@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,17 +13,24 @@ export default function Navbar() {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const linkRefs = useRef([]);
-  const [blob, setBlob] = useState(null); // { left, width }
+  const [blob, setBlob] = useState(null); // { left, width, height }
+  const [blobHeight, setBlobHeight] = useState(40); // px
+  const [blobOpacity, setBlobOpacity] = useState(0.5);
+  const [hoverTimer, setHoverTimer] = useState(null);
+  const [hoveredIdx, setHoveredIdx] = useState(null);
 
-  // Determine current route for active styling
+  // Section-based active logic
   const isActive = (to) => {
+    if (to === '/neoflix') {
+      return location.pathname === '/neoflix' && location.hash !== '#collab';
+    }
     if (to === '/neoflix#collab') {
       return location.pathname === '/neoflix' && location.hash === '#collab';
     }
     return location.pathname === to;
   };
 
-  // On hover/focus, update blob position/size
+  // On hover/focus, update blob position/size and animate height/opacity
   const handleMouseEnter = (idx) => {
     if (isActive(NAV_LINKS[idx].to)) return; // Don't show blob for active
     const el = linkRefs.current[idx];
@@ -34,11 +41,31 @@ export default function Navbar() {
         left: rect.left - containerRect.left,
         width: rect.width,
       });
+      setBlobHeight(32); // Flubber: shrink height on hover
+      setHoveredIdx(idx);
+      setBlobOpacity(0.5);
+      if (hoverTimer) clearInterval(hoverTimer);
+      // Animate opacity up to 0.9
+      const timer = setInterval(() => {
+        setBlobOpacity((prev) => {
+          if (prev >= 0.9) {
+            clearInterval(timer);
+            return 0.9;
+          }
+          return +(prev + 0.04).toFixed(2);
+        });
+      }, 40);
+      setHoverTimer(timer);
     }
   };
   const handleMouseLeave = () => {
     setBlob(null);
+    setBlobHeight(40); // Reset to default height
+    setBlobOpacity(0.5);
+    setHoveredIdx(null);
+    if (hoverTimer) clearInterval(hoverTimer);
   };
+  useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); }, [hoverTimer]);
 
   return (
     <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center">
@@ -48,10 +75,10 @@ export default function Navbar() {
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
       </div>
       {/* Center nav - right-aligned */}
-      <div className="flex-1 flex justify-end items-center gap-2 md:gap-6 text-base font-medium">
+      <div className="flex-1 flex justify-end items-center gap-2 md:gap-10 text-base font-medium">
         <div
           ref={containerRef}
-          className="relative flex items-center gap-2 md:gap-6"
+          className="relative flex items-center gap-6 md:gap-10"
           onMouseLeave={handleMouseLeave}
         >
           {/* Animated blob */}
@@ -59,17 +86,22 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight }}
                 animate={{
-                  opacity: 1,
+                  opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  transition: { type: 'spring', stiffness: 340, damping: 32, mass: 0.6 },
+                  height: blobHeight,
+                  transition: {
+                    opacity: { duration: 0.18 },
+                    left: { type: 'spring', stiffness: 180, damping: 18, mass: 0.7, velocity: 2 },
+                    width: { type: 'spring', stiffness: 180, damping: 18, mass: 0.7, velocity: 2 },
+                    height: { type: 'spring', stiffness: 120, damping: 12, mass: 0.7 },
+                  },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 style={{
                   top: 0,
-                  height: '2.5rem',
                   borderRadius: '9999px',
                   background: '#6bb3b3',
                   position: 'absolute',
@@ -89,6 +121,7 @@ export default function Navbar() {
                 onMouseEnter={() => handleMouseEnter(idx)}
                 onFocus={() => handleMouseEnter(idx)}
                 tabIndex={-1}
+                style={{ minHeight: 40 }}
               >
                 {/* Active pill (always on top) */}
                 {active && (
