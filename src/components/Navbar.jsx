@@ -173,28 +173,39 @@ export default function Navbar() {
               <div
                 key={link.to}
                 ref={el => linkRefs.current[idx] = el}
-                className="relative flex items-center"
+                className="relative flex items-center justify-center"
                 onMouseEnter={() => handleMouseEnter(idx)}
                 onFocus={() => handleMouseEnter(idx)}
                 tabIndex={-1}
-                style={{ minHeight: 40, zIndex: isToolbox ? 2 : 2 }}
+                style={{ zIndex: isToolbox ? 2 : 2 }}
               >
-                {/* Active pill (always on top) */}
+                {/* Active pill (always on top, pointer-events: none) */}
                 {active && (
                   <span
-                    className={`absolute inset-0 z-20 rounded-full flex items-center justify-center ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
+                    className={`absolute inset-0 z-10 rounded-full flex items-center justify-center ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
                     style={{
                       boxShadow: isToolbox
                         ? '0 2px 8px 0 rgba(35,35,36,0.10)'
                         : '0 2px 8px 0 rgba(79,166,166,0.10)',
-                      height: '75%',
-                      minHeight: 36,
+                      pointerEvents: 'none',
                     }}
+                  />
+                )}
+                {/* Hover blob (pointer-events: none, only if not active) */}
+                {blob && hoveredIdx === idx && !active && (
+                  <motion.span
+                    layoutId="hover-blob"
+                    className="absolute inset-0 z-0 rounded-full bg-[#b0b8c1]"
+                    style={{ pointerEvents: 'none' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: blobOpacity }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18 }}
                   />
                 )}
                 <Link
                   to={link.to}
-                  className={`relative z-30 px-6 py-2 rounded-full transition-colors duration-150 transform-gpu
+                  className={`relative z-20 px-6 py-2 rounded-full transition-colors duration-150 transform-gpu
                     hover:scale-110 focus:scale-110 transition-transform duration-120
                     ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
                     ${isToolbox ? 'bg-[#232324] shadow' : ''}
@@ -204,7 +215,6 @@ export default function Navbar() {
                     fontFamily: 'Montserrat, sans-serif',
                     fontWeight: 500,
                     fontSize: 18,
-                    height: 36,
                   }}
                 >
                   {link.label}
