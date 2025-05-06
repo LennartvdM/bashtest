@@ -11,7 +11,7 @@ const NAV_LINKS = [
 
 const BLOB_HEIGHT_FULL = 32;
 const BLOB_HEIGHT_FLAT = 8;
-const NAV_CELL_HEIGHT = 36;
+const NAV_CELL_HEIGHT = 28;
 
 export default function Navbar() {
   const location = useLocation();
