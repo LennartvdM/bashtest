@@ -14,7 +14,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-slate-900/80 backdrop-blur flex items-center">
+    <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center">
       {/* Logo */}
       <div className="flex items-center h-full pl-6 pr-4 cursor-pointer" onClick={() => navigate('/')}> 
         <span className="sr-only">Home</span>
@@ -26,7 +26,7 @@ export default function Navbar() {
           <li>
             <Link
               to="/neoflix"
-              className={`px-3 py-1 rounded transition-colors duration-150 ${isActive('/neoflix') ? 'text-[#383437] font-bold underline underline-offset-8' : 'text-[#6e7783] hover:text-[#cfd2d6]'}`}
+              className={`px-3 py-1 rounded transition-colors duration-150 ${isActive('/neoflix') ? 'text-[#383437] font-bold underline underline-offset-8' : 'text-[#6e7783] hover:text-[#383437]'}`}
             >
               Neoflix
             </Link>
@@ -34,9 +34,17 @@ export default function Navbar() {
           <li>
             <Link
               to="/blog"
-              className={`px-3 py-1 rounded transition-colors duration-150 ${isActive('/blog') ? 'text-[#383437] font-bold underline underline-offset-8' : 'text-[#6e7783] hover:text-[#cfd2d6]'}`}
+              className={`px-3 py-1 rounded transition-colors duration-150 ${isActive('/blog') ? 'text-[#383437] font-bold underline underline-offset-8' : 'text-[#6e7783] hover:text-[#383437]'}`}
             >
               Blog
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/neoflix#collab"
+              className={`px-3 py-1 rounded transition-colors duration-150 ${location.pathname === '/neoflix' && location.hash === '#collab' ? 'text-[#383437] font-bold underline underline-offset-8' : 'text-[#6e7783] hover:text-[#383437]'}`}
+            >
+              Contact
             </Link>
           </li>
         </ul>
