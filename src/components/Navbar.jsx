@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
 
 const NAV_LINKS = [
   { label: 'Neoflix', to: '/neoflix' },
@@ -87,7 +87,7 @@ export default function Navbar() {
       height,
       [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL],
       {
-        duration: 0.18, // 4x faster
+        duration: 0.06, // much faster vertical shrink/expand
         ease: [0.42, 0, 0.58, 1], // easeInOut
       }
     );
@@ -102,11 +102,12 @@ export default function Navbar() {
         <span className="sr-only">Home</span>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
       </div>
-      {/* Center nav - right-aligned */}
-      <div className="flex-1 flex justify-end items-center gap-2 md:gap-10 text-base font-medium">
+      {/* Center nav - right-aligned, with extra right padding using grid */}
+      <div className="flex-1 grid grid-cols-[1fr_auto_0.1fr] items-center h-full">
+        <div></div>
         <div
           ref={containerRef}
-          className="relative flex items-center gap-6 md:gap-10"
+          className="relative flex items-center gap-8 md:gap-14"
           onMouseLeave={handleMouseLeave}
           style={{ alignItems: 'center', height: '64px', position: 'relative' }}
         >
@@ -125,7 +126,7 @@ export default function Navbar() {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
                     width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
-                    height: { duration: 0.18, ease: [0.42, 0, 0.58, 1] },
+                    height: { duration: 0.06, ease: [0.42, 0, 0.58, 1] },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
@@ -184,6 +185,7 @@ export default function Navbar() {
             );
           })}
         </div>
+        <div></div>
       </div>
     </nav>
   );
