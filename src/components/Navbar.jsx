@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 
 const NAV_LINKS = [
   { label: 'Neoflix', to: '/neoflix' },
@@ -9,16 +9,15 @@ const NAV_LINKS = [
   { label: 'Toolbox', to: '/toolbox' },
 ];
 
-const BLOB_HEIGHT_SETTLED = 32;
-const BLOB_HEIGHT_MOVING = 16;
+const BLOB_HEIGHT_FULL = 32;
+const BLOB_HEIGHT_FLAT = 16;
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const linkRefs = useRef([]);
-  const [blob, setBlob] = useState(null); // { left, width, height }
-  const [blobHeight, setBlobHeight] = useState(BLOB_HEIGHT_SETTLED); // px
+  const [blob, setBlob] = useState(null); // { left, width }
   const [blobOpacity, setBlobOpacity] = useState(0.5);
   const [hoverTimer, setHoverTimer] = useState(null);
   const [hoveredIdx, setHoveredIdx] = useState(null);
@@ -36,7 +35,7 @@ export default function Navbar() {
     return location.pathname === to;
   };
 
-  // On hover/focus, update blob position/size and animate height/opacity
+  // On hover/focus, update blob position/size and animate opacity
   const handleMouseEnter = (idx) => {
     if (isActive(NAV_LINKS[idx].to)) return; // Don't show blob for active
     const el = linkRefs.current[idx];
@@ -50,12 +49,10 @@ export default function Navbar() {
       setHoveredIdx(idx);
       setBlobOpacity(0.5);
       setIsSettled(false);
-      setBlobHeight(BLOB_HEIGHT_MOVING);
       if (settleTimeout.current) clearTimeout(settleTimeout.current);
       settleTimeout.current = setTimeout(() => {
         setIsSettled(true);
-        setBlobHeight(BLOB_HEIGHT_SETTLED);
-      }, 140); // 120-150ms after last movement
+      }, 80); // much faster settle
       if (hoverTimer) clearInterval(hoverTimer);
       // Animate opacity up to 1.0 over 2 seconds
       const timer = setInterval(() => {
@@ -72,7 +69,6 @@ export default function Navbar() {
   };
   const handleMouseLeave = () => {
     setBlob(null);
-    setBlobHeight(BLOB_HEIGHT_SETTLED); // Reset to default height
     setBlobOpacity(0.5);
     setHoveredIdx(null);
     setIsSettled(true);
@@ -80,6 +76,24 @@ export default function Navbar() {
     if (settleTimeout.current) clearTimeout(settleTimeout.current);
   };
   useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); if (settleTimeout.current) clearTimeout(settleTimeout.current); }, [hoverTimer]);
+
+  // Motion value for height
+  const height = useMotionValue(BLOB_HEIGHT_FULL);
+  // Animate height: full -> flat -> full during transition
+  useEffect(() => {
+    if (!blob) return;
+    // Animate to flat, then to full
+    const controls = animate(
+      height,
+      [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL],
+      {
+        duration: 0.18, // 4x faster
+        ease: [0.42, 0, 0.58, 1], // easeInOut
+      }
+    );
+    return controls.stop;
+    // eslint-disable-next-line
+  }, [blob?.left, blob?.width]);
 
   return (
     <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center">
@@ -101,17 +115,17 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: BLOB_HEIGHT_FULL }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: blobHeight,
+                  height: height,
                   transition: {
                     opacity: { duration: 0.18 },
-                    left: { type: 'spring', stiffness: 90, damping: 50, mass: 1.2, velocity: 1.5 },
-                    width: { type: 'spring', stiffness: 90, damping: 50, mass: 1.2, velocity: 1.5 },
-                    height: { type: 'spring', stiffness: 60, damping: 40, mass: 1.2 },
+                    left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
+                    width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
+                    height: { duration: 0.18, ease: [0.42, 0, 0.58, 1] },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
@@ -122,7 +136,6 @@ export default function Navbar() {
                   zIndex: 1,
                   pointerEvents: 'none',
                   margin: 'auto 0',
-                  height: blobHeight,
                   left: blob.left,
                   width: blob.width,
                 }}
