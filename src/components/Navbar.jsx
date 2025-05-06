@@ -181,11 +181,9 @@ export default function Navbar() {
                 {/* Active pill (always on top) */}
                 {active && (
                   <span
-                    className={`absolute inset-0 z-20 rounded-full ${isToolbox ? 'bg-[#232324]' : 'bg-[#4fa6a6]'}`}
+                    className="absolute inset-0 z-20 rounded-full bg-[#4fa6a6]"
                     style={{
-                      boxShadow: isToolbox
-                        ? '0 2px 8px 0 rgba(35,35,36,0.10)'
-                        : '0 2px 8px 0 rgba(79,166,166,0.10)',
+                      boxShadow: '0 2px 8px 0 rgba(79,166,166,0.10)',
                       pointerEvents: 'none',
                       height: NAV_CELL_HEIGHT,
                       minHeight: NAV_CELL_HEIGHT,
