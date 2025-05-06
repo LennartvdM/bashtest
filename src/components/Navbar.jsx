@@ -22,6 +22,8 @@ export default function Navbar() {
   const [hoverTimer, setHoverTimer] = useState(null);
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const settleTimeout = useRef(null);
+  const height = useMotionValue(0);
+  const prevBlob = useRef({ left: null, width: null });
 
   // Section-based active logic
   const isActive = (to) => {
@@ -72,23 +74,24 @@ export default function Navbar() {
   };
   useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); if (settleTimeout.current) clearTimeout(settleTimeout.current); }, [hoverTimer]);
 
-  // Motion value for height
-  const height = useMotionValue(BLOB_HEIGHT_FULL);
-  // Animate height: full -> flat -> full during transition
   useEffect(() => {
     if (!blob) return;
-    // Animate to flat, then to full
-    const controls = animate(
-      height,
-      [BLOB_HEIGHT_FULL, BLOB_HEIGHT_FLAT, BLOB_HEIGHT_FULL], // pronounced shrink/expand
-      {
-        duration: 0.18, // slower for more visible shrink/expand
+    // Only animate shrink/expand if moving between links
+    if (
+      prevBlob.current.left !== null &&
+      (prevBlob.current.left !== blob.left || prevBlob.current.width !== blob.width)
+    ) {
+      animate(height, [blob.height, 0, blob.height], {
+        times: [0, 0.5, 1],
+        duration: 0.18,
         ease: [0.42, 0, 0.58, 1],
-      }
-    );
-    return controls.stop;
+      });
+    } else {
+      height.set(blob.height);
+    }
+    prevBlob.current = { left: blob.left, width: blob.width };
     // eslint-disable-next-line
-  }, [blob?.left, blob?.width]);
+  }, [blob?.left, blob?.width, blob?.height]);
 
   return (
     <nav className="fixed inset-x-0 top-0 z-40 h-16 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center">
@@ -116,12 +119,11 @@ export default function Navbar() {
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: [blob.height, blob.height * 0.25, blob.height],
+                  height: height,
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
                     width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
-                    height: { times: [0, 0.5, 1], duration: 0.18, ease: [0.42, 0, 0.58, 1] },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
