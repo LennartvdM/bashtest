@@ -195,8 +195,7 @@ export default function Navbar() {
                   to={link.to}
                   className={`relative z-30 flex items-center justify-center px-6 py-2 rounded-full transition-colors duration-150 transform-gpu
                     hover:scale-105 focus:scale-105 transition-transform duration-240
-                    ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
-                    ${isToolbox ? 'bg-[#232324] shadow' : ''}
+                    ${active ? 'text-white font-bold' : 'text-[#232324] font-semibold'}
                   `}
                   style={{
                     pointerEvents: 'auto',
