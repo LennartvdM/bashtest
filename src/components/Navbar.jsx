@@ -21,7 +21,10 @@ export default function Navbar() {
   const [blobOpacity, setBlobOpacity] = useState(0.5);
   const [hoverTimer, setHoverTimer] = useState(null);
   const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [traveling, setTraveling] = useState(false);
+  const [blobHeight, setBlobHeight] = useState(0);
   const settleTimeout = useRef(null);
+  const prevIdx = useRef(null);
   const height = useMotionValue(0);
   const prevBlob = useRef({ left: null, width: null });
 
@@ -74,6 +77,25 @@ export default function Navbar() {
   };
   useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); if (settleTimeout.current) clearTimeout(settleTimeout.current); }, [hoverTimer]);
 
+  // Traveling logic for shrink/expand
+  useEffect(() => {
+    if (hoveredIdx !== null && prevIdx.current !== null && hoveredIdx !== prevIdx.current) {
+      setTraveling(true);
+      setBlobHeight(blob?.height || 0);
+      setTimeout(() => {
+        setBlobHeight(0);
+        setTimeout(() => {
+          setBlobHeight(blob?.height || 0);
+          setTraveling(false);
+        }, 90); // half duration
+      }, 1);
+    } else if (blob?.height) {
+      setBlobHeight(blob.height);
+    }
+    prevIdx.current = hoveredIdx;
+    // eslint-disable-next-line
+  }, [hoveredIdx, blob?.height]);
+
   useEffect(() => {
     if (!blob) return;
     // Only animate shrink/expand if moving between links
@@ -119,11 +141,12 @@ export default function Navbar() {
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: height,
+                  height: blobHeight,
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
                     width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
+                    height: { duration: 0.18, ease: [0.42, 0, 0.58, 1] },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
