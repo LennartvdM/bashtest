@@ -101,19 +101,17 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight, top: 0 }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blobHeight }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
                   height: blobHeight,
-                  top: 0, // Centered using inset-0 like the active pill
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 90, damping: 50, mass: 1.2, velocity: 1.5 },
                     width: { type: 'spring', stiffness: 90, damping: 50, mass: 1.2, velocity: 1.5 },
                     height: { type: 'spring', stiffness: 60, damping: 40, mass: 1.2 },
-                    top: { type: 'spring', stiffness: 60, damping: 40, mass: 1.2 },
                   },
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
@@ -123,6 +121,7 @@ export default function Navbar() {
                   background: '#b0b8c1',
                   zIndex: 1,
                   pointerEvents: 'none',
+                  margin: 'auto 0',
                   height: blobHeight,
                   left: blob.left,
                   width: blob.width,
