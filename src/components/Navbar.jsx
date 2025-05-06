@@ -135,12 +135,12 @@ export default function Navbar() {
             {blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blob.height }}
+                initial={{ opacity: 0, left: blob.left, width: blob.width, height: blob.height * 0.75 }}
                 animate={{
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: blobHeight,
+                  height: blobHeight * 0.75,
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
@@ -184,6 +184,7 @@ export default function Navbar() {
                       boxShadow: isToolbox
                         ? '0 2px 8px 0 rgba(35,35,36,0.10)'
                         : '0 2px 8px 0 rgba(79,166,166,0.10)',
+                      height: '75%',
                     }}
                   />
                 )}
