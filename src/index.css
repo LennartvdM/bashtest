@@ -21,12 +21,14 @@ body::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
 
-/* Ensure all elements maintain scroll functionality */
+/* Hide scrollbar for all elements, but keep scroll functionality */
 * {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
 }
 
 *::-webkit-scrollbar {
-  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important; /* Chrome, Safari, Opera */
 }
