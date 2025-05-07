@@ -84,7 +84,7 @@ export default function Navbar() {
       setTraveling(true);
       setBlobHeight(blob?.height || 0);
       setTimeout(() => {
-        setBlobHeight(blob?.height ? blob.height * 0.75 : 0);
+        setBlobHeight(blob?.height ? blob.height * 0.50 : 0);
         setTimeout(() => {
           setBlobHeight(blob?.height || 0);
           setTraveling(false);
