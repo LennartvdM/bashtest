@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 
 const AUTOPLAY_MS = 6000;
 
@@ -23,6 +23,7 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
 
   const rowRefs = useRef([]);
+  const hoverTimeoutRef = useRef(null);
 
   // Highlight position measurement
   const target = hover ?? active;
@@ -38,10 +39,38 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleHoverStart = (index) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setPaused(true);
+    setHover(index);
+    setBarKey((k) => k + 1);
+  };
+
+  const handleHoverEnd = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setPaused(false);
+      setHover(null);
+      setBarKey((k) => k + 1);
+    }, 50); // Small delay to prevent flickering
+  };
+
   // Advance to next slide and force new barKey
   const handleNextSlide = () => {
-    setActive((a) => (a + 1) % slides.length);
-    setBarKey((k) => k + 1);
+    if (!paused) {
+      setActive((a) => (a + 1) % slides.length);
+      setBarKey((k) => k + 1);
+    }
   };
 
   return (
@@ -69,7 +98,7 @@ function MedicalCarousel({ reverse = false }) {
         <div
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
           onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => { setPaused(false); setHover(null); }}
+          onMouseLeave={() => handleHoverEnd()}
         >
           {/* Highlight bar */}
           {ready && (
@@ -92,8 +121,8 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => setHover(i)}
-              onMouseLeave={() => setHover(null)}
+              onMouseEnter={() => handleHoverStart(i)}
+              onMouseLeave={() => handleHoverEnd()}
               onClick={() => { setActive(i); setBarKey((k) => k + 1); }}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
