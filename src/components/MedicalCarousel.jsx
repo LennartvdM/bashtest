@@ -65,13 +65,14 @@ function MedicalCarousel({ reverse = false }) {
     if (paused) {
       cancelAnimationFrame(raf.current);
     } else {
-      if (progress < 1) {
-        startTime.current = performance.now() - progress * AUTOPLAY_MS;
-        raf.current = requestAnimationFrame(animateProgress);
-      }
+      // When resuming, calculate the new start time based on current progress
+      const currentProgress = progress;
+      const remainingTime = AUTOPLAY_MS * (1 - currentProgress);
+      startTime.current = performance.now() - (AUTOPLAY_MS - remainingTime);
+      raf.current = requestAnimationFrame(animateProgress);
     }
     // eslint-disable-next-line
-  }, [paused]);
+  }, [paused, progress]);
 
   // Highlight bar movement logic
   useLayoutEffect(() => {
