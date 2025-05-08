@@ -46,6 +46,10 @@ function MedicalCarousel({ reverse = false }) {
   const handleHoverStart = (index) => {
     setPaused(true);
     setHover(index);
+    // Reset bar when changing captions, but keep the pause behavior
+    if (index !== target) {
+      setBarKey((k) => k + 1);
+    }
   };
 
   const handleHoverEnd = () => {
