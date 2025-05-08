@@ -46,7 +46,7 @@ function MedicalCarousel({ reverse = false }) {
 
   const handleHoverEnd = () => {
     setPaused(false);
-    // Don't reset hover state here - it should only change on new hover
+    setBarKey((k) => k + 1);
   };
 
   // Advance to next slide and force new barKey
