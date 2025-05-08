@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 
 const AUTOPLAY_MS = 6000;
 
@@ -23,7 +23,6 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
 
   const rowRefs = useRef([]);
-  const containerRef = useRef(null);
 
   // Highlight position measurement
   const target = hover ?? active;
@@ -39,22 +38,10 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
-  const handleHoverStart = (index) => {
-    setPaused(true);
-    setHover(index);
-    setBarKey((k) => k + 1); // Reset bar when moving to new caption
-  };
-
-  const handleHoverEnd = () => {
-    setPaused(false);
-  };
-
   // Advance to next slide and force new barKey
   const handleNextSlide = () => {
-    if (!paused) {
-      setActive((a) => (a + 1) % slides.length);
-      setBarKey((k) => k + 1);
-    }
+    setActive((a) => (a + 1) % slides.length);
+    setBarKey((k) => k + 1);
   };
 
   return (
@@ -80,10 +67,9 @@ function MedicalCarousel({ reverse = false }) {
 
         {/* Tabs */}
         <div
-          ref={containerRef}
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
           onMouseEnter={() => setPaused(true)}
-          onMouseLeave={handleHoverEnd}
+          onMouseLeave={() => { setPaused(false); setHover(null); }}
         >
           {/* Highlight bar */}
           {ready && (
@@ -95,10 +81,7 @@ function MedicalCarousel({ reverse = false }) {
                 <div
                   key={barKey}
                   className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
-                  style={{ 
-                    animationDuration: `${AUTOPLAY_MS}ms`,
-                    animationPlayState: paused ? 'paused' : 'running'
-                  }}
+                  style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
                   onAnimationEnd={handleNextSlide}
                 />
               </div>
@@ -109,8 +92,8 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => handleHoverStart(i)}
-              onMouseLeave={handleHoverEnd}
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover(null)}
               onClick={() => { setActive(i); setBarKey((k) => k + 1); }}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
@@ -138,4 +121,4 @@ function MedicalCarousel({ reverse = false }) {
   );
 }
 
-export default MedicalCarousel;
+export default MedicalCarousel; 
