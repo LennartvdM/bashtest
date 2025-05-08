@@ -18,29 +18,18 @@ const headlines = [
 function MedicalCarousel({ reverse = false }) {
   /* --------------------- state & refs --------------------- */
   const [active, setActive] = useState(0);
-  const [hover, setHover] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0); // 0 to 1
   const [paused, setPaused] = useState(false);
-  const [showBar, setShowBar] = useState(true);
-  const [highlightMoving, setHighlightMoving] = useState(false);
   const [highlightTop, setHighlightTop] = useState(0);
   const [highlightHeight, setHighlightHeight] = useState(0);
 
-  const timer = useRef();
   const raf = useRef();
   const startTime = useRef();
   const rowRefs = useRef([]);
-  const barTimeout = useRef();
 
   /* ----------------------- autoplay & progress ----------------------- */
-  const clear = () => {
-    clearInterval(timer.current);
-    cancelAnimationFrame(raf.current);
-  };
-
-  // Progress bar animation
   const animateProgress = (timestamp) => {
     if (!startTime.current) startTime.current = timestamp;
     const elapsed = timestamp - startTime.current;
@@ -59,7 +48,7 @@ function MedicalCarousel({ reverse = false }) {
 
   // Start progress bar and autoplay
   const start = () => {
-    clear();
+    cancelAnimationFrame(raf.current);
     setProgress(0);
     startTime.current = null;
     raf.current = requestAnimationFrame(animateProgress);
@@ -67,7 +56,7 @@ function MedicalCarousel({ reverse = false }) {
 
   useEffect(() => {
     start();
-    return clear;
+    return () => cancelAnimationFrame(raf.current);
     // eslint-disable-next-line
   }, []);
 
@@ -84,53 +73,22 @@ function MedicalCarousel({ reverse = false }) {
     // eslint-disable-next-line
   }, [paused]);
 
-  const handleSelect = (i) => {
-    setActive(i);
-    setProgress(0);
-    startTime.current = null;
-    raf.current = requestAnimationFrame(animateProgress);
-  };
-
-  /* ---------------- measure highlight pos ----------------- */
-  const target = hover ?? active;
-
-  // Track previous rect for animation
-  const prevRect = useRef(rect);
+  // Highlight bar movement logic
   useLayoutEffect(() => {
-    const node = rowRefs.current[target];
+    const node = rowRefs.current[active];
     if (node) {
       const { offsetTop, offsetHeight } = node;
-      // If the top changes, animate only the top, keep height fixed until done
-      if (rect.top !== offsetTop) {
-        setHighlightMoving(true);
-        setHighlightTop(rect.top);
-        setHighlightHeight(rect.height);
-        setShowBar(false); // Hide loading bar during move
-        // Animate top
-        requestAnimationFrame(() => {
-          setHighlightTop(offsetTop);
-          // After transition duration, snap height and show bar
-          setTimeout(() => {
-            setHighlightHeight(offsetHeight);
-            setHighlightMoving(false);
-            setShowBar(false);
-            clearTimeout(barTimeout.current);
-            barTimeout.current = setTimeout(() => setShowBar(true), LOADING_BAR_FADE_DELAY);
-          }, 300); // match transition duration
-        });
-      } else if (rect.height !== offsetHeight) {
-        setHighlightHeight(offsetHeight);
-      }
+      setHighlightTop(offsetTop);
+      setHighlightHeight(offsetHeight);
       setRect({ top: offsetTop, height: offsetHeight });
       setReady(true);
     }
-    prevRect.current = rect;
     // eslint-disable-next-line
-  }, [target]);
+  }, [active]);
 
   useEffect(() => {
     window.addEventListener("resize", () => {
-      const node = rowRefs.current[target];
+      const node = rowRefs.current[active];
       if (node) {
         const { offsetTop, offsetHeight } = node;
         setRect({ top: offsetTop, height: offsetHeight });
@@ -140,11 +98,18 @@ function MedicalCarousel({ reverse = false }) {
     });
     return () => window.removeEventListener("resize", () => {});
     // eslint-disable-next-line
-  }, [target]);
+  }, [active]);
+
+  const barKey = active;
+
+  const handleSelect = (i) => {
+    setActive(i);
+    setProgress(0);
+    startTime.current = null;
+    raf.current = requestAnimationFrame(animateProgress);
+  };
 
   /* ----------------------- render ------------------------- */
-  const barKey = hover === null ? active : -1;
-
   return (
     <div className="flex flex-col max-w-5xl mx-auto p-8 md:p-14 font-cabin h-full w-full">
       <h2 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-tight mb-10 text-left">
@@ -157,66 +122,43 @@ function MedicalCarousel({ reverse = false }) {
           <div className="overflow-hidden rounded-2xl shadow-lg bg-gray-300 min-h-[260px] min-w-[340px] max-w-[420px] w-full h-[240px] md:h-[280px] flex items-center justify-center">
             {/* Replace this with an <img> when ready */}
             <span className="text-6xl md:text-7xl text-teal-600 font-bold opacity-70 select-none">
-              {slides[target].content}
+              {slides[active].content}
             </span>
           </div>
         </div>
 
         {/* Text & Tabs */}
         <div
-          onMouseLeave={() => {
-            setHover(null);
-            setPaused(false);
-          }}
+          onMouseLeave={() => setPaused(false)}
           onMouseEnter={() => setPaused(true)}
           className="basis-1/2 flex flex-col justify-center gap-4 relative min-w-[260px]"
         >
-          {/* highlight bar/card - two layers, solid block movement */}
+          {/* highlight bar/card - masked loading bar */}
           {ready && (
-            <>
-              {/* Highlight background (solid, no height warp) */}
+            <div
+              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top,height] duration-300 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
+              style={{
+                top: highlightTop,
+                height: highlightHeight,
+                zIndex: 1,
+                overflow: 'hidden',
+              }}
+            >
               <div
-                className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top] duration-300 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
-                style={{
-                  top: highlightMoving ? highlightTop : rect.top,
-                  height: highlightMoving ? highlightHeight : rect.height,
-                  zIndex: 1,
-                  transition: 'top 0.3s cubic-bezier(0.44,0,0.56,1)',
-                }}
+                key={barKey}
+                className="absolute left-0 bottom-0 h-[3px] bg-teal-400 rounded-b-xl transition-all duration-200"
+                style={{ width: `${progress * 100}%`, transition: paused ? 'none' : 'width 0.2s linear' }}
               />
-              {/* Loading bar (always on top, fade in after move) */}
-              <div
-                className="absolute left-0 w-full rounded-xl pointer-events-none"
-                style={{
-                  top: highlightMoving ? highlightTop : rect.top,
-                  height: highlightMoving ? highlightHeight : rect.height,
-                  zIndex: 2,
-                  overflow: 'hidden',
-                  background: 'transparent',
-                  opacity: showBar ? 1 : 0,
-                  transition: 'opacity 0.3s',
-                }}
-              >
-                <div
-                  key={barKey}
-                  className="absolute left-0 bottom-0 h-[3px] bg-teal-400 rounded-b-xl transition-all duration-200"
-                  style={{ width: `${progress * 100}%`, transition: paused ? 'none' : 'width 0.2s linear' }}
-                />
-              </div>
-            </>
+            </div>
           )}
 
           {headlines.map((text, i) => (
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => {
-                setHover(i);
-                setPaused(true);
-              }}
               onClick={() => handleSelect(i)}
               className={`relative z-10 text-left py-4 px-6 rounded-xl transition-all duration-300 font-medium text-lg md:text-xl shadow-none ${
-                target === i
+                active === i
                   ? "bg-white/80 shadow-md text-slate-700 font-semibold"
                   : "bg-transparent text-slate-500 hover:bg-slate-100"
               }`}
