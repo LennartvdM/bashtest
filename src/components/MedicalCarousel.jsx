@@ -53,7 +53,10 @@ function MedicalCarousel({ reverse = false }) {
   };
 
   const handleHoverEnd = () => {
-    setPaused(false);
+    // Add a small delay before unpausing
+    setTimeout(() => {
+      setPaused(false);
+    }, 200);
   };
 
   // Advance to next slide and force new barKey
@@ -144,11 +147,9 @@ function MedicalCarousel({ reverse = false }) {
         @keyframes grow { from { width: 0; } to { width: 100%; } }
         .loading-bar { 
           animation: grow ${AUTOPLAY_MS}ms linear forwards;
-          transition: all 0.6s ease-in-out;
         }
         .paused.loading-bar { 
           animation-play-state: paused;
-          filter: brightness(0.9);
         }
       `}</style>
     </div>
