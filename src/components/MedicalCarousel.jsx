@@ -21,6 +21,7 @@ function MedicalCarousel({ reverse = false }) {
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(1);
 
   const rowRefs = useRef([]);
 
@@ -38,24 +39,21 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
-  // NOTE: This is the working version of pause/unpause behavior
-  // Key points:
-  // 1. Uses animationPlayState for pause/unpause without recreating the element
-  // 2. No barKey resets in hover handlers (only on slide change)
-  // 3. Simple pause/unpause state management
   const handleHoverStart = (index) => {
-    setPaused(true);
-    setHover(index);
-    // Reset bar when changing captions, but keep the pause behavior
-    if (index !== target) {
-      setBarKey((k) => k + 1);
-    }
+    // Smoothly slow down
+    setAnimationSpeed(0.5);
+    setTimeout(() => {
+      setPaused(true);
+      setHover(index);
+    }, 300);
   };
 
   const handleHoverEnd = () => {
     // Add a small delay before unpausing
     setTimeout(() => {
       setPaused(false);
+      // Smoothly speed up
+      setAnimationSpeed(1);
     }, 200);
   };
 
@@ -147,12 +145,8 @@ function MedicalCarousel({ reverse = false }) {
         @keyframes grow { from { width: 0; } to { width: 100%; } }
         .loading-bar { 
           animation: grow ${AUTOPLAY_MS}ms linear forwards;
-          transform-origin: left;
-          transition: transform 0.3s ease-in-out;
-        }
-        .paused.loading-bar { 
-          animation-play-state: paused;
-          transform: scaleX(0.5);
+          animation-play-state: ${paused ? 'paused' : 'running'};
+          animation-duration: ${AUTOPLAY_MS * animationSpeed}ms;
         }
       `}</style>
     </div>
