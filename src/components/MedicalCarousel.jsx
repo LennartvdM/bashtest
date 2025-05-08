@@ -41,12 +41,10 @@ function MedicalCarousel({ reverse = false }) {
   const handleHoverStart = (index) => {
     setPaused(true);
     setHover(index);
-    setBarKey((k) => k + 1);
   };
 
   const handleHoverEnd = () => {
     setPaused(false);
-    setBarKey((k) => k + 1);
   };
 
   // Advance to next slide and force new barKey
@@ -94,7 +92,10 @@ function MedicalCarousel({ reverse = false }) {
                 <div
                   key={barKey}
                   className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
-                  style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
+                  style={{ 
+                    animationDuration: `${AUTOPLAY_MS}ms`,
+                    animationPlayState: paused ? 'paused' : 'running'
+                  }}
                   onAnimationEnd={handleNextSlide}
                 />
               </div>
