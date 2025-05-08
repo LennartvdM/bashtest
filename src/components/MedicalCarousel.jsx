@@ -38,6 +38,11 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
+  // NOTE: This is the working version of pause/unpause behavior
+  // Key points:
+  // 1. Uses animationPlayState for pause/unpause without recreating the element
+  // 2. No barKey resets in hover handlers (only on slide change)
+  // 3. Simple pause/unpause state management
   const handleHoverStart = (index) => {
     setPaused(true);
     setHover(index);
@@ -135,4 +140,4 @@ function MedicalCarousel({ reverse = false }) {
   );
 }
 
-export default MedicalCarousel; 
+export default MedicalCarousel;
