@@ -23,7 +23,6 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
 
   const rowRefs = useRef([]);
-  const hoverTimeoutRef = useRef(null);
 
   // Highlight position measurement
   const target = hover ?? active;
@@ -39,30 +38,15 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const handleHoverStart = (index) => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
     setPaused(true);
     setHover(index);
     setBarKey((k) => k + 1);
   };
 
   const handleHoverEnd = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setPaused(false);
-      setHover(null);
-      setBarKey((k) => k + 1);
-    }, 50); // Small delay to prevent flickering
+    setPaused(false);
+    // Don't reset hover state here - it should only change on new hover
   };
 
   // Advance to next slide and force new barKey
@@ -150,4 +134,4 @@ function MedicalCarousel({ reverse = false }) {
   );
 }
 
-export default MedicalCarousel; 
+export default MedicalCarousel;
