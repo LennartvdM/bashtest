@@ -38,10 +38,21 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
+  const handleHoverStart = (index) => {
+    setPaused(true);
+    setHover(index);
+  };
+
+  const handleHoverEnd = () => {
+    setPaused(false);
+  };
+
   // Advance to next slide and force new barKey
   const handleNextSlide = () => {
-    setActive((a) => (a + 1) % slides.length);
-    setBarKey((k) => k + 1);
+    if (!paused) {
+      setActive((a) => (a + 1) % slides.length);
+      setBarKey((k) => k + 1);
+    }
   };
 
   return (
@@ -69,7 +80,7 @@ function MedicalCarousel({ reverse = false }) {
         <div
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
           onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => { setPaused(false); setHover(null); }}
+          onMouseLeave={handleHoverEnd}
         >
           {/* Highlight bar */}
           {ready && (
@@ -81,7 +92,10 @@ function MedicalCarousel({ reverse = false }) {
                 <div
                   key={barKey}
                   className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
-                  style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
+                  style={{ 
+                    animationDuration: `${AUTOPLAY_MS}ms`,
+                    animationPlayState: paused ? 'paused' : 'running'
+                  }}
                   onAnimationEnd={handleNextSlide}
                 />
               </div>
@@ -92,8 +106,8 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => setHover(i)}
-              onMouseLeave={() => setHover(null)}
+              onMouseEnter={() => handleHoverStart(i)}
+              onMouseLeave={handleHoverEnd}
               onClick={() => { setActive(i); setBarKey((k) => k + 1); }}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
