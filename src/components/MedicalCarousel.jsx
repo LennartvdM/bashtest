@@ -142,8 +142,14 @@ function MedicalCarousel({ reverse = false }) {
       {/* Keyframes and loading bar pause style */}
       <style>{`
         @keyframes grow { from { width: 0; } to { width: 100%; } }
-        .loading-bar { animation: grow linear forwards; }
-        .paused.loading-bar { animation-play-state: paused; }
+        .loading-bar { 
+          animation: grow linear forwards;
+          transition: animation-duration 0.2s ease-in-out;
+        }
+        .paused.loading-bar { 
+          animation-play-state: paused;
+          animation-duration: 1000ms !important;
+        }
       `}</style>
     </div>
   );
