@@ -7,11 +7,17 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true,
+    minify: 'terser',
+    sourcemap: false,
     rollupOptions: {
       input: {
         main: './index.html'
       },
-      external: ['parse-author']
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
+      }
     }
   }
 }) 

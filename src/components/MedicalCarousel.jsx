@@ -68,44 +68,40 @@ function MedicalCarousel({ reverse = false }) {
   const barKey = hover === null ? active : -1;
 
   return (
-    <div className="flex flex-col max-w-[1200px] mx-auto p-10 font-cabin bg-slate-50 h-full w-full">
-      <h2 className="text-4xl md:text-5xl font-semibold text-slate-800 leading-tight mb-10">
-        In the moment, <span className="text-teal-600">only</span> the patient matters
+    <div className="flex flex-col max-w-5xl mx-auto p-8 md:p-14 font-cabin bg-[#f6fafd] rounded-3xl shadow-xl h-full w-full">
+      <h2 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-tight mb-10 text-left">
+        In the moment, <span className="text-teal-500">only</span> the patient<br className="hidden md:block" /> matters
       </h2>
 
-      <div className={`flex flex-col md:flex-row gap-8 grow ${reverse ? "md:flex-row-reverse" : ""}`}>
-        {/* Slides */}
-        <div className="relative basis-1/2 overflow-hidden rounded-2xl bg-gray-300 min-h-[300px]">
-          {slides.map((s, i) => (
-            <div
-              key={s.id}
-              className={`absolute inset-0 flex items-center justify-center text-7xl text-teal-600 transition-opacity duration-[600ms] ease-[cubic-bezier(0.44,_0,_0.56,_1)] ${
-                i === target ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              {s.content}
-            </div>
-          ))}
+      <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start ${reverse ? "md:flex-row-reverse" : ""}`}>
+        {/* Image/Slide Placeholder */}
+        <div className="relative basis-1/2 flex items-center justify-center">
+          <div className="overflow-hidden rounded-2xl shadow-lg bg-gray-300 min-h-[260px] min-w-[340px] max-w-[420px] w-full h-[240px] md:h-[280px] flex items-center justify-center">
+            {/* Replace this with an <img> when ready */}
+            <span className="text-6xl md:text-7xl text-teal-600 font-bold opacity-70 select-none">
+              {slides[target].content}
+            </span>
+          </div>
         </div>
 
-        {/* Tabs */}
+        {/* Text & Tabs */}
         <div
           onMouseLeave={() => {
             setHover(null);
             start();
           }}
-          className="basis-2/5 relative flex flex-col justify-center gap-2"
+          className="basis-1/2 flex flex-col justify-center gap-4 relative min-w-[260px]"
         >
-          {/* highlight bar */}
+          {/* highlight bar/card */}
           {ready && (
             <div
-              className="absolute left-0 w-full rounded-lg bg-white/90 shadow-sm transition-[top,height] duration-[600ms] ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
+              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top,height] duration-500 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
               style={{ top: rect.top, height: rect.height }}
             >
               {hover === null && (
                 <div
                   key={barKey}
-                  className="absolute left-0 bottom-0 h-[3px] bg-teal-600 animate-[grow_6s_linear_forwards]"
+                  className="absolute left-0 bottom-0 h-[3px] bg-teal-400 rounded-b-xl animate-[grow_6s_linear_forwards]"
                 />
               )}
             </div>
@@ -120,15 +116,13 @@ function MedicalCarousel({ reverse = false }) {
                 setHover(i);
               }}
               onClick={() => handleSelect(i)}
-              className="relative z-10 text-left py-4 px-5 rounded-lg"
+              className={`relative z-10 text-left py-4 px-6 rounded-xl transition-all duration-300 font-medium text-lg md:text-xl shadow-none ${
+                target === i
+                  ? "bg-white/80 shadow-md text-slate-700 font-semibold"
+                  : "bg-transparent text-slate-500 hover:bg-slate-100"
+              }`}
             >
-              <p
-                className={`text-lg font-semibold break-words transition-colors duration-[600ms] ease-[cubic-bezier(0.44,_0,_0.56,_1)] ${
-                  target === i ? "text-teal-600" : "text-slate-800"
-                }`}
-              >
-                {text}
-              </p>
+              {text}
             </button>
           ))}
         </div>
