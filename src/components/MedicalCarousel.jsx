@@ -20,28 +20,69 @@ function MedicalCarousel({ reverse = false }) {
   const [hover, setHover] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
+  const [progress, setProgress] = useState(0); // 0 to 1
+  const [paused, setPaused] = useState(false);
 
   const timer = useRef();
+  const raf = useRef();
+  const startTime = useRef();
   const rowRefs = useRef([]);
 
-  /* ----------------------- autoplay ----------------------- */
-  const clear = () => clearInterval(timer.current);
+  /* ----------------------- autoplay & progress ----------------------- */
+  const clear = () => {
+    clearInterval(timer.current);
+    cancelAnimationFrame(raf.current);
+  };
 
+  // Progress bar animation
+  const animateProgress = (timestamp) => {
+    if (!startTime.current) startTime.current = timestamp;
+    const elapsed = timestamp - startTime.current;
+    if (!paused) {
+      setProgress(Math.min(elapsed / AUTOPLAY_MS, 1));
+    }
+    if (elapsed < AUTOPLAY_MS && !paused) {
+      raf.current = requestAnimationFrame(animateProgress);
+    } else if (!paused) {
+      setProgress(0);
+      setActive((p) => (p + 1) % slides.length);
+      startTime.current = null;
+      raf.current = requestAnimationFrame(animateProgress);
+    }
+  };
+
+  // Start progress bar and autoplay
   const start = () => {
     clear();
-    timer.current = setInterval(() => {
-      setActive((p) => (p + 1) % slides.length);
-    }, AUTOPLAY_MS);
+    setProgress(0);
+    startTime.current = null;
+    raf.current = requestAnimationFrame(animateProgress);
   };
 
   useEffect(() => {
     start();
     return clear;
+    // eslint-disable-next-line
   }, []);
+
+  // Pause/resume progress on hover
+  useEffect(() => {
+    if (paused) {
+      cancelAnimationFrame(raf.current);
+    } else {
+      if (progress < 1) {
+        startTime.current = performance.now() - progress * AUTOPLAY_MS;
+        raf.current = requestAnimationFrame(animateProgress);
+      }
+    }
+    // eslint-disable-next-line
+  }, [paused]);
 
   const handleSelect = (i) => {
     setActive(i);
-    start();
+    setProgress(0);
+    startTime.current = null;
+    raf.current = requestAnimationFrame(animateProgress);
   };
 
   /* ---------------- measure highlight pos ----------------- */
@@ -88,23 +129,37 @@ function MedicalCarousel({ reverse = false }) {
         <div
           onMouseLeave={() => {
             setHover(null);
-            start();
+            setPaused(false);
           }}
+          onMouseEnter={() => setPaused(true)}
           className="basis-1/2 flex flex-col justify-center gap-4 relative min-w-[260px]"
         >
-          {/* highlight bar/card */}
+          {/* highlight bar/card - two layers */}
           {ready && (
-            <div
-              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top,height] duration-500 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
-              style={{ top: rect.top, height: rect.height }}
-            >
-              {hover === null && (
+            <>
+              {/* Highlight background */}
+              <div
+                className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top,height] duration-500 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
+                style={{ top: rect.top, height: rect.height, zIndex: 1 }}
+              />
+              {/* Loading bar (always on top) */}
+              <div
+                className="absolute left-0 w-full rounded-xl pointer-events-none"
+                style={{
+                  top: rect.top,
+                  height: rect.height,
+                  zIndex: 2,
+                  overflow: 'hidden',
+                  background: 'transparent',
+                }}
+              >
                 <div
                   key={barKey}
-                  className="absolute left-0 bottom-0 h-[3px] bg-teal-400 rounded-b-xl animate-[grow_6s_linear_forwards]"
+                  className="absolute left-0 bottom-0 h-[3px] bg-teal-400 rounded-b-xl transition-all duration-200"
+                  style={{ width: `${progress * 100}%`, transition: paused ? 'none' : 'width 0.2s linear' }}
                 />
-              )}
-            </div>
+              </div>
+            </>
           )}
 
           {headlines.map((text, i) => (
@@ -112,8 +167,8 @@ function MedicalCarousel({ reverse = false }) {
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => {
-                clear();
                 setHover(i);
+                setPaused(true);
               }}
               onClick={() => handleSelect(i)}
               className={`relative z-10 text-left py-4 px-6 rounded-xl transition-all duration-300 font-medium text-lg md:text-xl shadow-none ${
@@ -128,8 +183,8 @@ function MedicalCarousel({ reverse = false }) {
         </div>
       </div>
 
-      {/* keyframes for progress bar */}
-      <style>{`@keyframes grow{from{width:0}to{width:100%}}`}</style>
+      {/* keyframes for progress bar (legacy, not used now) */}
+      {/* <style>{`@keyframes grow{from{width:0}to{width:100%}}`}</style> */}
     </div>
   );
 }
