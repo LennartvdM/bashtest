@@ -146,7 +146,7 @@ function MedicalCarousel({ reverse = false }) {
       <style>{`
         @keyframes grow { from { width: 0; } to { width: 100%; } }
         .loading-bar { 
-          animation: grow ${AUTOPLAY_MS}ms linear forwards;
+          animation: grow ${AUTOPLAY_MS}ms cubic-bezier(0.2, 0, 0.8, 1) forwards;
         }
         .paused.loading-bar { 
           animation-play-state: paused;
