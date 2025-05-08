@@ -40,12 +40,13 @@ function MedicalCarousel({ reverse = false }) {
   useLayoutEffect(measure, [target]);
 
   const handleHoverStart = (index) => {
-    // Smoothly slow down
+    // Start slowing down immediately
     setAnimationSpeed(0.5);
+    // Allow time for the deceleration to complete before pausing
     setTimeout(() => {
       setPaused(true);
       setHover(index);
-    }, 300);
+    }, 600); // Increased from 300ms to 600ms to allow for overshoot
   };
 
   const handleHoverEnd = () => {
@@ -147,6 +148,7 @@ function MedicalCarousel({ reverse = false }) {
           animation: grow ${AUTOPLAY_MS}ms linear forwards;
           animation-play-state: ${paused ? 'paused' : 'running'};
           animation-duration: ${AUTOPLAY_MS * animationSpeed}ms;
+          transition: animation-duration 0.6s ease-out;
         }
       `}</style>
     </div>
