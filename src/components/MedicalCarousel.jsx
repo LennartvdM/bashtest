@@ -103,9 +103,14 @@ function MedicalCarousel({ reverse = false }) {
                   className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
                   style={{ 
                     animationDuration: `${AUTOPLAY_MS}ms`,
-                    animationPlayState: paused ? 'paused' : 'running'
+                    animationPlayState: paused ? 'paused' : 'running',
+                    animationFillMode: 'forwards'
                   }}
-                  onAnimationEnd={handleNextSlide}
+                  onAnimationEnd={() => {
+                    if (!paused) {
+                      handleNextSlide();
+                    }
+                  }}
                 />
               </div>
             </div>
