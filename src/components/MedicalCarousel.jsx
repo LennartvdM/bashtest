@@ -68,7 +68,7 @@ function MedicalCarousel({ reverse = false }) {
   const barKey = hover === null ? active : -1;
 
   return (
-    <div className="flex flex-col max-w-5xl mx-auto p-8 md:p-14 font-cabin bg-[#f6fafd] rounded-3xl shadow-xl h-full w-full">
+    <div className="flex flex-col max-w-5xl mx-auto p-8 md:p-14 font-cabin h-full w-full">
       <h2 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-tight mb-10 text-left">
         In the moment, <span className="text-teal-500">only</span> the patient<br className="hidden md:block" /> matters
       </h2>
