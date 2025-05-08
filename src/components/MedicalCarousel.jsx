@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 
 const AUTOPLAY_MS = 6000;
+const LOADING_BAR_FADE_DELAY = 500; // ms
 
 const slides = [
   { id: "0", content: "1" },
@@ -22,11 +23,16 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0); // 0 to 1
   const [paused, setPaused] = useState(false);
+  const [showBar, setShowBar] = useState(true);
+  const [highlightMoving, setHighlightMoving] = useState(false);
+  const [highlightTop, setHighlightTop] = useState(0);
+  const [highlightHeight, setHighlightHeight] = useState(0);
 
   const timer = useRef();
   const raf = useRef();
   const startTime = useRef();
   const rowRefs = useRef([]);
+  const barTimeout = useRef();
 
   /* ----------------------- autoplay & progress ----------------------- */
   const clear = () => {
@@ -88,21 +94,52 @@ function MedicalCarousel({ reverse = false }) {
   /* ---------------- measure highlight pos ----------------- */
   const target = hover ?? active;
 
-  const measure = () => {
+  // Track previous rect for animation
+  const prevRect = useRef(rect);
+  useLayoutEffect(() => {
     const node = rowRefs.current[target];
     if (node) {
       const { offsetTop, offsetHeight } = node;
+      // If the top changes, animate only the top, keep height fixed until done
+      if (rect.top !== offsetTop) {
+        setHighlightMoving(true);
+        setHighlightTop(rect.top);
+        setHighlightHeight(rect.height);
+        setShowBar(false); // Hide loading bar during move
+        // Animate top
+        requestAnimationFrame(() => {
+          setHighlightTop(offsetTop);
+          // After transition duration, snap height and show bar
+          setTimeout(() => {
+            setHighlightHeight(offsetHeight);
+            setHighlightMoving(false);
+            setShowBar(false);
+            clearTimeout(barTimeout.current);
+            barTimeout.current = setTimeout(() => setShowBar(true), LOADING_BAR_FADE_DELAY);
+          }, 300); // match transition duration
+        });
+      } else if (rect.height !== offsetHeight) {
+        setHighlightHeight(offsetHeight);
+      }
       setRect({ top: offsetTop, height: offsetHeight });
       setReady(true);
     }
-  };
-
-  useLayoutEffect(measure, [target]);
+    prevRect.current = rect;
+    // eslint-disable-next-line
+  }, [target]);
 
   useEffect(() => {
-    requestAnimationFrame(measure);
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    window.addEventListener("resize", () => {
+      const node = rowRefs.current[target];
+      if (node) {
+        const { offsetTop, offsetHeight } = node;
+        setRect({ top: offsetTop, height: offsetHeight });
+        setHighlightTop(offsetTop);
+        setHighlightHeight(offsetHeight);
+      }
+    });
+    return () => window.removeEventListener("resize", () => {});
+    // eslint-disable-next-line
   }, [target]);
 
   /* ----------------------- render ------------------------- */
@@ -134,23 +171,30 @@ function MedicalCarousel({ reverse = false }) {
           onMouseEnter={() => setPaused(true)}
           className="basis-1/2 flex flex-col justify-center gap-4 relative min-w-[260px]"
         >
-          {/* highlight bar/card - two layers */}
+          {/* highlight bar/card - two layers, solid block movement */}
           {ready && (
             <>
-              {/* Highlight background */}
+              {/* Highlight background (solid, no height warp) */}
               <div
-                className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top,height] duration-500 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
-                style={{ top: rect.top, height: rect.height, zIndex: 1 }}
+                className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top] duration-300 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
+                style={{
+                  top: highlightMoving ? highlightTop : rect.top,
+                  height: highlightMoving ? highlightHeight : rect.height,
+                  zIndex: 1,
+                  transition: 'top 0.3s cubic-bezier(0.44,0,0.56,1)',
+                }}
               />
-              {/* Loading bar (always on top) */}
+              {/* Loading bar (always on top, fade in after move) */}
               <div
                 className="absolute left-0 w-full rounded-xl pointer-events-none"
                 style={{
-                  top: rect.top,
-                  height: rect.height,
+                  top: highlightMoving ? highlightTop : rect.top,
+                  height: highlightMoving ? highlightHeight : rect.height,
                   zIndex: 2,
                   overflow: 'hidden',
                   background: 'transparent',
+                  opacity: showBar ? 1 : 0,
+                  transition: 'opacity 0.3s',
                 }}
               >
                 <div
