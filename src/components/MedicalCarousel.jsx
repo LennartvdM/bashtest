@@ -67,7 +67,7 @@ function MedicalCarousel({ reverse = false }) {
         <div
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
           onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
+          onMouseLeave={() => { setPaused(false); setHover(null); }}
         >
           {/* Highlight bar */}
           {ready && (
