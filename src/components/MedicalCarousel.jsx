@@ -23,6 +23,7 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
 
   const rowRefs = useRef([]);
+  const containerRef = useRef(null);
 
   // Highlight position measurement
   const target = hover ?? active;
@@ -41,6 +42,7 @@ function MedicalCarousel({ reverse = false }) {
   const handleHoverStart = (index) => {
     setPaused(true);
     setHover(index);
+    setBarKey((k) => k + 1); // Reset bar when moving to new caption
   };
 
   const handleHoverEnd = () => {
@@ -78,9 +80,10 @@ function MedicalCarousel({ reverse = false }) {
 
         {/* Tabs */}
         <div
+          ref={containerRef}
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
           onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => handleHoverEnd()}
+          onMouseLeave={handleHoverEnd}
         >
           {/* Highlight bar */}
           {ready && (
@@ -107,7 +110,7 @@ function MedicalCarousel({ reverse = false }) {
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHoverStart(i)}
-              onMouseLeave={() => handleHoverEnd()}
+              onMouseLeave={handleHoverEnd}
               onClick={() => { setActive(i); setBarKey((k) => k + 1); }}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
