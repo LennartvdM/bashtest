@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 
 const AUTOPLAY_MS = 6000;
-const LOADING_BAR_FADE_DELAY = 500; // ms
 
 const slides = [
   { id: "0", content: "1" },
@@ -16,101 +15,33 @@ const headlines = [
 ];
 
 function MedicalCarousel({ reverse = false }) {
-  /* --------------------- state & refs --------------------- */
   const [active, setActive] = useState(0);
+  const [hover, setHover] = useState(null);
+  const [paused, setPaused] = useState(false);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
-  const [progress, setProgress] = useState(0); // 0 to 1
-  const [paused, setPaused] = useState(false);
-  const [highlightTop, setHighlightTop] = useState(0);
-  const [highlightHeight, setHighlightHeight] = useState(0);
 
-  const raf = useRef();
-  const startTime = useRef();
   const rowRefs = useRef([]);
 
-  /* ----------------------- autoplay & progress ----------------------- */
-  const animateProgress = (timestamp) => {
-    if (!startTime.current) startTime.current = timestamp;
-    const elapsed = timestamp - startTime.current;
-    if (!paused) {
-      setProgress(Math.min(elapsed / AUTOPLAY_MS, 1));
-    }
-    if (elapsed < AUTOPLAY_MS && !paused) {
-      raf.current = requestAnimationFrame(animateProgress);
-    } else if (!paused) {
-      setProgress(0);
-      setActive((p) => (p + 1) % slides.length);
-      startTime.current = null;
-      raf.current = requestAnimationFrame(animateProgress);
-    }
-  };
+  // Highlight position measurement
+  const target = hover ?? active;
 
-  // Start progress bar and autoplay
-  const start = () => {
-    cancelAnimationFrame(raf.current);
-    setProgress(0);
-    startTime.current = null;
-    raf.current = requestAnimationFrame(animateProgress);
-  };
-
-  useEffect(() => {
-    start();
-    return () => cancelAnimationFrame(raf.current);
-    // eslint-disable-next-line
-  }, []);
-
-  // Pause/resume progress on hover
-  useEffect(() => {
-    if (paused) {
-      cancelAnimationFrame(raf.current);
-    } else {
-      // When resuming, calculate the new start time based on current progress
-      const currentProgress = progress;
-      const remainingTime = AUTOPLAY_MS * (1 - currentProgress);
-      startTime.current = performance.now() - (AUTOPLAY_MS - remainingTime);
-      raf.current = requestAnimationFrame(animateProgress);
-    }
-    // eslint-disable-next-line
-  }, [paused, progress]);
-
-  // Highlight bar movement logic
-  useLayoutEffect(() => {
-    const node = rowRefs.current[active];
+  const measure = () => {
+    const node = rowRefs.current[target];
     if (node) {
       const { offsetTop, offsetHeight } = node;
-      setHighlightTop(offsetTop);
-      setHighlightHeight(offsetHeight);
       setRect({ top: offsetTop, height: offsetHeight });
       setReady(true);
     }
-    // eslint-disable-next-line
-  }, [active]);
-
-  useEffect(() => {
-    window.addEventListener("resize", () => {
-      const node = rowRefs.current[active];
-      if (node) {
-        const { offsetTop, offsetHeight } = node;
-        setRect({ top: offsetTop, height: offsetHeight });
-        setHighlightTop(offsetTop);
-        setHighlightHeight(offsetHeight);
-      }
-    });
-    return () => window.removeEventListener("resize", () => {});
-    // eslint-disable-next-line
-  }, [active]);
-
-  const barKey = active;
-
-  const handleSelect = (i) => {
-    setActive(i);
-    setProgress(0);
-    startTime.current = null;
-    raf.current = requestAnimationFrame(animateProgress);
   };
 
-  /* ----------------------- render ------------------------- */
+  useLayoutEffect(measure, [target]);
+
+  // Advance to next slide
+  const handleNextSlide = () => {
+    setActive((a) => (a + 1) % slides.length);
+  };
+
   return (
     <div className="flex flex-col max-w-5xl mx-auto p-8 md:p-14 font-cabin h-full w-full">
       <h2 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-tight mb-10 text-left">
@@ -118,38 +49,36 @@ function MedicalCarousel({ reverse = false }) {
       </h2>
 
       <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start ${reverse ? "md:flex-row-reverse" : ""}`}>
-        {/* Image/Slide Placeholder */}
-        <div className="relative basis-1/2 flex items-center justify-center">
-          <div className="overflow-hidden rounded-2xl shadow-lg bg-gray-300 min-h-[260px] min-w-[340px] max-w-[420px] w-full h-[240px] md:h-[280px] flex items-center justify-center">
-            {/* Replace this with an <img> when ready */}
-            <span className="text-6xl md:text-7xl text-teal-600 font-bold opacity-70 select-none">
-              {slides[active].content}
-            </span>
-          </div>
+        {/* Slides */}
+        <div className="relative basis-1/2 overflow-hidden rounded-2xl bg-gray-300 min-h-[260px] min-w-[340px] max-w-[420px] w-full h-[240px] md:h-[280px]">
+          {slides.map((s, i) => (
+            <div
+              key={s.id}
+              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold opacity-70 transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                i === target ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              }`}
+            >
+              {s.content}
+            </div>
+          ))}
         </div>
 
-        {/* Text & Tabs */}
-        <div
-          onMouseLeave={() => setPaused(false)}
-          onMouseEnter={() => setPaused(true)}
-          className="basis-1/2 flex flex-col justify-center gap-4 relative min-w-[260px]"
-        >
-          {/* highlight bar/card - masked loading bar */}
+        {/* Tabs */}
+        <div className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]" onMouseLeave={() => setPaused(false)}>
+          {/* Highlight bar */}
           {ready && (
             <div
-              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-[top,height] duration-300 ease-[cubic-bezier(0.44,_0,_0.56,_1)] pointer-events-none"
-              style={{
-                top: highlightTop,
-                height: highlightHeight,
-                zIndex: 1,
-                overflow: 'hidden',
-              }}
+              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none"
+              style={{ top: rect.top, height: rect.height }}
             >
-              <div
-                key={barKey}
-                className="absolute left-0 bottom-0 h-[3px] bg-teal-400 rounded-b-xl transition-all duration-200"
-                style={{ width: `${progress * 100}%`, transition: paused ? 'none' : 'width 0.2s linear' }}
-              />
+              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
+                <div
+                  key={active}
+                  className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
+                  style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
+                  onAnimationEnd={handleNextSlide}
+                />
+              </div>
             </div>
           )}
 
@@ -157,21 +86,36 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onClick={() => handleSelect(i)}
-              className={`relative z-10 text-left py-4 px-6 rounded-xl transition-all duration-300 font-medium text-lg md:text-xl shadow-none ${
-                active === i
-                  ? "bg-white/80 shadow-md text-slate-700 font-semibold"
-                  : "bg-transparent text-slate-500 hover:bg-slate-100"
-              }`}
+              onMouseEnter={() => {
+                setHover(i);
+                if (i === active) setPaused(true);
+              }}
+              onMouseLeave={() => {
+                if (i === active) setPaused(false);
+              }}
+              onClick={() => setActive(i)}
+              className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
-              {text}
+              <p
+                className={`text-lg md:text-xl font-medium transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                  target === i 
+                    ? "text-teal-500 font-semibold" 
+                    : "text-slate-500 hover:text-slate-600"
+                }`}
+              >
+                {text}
+              </p>
             </button>
           ))}
         </div>
       </div>
 
-      {/* keyframes for progress bar (legacy, not used now) */}
-      {/* <style>{`@keyframes grow{from{width:0}to{width:100%}}`}</style> */}
+      {/* Keyframes and loading bar pause style */}
+      <style>{`
+        @keyframes grow { from { width: 0; } to { width: 100%; } }
+        .loading-bar { animation: grow linear forwards; }
+        .paused.loading-bar { animation-play-state: paused; }
+      `}</style>
     </div>
   );
 }
