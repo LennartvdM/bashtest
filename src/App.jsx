@@ -10,7 +10,7 @@ import Home from './pages/Home';
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-200">
+      <div className="min-h-screen bg-[#F5F9FC]">
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
