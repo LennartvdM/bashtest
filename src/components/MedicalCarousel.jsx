@@ -18,6 +18,7 @@ function MedicalCarousel({ reverse = false }) {
   const [active, setActive] = useState(0);
   const [hover, setHover] = useState(null);
   const [paused, setPaused] = useState(false);
+  const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
 
@@ -37,9 +38,10 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
-  // Advance to next slide
+  // Advance to next slide and force new barKey
   const handleNextSlide = () => {
     setActive((a) => (a + 1) % slides.length);
+    setBarKey((k) => k + 1);
   };
 
   return (
@@ -77,7 +79,7 @@ function MedicalCarousel({ reverse = false }) {
             >
               <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
                 <div
-                  key={active}
+                  key={barKey}
                   className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
                   style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
                   onAnimationEnd={handleNextSlide}
@@ -92,7 +94,7 @@ function MedicalCarousel({ reverse = false }) {
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover(null)}
-              onClick={() => setActive(i)}
+              onClick={() => { setActive(i); setBarKey((k) => k + 1); }}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
               <p
