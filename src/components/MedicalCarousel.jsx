@@ -147,11 +147,11 @@ function MedicalCarousel({ reverse = false }) {
         @keyframes grow { from { width: 0; } to { width: 100%; } }
         .loading-bar { 
           animation: grow ${AUTOPLAY_MS}ms linear forwards;
-          transition: animation-play-state 0.3s ease-out;
+          transition: animation-duration 0.3s ease-in-out;
         }
         .paused.loading-bar { 
           animation-play-state: paused;
-          transition: animation-play-state 0.3s ease-in;
+          animation-duration: 2000ms;
         }
       `}</style>
     </div>
