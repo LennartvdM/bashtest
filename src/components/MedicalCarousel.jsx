@@ -64,7 +64,11 @@ function MedicalCarousel({ reverse = false }) {
         </div>
 
         {/* Tabs */}
-        <div className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]" onMouseLeave={() => setPaused(false)}>
+        <div
+          className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
           {/* Highlight bar */}
           {ready && (
             <div
@@ -86,13 +90,8 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => {
-                setHover(i);
-                if (i === active) setPaused(true);
-              }}
-              onMouseLeave={() => {
-                if (i === active) setPaused(false);
-              }}
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover(null)}
               onClick={() => setActive(i)}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
