@@ -80,9 +80,11 @@ function MedicalCarousel({ reverse = false }) {
 
   const handleHover = (index) => {
     if (typeof index === 'number' && index >= 0 && index < slides.length) {
+      if (index !== current) {
+        setBarKey((k) => k + 1);
+      }
       setCurrent(index);
       setIsPaused(true);
-      setBarKey((k) => k + 1); // Reset the bar on hover
     }
   };
 
