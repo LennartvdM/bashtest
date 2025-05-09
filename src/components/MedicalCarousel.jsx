@@ -39,13 +39,18 @@ function MedicalCarousel({ reverse = false }) {
   useLayoutEffect(measure, [target]);
 
   const handleHoverStart = (index) => {
-    setPaused(true);
     setHover(index);
+    setPaused(true);
   };
 
   const handleHoverEnd = () => {
-    setPaused(false);
     setHover(null);
+    setPaused(false);
+  };
+
+  const handleClick = (index) => {
+    setActive(index);
+    setBarKey((k) => k + 1);
   };
 
   // Advance to next slide and force new barKey
@@ -114,7 +119,7 @@ function MedicalCarousel({ reverse = false }) {
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHoverStart(i)}
               onMouseLeave={handleHoverEnd}
-              onClick={() => { setActive(i); setBarKey((k) => k + 1); }}
+              onClick={() => handleClick(i)}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
               <p
