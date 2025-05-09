@@ -104,8 +104,8 @@ function MedicalCarousel({ reverse = false }) {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#f5f8fa]">
-      <div className="flex flex-col items-start w-full" style={{ maxWidth: 1100 }}>
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#f5f8fa]">
+      <div className="mx-auto flex flex-col items-start w-full max-w-4xl px-8 pt-12">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
           fontSize: 50,
@@ -119,7 +119,7 @@ function MedicalCarousel({ reverse = false }) {
           <span style={{ color: '#529C9C' }}>only</span> the patient<br />
           matters
         </h2>
-        <div className="flex flex-row items-center" style={{ gap: 8 }}>
+        <div className="flex flex-row items-center w-full" style={{ gap: 8 }}>
           {/* Image */}
           <div className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-[420px] h-[320px] flex items-center justify-center">
             {slides.map((s, i) => (
