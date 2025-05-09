@@ -9,18 +9,18 @@ const slides = [
 ];
 
 const headlines = [
-  [
-    "Medical interventions demand",
-    "precision and urgency."
-  ],
-  [
-    "Which makes coordination within",
-    "teams vital for success."
-  ],
-  [
-    "Task‑driven focus can lead to",
-    "tunnel vision and misalignment."
-  ]
+  {
+    firstLine: "Medical interventions demand",
+    secondLine: "precision and urgency."
+  },
+  {
+    firstLine: "Which makes coordination within",
+    secondLine: "teams vital for success."
+  },
+  {
+    firstLine: "Task‑driven focus can lead to",
+    secondLine: "tunnel vision and misalignment."
+  }
 ];
 
 function MedicalCarousel({ reverse = false }) {
@@ -127,7 +127,8 @@ function MedicalCarousel({ reverse = false }) {
 
         {/* Tabs */}
         <div
-          className="basis-2/5 relative flex flex-col justify-center gap-2 min-w-[320px] max-w-[420px] w-full"
+          className="basis-2/5 relative flex flex-col justify-center gap-2 w-full"
+          style={{ minWidth: 320 }}
         >
           {/* Highlighter */}
           {ready && Number.isFinite(current) && (
@@ -152,29 +153,24 @@ function MedicalCarousel({ reverse = false }) {
             </div>
           )}
 
-          {headlines.map((lines, i) => (
+          {headlines.map((headline, i) => (
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHover(i)}
               onMouseLeave={handleHoverEnd}
               className="relative z-10 text-right py-3 px-6 rounded-xl transition-all duration-700 ease"
-              style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}
             >
-              <p
-                style={{
-                  fontSize: 24,
-                  letterSpacing: '-0.5px',
-                  lineHeight: 1.5,
-                  color: current === i ? '#574B4B' : '#808080',
-                  transition: 'color 0.6s',
-                  margin: 0,
-                  textAlign: 'right'
-                }}
-              >
-                {lines.map((line, idx) => (
-                  <span key={idx} style={{ display: 'block' }}>{line}</span>
-                ))}
+              <p className="m-0 text-right text-2xl leading-tight" style={{
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 500,
+                letterSpacing: '-0.5px',
+                color: current === i ? '#574B4B' : '#808080',
+                transition: 'color 0.6s',
+              }}>
+                {headline.firstLine}
+                <br />
+                {headline.secondLine}
               </p>
             </button>
           ))}
