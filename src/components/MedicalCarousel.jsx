@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 
 const AUTOPLAY_MS = 6000;
 
@@ -23,6 +23,7 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
 
   const rowRefs = useRef([]);
+  const autoplayRef = useRef();
 
   // Highlight position measurement
   const target = hover ?? active;
@@ -38,6 +39,21 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
+  // Autocycle
+  useEffect(() => {
+    if (paused) return;
+    autoplayRef.current = setTimeout(() => {
+      setActive((a) => (a + 1) % slides.length);
+      setBarKey((k) => k + 1);
+    }, AUTOPLAY_MS);
+    return () => clearTimeout(autoplayRef.current);
+  }, [active, paused]);
+
+  // Reset bar on any change (autocycle, click, hover)
+  useEffect(() => {
+    setBarKey((k) => k + 1);
+  }, [active, hover]);
+
   const handleHoverStart = (index) => {
     setHover(index);
     setPaused(true);
@@ -50,15 +66,7 @@ function MedicalCarousel({ reverse = false }) {
 
   const handleClick = (index) => {
     setActive(index);
-    setBarKey((k) => k + 1);
-  };
-
-  // Advance to next slide and force new barKey
-  const handleNextSlide = () => {
-    if (!paused) {
-      setActive((a) => (a + 1) % slides.length);
-      setBarKey((k) => k + 1);
-    }
+    setPaused(false);
   };
 
   return (
@@ -68,14 +76,15 @@ function MedicalCarousel({ reverse = false }) {
       </h2>
 
       <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start ${reverse ? "md:flex-row-reverse" : ""}`}>
-        {/* Slides */}
+        {/* Slides (crossfade) */}
         <div className="relative basis-1/2 overflow-hidden rounded-2xl bg-gray-300 min-h-[260px] min-w-[340px] max-w-[420px] w-full h-[240px] md:h-[280px]">
           {slides.map((s, i) => (
             <div
               key={s.id}
-              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold opacity-70 transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                i === target ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-700 ease-in-out ${
+                i === active ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
+              style={{ pointerEvents: i === active ? 'auto' : 'none' }}
             >
               {s.content}
             </div>
@@ -85,27 +94,27 @@ function MedicalCarousel({ reverse = false }) {
         {/* Tabs */}
         <div
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
-          onMouseEnter={() => setPaused(true)}
           onMouseLeave={handleHoverEnd}
         >
-          {/* Highlight bar */}
+          {/* Highlighter */}
           {ready && (
             <div
               className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none"
               style={{ top: rect.top, height: rect.height }}
             >
               <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
+                {/* Loading Bar */}
                 <div
                   key={barKey}
-                  className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar${paused ? " paused" : ""}`}
-                  style={{ 
-                    animationDuration: `${AUTOPLAY_MS}ms`,
+                  className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar`}
+                  style={{
+                    animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
                     animationPlayState: paused ? 'paused' : 'running',
-                    animationFillMode: 'forwards'
+                    width: '100%'
                   }}
                   onAnimationEnd={() => {
                     if (!paused) {
-                      handleNextSlide();
+                      setActive((a) => (a + 1) % slides.length);
                     }
                   }}
                 />
@@ -118,7 +127,6 @@ function MedicalCarousel({ reverse = false }) {
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHoverStart(i)}
-              onMouseLeave={handleHoverEnd}
               onClick={() => handleClick(i)}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
@@ -136,13 +144,9 @@ function MedicalCarousel({ reverse = false }) {
         </div>
       </div>
 
-      {/* Keyframes and loading bar pause style */}
+      {/* Keyframes for loading bar */}
       <style>{`
         @keyframes grow { from { width: 0; } to { width: 100%; } }
-        .loading-bar { 
-          animation: grow ${AUTOPLAY_MS}ms linear forwards;
-          animation-play-state: ${paused ? 'paused' : 'running'};
-        }
       `}</style>
     </div>
   );
