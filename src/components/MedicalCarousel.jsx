@@ -85,16 +85,18 @@ function MedicalCarousel({ reverse = false }) {
     if (index === active) {
       // Hovering over active caption - just pause
       setIsPaused(true);
-      setHoverTarget(null);
     } else {
       // Hovering over inactive caption - move highlight and reset bar
-      setHoverTarget(index);
       setBarKey((k) => k + 1);
     }
+    setHoverTarget(index);
   };
 
   const handleHoverEnd = () => {
-    setIsPaused(false);
+    if (hoverTarget === active) {
+      // Only unpause if we were hovering over the active caption
+      setIsPaused(false);
+    }
     setHoverTarget(null);
   };
 
