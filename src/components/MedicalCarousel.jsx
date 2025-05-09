@@ -15,13 +15,11 @@ const headlines = [
 ];
 
 function MedicalCarousel({ reverse = false }) {
-  const [active, setActive] = useState(0);
+  const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
-  const [hoverTarget, setHoverTarget] = useState(null);
-  const [currentHighlight, setCurrentHighlight] = useState(0);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -39,8 +37,7 @@ function MedicalCarousel({ reverse = false }) {
 
   // Highlight position measurement
   const measure = () => {
-    const targetIndex = hoverTarget !== null ? hoverTarget : currentHighlight;
-    const node = rowRefs.current[targetIndex];
+    const node = rowRefs.current[current];
     if (node) {
       const { offsetTop, offsetHeight } = node;
       setRect({ top: offsetTop, height: offsetHeight });
@@ -48,7 +45,7 @@ function MedicalCarousel({ reverse = false }) {
     }
   };
 
-  useLayoutEffect(measure, [hoverTarget, currentHighlight]);
+  useLayoutEffect(measure, [current]);
 
   // Autocycle: only if not paused
   useEffect(() => {
@@ -56,10 +53,8 @@ function MedicalCarousel({ reverse = false }) {
 
     autoplayRef.current = setTimeout(() => {
       if (!isMounted.current) return;
-      
-      setActive((a) => {
-        const next = (a + 1) % slides.length;
-        setCurrentHighlight(next);
+      setCurrent((c) => {
+        const next = (c + 1) % slides.length;
         setBarKey((k) => k + 1);
         return next;
       });
@@ -70,14 +65,13 @@ function MedicalCarousel({ reverse = false }) {
         clearTimeout(autoplayRef.current);
       }
     };
-  }, [active, isPaused]);
+  }, [current, isPaused]);
 
   // On loading bar animation end: advance if not paused
   const handleBarEnd = () => {
     if (!isPaused && isMounted.current) {
-      setActive((a) => {
-        const next = (a + 1) % slides.length;
-        setCurrentHighlight(next);
+      setCurrent((c) => {
+        const next = (c + 1) % slides.length;
         setBarKey((k) => k + 1);
         return next;
       });
@@ -85,22 +79,13 @@ function MedicalCarousel({ reverse = false }) {
   };
 
   const handleHover = (index) => {
-    if (index === active) {
-      // Hovering over active caption - just pause
-      setIsPaused(true);
-    } else {
-      // Hovering over inactive caption - move highlight and reset bar
-      setBarKey((k) => k + 1);
-    }
-    setHoverTarget(index);
+    setCurrent(index);
+    setIsPaused(true);
+    setBarKey((k) => k + 1); // Reset the bar on hover
   };
 
   const handleHoverEnd = () => {
-    if (hoverTarget === active) {
-      // Only unpause if we were hovering over the active caption
-      setIsPaused(false);
-    }
-    setHoverTarget(null);
+    setIsPaused(false);
   };
 
   return (
@@ -116,9 +101,9 @@ function MedicalCarousel({ reverse = false }) {
             <div
               key={s.id}
               className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-700 ease-in-out ${
-                i === active ? "opacity-100 z-10" : "opacity-0 z-0"
+                i === current ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
-              style={{ pointerEvents: i === active ? 'auto' : 'none' }}
+              style={{ pointerEvents: i === current ? 'auto' : 'none' }}
             >
               {s.content}
             </div>
@@ -161,7 +146,7 @@ function MedicalCarousel({ reverse = false }) {
             >
               <p
                 className={`text-lg md:text-xl font-medium transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                  (hoverTarget !== null ? hoverTarget === i : currentHighlight === i)
+                  current === i
                     ? "text-teal-500 font-semibold" 
                     : "text-slate-500 hover:text-slate-600"
                 }`}
