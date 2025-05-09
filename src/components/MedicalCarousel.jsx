@@ -16,20 +16,28 @@ const headlines = [
 
 function MedicalCarousel({ reverse = false }) {
   const [active, setActive] = useState(0);
-  const [hoveredIndex, setHoveredIndex] = useState(null); // null or 0,1,2
-  const [paused, setPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
+  const isMounted = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (autoplayRef.current) {
+        clearTimeout(autoplayRef.current);
+      }
+    };
+  }, []);
 
   // Highlight position measurement
-  const target = hoveredIndex !== null ? hoveredIndex : active;
-
   const measure = () => {
-    const node = rowRefs.current[target];
+    const node = rowRefs.current[active];
     if (node) {
       const { offsetTop, offsetHeight } = node;
       setRect({ top: offsetTop, height: offsetHeight });
@@ -37,24 +45,32 @@ function MedicalCarousel({ reverse = false }) {
     }
   };
 
-  useLayoutEffect(measure, [target]);
+  useLayoutEffect(measure, [active]);
 
-  // Autocycle: only if not paused (by hover)
+  // Autocycle: only if not paused
   useEffect(() => {
-    if (paused) return;
+    if (isPaused || !isMounted.current) return;
+
     autoplayRef.current = setTimeout(() => {
+      if (!isMounted.current) return;
+      
       setActive((a) => {
         const next = (a + 1) % slides.length;
-        setBarKey((k) => k + 1); // Only reset bar on actual slide change
+        setBarKey((k) => k + 1);
         return next;
       });
     }, AUTOPLAY_MS);
-    return () => clearTimeout(autoplayRef.current);
-  }, [active, paused]);
+
+    return () => {
+      if (autoplayRef.current) {
+        clearTimeout(autoplayRef.current);
+      }
+    };
+  }, [active, isPaused]);
 
   // On loading bar animation end: advance if not paused
   const handleBarEnd = () => {
-    if (!paused) {
+    if (!isPaused && isMounted.current) {
       setActive((a) => {
         const next = (a + 1) % slides.length;
         setBarKey((k) => k + 1);
@@ -102,7 +118,7 @@ function MedicalCarousel({ reverse = false }) {
                   className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar`}
                   style={{
                     animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
-                    animationPlayState: paused ? 'paused' : 'running',
+                    animationPlayState: isPaused ? 'paused' : 'running',
                     width: '100%'
                   }}
                   onAnimationEnd={handleBarEnd}
@@ -115,13 +131,13 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => { setHoveredIndex(i); setPaused(true); }}
-              onMouseLeave={() => { setHoveredIndex(null); setPaused(false); }}
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
               <p
                 className={`text-lg md:text-xl font-medium transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                  target === i 
+                  active === i 
                     ? "text-teal-500 font-semibold" 
                     : "text-slate-500 hover:text-slate-600"
                 }`}
