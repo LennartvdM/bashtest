@@ -21,7 +21,7 @@ function MedicalCarousel({ reverse = false }) {
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
   const [hoverTarget, setHoverTarget] = useState(null);
-  const [nextActive, setNextActive] = useState(1);
+  const [currentHighlight, setCurrentHighlight] = useState(0);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -39,7 +39,7 @@ function MedicalCarousel({ reverse = false }) {
 
   // Highlight position measurement
   const measure = () => {
-    const targetIndex = hoverTarget !== null ? hoverTarget : active;
+    const targetIndex = hoverTarget !== null ? hoverTarget : currentHighlight;
     const node = rowRefs.current[targetIndex];
     if (node) {
       const { offsetTop, offsetHeight } = node;
@@ -48,7 +48,7 @@ function MedicalCarousel({ reverse = false }) {
     }
   };
 
-  useLayoutEffect(measure, [active, hoverTarget]);
+  useLayoutEffect(measure, [hoverTarget, currentHighlight]);
 
   // Autocycle: only if not paused
   useEffect(() => {
@@ -59,7 +59,7 @@ function MedicalCarousel({ reverse = false }) {
       
       setActive((a) => {
         const next = (a + 1) % slides.length;
-        setNextActive((next + 1) % slides.length);
+        setCurrentHighlight(next);
         setBarKey((k) => k + 1);
         return next;
       });
@@ -77,7 +77,7 @@ function MedicalCarousel({ reverse = false }) {
     if (!isPaused && isMounted.current) {
       setActive((a) => {
         const next = (a + 1) % slides.length;
-        setNextActive((next + 1) % slides.length);
+        setCurrentHighlight(next);
         setBarKey((k) => k + 1);
         return next;
       });
@@ -161,7 +161,7 @@ function MedicalCarousel({ reverse = false }) {
             >
               <p
                 className={`text-lg md:text-xl font-medium transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                  (hoverTarget !== null ? hoverTarget === i : active === i)
+                  (hoverTarget !== null ? hoverTarget === i : currentHighlight === i)
                     ? "text-teal-500 font-semibold" 
                     : "text-slate-500 hover:text-slate-600"
                 }`}
