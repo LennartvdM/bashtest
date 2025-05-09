@@ -109,7 +109,7 @@ function MedicalCarousel({ reverse = false }) {
         In the moment, <span className="text-teal-500">only</span> the patient<br className="hidden md:block" /> matters
       </h2>
 
-      <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start ${reverse ? "md:flex-row-reverse" : ""}`}>
+      <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start justify-center ${reverse ? "md:flex-row-reverse" : ""}`}>
         {/* Slides (crossfade) */}
         <div className="relative basis-3/5 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-full h-[320px] md:h-[380px]">
           {slides.map((s, i) => (
