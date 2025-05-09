@@ -102,7 +102,7 @@ function MedicalCarousel({ reverse = false }) {
 
       <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start ${reverse ? "md:flex-row-reverse" : ""}`}>
         {/* Slides (crossfade) */}
-        <div className="relative basis-1/2 overflow-hidden rounded-2xl bg-gray-300 min-h-[260px] min-w-[340px] max-w-[420px] w-full h-[240px] md:h-[280px]">
+        <div className="relative basis-3/5 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-full h-[320px] md:h-[380px]">
           {slides.map((s, i) => (
             <div
               key={s.id}
@@ -118,13 +118,13 @@ function MedicalCarousel({ reverse = false }) {
 
         {/* Tabs */}
         <div
-          className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
+          className="basis-2/5 relative flex flex-col justify-center gap-2 min-w-[220px]"
         >
           {/* Highlighter */}
           {ready && Number.isFinite(current) && (
             <div
               className="absolute left-0 w-full rounded-xl transition-all duration-700 ease pointer-events-none"
-              style={{ top: rect.top, height: rect.height, background: '#E8E8E8', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)' }}
+              style={{ top: rect.top, height: rect.height, background: '#E8E8E8', boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)' }}
             >
               <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
                 {/* Loading Bar */}
@@ -149,7 +149,7 @@ function MedicalCarousel({ reverse = false }) {
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHover(i)}
               onMouseLeave={handleHoverEnd}
-              className="relative z-10 text-left py-4 px-6 rounded-xl transition-all duration-700 ease"
+              className="relative z-10 text-right py-3 px-6 rounded-xl transition-all duration-700 ease"
               style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}
             >
               <p
@@ -159,7 +159,8 @@ function MedicalCarousel({ reverse = false }) {
                   lineHeight: 1.5,
                   color: current === i ? '#574B4B' : '#808080',
                   transition: 'color 0.6s',
-                  margin: 0
+                  margin: 0,
+                  textAlign: 'right'
                 }}
               >
                 {text}
