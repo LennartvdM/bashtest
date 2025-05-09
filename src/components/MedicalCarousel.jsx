@@ -105,13 +105,15 @@ function MedicalCarousel({ reverse = false }) {
 
   return (
     <div className="flex flex-col max-w-full mx-auto p-8 md:p-14 font-cabin h-full w-full">
-      <h2 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-tight mb-10 text-left">
-        In the moment, <span className="text-teal-500">only</span> the patient<br className="hidden md:block" /> matters
+      <h2 className="text-[2.8rem] md:text-6xl font-extrabold leading-tight mb-10 text-left font-montserrat" style={{ color: '#383437' }}>
+        In the moment<br />
+        <span style={{ color: '#529C9C' }}>only</span> the patient<br />
+        matters
       </h2>
 
-      <div className={`flex flex-col md:flex-row gap-10 grow items-center md:items-start justify-center ${reverse ? "md:flex-row-reverse" : ""}`}>
+      <div className={`flex flex-col md:flex-row gap-6 grow items-center md:items-center justify-center ${reverse ? "md:flex-row-reverse" : ""}`}>
         {/* Slides (crossfade) */}
-        <div className="relative basis-3/5 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-full h-[320px] md:h-[380px]">
+        <div className="relative basis-3/5 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-full h-[320px] md:h-[380px] flex items-center justify-center">
           {slides.map((s, i) => (
             <div
               key={s.id}
@@ -144,13 +146,13 @@ function MedicalCarousel({ reverse = false }) {
                 boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
               }}
             >
-              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 40, paddingRight: 48 }}>
+              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 32, paddingRight: 48 }}>
                 {/* Loading Bar */}
                 <div
                   key={barKey}
                   className="absolute left-0 bottom-0 h-[3px]"
                   style={{
-                    background: '#72C2C2',
+                    background: '#529C9C',
                     animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
                     animationPlayState: isPaused ? 'paused' : 'running',
                     width: '100%'
