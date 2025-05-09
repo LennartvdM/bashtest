@@ -123,15 +123,16 @@ function MedicalCarousel({ reverse = false }) {
           {/* Highlighter */}
           {ready && Number.isFinite(current) && (
             <div
-              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-700 ease pointer-events-none"
-              style={{ top: rect.top, height: rect.height }}
+              className="absolute left-0 w-full rounded-xl transition-all duration-700 ease pointer-events-none"
+              style={{ top: rect.top, height: rect.height, background: '#E8E8E8', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)' }}
             >
               <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
                 {/* Loading Bar */}
                 <div
                   key={barKey}
-                  className={`absolute left-0 bottom-0 h-[3px] bg-teal-500 loading-bar`}
+                  className="absolute left-0 bottom-0 h-[3px]"
                   style={{
+                    background: '#72C2C2',
                     animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
                     animationPlayState: isPaused ? 'paused' : 'running',
                     width: '100%'
@@ -148,14 +149,18 @@ function MedicalCarousel({ reverse = false }) {
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHover(i)}
               onMouseLeave={handleHoverEnd}
-              className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-700 ease hover:translate-x-1"
+              className="relative z-10 text-left py-4 px-6 rounded-xl transition-all duration-700 ease"
+              style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}
             >
               <p
-                className={`text-lg md:text-xl font-medium transition-all duration-700 ease ${
-                  current === i
-                    ? "text-teal-500 font-semibold" 
-                    : "text-slate-500 hover:text-slate-600"
-                }`}
+                style={{
+                  fontSize: 24,
+                  letterSpacing: '-0.5px',
+                  lineHeight: 1.5,
+                  color: current === i ? '#574B4B' : '#808080',
+                  transition: 'color 0.6s',
+                  margin: 0
+                }}
               >
                 {text}
               </p>
