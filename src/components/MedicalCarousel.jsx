@@ -21,7 +21,6 @@ function MedicalCarousel({ reverse = false }) {
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
-  const [animationSpeed, setAnimationSpeed] = useState(1);
 
   const rowRefs = useRef([]);
 
@@ -40,22 +39,13 @@ function MedicalCarousel({ reverse = false }) {
   useLayoutEffect(measure, [target]);
 
   const handleHoverStart = (index) => {
-    // Start slowing down immediately
-    setAnimationSpeed(0.5);
-    // Allow time for the deceleration to complete before pausing
-    setTimeout(() => {
-      setPaused(true);
-      setHover(index);
-    }, 600); // Increased from 300ms to 600ms to allow for overshoot
+    setPaused(true);
+    setHover(index);
   };
 
   const handleHoverEnd = () => {
-    // Add a small delay before unpausing
-    setTimeout(() => {
-      setPaused(false);
-      // Smoothly speed up
-      setAnimationSpeed(1);
-    }, 200);
+    setPaused(false);
+    setHover(null);
   };
 
   // Advance to next slide and force new barKey
@@ -147,8 +137,6 @@ function MedicalCarousel({ reverse = false }) {
         .loading-bar { 
           animation: grow ${AUTOPLAY_MS}ms linear forwards;
           animation-play-state: ${paused ? 'paused' : 'running'};
-          animation-duration: ${AUTOPLAY_MS * animationSpeed}ms;
-          transition: animation-duration 0.6s ease-out;
         }
       `}</style>
     </div>
