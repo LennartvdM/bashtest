@@ -105,7 +105,15 @@ function MedicalCarousel({ reverse = false }) {
 
   return (
     <div className="flex flex-col max-w-full mx-auto p-8 md:p-14 font-cabin h-full w-full">
-      <h2 className="text-[2.8rem] md:text-6xl font-extrabold leading-tight mb-10 text-left font-montserrat" style={{ color: '#383437' }}>
+      <h2 className="font-bold leading-tight mb-10 text-left" style={{
+        fontFamily: 'Inter, sans-serif',
+        fontSize: 50,
+        fontWeight: 700,
+        letterSpacing: -2,
+        lineHeight: 1.2,
+        color: '#383437',
+        marginLeft: 0
+      }}>
         In the moment<br />
         <span style={{ color: '#529C9C' }}>only</span> the patient<br />
         matters
