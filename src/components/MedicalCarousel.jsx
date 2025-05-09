@@ -118,7 +118,7 @@ function MedicalCarousel({ reverse = false }) {
 
         {/* Tabs */}
         <div
-          className="basis-2/5 relative flex flex-col justify-center gap-2 min-w-[220px]"
+          className="basis-2/5 relative flex flex-col justify-center gap-2 min-w-[320px] max-w-[420px] w-full"
         >
           {/* Highlighter */}
           {ready && Number.isFinite(current) && (
