@@ -137,12 +137,12 @@ function MedicalCarousel({ reverse = false }) {
               style={{
                 top: rect.top,
                 height: rect.height,
-                width: 420,
+                width: 480,
                 left: '50%',
                 transform: 'translateX(-50%)',
                 background: '#E8E8E8',
                 boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)',
-                paddingLeft: 24,
+                paddingLeft: 56,
                 paddingRight: 48
               }}
             >
@@ -170,7 +170,7 @@ function MedicalCarousel({ reverse = false }) {
               onMouseEnter={() => handleHover(i)}
               onMouseLeave={handleHoverEnd}
               className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
-              style={{ width: 420, paddingLeft: 24, paddingRight: 48 }}
+              style={{ width: 480, paddingLeft: 24, paddingRight: 48 }}
             >
               <p className="m-0 text-right text-2xl leading-tight" style={{
                 fontFamily: 'Inter, sans-serif',
