@@ -79,9 +79,11 @@ function MedicalCarousel({ reverse = false }) {
   };
 
   const handleHover = (index) => {
-    setCurrent(index);
-    setIsPaused(true);
-    setBarKey((k) => k + 1); // Reset the bar on hover
+    if (typeof index === 'number' && index >= 0 && index < slides.length) {
+      setCurrent(index);
+      setIsPaused(true);
+      setBarKey((k) => k + 1); // Reset the bar on hover
+    }
   };
 
   const handleHoverEnd = () => {
@@ -115,7 +117,7 @@ function MedicalCarousel({ reverse = false }) {
           className="basis-1/2 relative flex flex-col justify-center gap-4 min-w-[260px]"
         >
           {/* Highlighter */}
-          {ready && (
+          {ready && Number.isFinite(current) && (
             <div
               className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none"
               style={{ top: rect.top, height: rect.height }}
