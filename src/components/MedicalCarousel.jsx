@@ -9,9 +9,18 @@ const slides = [
 ];
 
 const headlines = [
-  "Medical interventions demand<br />precision and urgency.",
-  "Which makes coordination within<br />teams vital for success.",
-  "Task‑driven focus can lead to<br />tunnel vision and misalignment.",
+  [
+    "Medical interventions demand",
+    "precision and urgency."
+  ],
+  [
+    "Which makes coordination within",
+    "teams vital for success."
+  ],
+  [
+    "Task‑driven focus can lead to",
+    "tunnel vision and misalignment."
+  ]
 ];
 
 function MedicalCarousel({ reverse = false }) {
@@ -143,7 +152,7 @@ function MedicalCarousel({ reverse = false }) {
             </div>
           )}
 
-          {headlines.map((text, i) => (
+          {headlines.map((lines, i) => (
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
@@ -162,8 +171,11 @@ function MedicalCarousel({ reverse = false }) {
                   margin: 0,
                   textAlign: 'right'
                 }}
-                dangerouslySetInnerHTML={{ __html: text }}
-              />
+              >
+                {lines.map((line, idx) => (
+                  <span key={idx} style={{ display: 'block' }}>{line}</span>
+                ))}
+              </p>
             </button>
           ))}
         </div>
