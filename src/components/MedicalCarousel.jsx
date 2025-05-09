@@ -104,8 +104,8 @@ function MedicalCarousel({ reverse = false }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#f5f8fa]">
-      <div className="flex flex-col items-start w-full max-w-6xl mx-auto px-8 pt-12">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#f5f8fa]">
+      <div className="flex flex-col items-start w-full" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
           fontSize: 50,
