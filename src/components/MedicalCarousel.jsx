@@ -16,7 +16,7 @@ const headlines = [
 
 function MedicalCarousel({ reverse = false }) {
   const [active, setActive] = useState(0);
-  const [hover, setHover] = useState(null);
+  const [hover, setHover] = useState(null); // null or 0,1,2
   const [paused, setPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
@@ -26,7 +26,7 @@ function MedicalCarousel({ reverse = false }) {
   const autoplayRef = useRef();
 
   // Highlight position measurement
-  const target = hover ?? active;
+  const target = hover !== null ? hover : active;
 
   const measure = () => {
     const node = rowRefs.current[target];
@@ -39,34 +39,53 @@ function MedicalCarousel({ reverse = false }) {
 
   useLayoutEffect(measure, [target]);
 
-  // Autocycle
+  // Autocycle: only if not paused and not hovering
   useEffect(() => {
-    if (paused) return;
+    if (paused || hover !== null) return;
     autoplayRef.current = setTimeout(() => {
-      setActive((a) => (a + 1) % slides.length);
-      setBarKey((k) => k + 1);
+      setActive((a) => {
+        const next = (a + 1) % slides.length;
+        setBarKey((k) => k + 1);
+        setHover(null);
+        setPaused(false);
+        return next;
+      });
     }, AUTOPLAY_MS);
     return () => clearTimeout(autoplayRef.current);
-  }, [active, paused]);
+  }, [active, paused, hover]);
 
-  // Reset bar on any change (autocycle, click, hover)
-  useEffect(() => {
-    setBarKey((k) => k + 1);
-  }, [active, hover]);
-
+  // --- Finite state transitions ---
+  // On hover: pause and reset bar
   const handleHoverStart = (index) => {
     setHover(index);
     setPaused(true);
+    setBarKey((k) => k + 1);
   };
 
+  // On hover end: unpause, reset bar, return to active
   const handleHoverEnd = () => {
     setHover(null);
     setPaused(false);
+    setBarKey((k) => k + 1);
   };
 
+  // On click: set active, unpause, reset bar, clear hover
   const handleClick = (index) => {
     setActive(index);
     setPaused(false);
+    setHover(null);
+    setBarKey((k) => k + 1);
+  };
+
+  // On loading bar animation end: advance if not paused/hovering
+  const handleBarEnd = () => {
+    if (!paused && hover === null) {
+      setActive((a) => {
+        const next = (a + 1) % slides.length;
+        setBarKey((k) => k + 1);
+        return next;
+      });
+    }
   };
 
   return (
@@ -112,11 +131,7 @@ function MedicalCarousel({ reverse = false }) {
                     animationPlayState: paused ? 'paused' : 'running',
                     width: '100%'
                   }}
-                  onAnimationEnd={() => {
-                    if (!paused) {
-                      setActive((a) => (a + 1) % slides.length);
-                    }
-                  }}
+                  onAnimationEnd={handleBarEnd}
                 />
               </div>
             </div>
