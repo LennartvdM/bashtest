@@ -21,6 +21,7 @@ function MedicalCarousel({ reverse = false }) {
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
   const [hoverTarget, setHoverTarget] = useState(null);
+  const [nextActive, setNextActive] = useState(1);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -58,6 +59,7 @@ function MedicalCarousel({ reverse = false }) {
       
       setActive((a) => {
         const next = (a + 1) % slides.length;
+        setNextActive((next + 1) % slides.length);
         setBarKey((k) => k + 1);
         return next;
       });
@@ -75,6 +77,7 @@ function MedicalCarousel({ reverse = false }) {
     if (!isPaused && isMounted.current) {
       setActive((a) => {
         const next = (a + 1) % slides.length;
+        setNextActive((next + 1) % slides.length);
         setBarKey((k) => k + 1);
         return next;
       });
