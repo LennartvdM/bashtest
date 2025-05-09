@@ -160,7 +160,12 @@ function MedicalCarousel({ reverse = false }) {
                   color: current === i ? '#574B4B' : '#808080',
                   transition: 'color 0.6s',
                   margin: 0,
-                  textAlign: 'right'
+                  textAlign: 'right',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  minHeight: '3em', // 2 lines * 1.5em line-height
                 }}
               >
                 {text}
