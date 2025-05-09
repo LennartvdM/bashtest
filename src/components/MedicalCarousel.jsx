@@ -9,9 +9,9 @@ const slides = [
 ];
 
 const headlines = [
-  "Medical interventions demand precision and urgency.",
-  "Which makes coordination within teams vital for success.",
-  "Task‑driven focus can lead to tunnel vision and misalignment.",
+  "Medical interventions demand<br />precision and urgency.",
+  "Which makes coordination within<br />teams vital for success.",
+  "Task‑driven focus can lead to<br />tunnel vision and misalignment.",
 ];
 
 function MedicalCarousel({ reverse = false }) {
@@ -160,16 +160,10 @@ function MedicalCarousel({ reverse = false }) {
                   color: current === i ? '#574B4B' : '#808080',
                   transition: 'color 0.6s',
                   margin: 0,
-                  textAlign: 'right',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  minHeight: '3em', // 2 lines * 1.5em line-height
+                  textAlign: 'right'
                 }}
-              >
-                {text}
-              </p>
+                dangerouslySetInnerHTML={{ __html: text }}
+              />
             </button>
           ))}
         </div>
