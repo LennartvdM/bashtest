@@ -106,7 +106,7 @@ function MedicalCarousel({ reverse = false }) {
           {slides.map((s, i) => (
             <div
               key={s.id}
-              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-600 ease ${
+              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-1500 ease ${
                 i === current ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
               style={{ pointerEvents: i === current ? 'auto' : 'none' }}
@@ -123,7 +123,7 @@ function MedicalCarousel({ reverse = false }) {
           {/* Highlighter */}
           {ready && Number.isFinite(current) && (
             <div
-              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-600 ease pointer-events-none"
+              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-1500 ease pointer-events-none"
               style={{ top: rect.top, height: rect.height }}
             >
               <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
@@ -151,7 +151,7 @@ function MedicalCarousel({ reverse = false }) {
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease hover:translate-x-1"
             >
               <p
-                className={`text-lg md:text-xl font-medium transition-all duration-600 ease ${
+                className={`text-lg md:text-xl font-medium transition-all duration-1500 ease ${
                   current === i
                     ? "text-teal-500 font-semibold" 
                     : "text-slate-500 hover:text-slate-600"
