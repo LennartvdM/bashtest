@@ -16,6 +16,7 @@ const headlines = [
 
 function MedicalCarousel({ reverse = false }) {
   const [active, setActive] = useState(0);
+  const [highlighted, setHighlighted] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
@@ -37,7 +38,7 @@ function MedicalCarousel({ reverse = false }) {
 
   // Highlight position measurement
   const measure = () => {
-    const node = rowRefs.current[active];
+    const node = rowRefs.current[highlighted];
     if (node) {
       const { offsetTop, offsetHeight } = node;
       setRect({ top: offsetTop, height: offsetHeight });
@@ -45,7 +46,7 @@ function MedicalCarousel({ reverse = false }) {
     }
   };
 
-  useLayoutEffect(measure, [active]);
+  useLayoutEffect(measure, [highlighted]);
 
   // Autocycle: only if not paused
   useEffect(() => {
@@ -56,6 +57,7 @@ function MedicalCarousel({ reverse = false }) {
       
       setActive((a) => {
         const next = (a + 1) % slides.length;
+        setHighlighted(next);
         setBarKey((k) => k + 1);
         return next;
       });
@@ -73,10 +75,29 @@ function MedicalCarousel({ reverse = false }) {
     if (!isPaused && isMounted.current) {
       setActive((a) => {
         const next = (a + 1) % slides.length;
+        setHighlighted(next);
         setBarKey((k) => k + 1);
         return next;
       });
     }
+  };
+
+  // Handle hover based on explicit state matrix
+  const handleHover = (index) => {
+    if (index === active) {
+      // Case 1: Hovering over active caption
+      setIsPaused(true);
+      setHighlighted(index);
+    } else {
+      // Case 2: Hovering over inactive caption
+      setHighlighted(index);
+      setBarKey((k) => k + 1); // Reset loading bar
+    }
+  };
+
+  const handleHoverLeave = () => {
+    setIsPaused(false);
+    setHighlighted(active);
   };
 
   return (
@@ -131,8 +152,8 @@ function MedicalCarousel({ reverse = false }) {
             <button
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
+              onMouseEnter={() => handleHover(i)}
+              onMouseLeave={handleHoverLeave}
               className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
             >
               <p
