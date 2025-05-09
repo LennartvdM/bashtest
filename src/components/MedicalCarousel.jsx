@@ -119,7 +119,7 @@ function MedicalCarousel({ reverse = false }) {
         matters
       </h2>
 
-      <div className={`flex flex-col md:flex-row gap-6 grow items-center md:items-center justify-center ${reverse ? "md:flex-row-reverse" : ""}`}>
+      <div className={`flex flex-col md:flex-row gap-2 grow items-center md:items-center justify-center ${reverse ? "md:flex-row-reverse" : ""}`}>
         {/* Slides (crossfade) */}
         <div className="relative basis-3/5 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-full h-[320px] md:h-[380px] flex items-center justify-center">
           {slides.map((s, i) => (
@@ -154,7 +154,7 @@ function MedicalCarousel({ reverse = false }) {
                 boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
               }}
             >
-              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 32, paddingRight: 48 }}>
+              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 24, paddingRight: 48 }}>
                 {/* Loading Bar */}
                 <div
                   key={barKey}
