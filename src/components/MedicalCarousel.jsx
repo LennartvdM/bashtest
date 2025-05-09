@@ -141,12 +141,10 @@ function MedicalCarousel({ reverse = false }) {
                 left: '50%',
                 transform: 'translateX(-50%)',
                 background: '#E8E8E8',
-                boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)',
-                paddingLeft: 56,
-                paddingRight: 48
+                boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
               }}
             >
-              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
+              <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 40, paddingRight: 48 }}>
                 {/* Loading Bar */}
                 <div
                   key={barKey}
