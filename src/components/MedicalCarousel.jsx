@@ -1,6 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 6600; // 6.6 seconds
 
 const slides = [
   { id: "0", content: "1" },
@@ -37,6 +37,7 @@ function MedicalCarousel({ reverse = false }) {
 
   // Highlight position measurement
   const measure = () => {
+    // Always use current, never null
     const node = rowRefs.current[current];
     if (node) {
       const { offsetTop, offsetHeight } = node;
@@ -80,6 +81,7 @@ function MedicalCarousel({ reverse = false }) {
 
   const handleHover = (index) => {
     if (typeof index === 'number' && index >= 0 && index < slides.length) {
+      // Only reset the bar if hovering to a different caption
       if (index !== current) {
         setBarKey((k) => k + 1);
       }
@@ -104,7 +106,7 @@ function MedicalCarousel({ reverse = false }) {
           {slides.map((s, i) => (
             <div
               key={s.id}
-              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-700 ease-in-out ${
+              className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-600 ease ${
                 i === current ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
               style={{ pointerEvents: i === current ? 'auto' : 'none' }}
@@ -121,7 +123,7 @@ function MedicalCarousel({ reverse = false }) {
           {/* Highlighter */}
           {ready && Number.isFinite(current) && (
             <div
-              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none"
+              className="absolute left-0 w-full rounded-xl bg-white/90 shadow-md transition-all duration-600 ease pointer-events-none"
               style={{ top: rect.top, height: rect.height }}
             >
               <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
@@ -146,10 +148,10 @@ function MedicalCarousel({ reverse = false }) {
               ref={(el) => (rowRefs.current[i] = el)}
               onMouseEnter={() => handleHover(i)}
               onMouseLeave={handleHoverEnd}
-              className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-1"
+              className="relative z-10 text-left py-4 px-6 rounded-xl transition-transform duration-600 ease hover:translate-x-1"
             >
               <p
-                className={`text-lg md:text-xl font-medium transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                className={`text-lg md:text-xl font-medium transition-all duration-600 ease ${
                   current === i
                     ? "text-teal-500 font-semibold" 
                     : "text-slate-500 hover:text-slate-600"
