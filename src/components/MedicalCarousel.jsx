@@ -161,7 +161,7 @@ function MedicalCarousel({ reverse = false }) {
                     boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
                   }}
                 >
-                  <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 64, paddingRight: 64 }}>
+                  <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 88, paddingRight: 88 }}>
                     {/* Loading Bar */}
                     <div
                       key={barKey}
