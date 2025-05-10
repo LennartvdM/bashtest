@@ -151,7 +151,10 @@ function MedicalCarousel({ reverse = false }) {
                   style={{
                     top: rect.top,
                     height: rect.height,
-                    width: 480, // Fixed width that's wide enough for any caption
+                    width: Math.min(
+                      Math.max(320, 0), // Match button's minWidth
+                      Math.min(480, captionsWidth ? captionsWidth - 48 : Infinity) // Match button's maxWidth and account for padding
+                    ),
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: '#e8e8e8',
