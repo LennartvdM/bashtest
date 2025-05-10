@@ -166,7 +166,7 @@ function MedicalCarousel({ reverse = false }) {
                       key={barKey}
                       className="absolute left-0 bottom-0 h-[3px]"
                       style={{
-                        background: '#529C9C',
+                        background: 'rgba(82,156,156,0.5)',
                         animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
                         animationPlayState: isPaused ? 'paused' : 'running',
                         width: '100%'
