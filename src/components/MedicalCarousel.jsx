@@ -200,7 +200,7 @@ function MedicalCarousel({ reverse = false }) {
                     fontFamily: 'Inter, sans-serif',
                     fontWeight: 500,
                     letterSpacing: '-0.5px',
-                    color: hoveredIndex === i ? '#3A7A7A' : (current === i ? '#574B4B' : '#808080'),
+                    color: hoveredIndex === i ? '#2D6A6A' : (current === i ? '#574B4B' : '#808080'),
                     transition: 'color 0.6s, transform 0.3s',
                     transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
                   }}>
