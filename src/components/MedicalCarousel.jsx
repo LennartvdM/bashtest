@@ -156,7 +156,8 @@ function MedicalCarousel({ reverse = false }) {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: '#e8e8e8',
-                    boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
+                    borderRadius: 10,
+                    boxShadow: '1px 1px 2px 0px rgba(0,0,0,0.25)'
                   }}
                 >
                   <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
