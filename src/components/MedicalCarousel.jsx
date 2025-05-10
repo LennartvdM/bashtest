@@ -198,10 +198,11 @@ function MedicalCarousel({ reverse = false }) {
                 >
                   <p className="m-0 text-right text-2xl leading-tight" style={{
                     fontFamily: 'Inter, sans-serif',
-                    fontWeight: hoveredIndex === i ? 600 : 500,
+                    fontWeight: 500,
                     letterSpacing: '-0.5px',
-                    color: hoveredIndex === i ? '#529C9C' : (current === i ? '#574B4B' : '#808080'),
-                    transition: 'color 0.6s, font-weight 0.3s',
+                    color: hoveredIndex === i ? '#3A7A7A' : (current === i ? '#574B4B' : '#808080'),
+                    transition: 'color 0.6s, transform 0.3s',
+                    transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
                   }}>
                     {headline.firstLine}
                     <br />
