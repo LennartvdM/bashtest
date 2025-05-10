@@ -158,7 +158,7 @@ function MedicalCarousel({ reverse = false }) {
                     width: maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING,
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    background: '#e0e0e0',
+                    background: hoveredIndex === current ? '#d8d8d8' : '#e8e8e8',
                     borderRadius: 10,
                     boxShadow: '1px 1px 2px 0px rgba(0,0,0,0.25)',
                     transition: 'all 700ms cubic-bezier(0.4, 0, 0.2, 1)'
