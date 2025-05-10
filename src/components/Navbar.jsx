@@ -52,21 +52,10 @@ export default function Navbar() {
         height: rect.height,
       });
       setHoveredIdx(idx);
-      setBlobOpacity(0.5);
+      setBlobOpacity(1.0);
       if (settleTimeout.current) clearTimeout(settleTimeout.current);
       settleTimeout.current = setTimeout(() => {}, 80);
       if (hoverTimer) clearInterval(hoverTimer);
-      // Animate opacity up to 1.0 over 2 seconds
-      const timer = setInterval(() => {
-        setBlobOpacity((prev) => {
-          if (prev >= 1.0) {
-            clearInterval(timer);
-            return 1.0;
-          }
-          return +(prev + 0.0125).toFixed(4);
-        });
-      }, 25);
-      setHoverTimer(timer);
     }
   };
   const handleMouseLeave = () => {
