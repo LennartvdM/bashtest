@@ -151,17 +151,14 @@ function MedicalCarousel({ reverse = false }) {
                   style={{
                     top: rect.top,
                     height: rect.height,
-                    width: Math.min(
-                      Math.max(maxCaptionWidth + 96, 0),
-                      captionsWidth ? captionsWidth - 96 : Infinity
-                    ),
+                    width: 480, // Fixed width that matches the accessibility outline
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: '#e8e8e8',
                     boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
                   }}
                 >
-                  <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 96, paddingRight: 96 }}>
+                  <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 24, paddingRight: 24 }}>
                     {/* Loading Bar */}
                     <div
                       key={barKey}
