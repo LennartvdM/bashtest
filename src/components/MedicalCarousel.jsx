@@ -151,7 +151,7 @@ function MedicalCarousel({ reverse = false }) {
                   style={{
                     top: rect.top,
                     height: rect.height,
-                    width: 480, // Fixed width that matches the button's maxWidth
+                    width: 480, // Fixed width that's wide enough for any caption
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: '#e8e8e8',
