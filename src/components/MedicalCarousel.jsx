@@ -29,10 +29,13 @@ function MedicalCarousel({ reverse = false }) {
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
+  const [maxCaptionWidth, setMaxCaptionWidth] = useState(0);
+  const [captionsWidth, setCaptionsWidth] = useState(0);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
   const isMounted = useRef(true);
+  const captionsRef = useRef();
 
   // Cleanup on unmount
   useEffect(() => {
@@ -52,6 +55,13 @@ function MedicalCarousel({ reverse = false }) {
       const { offsetTop, offsetHeight } = node;
       setRect({ top: offsetTop, height: offsetHeight });
       setReady(true);
+    }
+    // Measure all caption widths for highlighter min-width
+    const widths = rowRefs.current.map((el) => el ? el.offsetWidth : 0);
+    setMaxCaptionWidth(Math.max(...widths, 0));
+    // Measure captions container width for highlighter max-width
+    if (captionsRef.current) {
+      setCaptionsWidth(captionsRef.current.offsetWidth);
     }
   };
 
@@ -104,8 +114,8 @@ function MedicalCarousel({ reverse = false }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#f5f8fa]">
-      <div className="flex flex-col items-start w-full max-w-6xl mx-auto px-8 pt-12">
+    <div className="min-h-screen flex flex-col items-center justify-center w-full bg-[#f5f8fa]">
+      <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
           fontSize: 50,
@@ -119,9 +129,8 @@ function MedicalCarousel({ reverse = false }) {
           <span style={{ color: '#529C9C' }}>only</span> the patient<br />
           matters
         </h2>
-        <div className="flex flex-row items-center w-full" style={{ gap: 8 }}>
-          {/* Image */}
-          <div className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[420px] max-w-[600px] w-[420px] h-[320px] flex items-center justify-center">
+        <div className="inline-flex flex-row items-center mx-auto w-full">
+          <div className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
             {slides.map((s, i) => (
               <div
                 key={s.id}
@@ -134,63 +143,70 @@ function MedicalCarousel({ reverse = false }) {
               </div>
             ))}
           </div>
-          {/* Captions */}
-          <div
-            className="relative flex flex-col justify-center gap-2 items-center"
-            style={{ minWidth: 320 }}
-          >
-            {/* Highlighter */}
-            {ready && Number.isFinite(current) && (
-              <div
-                className="absolute left-0 rounded-xl transition-all duration-700 ease pointer-events-none"
-                style={{
-                  top: rect.top,
-                  height: rect.height,
-                  width: 480,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  background: '#E8E8E8',
-                  boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
-                }}
-              >
-                <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 24, paddingRight: 48 }}>
-                  {/* Loading Bar */}
-                  <div
-                    key={barKey}
-                    className="absolute left-0 bottom-0 h-[3px]"
-                    style={{
-                      background: '#529C9C',
-                      animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
-                      animationPlayState: isPaused ? 'paused' : 'running',
-                      width: '100%'
-                    }}
-                    onAnimationEnd={handleBarEnd}
-                  />
+          <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
+            <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
+              {ready && Number.isFinite(current) && (
+                <div
+                  className="absolute rounded-xl transition-all duration-700 ease pointer-events-none"
+                  style={{
+                    top: rect.top,
+                    height: rect.height,
+                    width: Math.min(
+                      Math.max(maxCaptionWidth + 64, 0),
+                      captionsWidth ? captionsWidth - 64 : Infinity
+                    ),
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#e8e8e8',
+                    boxShadow: '0 4px 24px 0 rgba(80,80,80,0.10), 0 1.5px 4px 0 rgba(80,80,80,0.08)'
+                  }}
+                >
+                  <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none" style={{ paddingLeft: 64, paddingRight: 64 }}>
+                    {/* Loading Bar */}
+                    <div
+                      key={barKey}
+                      className="absolute left-0 bottom-0 h-[3px]"
+                      style={{
+                        background: '#529C9C',
+                        animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
+                        animationPlayState: isPaused ? 'paused' : 'running',
+                        width: '100%'
+                      }}
+                      onAnimationEnd={handleBarEnd}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            {headlines.map((headline, i) => (
-              <button
-                key={i}
-                ref={(el) => (rowRefs.current[i] = el)}
-                onMouseEnter={() => handleHover(i)}
-                onMouseLeave={handleHoverEnd}
-                className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
-                style={{ width: 480, paddingLeft: 24, paddingRight: 48 }}
-              >
-                <p className="m-0 text-right text-2xl leading-tight" style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 500,
-                  letterSpacing: '-0.5px',
-                  color: current === i ? '#574B4B' : '#808080',
-                  transition: 'color 0.6s',
-                }}>
-                  {headline.firstLine}
-                  <br />
-                  {headline.secondLine}
-                </p>
-              </button>
-            ))}
+              )}
+              {headlines.map((headline, i) => (
+                <button
+                  key={i}
+                  ref={(el) => (rowRefs.current[i] = el)}
+                  onMouseEnter={() => handleHover(i)}
+                  onMouseLeave={handleHoverEnd}
+                  className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
+                  style={{
+                    display: 'block',
+                    maxWidth: 480,
+                    minWidth: 320,
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    margin: '0 auto',
+                  }}
+                >
+                  <p className="m-0 text-right text-2xl leading-tight" style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 500,
+                    letterSpacing: '-0.5px',
+                    color: current === i ? '#574B4B' : '#808080',
+                    transition: 'color 0.6s',
+                  }}>
+                    {headline.firstLine}
+                    <br />
+                    {headline.secondLine}
+                  </p>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
