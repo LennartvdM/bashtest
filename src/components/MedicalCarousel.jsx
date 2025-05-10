@@ -32,6 +32,7 @@ function MedicalCarousel({ reverse = false }) {
   const [ready, setReady] = useState(false);
   const [maxCaptionWidth, setMaxCaptionWidth] = useState(0);
   const [captionsWidth, setCaptionsWidth] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -107,11 +108,13 @@ function MedicalCarousel({ reverse = false }) {
       }
       setCurrent(index);
       setIsPaused(true);
+      setHoveredIndex(index);
     }
   };
 
   const handleHoverEnd = () => {
     setIsPaused(false);
+    setHoveredIndex(null);
   };
 
   return (
@@ -157,7 +160,8 @@ function MedicalCarousel({ reverse = false }) {
                     transform: 'translateX(-50%)',
                     background: '#e8e8e8',
                     borderRadius: 10,
-                    boxShadow: '1px 1px 2px 0px rgba(0,0,0,0.25)'
+                    boxShadow: '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                    transition: 'all 700ms cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 >
                   <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
@@ -194,10 +198,10 @@ function MedicalCarousel({ reverse = false }) {
                 >
                   <p className="m-0 text-right text-2xl leading-tight" style={{
                     fontFamily: 'Inter, sans-serif',
-                    fontWeight: 500,
+                    fontWeight: hoveredIndex === i ? 600 : 500,
                     letterSpacing: '-0.5px',
-                    color: current === i ? '#574B4B' : '#808080',
-                    transition: 'color 0.6s',
+                    color: hoveredIndex === i ? '#529C9C' : (current === i ? '#574B4B' : '#808080'),
+                    transition: 'color 0.6s, font-weight 0.3s',
                   }}>
                     {headline.firstLine}
                     <br />
