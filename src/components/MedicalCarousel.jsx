@@ -160,7 +160,7 @@ function MedicalCarousel({ reverse = false }) {
                     transform: 'translateX(-50%)',
                     background: hoveredIndex === current ? '#e4e4e4' : '#e8e8e8',
                     borderRadius: 10,
-                    boxShadow: '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                    boxShadow: hoveredIndex === current ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
                     transition: 'all 700ms cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 >
