@@ -142,7 +142,7 @@ export default function Navbar() {
                 className="absolute flex items-center"
                 style={{
                   borderRadius: '9999px',
-                  background: '#b0b8c1',
+                  background: '#d1d5db',
                   zIndex: 1,
                   pointerEvents: 'none',
                   margin: 'auto 0',
