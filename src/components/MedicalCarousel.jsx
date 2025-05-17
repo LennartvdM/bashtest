@@ -4,9 +4,9 @@ const AUTOPLAY_MS = 6600; // 6.6 seconds
 const HIGHLIGHTER_HORIZONTAL_PADDING = 48; // 24px on each side
 
 const slides = [
-  { id: "0", content: "1" },
-  { id: "1", content: "2" },
-  { id: "2", content: "3" },
+  { id: "0", video: "/videos/urgency.mp4", alt: "Medical urgency demonstration" },
+  { id: "1", video: "/videos/coordination.mp4", alt: "Medical team coordination" },
+  { id: "2", video: "/videos/focus.mp4", alt: "Medical focus and precision" },
 ];
 
 const headlines = [
@@ -138,12 +138,21 @@ function MedicalCarousel({ reverse = false }) {
             {slides.map((s, i) => (
               <div
                 key={s.id}
-                className={`absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-teal-600 font-bold transition-opacity duration-700 ease ${
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
                   i === current ? "opacity-100 z-10" : "opacity-0 z-0"
                 }`}
                 style={{ pointerEvents: i === current ? 'auto' : 'none' }}
               >
-                {s.content}
+                <video
+                  src={s.video}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  alt={s.alt}
+                />
               </div>
             ))}
           </div>
