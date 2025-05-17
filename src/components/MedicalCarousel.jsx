@@ -152,6 +152,11 @@ function MedicalCarousel({ reverse = false }) {
                   playsInline
                   preload="auto"
                   alt={s.alt}
+                  controls={false}
+                  controlsList="nodownload nofullscreen noremoteplayback"
+                  disablePictureInPicture
+                  tabIndex="-1"
+                  aria-hidden="true"
                 />
               </div>
             ))}
