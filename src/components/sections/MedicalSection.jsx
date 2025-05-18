@@ -15,7 +15,7 @@ const MedicalSection = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
+    <div className="h-screen w-full relative overflow-hidden">
       {/* Section-local blurred background videos */}
       {blurVideos.map((video, index) => (
         <div
@@ -45,7 +45,7 @@ const MedicalSection = () => {
         </div>
       ))}
       {/* Foreground content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
+      <div className="relative z-10 flex items-center justify-center h-screen">
         <MedicalCarousel onSlideChange={handleSlideChange} />
       </div>
     </div>
