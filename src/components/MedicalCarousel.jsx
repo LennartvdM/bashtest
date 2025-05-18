@@ -123,8 +123,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full bg-[#f5f8fa]">
       <div className="max-w-6xl mx-auto flex flex-col items-start">
-        <h2 className="font-bold leading-tight mb-10 text-left" style={{
-          fontFamily: 'Inter, sans-serif',
+        <h2 className="font-bold leading-tight mb-10 text-left font-inter" style={{
           fontSize: 50,
           fontWeight: 700,
           letterSpacing: -2,
@@ -133,7 +132,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
           marginLeft: 0
         }}>
           In the moment<br />
-          <span style={{ color: '#529C9C' }}>only</span> the patient<br />
+          <span className="text-[#529C9C]">only</span> the patient<br />
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
@@ -205,7 +204,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
                   onMouseEnter={() => handleHover(i)}
                   onMouseLeave={handleHoverEnd}
                 >
-                  <p className="text-lg font-medium text-gray-700">
+                  <p className="text-lg font-medium text-gray-700 font-inter">
                     {headline.firstLine}<br />
                     {headline.secondLine}
                   </p>
