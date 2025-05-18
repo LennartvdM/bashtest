@@ -15,7 +15,7 @@ const MedicalSection = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center">
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
       {/* Background blur videos */}
       {blurVideos.map((video, index) => (
         <div
@@ -23,7 +23,12 @@ const MedicalSection = () => {
           className={`absolute inset-0 transition-opacity duration-700 ease ${
             index === currentVideo ? "opacity-100" : "opacity-0"
           }`}
-          style={{ zIndex: 0 }}
+          style={{ 
+            zIndex: 0,
+            filter: 'blur(20px)',
+            transform: 'scale(1.1)',
+            willChange: 'opacity'
+          }}
         >
           <video
             src={video.video}
