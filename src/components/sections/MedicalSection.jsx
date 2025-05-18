@@ -22,7 +22,6 @@ const MedicalSection = () => {
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
         style={{
-          filter: 'blur(24px) brightness(0.7)',
           transform: 'scale(1.1)',
           willChange: 'opacity',
           pointerEvents: 'none',
@@ -50,7 +49,6 @@ const MedicalSection = () => {
               index === currentVideo ? 'opacity-100' : 'opacity-0'
             }`}
             style={{
-              filter: 'blur(24px) brightness(0.7)',
               transform: 'scale(1.1)',
               willChange: 'opacity',
               pointerEvents: 'none',
