@@ -15,12 +15,12 @@ const MedicalSection = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative">
-      {/* Fullscreen blurred background videos */}
+    <div className="min-h-screen w-full relative overflow-hidden">
+      {/* Section-local blurred background videos */}
       {blurVideos.map((video, index) => (
         <div
           key={video.id}
-          className={`fixed inset-0 w-screen h-screen transition-opacity duration-700 ease pointer-events-none select-none ${
+          className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease pointer-events-none select-none ${
             index === currentVideo ? "opacity-100" : "opacity-0"
           }`}
           style={{
