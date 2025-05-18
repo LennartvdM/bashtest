@@ -24,7 +24,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ reverse = false, onSlideChange }) {
+function MedicalCarousel({ reverse = false }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
@@ -78,7 +78,6 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
       setCurrent((c) => {
         const next = (c + 1) % slides.length;
         setBarKey((k) => k + 1);
-        onSlideChange?.(next);
         return next;
       });
     }, AUTOPLAY_MS);
@@ -88,7 +87,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
         clearTimeout(autoplayRef.current);
       }
     };
-  }, [current, isPaused, onSlideChange]);
+  }, [current, isPaused]);
 
   // On loading bar animation end: advance if not paused
   const handleBarEnd = () => {
@@ -96,7 +95,6 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
       setCurrent((c) => {
         const next = (c + 1) % slides.length;
         setBarKey((k) => k + 1);
-        onSlideChange?.(next);
         return next;
       });
     }
@@ -111,7 +109,6 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
       setCurrent(index);
       setIsPaused(true);
       setHoveredIndex(index);
-      onSlideChange?.(index);
     }
   };
 
@@ -123,7 +120,8 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full bg-[#f5f8fa]">
       <div className="max-w-6xl mx-auto flex flex-col items-start">
-        <h2 className="font-bold leading-tight mb-10 text-left font-inter" style={{
+        <h2 className="font-bold leading-tight mb-10 text-left" style={{
+          fontFamily: 'Inter, sans-serif',
           fontSize: 50,
           fontWeight: 700,
           letterSpacing: -2,
@@ -132,7 +130,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
           marginLeft: 0
         }}>
           In the moment<br />
-          <span className="text-[#529C9C]">only</span> the patient<br />
+          <span style={{ color: '#529C9C' }}>only</span> the patient<br />
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
@@ -197,18 +195,34 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
                 </div>
               )}
               {headlines.map((headline, i) => (
-                <div
+                <button
                   key={i}
                   ref={(el) => (rowRefs.current[i] = el)}
-                  className="relative cursor-pointer py-2 px-6 transition-colors duration-200"
                   onMouseEnter={() => handleHover(i)}
                   onMouseLeave={handleHoverEnd}
+                  className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
+                  style={{
+                    display: 'block',
+                    maxWidth: 480,
+                    minWidth: 320,
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    margin: '0 auto',
+                  }}
                 >
-                  <p className="text-lg font-medium text-gray-700 font-inter">
-                    {headline.firstLine}<br />
+                  <p className="m-0 text-right text-2xl leading-tight" style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 500,
+                    letterSpacing: '-0.5px',
+                    color: hoveredIndex === i ? '#2D6A6A' : (current === i ? '#574B4B' : '#808080'),
+                    transition: 'color 0.6s, transform 0.3s',
+                    transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
+                  }}>
+                    {headline.firstLine}
+                    <br />
                     {headline.secondLine}
                   </p>
-                </div>
+                </button>
               ))}
             </div>
           </div>
