@@ -15,17 +15,17 @@ const MedicalSection = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
-      {/* Background blur videos */}
+    <div className="min-h-screen w-full relative">
+      {/* Fullscreen blurred background videos */}
       {blurVideos.map((video, index) => (
         <div
           key={video.id}
-          className={`absolute inset-0 transition-opacity duration-700 ease ${
+          className={`fixed inset-0 w-screen h-screen transition-opacity duration-700 ease pointer-events-none select-none ${
             index === currentVideo ? "opacity-100" : "opacity-0"
           }`}
-          style={{ 
+          style={{
             zIndex: 0,
-            filter: 'blur(20px)',
+            filter: 'blur(24px) brightness(0.7)',
             transform: 'scale(1.1)',
             willChange: 'opacity'
           }}
@@ -38,11 +38,14 @@ const MedicalSection = () => {
             loop
             playsInline
             preload="auto"
+            tabIndex="-1"
+            aria-hidden="true"
+            draggable="false"
           />
         </div>
       ))}
-      {/* Content */}
-      <div className="relative z-10 w-full">
+      {/* Foreground content */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
         <MedicalCarousel onSlideChange={handleSlideChange} />
       </div>
     </div>
