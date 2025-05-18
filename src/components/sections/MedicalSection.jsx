@@ -21,10 +21,9 @@ const MedicalSection = () => {
         <div
           key={video.id}
           className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease pointer-events-none select-none ${
-            index === currentVideo ? "opacity-100" : "opacity-0"
+            index === currentVideo ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
           style={{
-            zIndex: 0,
             filter: 'blur(24px) brightness(0.7)',
             transform: 'scale(1.1)',
             willChange: 'opacity'
@@ -45,7 +44,7 @@ const MedicalSection = () => {
         </div>
       ))}
       {/* Foreground content */}
-      <div className="relative z-10 flex items-center justify-center h-screen">
+      <div className="relative z-20 flex items-center justify-center h-screen">
         <MedicalCarousel onSlideChange={handleSlideChange} />
       </div>
     </div>
