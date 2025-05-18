@@ -24,7 +24,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ reverse = false }) {
+function MedicalCarousel({ reverse = false, onSlideChange }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
@@ -78,6 +78,7 @@ function MedicalCarousel({ reverse = false }) {
       setCurrent((c) => {
         const next = (c + 1) % slides.length;
         setBarKey((k) => k + 1);
+        onSlideChange?.(next);
         return next;
       });
     }, AUTOPLAY_MS);
@@ -87,7 +88,7 @@ function MedicalCarousel({ reverse = false }) {
         clearTimeout(autoplayRef.current);
       }
     };
-  }, [current, isPaused]);
+  }, [current, isPaused, onSlideChange]);
 
   // On loading bar animation end: advance if not paused
   const handleBarEnd = () => {
@@ -95,6 +96,7 @@ function MedicalCarousel({ reverse = false }) {
       setCurrent((c) => {
         const next = (c + 1) % slides.length;
         setBarKey((k) => k + 1);
+        onSlideChange?.(next);
         return next;
       });
     }
@@ -109,6 +111,7 @@ function MedicalCarousel({ reverse = false }) {
       setCurrent(index);
       setIsPaused(true);
       setHoveredIndex(index);
+      onSlideChange?.(index);
     }
   };
 
