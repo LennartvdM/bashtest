@@ -24,7 +24,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ reverse = false }) {
+function MedicalCarousel({ reverse = false, onSlideChange }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
@@ -116,6 +116,13 @@ function MedicalCarousel({ reverse = false }) {
     setIsPaused(false);
     setHoveredIndex(null);
   };
+
+  // Call onSlideChange whenever current changes
+  useEffect(() => {
+    if (onSlideChange) {
+      onSlideChange(current);
+    }
+  }, [current, onSlideChange]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
