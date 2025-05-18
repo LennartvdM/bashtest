@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 
 const blurVideos = [
@@ -7,30 +7,47 @@ const blurVideos = [
   { id: "2", video: "/videos/blurfocus.mp4" },
 ];
 
+const FADE_DURATION = 700; // ms, must match transition-opacity duration
+
 const MedicalSection = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
+  const [prevVideo, setPrevVideo] = useState(null);
+  const [isFading, setIsFading] = useState(false);
+  const fadeTimeout = useRef();
 
   const handleSlideChange = (index) => {
-    setCurrentVideo(index);
+    if (index !== currentVideo) {
+      setPrevVideo(currentVideo);
+      setCurrentVideo(index);
+      setIsFading(true);
+      if (fadeTimeout.current) clearTimeout(fadeTimeout.current);
+      fadeTimeout.current = setTimeout(() => {
+        setPrevVideo(null);
+        setIsFading(false);
+      }, FADE_DURATION);
+    }
   };
+
+  // Clean up timeout on unmount
+  React.useEffect(() => () => fadeTimeout.current && clearTimeout(fadeTimeout.current), []);
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
-      {/* Section-local blurred background videos */}
-      {blurVideos.map((video, index) => (
+      {/* Carousel-style blur video fade */}
+      {/* Previous video stays fully opaque and behind during fade */}
+      {prevVideo !== null && (
         <div
-          key={video.id}
-          className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease pointer-events-none select-none ${
-            index === currentVideo ? "opacity-100 z-10" : "opacity-0 z-0"
-          }`}
+          key={blurVideos[prevVideo].id + '-prev'}
+          className="absolute inset-0 flex items-center justify-center opacity-100 z-0 transition-none"
           style={{
             filter: 'blur(24px) brightness(0.7)',
             transform: 'scale(1.1)',
-            willChange: 'opacity'
+            willChange: 'opacity',
+            pointerEvents: 'none',
           }}
         >
           <video
-            src={video.video}
+            src={blurVideos[prevVideo].video}
             className="w-full h-full object-cover"
             autoPlay
             muted
@@ -42,7 +59,33 @@ const MedicalSection = () => {
             draggable="false"
           />
         </div>
-      ))}
+      )}
+      {/* Current video fades in on top */}
+      <div
+        key={blurVideos[currentVideo].id + '-current'}
+        className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
+          isFading ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{
+          filter: 'blur(24px) brightness(0.7)',
+          transform: 'scale(1.1)',
+          willChange: 'opacity',
+          pointerEvents: 'none',
+        }}
+      >
+        <video
+          src={blurVideos[currentVideo].video}
+          className="w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          tabIndex="-1"
+          aria-hidden="true"
+          draggable="false"
+        />
+      </div>
       {/* Foreground content */}
       <div className="relative z-20 flex items-center justify-center h-screen">
         <MedicalCarousel onSlideChange={handleSlideChange} />
