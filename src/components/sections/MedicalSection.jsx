@@ -15,7 +15,7 @@ const MedicalSection = () => {
   };
 
   return (
-    <div className="h-screen w-full relative overflow-hidden">
+    <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
       {/* Section-local blurred background videos */}
       {blurVideos.map((video, index) => (
         <div
