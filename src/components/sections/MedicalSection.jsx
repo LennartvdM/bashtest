@@ -9,6 +9,28 @@ const blurVideos = [
 
 const MedicalSection = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
+  const [videosLoaded, setVideosLoaded] = useState(false);
+  const videoRefs = useRef([]);
+
+  useEffect(() => {
+    // Preload all videos
+    const loadPromises = blurVideos.map((_, index) => {
+      return new Promise((resolve, reject) => {
+        if (videoRefs.current[index]) {
+          videoRefs.current[index].load();
+          videoRefs.current[index].onloadeddata = () => resolve();
+          videoRefs.current[index].onerror = () => reject();
+        }
+      });
+    });
+
+    Promise.all(loadPromises)
+      .then(() => setVideosLoaded(true))
+      .catch((error) => {
+        console.error('Error loading videos:', error);
+        setVideosLoaded(true); // Still set to true to show content even if videos fail
+      });
+  }, []);
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -21,11 +43,12 @@ const MedicalSection = () => {
         <div
           key={video.id}
           className={`absolute inset-0 transition-opacity duration-700 ease ${
-            index === currentVideo ? "opacity-100" : "opacity-0"
+            index === currentVideo && videosLoaded ? "opacity-100" : "opacity-0"
           }`}
           style={{ zIndex: 0 }}
         >
           <video
+            ref={el => videoRefs.current[index] = el}
             src={video.video}
             className="w-full h-full object-cover"
             autoPlay
@@ -33,6 +56,7 @@ const MedicalSection = () => {
             loop
             playsInline
             preload="auto"
+            onError={(e) => console.error(`Error loading video ${video.video}:`, e)}
           />
         </div>
       ))}
