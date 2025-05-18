@@ -198,34 +198,18 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
                 </div>
               )}
               {headlines.map((headline, i) => (
-                <button
+                <div
                   key={i}
                   ref={(el) => (rowRefs.current[i] = el)}
+                  className="relative cursor-pointer py-2 px-6 transition-colors duration-200"
                   onMouseEnter={() => handleHover(i)}
                   onMouseLeave={handleHoverEnd}
-                  className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
-                  style={{
-                    display: 'block',
-                    maxWidth: 480,
-                    minWidth: 320,
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    margin: '0 auto',
-                  }}
                 >
-                  <p className="m-0 text-right text-2xl leading-tight" style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 500,
-                    letterSpacing: '-0.5px',
-                    color: hoveredIndex === i ? '#2D6A6A' : (current === i ? '#574B4B' : '#808080'),
-                    transition: 'color 0.6s, transform 0.3s',
-                    transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
-                  }}>
-                    {headline.firstLine}
-                    <br />
+                  <p className="text-lg font-medium text-gray-700">
+                    {headline.firstLine}<br />
                     {headline.secondLine}
                   </p>
-                </button>
+                </div>
               ))}
             </div>
           </div>

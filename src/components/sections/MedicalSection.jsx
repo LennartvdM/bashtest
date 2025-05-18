@@ -10,32 +10,9 @@ const blurVideos = [
 const MedicalSection = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
 
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          const carousel = mutation.target;
-          const activeSlide = carousel.querySelector('.opacity-100');
-          if (activeSlide) {
-            const slideIndex = parseInt(activeSlide.getAttribute('data-index') || '0');
-            setCurrentVideo(slideIndex);
-          }
-        }
-      });
-    });
-
-    const timeoutId = setTimeout(() => {
-      const carousel = document.querySelector('.relative.overflow-hidden.rounded-2xl');
-      if (carousel) {
-        observer.observe(carousel, { attributes: true, subtree: true });
-      }
-    }, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      observer.disconnect();
-    };
-  }, []);
+  const handleSlideChange = (index) => {
+    setCurrentVideo(index);
+  };
 
   return (
     <div className="min-h-screen relative flex items-center justify-center">
@@ -61,7 +38,7 @@ const MedicalSection = () => {
       ))}
       {/* Content */}
       <div className="relative z-10 w-full">
-        <MedicalCarousel />
+        <MedicalCarousel onSlideChange={handleSlideChange} />
       </div>
     </div>
   );
