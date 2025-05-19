@@ -142,6 +142,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
           <div className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
+            <div className="glass-rect" />
             {slides.map((s, i) => (
               <div
                 key={s.id}
