@@ -311,10 +311,10 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       />
                     </div>
                   </div>
-                  {/* Grey line protruding to the right from the highlighter's right edge (not clipped) */}
+                  {/* Second highlighter: animated line protruding to the right */}
                   <div
+                    className="absolute transition-all duration-700 ease"
                     style={{
-                      position: 'absolute',
                       top: rect.top + rect.height / 2,
                       left: `calc(50% + ${(maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING) / 2}px)`,
                       width: '100vw',
@@ -324,6 +324,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       zIndex: 40,
                       pointerEvents: 'none',
                       transform: 'translateY(-50%)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   />
                 </>
