@@ -246,15 +246,15 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   <div
                     style={{
                       position: 'fixed',
-                      top: highlighterTop,
-                      left: highlighterRight,
-                      width: 12,
-                      height: 12,
-                      background: 'red',
+                      top: highlighterTop - 20,
+                      left: highlighterRight - 20,
+                      width: 40,
+                      height: 40,
+                      background: 'lime',
                       borderRadius: '50%',
-                      zIndex: 40,
+                      zIndex: 9999,
                       pointerEvents: 'none',
-                      boxShadow: '0 0 6px 2px rgba(255,0,0,0.2)',
+                      boxShadow: '0 0 12px 4px rgba(0,255,0,0.4)',
                     }}
                   />
                 );
