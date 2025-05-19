@@ -34,3 +34,16 @@ body::-webkit-scrollbar {
   height: 0 !important;
   display: none !important; /* Chrome, Safari, Opera */
 }
+
+.yellow-rect {
+  position: absolute;
+  top: calc(50% + 160px);   /* 50% + half video height */
+  right: calc(50% - 240px); /* 50% - half video width */
+  bottom: 0;
+  left: 0;
+  background: yellow;
+  opacity: 0.5;
+  z-index: 10;
+  pointer-events: none;
+  border: 2px solid orange;
+}

@@ -18,6 +18,8 @@ const MedicalSection = () => {
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+      {/* Yellow rectangle: top-right at video center, bottom-left at section bottom-left */}
+      <div className="yellow-rect" />
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
