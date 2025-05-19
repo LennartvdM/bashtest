@@ -24,7 +24,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ reverse = false, onSlideChange }) {
+function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
@@ -130,10 +130,12 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
     function updateCenter() {
       if (videoContainerRef.current) {
         const rect = videoContainerRef.current.getBoundingClientRect();
-        setCenter({
+        const newCenter = {
           x: rect.left + rect.width / 2 + window.scrollX,
           y: rect.top + rect.height / 2 + window.scrollY,
-        });
+        };
+        setCenter(newCenter);
+        if (onCenterChange) onCenterChange(newCenter);
       }
     }
     updateCenter();
@@ -143,7 +145,7 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
       window.removeEventListener("resize", updateCenter);
       window.removeEventListener("scroll", updateCenter);
     };
-  }, []);
+  }, [onCenterChange]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">

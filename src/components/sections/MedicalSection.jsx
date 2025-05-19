@@ -11,6 +11,7 @@ const BASE_INDEX = 2; // index of the always-visible base video
 
 const MedicalSection = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
+  const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -19,7 +20,21 @@ const MedicalSection = () => {
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
       {/* Yellow rectangle: top-right at video center, bottom-left at section bottom-left */}
-      <div className="yellow-rect" />
+      <div
+        className="yellow-rect"
+        style={{
+          position: 'fixed',
+          top: videoCenter.y,
+          right: `calc(100vw - ${videoCenter.x}px)`,
+          bottom: 0,
+          left: 0,
+          background: 'yellow',
+          opacity: 0.5,
+          zIndex: 10,
+          pointerEvents: 'none',
+          border: '2px solid orange',
+        }}
+      />
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
@@ -74,7 +89,7 @@ const MedicalSection = () => {
       {/* Foreground content */}
       <div className="relative z-20 flex items-center justify-center h-screen">
         <div className="glass-rect" />
-        <MedicalCarousel onSlideChange={handleSlideChange} />
+        <MedicalCarousel onSlideChange={handleSlideChange} onCenterChange={setVideoCenter} />
       </div>
     </div>
   );
