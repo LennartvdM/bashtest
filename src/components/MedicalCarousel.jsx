@@ -215,7 +215,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
                   height: 2,
                   background: '#e0e0e0',
                   mixBlendMode: 'screen',
-                  zIndex: 20,
+                  zIndex: 30,
                   pointerEvents: 'none',
                 }}
               />

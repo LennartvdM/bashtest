@@ -19,7 +19,20 @@ const MedicalSection = () => {
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
-      {/* Remove all lines and rectangles, only keep the MedicalCarousel and background videos */}
+      {/* Grey line from video center to left edge of viewport */}
+      <div
+        style={{
+          position: 'fixed',
+          top: videoCenter.y,
+          left: 0,
+          width: videoCenter.x,
+          height: 2,
+          background: '#e0e0e0',
+          mixBlendMode: 'screen',
+          zIndex: 30,
+          pointerEvents: 'none',
+        }}
+      />
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
