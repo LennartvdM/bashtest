@@ -180,7 +180,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           width: videoRect.left,
           height: videoRect.height,
           background: 'rgba(255,0,0,0.3)',
-          zIndex: 9999,
+          zIndex: 0,
           pointerEvents: 'none',
         }}
       />
