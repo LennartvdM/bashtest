@@ -189,6 +189,19 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 transform: 'translateY(-50%)',
               }}
             />
+            {/* Transparent red rectangle, same height as video, extends left from video edge */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: '100%',
+                background: 'rgba(255,0,0,0.3)',
+                zIndex: 1,
+                pointerEvents: 'none',
+              }}
+            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
