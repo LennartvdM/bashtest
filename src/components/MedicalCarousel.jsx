@@ -24,7 +24,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
+function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHighlighterRightChange }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [barKey, setBarKey] = useState(0);
@@ -70,6 +70,15 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
   };
 
   useLayoutEffect(measure, [current]);
+
+  useLayoutEffect(() => {
+    if (ready && Number.isFinite(current) && captionsRef.current && onHighlighterRightChange) {
+      const captionsRect = captionsRef.current.getBoundingClientRect();
+      const x = captionsRect.left + rect.left + rect.width + window.scrollX;
+      const y = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
+      onHighlighterRightChange({ x, y });
+    }
+  }, [ready, current, rect, onHighlighterRightChange]);
 
   // Autocycle: only if not paused
   useEffect(() => {

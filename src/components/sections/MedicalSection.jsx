@@ -12,6 +12,7 @@ const BASE_INDEX = 2; // index of the always-visible base video
 const MedicalSection = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
+  const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -30,6 +31,20 @@ const MedicalSection = () => {
           background: '#e0e0e0',
           mixBlendMode: 'screen',
           zIndex: 30,
+          pointerEvents: 'none',
+        }}
+      />
+      {/* Grey line from highlighter right edge to right edge of viewport */}
+      <div
+        style={{
+          position: 'fixed',
+          top: highlighterRight.y,
+          left: highlighterRight.x,
+          width: `calc(100vw - ${highlighterRight.x}px)`,
+          height: 2,
+          background: '#e0e0e0',
+          mixBlendMode: 'screen',
+          zIndex: 40,
           pointerEvents: 'none',
         }}
       />
@@ -87,7 +102,7 @@ const MedicalSection = () => {
       {/* Foreground content */}
       <div className="relative z-20 flex items-center justify-center h-screen">
         <div className="glass-rect" />
-        <MedicalCarousel onSlideChange={handleSlideChange} onCenterChange={setVideoCenter} />
+        <MedicalCarousel onSlideChange={handleSlideChange} onCenterChange={setVideoCenter} onHighlighterRightChange={setHighlighterRight} />
       </div>
     </div>
   );
