@@ -38,6 +38,8 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
   const autoplayRef = useRef();
   const isMounted = useRef(true);
   const captionsRef = useRef();
+  const videoContainerRef = useRef(null);
+  const [center, setCenter] = useState({ x: 0, y: 0 });
 
   // Cleanup on unmount
   useEffect(() => {
@@ -124,6 +126,25 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
     }
   }, [current, onSlideChange]);
 
+  useEffect(() => {
+    function updateCenter() {
+      if (videoContainerRef.current) {
+        const rect = videoContainerRef.current.getBoundingClientRect();
+        setCenter({
+          x: rect.left + rect.width / 2 + window.scrollX,
+          y: rect.top + rect.height / 2 + window.scrollY,
+        });
+      }
+    }
+    updateCenter();
+    window.addEventListener("resize", updateCenter);
+    window.addEventListener("scroll", updateCenter);
+    return () => {
+      window.removeEventListener("resize", updateCenter);
+      window.removeEventListener("scroll", updateCenter);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
       <div className="max-w-6xl mx-auto flex flex-col items-start">
@@ -141,8 +162,23 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
-          <div className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
-            <div className="glass-rect" />
+          <div ref={videoContainerRef} className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
+            {/* Red dot at center for debugging */}
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: 10,
+                height: 10,
+                background: "red",
+                borderRadius: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 20,
+                pointerEvents: "none",
+              }}
+              title={`Center: (${center.x}, ${center.y})`}
+            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
