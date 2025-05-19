@@ -306,6 +306,22 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                         transform: 'translateY(-50%)',
                       }}
                     />
+                    {/* Debug dot at right edge of highlighter */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        right: 0,
+                        transform: 'translateY(-50%)',
+                        width: 24,
+                        height: 24,
+                        background: 'lime',
+                        borderRadius: '50%',
+                        zIndex: 9999,
+                        pointerEvents: 'none',
+                        boxShadow: '0 0 12px 4px rgba(0,255,0,0.4)',
+                      }}
+                    />
                   </div>
                 </div>
               )}
