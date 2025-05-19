@@ -258,6 +258,21 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
                       }}
                       onAnimationEnd={handleBarEnd}
                     />
+                    {/* Grey line protruding to the right */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '100%',
+                        width: '100vw',
+                        height: 2,
+                        background: '#e0e0e0',
+                        mixBlendMode: 'screen',
+                        zIndex: 40,
+                        pointerEvents: 'none',
+                        transform: 'translateY(-50%)',
+                      }}
+                    />
                   </div>
                 </div>
               )}
