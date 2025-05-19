@@ -37,10 +37,10 @@ body::-webkit-scrollbar {
 
 .glass-rect {
   position: absolute;
-  top: 50%;
-  right: 50%;
+  top: calc(50% + 160px);    /* 50% + half video height */
+  left: 50%;                /* 50% of section width (video is centered) */
+  right: 0;
   bottom: 0;
-  left: 0;
   background: rgba(255,255,255,0.15);
   /* border-radius: 1.5rem 0 0 0; */
   border: 1px solid rgba(255,255,255,0.3);
