@@ -38,9 +38,9 @@ body::-webkit-scrollbar {
 .glass-rect {
   position: absolute;
   top: 50%;
-  right: 50%;
+  left: 50%;
+  right: 0;
   bottom: 0;
-  left: 0;
   background: rgba(255,255,255,0.15);
   /* border-radius: 1.5rem 0 0 0; */
   border: 1px solid rgba(255,255,255,0.3);
@@ -48,4 +48,5 @@ body::-webkit-scrollbar {
   box-shadow: 0 4px 32px 0 rgba(0,0,0,0.15);
   z-index: 1;
   pointer-events: none;
+  transform: translate(-100%, 0);
 }
