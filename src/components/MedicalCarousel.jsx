@@ -78,7 +78,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
       const y = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
       onHighlighterRightChange({ x, y });
     }
-  }, [ready, current, rect, onHighlighterRightChange]);
+  });
 
   // Autocycle: only if not paused
   useEffect(() => {
