@@ -184,7 +184,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 height: 2,
                 background: '#e0e0e0',
                 mixBlendMode: 'screen',
-                zIndex: 20,
+                zIndex: 5,
                 pointerEvents: 'none',
               }}
             />
@@ -292,22 +292,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                           width: '100%'
                         }}
                         onAnimationEnd={handleBarEnd}
-                      />
-                      {/* Green dot at right edge of highlighter for reference */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '100%',
-                          transform: 'translate(-50%, -50%)',
-                          width: 24,
-                          height: 24,
-                          background: 'lime',
-                          borderRadius: '50%',
-                          zIndex: 9999,
-                          pointerEvents: 'none',
-                          boxShadow: '0 0 12px 4px rgba(0,255,0,0.4)',
-                        }}
                       />
                     </div>
                   </div>
