@@ -179,6 +179,22 @@ function MedicalCarousel({ reverse = false, onSlideChange }) {
               }}
               title={`Center: (${center.x}, ${center.y})`}
             />
+            {/* Yellow rectangle anchored by top-right corner to the red dot */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                right: "50%",
+                width: 120,
+                height: 80,
+                background: "yellow",
+                border: "2px solid orange",
+                zIndex: 10,
+                pointerEvents: "none",
+                transform: "translateY(-50%)",
+              }}
+              title="Yellow rectangle anchored to center"
+            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
