@@ -174,7 +174,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
       {/* Debug: Red rectangle exactly overlaying the video (no border radius) */}
       <div
         style={{
-          position: 'absolute',
+          position: 'fixed',
           left: videoRect.left,
           top: videoRect.top,
           width: videoRect.width,
