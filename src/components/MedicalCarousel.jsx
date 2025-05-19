@@ -293,23 +293,39 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                         }}
                         onAnimationEnd={handleBarEnd}
                       />
+                      {/* Grey line protruding to the right from the highlighter's right edge (travels with highlighter) */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '100%',
+                          width: '100vw',
+                          height: 2,
+                          background: '#e0e0e0',
+                          mixBlendMode: 'screen',
+                          zIndex: 40,
+                          pointerEvents: 'none',
+                          transform: 'translateY(-50%)',
+                        }}
+                      />
+                      {/* Green dot at right edge of highlighter for reference */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '100%',
+                          transform: 'translate(-50%, -50%)',
+                          width: 24,
+                          height: 24,
+                          background: 'lime',
+                          borderRadius: '50%',
+                          zIndex: 9999,
+                          pointerEvents: 'none',
+                          boxShadow: '0 0 12px 4px rgba(0,255,0,0.4)',
+                        }}
+                      />
                     </div>
                   </div>
-                  {/* Grey line protruding to the right from the highlighter's right edge */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: rect.top + rect.height / 2,
-                      left: `calc(50% + ${(maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING) / 2}px)`,
-                      width: '100vw',
-                      height: 2,
-                      background: '#e0e0e0',
-                      mixBlendMode: 'screen',
-                      zIndex: 40,
-                      pointerEvents: 'none',
-                      transform: 'translateY(-50%)',
-                    }}
-                  />
                 </>
               )}
               {headlines.map((headline, i) => (
