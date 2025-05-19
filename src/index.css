@@ -34,3 +34,18 @@ body::-webkit-scrollbar {
   height: 0 !important;
   display: none !important; /* Chrome, Safari, Opera */
 }
+
+.glass-rect {
+  position: absolute;
+  top: calc(50% + 160px);    /* 50% + half video height */
+  right: calc(50% - 240px);  /* 50% - half video width */
+  bottom: 0;
+  left: 0;
+  background: rgba(255,255,255,0.15);
+  border-radius: 1.5rem 0 0 0;
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.15);
+  z-index: 1;
+  pointer-events: none;
+}

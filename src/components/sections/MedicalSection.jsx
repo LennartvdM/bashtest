@@ -71,6 +71,7 @@ const MedicalSection = () => {
       ))}
       {/* Foreground content */}
       <div className="relative z-20 flex items-center justify-center h-screen">
+        <div className="glass-rect" />
         <MedicalCarousel onSlideChange={handleSlideChange} />
       </div>
     </div>
