@@ -291,7 +291,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       }}
                       onAnimationEnd={handleBarEnd}
                     />
-                    {/* Grey line protruding to the right */}
+                    {/* Grey line protruding to the right from the highlighter's right edge */}
                     <div
                       style={{
                         position: 'absolute',
