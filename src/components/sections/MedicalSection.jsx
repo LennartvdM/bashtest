@@ -20,7 +20,7 @@ const MedicalSection = () => {
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
-      {/* Grey line from video center to left edge of viewport (move behind carousel) */}
+      {/* Grey line from video center to left edge of viewport */}
       <div
         style={{
           position: 'absolute',
