@@ -196,7 +196,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 top: 0,
                 bottom: 0,
                 left: 0,
-                right: '100%',
+                width: 'calc(50% - 240px)',
                 background: 'rgba(255,0,0,0.3)',
                 zIndex: 1,
                 pointerEvents: 'none',
