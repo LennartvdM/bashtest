@@ -33,6 +33,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   const [maxCaptionWidth, setMaxCaptionWidth] = useState(0);
   const [captionsWidth, setCaptionsWidth] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [videoRect, setVideoRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -156,8 +157,33 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
     };
   }, [onCenterChange]);
 
+  useLayoutEffect(() => {
+    if (videoContainerRef.current) {
+      const rect = videoContainerRef.current.getBoundingClientRect();
+      setVideoRect({
+        left: rect.left + window.scrollX,
+        top: rect.top + window.scrollY,
+        width: rect.width,
+        height: rect.height,
+      });
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
+      {/* Debug: Red rectangle exactly overlaying the video (no border radius) */}
+      <div
+        style={{
+          position: 'absolute',
+          left: videoRect.left,
+          top: videoRect.top,
+          width: videoRect.width,
+          height: videoRect.height,
+          background: 'rgba(255,0,0,0.3)',
+          zIndex: 9999,
+          pointerEvents: 'none',
+        }}
+      />
       <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
