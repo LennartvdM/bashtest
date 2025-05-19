@@ -267,19 +267,19 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       }}
                       onAnimationEnd={handleBarEnd}
                     />
-                    {/* Grey line protruding to the right */}
+                    {/* Red debug dot in the center of the highlighter */}
                     <div
                       style={{
                         position: 'absolute',
                         top: '50%',
-                        left: '100%',
-                        width: '100vw',
-                        height: 2,
-                        background: '#e0e0e0',
-                        mixBlendMode: 'screen',
-                        zIndex: 40,
+                        left: '50%',
+                        width: 12,
+                        height: 12,
+                        background: 'red',
+                        borderRadius: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 100,
                         pointerEvents: 'none',
-                        transform: 'translateY(-50%)',
                       }}
                     />
                   </div>
