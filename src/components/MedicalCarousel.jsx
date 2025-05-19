@@ -236,6 +236,30 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 );
               })()
             )}
+            {/* Red dot at the right edge */}
+            {ready && Number.isFinite(current) && captionsRef.current && (
+              (() => {
+                const captionsRect = captionsRef.current.getBoundingClientRect();
+                const highlighterTop = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
+                const highlighterRight = captionsRect.left + rect.left + rect.width + window.scrollX;
+                return (
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: highlighterTop - 6,
+                      left: highlighterRight - 6,
+                      width: 12,
+                      height: 12,
+                      background: 'red',
+                      borderRadius: '50%',
+                      zIndex: 40,
+                      pointerEvents: 'none',
+                      boxShadow: '0 0 6px 2px rgba(255,0,0,0.2)',
+                    }}
+                  />
+                );
+              })()
+            )}
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
@@ -267,19 +291,19 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       }}
                       onAnimationEnd={handleBarEnd}
                     />
-                    {/* Red debug dot in the center of the highlighter */}
+                    {/* Grey line protruding to the right */}
                     <div
                       style={{
                         position: 'absolute',
                         top: '50%',
-                        left: '50%',
-                        width: 12,
-                        height: 12,
-                        background: 'red',
-                        borderRadius: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 100,
+                        left: '100%',
+                        width: '100vw',
+                        height: 2,
+                        background: '#e0e0e0',
+                        mixBlendMode: 'screen',
+                        zIndex: 40,
                         pointerEvents: 'none',
+                        transform: 'translateY(-50%)',
                       }}
                     />
                   </div>
