@@ -205,20 +205,27 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
               </div>
             ))}
             {/* Highlighter right-edge line */}
-            {ready && Number.isFinite(current) && (
-              <div
-                style={{
-                  position: 'fixed',
-                  top: rect.top + rect.height / 2 + videoContainerRef.current?.getBoundingClientRect().top + window.scrollY - videoContainerRef.current?.offsetTop || 0,
-                  left: rect.left + rect.width + videoContainerRef.current?.getBoundingClientRect().left + window.scrollX || 0,
-                  width: `calc(100vw - ${rect.left + rect.width + (videoContainerRef.current?.getBoundingClientRect().left + window.scrollX || 0)}px)`,
-                  height: 2,
-                  background: '#e0e0e0',
-                  mixBlendMode: 'screen',
-                  zIndex: 30,
-                  pointerEvents: 'none',
-                }}
-              />
+            {ready && Number.isFinite(current) && captionsRef.current && (
+              (() => {
+                const captionsRect = captionsRef.current.getBoundingClientRect();
+                const highlighterTop = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
+                const highlighterRight = captionsRect.left + rect.left + rect.width + window.scrollX;
+                return (
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: highlighterTop,
+                      left: highlighterRight,
+                      width: `calc(100vw - ${highlighterRight}px)`,
+                      height: 2,
+                      background: '#e0e0e0',
+                      mixBlendMode: 'screen',
+                      zIndex: 30,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                );
+              })()
             )}
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
