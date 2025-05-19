@@ -246,8 +246,8 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   <div
                     style={{
                       position: 'fixed',
-                      top: highlighterTop - 6,
-                      left: highlighterRight - 6,
+                      top: highlighterTop,
+                      left: highlighterRight,
                       width: 12,
                       height: 12,
                       background: 'red',
