@@ -9,7 +9,8 @@
     "taskmaster": "npx taskmaster",
     "taskmaster:dev": "npx taskmaster dev",
     "taskmaster:build": "npx taskmaster build",
-    "taskmaster:preview": "npx taskmaster preview"
+    "taskmaster:preview": "npx taskmaster preview",
+    "deploy:netlify": "npx netlify deploy --prod"
   },
   "dependencies": {
     "framer-motion": "^10.12.16",
