@@ -165,6 +165,20 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
           <div ref={videoContainerRef} className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
+            {/* Grey horizontal line for each video */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: 0,
+                width: '50%',
+                height: 2,
+                background: '#e0e0e0',
+                mixBlendMode: 'screen',
+                zIndex: 20,
+                pointerEvents: 'none',
+              }}
+            />
             {slides.map((s, i) => (
               <div
                 key={s.id}

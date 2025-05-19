@@ -19,36 +19,7 @@ const MedicalSection = () => {
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
-      {/* Grey horizontal line from video center to left edge */}
-      <div
-        style={{
-          position: 'fixed',
-          top: videoCenter.y,
-          left: 0,
-          width: videoCenter.x,
-          height: 2,
-          background: '#e0e0e0',
-          mixBlendMode: 'screen',
-          zIndex: 20,
-          pointerEvents: 'none',
-        }}
-      />
-      {/* Yellow rectangle: top-right at video center, bottom-left at section bottom-left */}
-      <div
-        className="yellow-rect"
-        style={{
-          position: 'fixed',
-          top: videoCenter.y,
-          right: `calc(100vw - ${videoCenter.x}px)`,
-          bottom: 0,
-          left: 0,
-          background: 'yellow',
-          opacity: 0.5,
-          zIndex: 10,
-          pointerEvents: 'none',
-          border: '2px solid orange',
-        }}
-      />
+      {/* Remove all lines and rectangles, only keep the MedicalCarousel and background videos */}
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
