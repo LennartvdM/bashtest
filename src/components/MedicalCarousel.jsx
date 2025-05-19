@@ -264,66 +264,53 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
               {ready && Number.isFinite(current) && (
-                <div
-                  className="absolute rounded-xl transition-all duration-700 ease pointer-events-none"
-                  style={{
-                    top: rect.top,
-                    height: rect.height,
-                    width: maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: hoveredIndex === current ? 'rgba(228,228,228,0.7)' : 'rgba(232,232,232,0.7)',
-                    borderRadius: 10,
-                    boxShadow: hoveredIndex === current ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                >
-                  <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
-                    {/* Loading Bar */}
-                    <div
-                      key={barKey}
-                      className="absolute left-0 bottom-0 h-[3px]"
-                      style={{
-                        background: 'rgba(82,156,156,0.5)',
-                        animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
-                        animationPlayState: isPaused ? 'paused' : 'running',
-                        width: '100%'
-                      }}
-                      onAnimationEnd={handleBarEnd}
-                    />
-                    {/* Grey line protruding to the right from the highlighter's right edge */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '100%',
-                        width: '100vw',
-                        height: 2,
-                        background: '#e0e0e0',
-                        mixBlendMode: 'screen',
-                        zIndex: 40,
-                        pointerEvents: 'none',
-                        transform: 'translateY(-50%)',
-                      }}
-                    />
-                    {/* Debug dot at right edge of highlighter */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        right: 0,
-                        transform: 'translateY(-50%)',
-                        width: 24,
-                        height: 24,
-                        background: 'lime',
-                        borderRadius: '50%',
-                        zIndex: 9999,
-                        pointerEvents: 'none',
-                        boxShadow: '0 0 12px 4px rgba(0,255,0,0.4)',
-                      }}
-                    />
+                <>
+                  {/* Highlighter rectangle */}
+                  <div
+                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none"
+                    style={{
+                      top: rect.top,
+                      height: rect.height,
+                      width: maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      background: hoveredIndex === current ? 'rgba(228,228,228,0.7)' : 'rgba(232,232,232,0.7)',
+                      borderRadius: 10,
+                      boxShadow: hoveredIndex === current ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                  >
+                    <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
+                      {/* Loading Bar */}
+                      <div
+                        key={barKey}
+                        className="absolute left-0 bottom-0 h-[3px]"
+                        style={{
+                          background: 'rgba(82,156,156,0.5)',
+                          animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
+                          animationPlayState: isPaused ? 'paused' : 'running',
+                          width: '100%'
+                        }}
+                        onAnimationEnd={handleBarEnd}
+                      />
+                    </div>
                   </div>
-                </div>
+                  {/* Grey line protruding to the right from the highlighter's right edge */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: rect.top + rect.height / 2,
+                      left: `calc(50% + ${(maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING) / 2}px)`,
+                      width: '100vw',
+                      height: 2,
+                      background: '#e0e0e0',
+                      mixBlendMode: 'screen',
+                      zIndex: 40,
+                      pointerEvents: 'none',
+                      transform: 'translateY(-50%)',
+                    }}
+                  />
+                </>
               )}
               {headlines.map((headline, i) => (
                 <button
