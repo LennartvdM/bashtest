@@ -9,6 +9,7 @@
 [build.processing]
   skip_processing = true
 
+# Force new deployment
 [[redirects]]
   from = "/*"
   to = "/index.html"
