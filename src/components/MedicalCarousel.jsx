@@ -171,13 +171,13 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Debug: Red rectangle exactly overlaying the video (no border radius) */}
+      {/* Debug: Red rectangle extending from left edge to left edge of video */}
       <div
         style={{
           position: 'fixed',
-          left: videoRect.left,
+          left: 0,
           top: videoRect.top,
-          width: videoRect.width,
+          width: videoRect.left,
           height: videoRect.height,
           background: 'rgba(255,0,0,0.3)',
           zIndex: 9999,
