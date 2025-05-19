@@ -277,30 +277,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 );
               })()
             )}
-            {/* Red dot at the right edge */}
-            {ready && Number.isFinite(current) && captionsRef.current && (
-              (() => {
-                const captionsRect = captionsRef.current.getBoundingClientRect();
-                const highlighterTop = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
-                const highlighterRight = captionsRect.left + rect.left + rect.width + window.scrollX;
-                return (
-                  <div
-                    style={{
-                      position: 'fixed',
-                      top: highlighterTop - 20,
-                      left: highlighterRight - 20,
-                      width: 40,
-                      height: 40,
-                      background: 'lime',
-                      borderRadius: '50%',
-                      zIndex: 9999,
-                      pointerEvents: 'none',
-                      boxShadow: '0 0 12px 4px rgba(0,255,0,0.4)',
-                    }}
-                  />
-                );
-              })()
-            )}
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
