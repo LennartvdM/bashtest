@@ -165,22 +165,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
           <div ref={videoContainerRef} className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
-            {/* Red dot at center for debugging */}
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                width: 10,
-                height: 10,
-                background: "red",
-                borderRadius: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: 20,
-                pointerEvents: "none",
-              }}
-              title={`Center: (${center.x}, ${center.y})`}
-            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
@@ -206,6 +190,22 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange }) {
                 />
               </div>
             ))}
+            {/* Highlighter right-edge line */}
+            {ready && Number.isFinite(current) && (
+              <div
+                style={{
+                  position: 'fixed',
+                  top: rect.top + rect.height / 2 + videoContainerRef.current?.getBoundingClientRect().top + window.scrollY - videoContainerRef.current?.offsetTop || 0,
+                  left: rect.left + rect.width + videoContainerRef.current?.getBoundingClientRect().left + window.scrollX || 0,
+                  width: `calc(100vw - ${rect.left + rect.width + (videoContainerRef.current?.getBoundingClientRect().left + window.scrollX || 0)}px)`,
+                  height: 2,
+                  background: '#e0e0e0',
+                  mixBlendMode: 'screen',
+                  zIndex: 20,
+                  pointerEvents: 'none',
+                }}
+              />
+            )}
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>

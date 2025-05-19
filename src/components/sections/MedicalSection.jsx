@@ -19,6 +19,20 @@ const MedicalSection = () => {
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+      {/* Grey horizontal line from video center to left edge */}
+      <div
+        style={{
+          position: 'fixed',
+          top: videoCenter.y,
+          left: 0,
+          width: videoCenter.x,
+          height: 2,
+          background: '#e0e0e0',
+          mixBlendMode: 'screen',
+          zIndex: 20,
+          pointerEvents: 'none',
+        }}
+      />
       {/* Yellow rectangle: top-right at video center, bottom-left at section bottom-left */}
       <div
         className="yellow-rect"
