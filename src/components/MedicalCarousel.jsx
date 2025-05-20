@@ -297,6 +297,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                           background: 'rgba(82,156,156,0.5)',
                           animation: `grow ${AUTOPLAY_MS}ms linear forwards`,
                           animationPlayState: isPaused ? 'paused' : 'running',
+                          left: -24,
                           width: 492
                         }}
                         onAnimationEnd={handleBarEnd}
