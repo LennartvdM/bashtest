@@ -1,7 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 
 const AUTOPLAY_MS = 6600; // 6.6 seconds
-const HIGHLIGHTER_HORIZONTAL_PADDING = 48; // 24px on each side
 
 const slides = [
   { id: "0", video: "/videos/urgency.mp4", alt: "Medical urgency demonstration" },
@@ -30,8 +29,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   const [barKey, setBarKey] = useState(0);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const [ready, setReady] = useState(false);
-  const [maxCaptionWidth, setMaxCaptionWidth] = useState(0);
-  const [captionsWidth, setCaptionsWidth] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [videoRect, setVideoRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
@@ -60,13 +57,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
       const { offsetTop, offsetHeight } = node;
       setRect({ top: offsetTop, height: offsetHeight });
       setReady(true);
-    }
-    // Measure all caption widths for highlighter min-width
-    const widths = rowRefs.current.map((el) => el ? el.offsetWidth : 0);
-    setMaxCaptionWidth(Math.max(...widths, 0));
-    // Measure captions container width for highlighter max-width
-    if (captionsRef.current) {
-      setCaptionsWidth(captionsRef.current.offsetWidth);
     }
   };
 
