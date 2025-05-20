@@ -250,6 +250,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   disablePictureInPicture
                   tabIndex="-1"
                   aria-hidden="true"
+                  style={videoHover ? { outline: '2px solid #f5f5f5', outlineOffset: '-2px', transition: 'outline 0.2s' } : { outline: 'none', transition: 'outline 0.2s' }}
                 />
               </div>
             ))}
