@@ -288,7 +288,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                   >
-                    <div className="w-full h-full rounded-xl overflow-hidden relative pointer-events-none">
+                    <div className="w-full h-full rounded-xl relative pointer-events-none">
                       {/* Loading Bar */}
                       <div
                         key={barKey}
