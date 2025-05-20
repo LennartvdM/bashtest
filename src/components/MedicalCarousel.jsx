@@ -287,9 +287,11 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     style={{
                       top: rect.top,
                       height: rect.height,
-                      width: 420, // static width in px
+                      width: 372, // 420 - 24*2 for padding
                       left: '50%',
                       transform: 'translateX(-50%)',
+                      paddingLeft: 24,
+                      paddingRight: 24,
                       background: hoveredIndex === current ? 'rgba(228,228,228,0.7)' : 'rgba(232,232,232,0.7)',
                       borderRadius: 10,
                       boxShadow: hoveredIndex === current ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
