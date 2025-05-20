@@ -231,7 +231,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   disablePictureInPicture
                   tabIndex="-1"
                   aria-hidden="true"
-                  style={{ filter: 'brightness(0.5)' }}
                 />
               </div>
             ))}
