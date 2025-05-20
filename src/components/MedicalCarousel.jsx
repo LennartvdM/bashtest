@@ -211,8 +211,10 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
             onMouseEnter={() => setVideoHover(true)}
             onMouseLeave={() => setVideoHover(false)}
             style={{
-              transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+              transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s',
               transform: videoHover ? 'translateY(-12px)' : 'none',
+              outline: videoHover ? '2px solid #f5f5f5' : 'none',
+              outlineOffset: videoHover ? '2px' : '0px',
             }}
           >
             {/* Transparent red rectangle, same height as video, extends left from video edge */}
@@ -250,7 +252,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   disablePictureInPicture
                   tabIndex="-1"
                   aria-hidden="true"
-                  style={videoHover ? { outline: '2px solid #f5f5f5', outlineOffset: '-2px', transition: 'outline 0.2s' } : { outline: 'none', transition: 'outline 0.2s' }}
+                  style={{ outline: 'none', transition: 'outline 0.2s' }}
                 />
               </div>
             ))}
