@@ -174,7 +174,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           top: videoRect.top,
           width: videoRect.left,
           height: videoRect.height,
-          background: 'rgba(200,200,200,0.25)',
+          background: 'rgba(200,200,200,0.15)',
           mixBlendMode: 'soft-light',
           zIndex: 0,
           pointerEvents: 'none',
@@ -198,7 +198,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           ].join(', ')
         }}>
           In the moment,<br />
-          <span style={{ color: '#529C9C' }}>only</span> the patient<br />
+          <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
