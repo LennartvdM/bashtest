@@ -78,6 +78,14 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    // Defer measurement until after refs are set and browser has painted
+    const raf = requestAnimationFrame(() => {
+      measure();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   useLayoutEffect(() => {
     if (ready && Number.isFinite(current) && captionsRef.current && onHighlighterRightChange) {
       const captionsRect = captionsRef.current.getBoundingClientRect();
