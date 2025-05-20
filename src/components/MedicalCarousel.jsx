@@ -31,6 +31,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   const [ready, setReady] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [videoRect, setVideoRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
+  const [videoHover, setVideoHover] = useState(false);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -178,6 +179,8 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           mixBlendMode: 'color-dodge',
           zIndex: 0,
           pointerEvents: 'none',
+          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+          transform: videoHover ? 'translateY(-12px)' : 'none',
         }}
       />
       <div className="max-w-6xl mx-auto flex flex-col items-start">
@@ -202,7 +205,16 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full">
-          <div ref={videoContainerRef} className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0">
+          <div
+            ref={videoContainerRef}
+            className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0 group"
+            onMouseEnter={() => setVideoHover(true)}
+            onMouseLeave={() => setVideoHover(false)}
+            style={{
+              transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+              transform: videoHover ? 'translateY(-12px)' : 'none',
+            }}
+          >
             {/* Transparent red rectangle, same height as video, extends left from video edge */}
             <div
               style={{
