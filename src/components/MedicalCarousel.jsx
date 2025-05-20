@@ -286,7 +286,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                         className="absolute left-0 bottom-0 h-[3px]"
                         style={{
                           background: 'rgba(82,156,156,0.5)',
-                          animation: `grow 3000ms linear forwards`,
+                          animation: `grow 7000ms linear forwards`,
                           animationPlayState: isPaused ? 'paused' : 'running',
                           left: -24,
                           width: 100
@@ -349,7 +349,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
       </div>
       {/* Keyframes for loading bar */}
       <style>{`
-        @keyframes grow { from { width: 0; } to { width: 100%; } }
+        @keyframes grow { from { width: 0; } to { width: 110%; } }
       `}</style>
     </div>
   );
