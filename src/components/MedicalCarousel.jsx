@@ -73,6 +73,12 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   useLayoutEffect(measure, [current]);
 
   useLayoutEffect(() => {
+    // After first render, ensure all refs are set and measure widths
+    measure();
+    // eslint-disable-next-line
+  }, []);
+
+  useLayoutEffect(() => {
     if (ready && Number.isFinite(current) && captionsRef.current && onHighlighterRightChange) {
       const captionsRect = captionsRef.current.getBoundingClientRect();
       const x = captionsRect.left + rect.left + rect.width + window.scrollX;
