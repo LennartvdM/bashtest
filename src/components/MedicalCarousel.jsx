@@ -287,7 +287,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     style={{
                       top: rect.top,
                       height: rect.height,
-                      width: 420,
+                      width: 444,
                       left: '50%',
                       transform: 'translateX(-50%)',
                       paddingLeft: 24,
@@ -318,7 +318,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     className="absolute transition-all duration-700 ease"
                     style={{
                       top: rect.top + rect.height / 2,
-                      left: `calc(50% + ${420 / 2}px)`, // static width
+                      left: `calc(50% + ${444 / 2}px)`, // static width
                       width: '100vw',
                       height: 2,
                       background: '#e0e0e0',
