@@ -231,6 +231,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   disablePictureInPicture
                   tabIndex="-1"
                   aria-hidden="true"
+                  style={{ filter: 'brightness(0.5)' }}
                 />
               </div>
             ))}
@@ -333,7 +334,18 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     fontFamily: 'Inter, sans-serif',
                     fontWeight: 500,
                     letterSpacing: '-0.5px',
-                    color: hoveredIndex === i ? '#2D6A6A' : (current === i ? '#574B4B' : '#808080'),
+                    color:
+                      hoveredIndex === i
+                        ? '#2D6A6A' // teal, normal blend
+                        : current === i
+                        ? '#2a2323' // much darker grey-brown, normal blend
+                        : '#bdbdbd', // light grey when inactive
+                    mixBlendMode:
+                      hoveredIndex === i
+                        ? 'normal'
+                        : current === i
+                        ? 'normal'
+                        : 'screen',
                     transition: 'color 0.6s, transform 0.3s',
                     transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
                   }}>
