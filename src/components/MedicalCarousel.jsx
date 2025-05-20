@@ -349,7 +349,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
       </div>
       {/* Keyframes for loading bar */}
       <style>{`
-        @keyframes grow { from { width: 0; } to { width: 110%; } }
+        @keyframes grow { from { width: 0; } to { width: 112%; } }
       `}</style>
     </div>
   );
