@@ -283,7 +283,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                       {/* Loading Bar */}
                       <div
                         key={barKey}
-                        className="absolute left-0 bottom-0 h-[3px]"
+                        className="absolute left-0 bottom-0 h-[5px]"
                         style={{
                           background: 'rgba(82,156,156,0.5)',
                           animation: `grow 7000ms linear forwards`,
