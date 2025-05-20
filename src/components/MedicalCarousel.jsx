@@ -174,7 +174,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           top: videoRect.top,
           width: videoRect.left,
           height: videoRect.height,
-          background: 'rgba(200,200,200,0.5)',
+          background: 'rgba(200,200,200,0.25)',
           mixBlendMode: 'soft-light',
           zIndex: 0,
           pointerEvents: 'none',
@@ -187,10 +187,11 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           fontWeight: 700,
           letterSpacing: -2,
           lineHeight: 1.2,
-          color: '#383437',
-          marginLeft: 0
+          color: '#e6e6e6', // desaturated off white
+          marginLeft: 0,
+          textShadow: '0 2px 16px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.12)'
         }}>
-          In the moment<br />
+          In the moment,<br />
           <span style={{ color: '#529C9C' }}>only</span> the patient<br />
           matters
         </h2>
