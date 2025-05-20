@@ -89,15 +89,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   useEffect(() => {
     if (isPaused || !isMounted.current) return;
 
-    autoplayRef.current = setTimeout(() => {
-      if (!isMounted.current) return;
-      setCurrent((c) => {
-        const next = (c + 1) % slides.length;
-        setBarKey((k) => k + 1);
-        return next;
-      });
-    }, AUTOPLAY_MS);
-
     return () => {
       if (autoplayRef.current) {
         clearTimeout(autoplayRef.current);
