@@ -279,7 +279,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
-              {ready && maxCaptionWidth > 0 && Number.isFinite(current) && (
+              {ready && Number.isFinite(current) && (
                 <>
                   {/* Highlighter rectangle */}
                   <div
@@ -287,7 +287,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     style={{
                       top: rect.top,
                       height: rect.height,
-                      width: maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING,
+                      width: 420, // static width in px
                       left: '50%',
                       transform: 'translateX(-50%)',
                       background: hoveredIndex === current ? 'rgba(228,228,228,0.7)' : 'rgba(232,232,232,0.7)',
@@ -316,7 +316,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     className="absolute transition-all duration-700 ease"
                     style={{
                       top: rect.top + rect.height / 2,
-                      left: `calc(50% + ${(maxCaptionWidth + HIGHLIGHTER_HORIZONTAL_PADDING) / 2}px)`,
+                      left: `calc(50% + ${420 / 2}px)`, // static width
                       width: '100vw',
                       height: 2,
                       background: '#e0e0e0',
