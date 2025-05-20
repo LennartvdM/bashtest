@@ -79,6 +79,8 @@ const MedicalSection = () => {
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
         style={{
+          left: '-2vw',
+          width: '104vw',
           filter: 'brightness(0.7) saturate(1)',
           willChange: 'opacity',
           pointerEvents: 'none',
@@ -106,6 +108,8 @@ const MedicalSection = () => {
               index === currentVideo ? 'opacity-100' : 'opacity-0'
             }`}
             style={{
+              left: '-2vw',
+              width: '104vw',
               filter: 'brightness(0.7) saturate(1)',
               willChange: 'opacity',
               pointerEvents: 'none',
