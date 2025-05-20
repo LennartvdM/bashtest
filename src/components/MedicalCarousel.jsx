@@ -273,7 +273,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 <>
                   {/* Highlighter rectangle */}
                   <div
-                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none"
+                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
                     style={{
                       top: rect.top,
                       height: rect.height,
