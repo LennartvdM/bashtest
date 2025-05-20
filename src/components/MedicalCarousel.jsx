@@ -189,7 +189,13 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           lineHeight: 1.2,
           color: '#e6e6e6', // desaturated off white
           marginLeft: 0,
-          textShadow: '0 4px 24px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.12), 0 0px 1px rgba(0,0,0,0.18)'
+          textShadow: [
+            '0 4px 32px rgba(0,0,0,0.22)',
+            '0 2px 16px rgba(0,0,0,0.18)',
+            '0 1px 2px rgba(0,0,0,0.12)',
+            '0 0px 1px rgba(0,0,0,0.18)',
+            '0 0px 8px rgba(82,156,156,0.10)'
+          ].join(', ')
         }}>
           In the moment,<br />
           <span style={{ color: '#529C9C' }}>only</span> the patient<br />
