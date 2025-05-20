@@ -287,7 +287,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                     style={{
                       top: rect.top,
                       height: rect.height,
-                      width: 372, // 420 - 24*2 for padding
+                      width: 'fit-content',
                       left: '50%',
                       transform: 'translateX(-50%)',
                       paddingLeft: 24,
