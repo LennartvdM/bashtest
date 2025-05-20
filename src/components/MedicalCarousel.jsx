@@ -265,7 +265,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
-              {ready && Number.isFinite(current) && (
+              {ready && maxCaptionWidth > 0 && Number.isFinite(current) && (
                 <>
                   {/* Highlighter rectangle */}
                   <div
