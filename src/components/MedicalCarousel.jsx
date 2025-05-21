@@ -196,21 +196,23 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative'}}>
-          {/* Grey band as a sibling, absolutely positioned and behind the video container */}
-          <div
-            data-testid="video-grey-band"
-            data-debug-label="medical-carousel-grey-band"
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: '50%', // 50% overlap, or adjust as needed
-              height: '100%',
-              background: '#e0e0e0',
-              zIndex: 1, // behind video container
-              pointerEvents: 'none',
-            }}
-          />
+          {/* Grey band: fixed, from left edge to halfway into the video container, always behind video */}
+          {videoRect.height > 0 && (
+            <div
+              data-testid="video-grey-band"
+              data-debug-label="medical-carousel-grey-band"
+              style={{
+                position: 'fixed',
+                left: 0,
+                top: videoRect.top,
+                width: videoRect.left + videoRect.width * 0.5, // halfway into video
+                height: videoRect.height,
+                background: '#e0e0e0',
+                zIndex: 1, // behind video container
+                pointerEvents: 'none',
+              }}
+            />
+          )}
           <div
             ref={videoContainerRef}
             className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0 group"
