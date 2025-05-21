@@ -274,6 +274,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
             {/* Fixed-position rectangle for background graphic, now bright red for debugging */}
             {videoRect.height > 0 && (
               <div
+                data-debug-rectangle="true"
                 style={{
                   position: 'fixed',
                   left: 0,
