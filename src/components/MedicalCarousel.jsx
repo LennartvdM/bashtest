@@ -173,23 +173,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Rectangle rendered at document level, always following the video container like the highlighter line */}
-      {videoRect.height > 0 && (
-        <div
-          style={{
-            position: 'fixed',
-            top: videoRect.top,
-            left: 0,
-            width: videoRect.left,
-            height: videoRect.height,
-            background: 'rgba(255,0,0,0.85)', // bright red for debugging
-            mixBlendMode: 'color-dodge',
-            zIndex: 10,
-            pointerEvents: 'none',
-            transition: 'top 0.3s, left 0.3s, width 0.3s, height 0.3s',
-          }}
-        />
-      )}
       <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
@@ -223,6 +206,22 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               border: videoHover ? '2px solid #f5f5f5' : 'none',
             }}
           >
+            {/* Rectangle inside the video container, now bright red for debugging */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: '50%',
+                width: '50%',
+                height: '50%',
+                background: 'rgba(255,0,0,0.85)', // bright red for debugging
+                mixBlendMode: 'color-dodge',
+                zIndex: 1,
+                pointerEvents: 'none',
+                transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+                transform: videoHover ? 'translateY(-12px)' : 'none',
+              }}
+            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
