@@ -9,6 +9,21 @@ const blurVideos = [
 
 const BASE_INDEX = 2; // index of the always-visible base video
 
+const headlines = [
+  {
+    firstLine: "Medical interventions demand",
+    secondLine: "precision and urgency."
+  },
+  {
+    firstLine: "Which makes coordination within",
+    secondLine: "teams vital for success."
+  },
+  {
+    firstLine: "Task‑driven focus can lead to",
+    secondLine: "tunnel vision and misalignment."
+  }
+];
+
 const MedicalSection = ({ inView, sectionRef }) => {
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
