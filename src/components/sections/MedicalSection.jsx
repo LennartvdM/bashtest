@@ -31,9 +31,26 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const rowRefs = useRef({});
   const captionsRef = useRef();
   const [ready, setReady] = useState(false);
+  const [barKey, setBarKey] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [rect, setRect] = useState({ top: 0, height: 0 });
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
+  };
+
+  const handleHover = (index) => {
+    if (typeof index === 'number' && index >= 0 && index < headlines.length) {
+      if (index !== currentVideo) setBarKey((k) => k + 1);
+      setCurrentVideo(index);
+      setIsPaused(true);
+      setHoveredIndex(index);
+    }
+  };
+  const handleHoverEnd = () => {
+    setIsPaused(false);
+    setHoveredIndex(null);
   };
 
   return (
