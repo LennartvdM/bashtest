@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 
 const blurVideos = [
@@ -13,6 +13,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
   const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
+  const rowRefs = useRef({});
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -104,9 +105,113 @@ const MedicalSection = ({ inView, sectionRef }) => {
           </div>
         )
       ))}
-      {/* Foreground content */}
-      <div className="relative z-20 flex items-center justify-center h-screen">
-        <MedicalCarousel onSlideChange={handleSlideChange} onCenterChange={setVideoCenter} inView={inView} />
+      {/* Foreground content: flex row, no card, just video | spacer | captions */}
+      <div className="relative z-20 flex flex-row items-center justify-center h-screen w-full px-12">
+        {/* Left: video+band */}
+        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0 }}>
+          <MedicalCarousel current={currentVideo} setVideoCenter={setVideoCenter} />
+        </div>
+        {/* Spacer: 40px invisible */}
+        <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none' }} />
+        {/* Right: captions/highlighter */}
+        <div className="flex flex-col items-start justify-center" style={{ minWidth: 0, flex: 1 }}>
+          <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
+            {ready && Number.isFinite(currentVideo) && (
+              <>
+                {/* Highlighter rectangle */}
+                <div
+                  className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
+                  style={{
+                    top: rect.top,
+                    height: rect.height,
+                    width: 444,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
+                    borderRadius: 10,
+                    boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  <div className="w-full h-full rounded-xl relative pointer-events-none">
+                    {/* Loading Bar */}
+                    <div
+                      key={barKey}
+                      className="absolute left-0 bottom-0 h-[5px]"
+                      style={{
+                        background: 'rgba(82,156,156,0.5)',
+                        animation: `grow 7000ms linear forwards`,
+                        animationPlayState: isPaused ? 'paused' : 'running',
+                        left: -24,
+                        width: '100%'
+                      }}
+                      onAnimationEnd={handleBarEnd}
+                    />
+                  </div>
+                </div>
+                {/* Second highlighter: animated line protruding to the right */}
+                <div
+                  className="absolute transition-all duration-700 ease"
+                  style={{
+                    top: rect.top + rect.height / 2,
+                    left: `calc(50% + ${444 / 2}px)`,
+                    width: '100vw',
+                    height: 2,
+                    background: '#e0e0e0',
+                    mixBlendMode: 'screen',
+                    zIndex: 40,
+                    pointerEvents: 'none',
+                    transform: 'translateY(-50%)',
+                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                />
+              </>
+            )}
+            {headlines.map((headline, i) => (
+              <button
+                key={i}
+                ref={(el) => (rowRefs.current[i] = el)}
+                onMouseEnter={() => handleHover(i)}
+                onMouseLeave={handleHoverEnd}
+                className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
+                style={{
+                  display: 'block',
+                  maxWidth: 480,
+                  minWidth: 320,
+                  paddingLeft: 24,
+                  paddingRight: 24,
+                  margin: '0 auto',
+                }}
+              >
+                <p className="m-0 text-right text-2xl leading-tight" style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500,
+                  letterSpacing: '-0.5px',
+                  color:
+                    hoveredIndex === i
+                      ? '#2D6A6A'
+                      : currentVideo === i
+                      ? '#2a2323'
+                      : '#bdbdbd',
+                  mixBlendMode:
+                    hoveredIndex === i
+                      ? 'normal'
+                      : currentVideo === i
+                      ? 'normal'
+                      : 'screen',
+                  transition: 'color 0.6s, transform 0.3s',
+                  transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
+                }}>
+                  {headline.firstLine}
+                  <br />
+                  {headline.secondLine}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
