@@ -21,7 +21,8 @@ const MedicalSection = () => {
   return (
     <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
       {/* Grey line from video center to left edge of viewport */}
-      <div
+      {/* (Remove the following div) */}
+      {/* <div
         style={{
           position: 'absolute',
           top: videoCenter.y,
@@ -33,7 +34,7 @@ const MedicalSection = () => {
           zIndex: 1, // behind carousel, above background
           pointerEvents: 'none',
         }}
-      />
+      /> */}
       {/* Grey line from highlighter right edge to right edge of viewport */}
       <div
         style={{
