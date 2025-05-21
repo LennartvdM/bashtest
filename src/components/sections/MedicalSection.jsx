@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 
 const blurVideos = [
@@ -9,21 +9,10 @@ const blurVideos = [
 
 const BASE_INDEX = 2; // index of the always-visible base video
 
-const MedicalSection = () => {
+const MedicalSection = ({ inView, sectionRef }) => {
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
   const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
-  const [inView, setInView] = useState(false);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new window.IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold: 0.15 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
