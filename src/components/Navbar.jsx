@@ -106,7 +106,7 @@ export default function Navbar() {
   }, [blob?.left, blob?.width, blob?.height]);
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-40 border-b border-[#e7dfd7] flex items-center shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60, background: 'red'}}>
+    <nav className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}>
       {/* Logo */}
       <div className="flex items-center h-full pl-6 pr-4 cursor-pointer" onClick={() => navigate('/')}> 
         <span className="sr-only">Home</span>
