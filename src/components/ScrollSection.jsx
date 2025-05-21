@@ -14,7 +14,16 @@ export default function ScrollSection({ name, children }) {
   }, []);
 
   return (
-    <section ref={ref} id={name} style={{ height: '100vh', position: 'relative' }}>
+    <section
+      ref={ref}
+      id={name}
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        scrollSnapAlign: 'start',
+        position: 'relative',
+      }}
+    >
       {children({ inView, ref })}
     </section>
   );
