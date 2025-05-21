@@ -206,22 +206,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               border: videoHover ? '2px solid #f5f5f5' : 'none',
             }}
           >
-            {/* Rectangle inside the video container, now bright red for debugging */}
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: '50%',
-                width: '50%',
-                height: '50%',
-                background: 'rgba(255,0,0,0.85)', // bright red for debugging
-                mixBlendMode: 'color-dodge',
-                zIndex: 1,
-                pointerEvents: 'none',
-                transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-                transform: videoHover ? 'translateY(-12px)' : 'none',
-              }}
-            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
@@ -270,25 +254,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                   />
                 );
               })()
-            )}
-            {/* Fixed-position rectangle for background graphic, now bright red for debugging */}
-            {videoRect.height > 0 && (
-              <div
-                data-debug-rectangle="true"
-                style={{
-                  position: 'fixed',
-                  left: 0,
-                  top: videoRect.top,
-                  width: videoRect.left,
-                  height: videoRect.height,
-                  background: 'rgba(255,0,0,0.85)', // bright red for debugging
-                  mixBlendMode: 'color-dodge',
-                  zIndex: 0,
-                  pointerEvents: 'none',
-                  transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-                  transform: videoHover ? 'translateY(-12px)' : 'none',
-                }}
-              />
             )}
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
