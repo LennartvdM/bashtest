@@ -176,6 +176,23 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
+      {/* Grey rectangle rendered at document level, always aligned with video */}
+      {videoRect.height > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: videoRect.top + videoRect.height * 0.5,
+            left: 0,
+            width: videoRect.left + videoRect.width * 0.5,
+            height: videoRect.height * 0.5,
+            background: 'rgba(200,200,200,0.15)',
+            mixBlendMode: 'color-dodge',
+            zIndex: 1,
+            pointerEvents: 'none',
+            transition: 'top 0.3s, left 0.3s, width 0.3s, height 0.3s',
+          }}
+        />
+      )}
       <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
@@ -209,20 +226,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               border: videoHover ? '2px solid #f5f5f5' : 'none',
             }}
           >
-            {/* Grey rectangle as a child of the video container, bottom left 50% */}
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: '50%',
-                width: '50%',
-                height: '50%',
-                background: 'rgba(200,200,200,0.15)',
-                mixBlendMode: 'color-dodge',
-                zIndex: 1,
-                pointerEvents: 'none',
-              }}
-            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
