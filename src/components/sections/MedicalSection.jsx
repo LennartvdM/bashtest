@@ -14,6 +14,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
   const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
   const rowRefs = useRef({});
+  const captionsRef = useRef();
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
