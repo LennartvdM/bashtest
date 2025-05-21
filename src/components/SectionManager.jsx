@@ -28,8 +28,8 @@ export default function SectionManager({ sections }) {
   return (
     <>
       {sections.map((section, idx) => {
-        // Only render current, previous, and next sections
-        if (Math.abs(idx - currentIdx) > 1) return null;
+        // Render all sections for scroll-snap, but only activate current/adjacent
+        const active = Math.abs(idx - currentIdx) <= 1;
         return (
           <ScrollSection
             key={section.name}
@@ -38,7 +38,7 @@ export default function SectionManager({ sections }) {
             {({ inView, ref }) => {
               sectionRefs.current[idx] = ref;
               const SectionComponent = section.component;
-              return <SectionComponent inView={inView} sectionRef={ref} />;
+              return <SectionComponent inView={inView} sectionRef={ref} active={active} />;
             }}
           </ScrollSection>
         );
