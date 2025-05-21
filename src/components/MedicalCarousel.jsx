@@ -195,10 +195,25 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
           matters
         </h2>
-        <div className="inline-flex flex-row items-center mx-auto w-full">
+        <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative'}}>
+          {/* Grey band as a sibling, absolutely positioned and behind the video container */}
+          <div
+            data-testid="video-grey-band"
+            data-debug-label="medical-carousel-grey-band"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: '50%', // 50% overlap, or adjust as needed
+              height: '100%',
+              background: '#e0e0e0',
+              zIndex: 1, // behind video container
+              pointerEvents: 'none',
+            }}
+          />
           <div
             ref={videoContainerRef}
-            className="relative overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0 group"
+            className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0 group"
             onMouseEnter={() => setVideoHover(true)}
             onMouseLeave={() => setVideoHover(false)}
             style={{
@@ -207,21 +222,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               border: videoHover ? '2px solid #f5f5f5' : 'none',
             }}
           >
-            {/* Grey band as a background, absolutely positioned inside the video container */}
-            <div
-              data-testid="video-grey-band"
-              data-debug-label="medical-carousel-grey-band"
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: '50%', // 50% overlap
-                height: '100%',
-                background: '#e0e0e0',
-                zIndex: 1, // below video content
-                pointerEvents: 'none',
-              }}
-            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
