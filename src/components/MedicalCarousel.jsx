@@ -271,6 +271,24 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 );
               })()
             )}
+            {/* Fixed-position rectangle for background graphic, now bright red for debugging */}
+            {videoRect.height > 0 && (
+              <div
+                style={{
+                  position: 'fixed',
+                  left: 0,
+                  top: videoRect.top,
+                  width: videoRect.left,
+                  height: videoRect.height,
+                  background: 'rgba(255,0,0,0.85)', // bright red for debugging
+                  mixBlendMode: 'color-dodge',
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+                  transform: videoHover ? 'translateY(-12px)' : 'none',
+                }}
+              />
+            )}
           </div>
           <div className="flex flex-col justify-center max-w-xl flex-shrink" style={{paddingLeft: 64}}>
             <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
