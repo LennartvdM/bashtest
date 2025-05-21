@@ -10,7 +10,8 @@
     "taskmaster:dev": "npx taskmaster dev",
     "taskmaster:build": "npx taskmaster build",
     "taskmaster:preview": "npx taskmaster preview",
-    "deploy:netlify": "npx netlify deploy --prod"
+    "deploy:netlify": "npx netlify deploy --prod",
+    "prebuild": "git rev-parse --short HEAD > src/version.txt"
   },
   "dependencies": {
     "framer-motion": "^10.12.16",

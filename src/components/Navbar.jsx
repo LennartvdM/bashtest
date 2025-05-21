@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
+import version from '../version';
 
 const NAV_LINKS = [
   { label: 'Neoflix', to: '/neoflix' },
@@ -205,7 +206,7 @@ export default function Navbar() {
       </div>
       {/* Version check string for debugging */}
       <div style={{ position: 'absolute', right: 24, top: 0, color: 'black', fontWeight: 'bold', fontSize: 16, background: 'yellow', padding: '2px 8px', borderRadius: 4, zIndex: 100 }}>
-        VERSION CHECK: b2aab87
+        VERSION CHECK: {version}
       </div>
     </nav>
   );
