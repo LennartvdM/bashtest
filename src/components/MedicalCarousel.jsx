@@ -176,15 +176,15 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Grey rectangle rendered at document level, always aligned with video */}
+      {/* Grey rectangle rendered at document level, always following the video container */}
       {videoRect.height > 0 && (
         <div
           style={{
             position: 'fixed',
-            top: videoRect.top + videoRect.height * 0.5,
+            top: videoRect.top,
             left: 0,
             width: videoRect.left + videoRect.width * 0.5,
-            height: videoRect.height * 0.5,
+            height: videoRect.height,
             background: 'rgba(200,200,200,0.15)',
             mixBlendMode: 'color-dodge',
             zIndex: 1,
