@@ -176,15 +176,15 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Debug: Red rectangle extending from left edge to left edge of video */}
+      {/* Debug: Red rectangle extending from left edge to center of video, overlapping 50% underneath */}
       {videoRect.height > 0 && (
         <div
           style={{
             position: 'fixed',
             left: 0,
-            top: videoRect.top,
-            width: videoRect.left,
-            height: videoRect.height,
+            top: videoRect.top + videoRect.height * 0.5,
+            width: videoRect.left + videoRect.width * 0.5,
+            height: videoRect.height * 0.5,
             background: 'rgba(200,200,200,0.15)',
             mixBlendMode: 'color-dodge',
             zIndex: 0,
