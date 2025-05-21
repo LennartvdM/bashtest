@@ -176,24 +176,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Debug: Red rectangle extending from left edge to center of video, overlapping 50% underneath */}
-      {videoRect.height > 0 && (
-        <div
-          style={{
-            position: 'fixed',
-            left: 0,
-            top: videoRect.top + videoRect.height * 0.5,
-            width: videoRect.left + videoRect.width * 0.5,
-            height: videoRect.height * 0.5,
-            background: 'rgba(200,200,200,0.15)',
-            mixBlendMode: 'color-dodge',
-            zIndex: 0,
-            pointerEvents: 'none',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-            transform: videoHover ? 'translateY(-12px)' : 'none',
-          }}
-        />
-      )}
       <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
@@ -227,15 +209,16 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               border: videoHover ? '2px solid #f5f5f5' : 'none',
             }}
           >
-            {/* Transparent red rectangle, same height as video, extends left from video edge */}
+            {/* Grey rectangle as a child of the video container, bottom left 50% */}
             <div
               style={{
                 position: 'absolute',
-                top: 0,
-                bottom: 0,
                 left: 0,
-                width: 'calc(50% - 240px)',
-                background: 'rgba(255,0,0,0.3)',
+                top: '50%',
+                width: '50%',
+                height: '50%',
+                background: 'rgba(200,200,200,0.15)',
+                mixBlendMode: 'color-dodge',
                 zIndex: 1,
                 pointerEvents: 'none',
               }}
