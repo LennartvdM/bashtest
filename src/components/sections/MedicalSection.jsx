@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 
 const blurVideos = [
@@ -13,13 +13,24 @@ const MedicalSection = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
   const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
+  const [inView, setInView] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new window.IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
 
   return (
-    <div className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+    <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
       {/* Grey line from video center to left edge of viewport */}
       {/* (Remove the following div) */}
       {/* <div
@@ -133,7 +144,7 @@ const MedicalSection = () => {
       ))}
       {/* Foreground content */}
       <div className="relative z-20 flex items-center justify-center h-screen">
-        <MedicalCarousel onSlideChange={handleSlideChange} onCenterChange={setVideoCenter} />
+        <MedicalCarousel onSlideChange={handleSlideChange} onCenterChange={setVideoCenter} inView={inView} />
       </div>
     </div>
   );

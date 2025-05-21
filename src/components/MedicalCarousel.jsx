@@ -32,6 +32,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [videoRect, setVideoRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
   const [videoHover, setVideoHover] = useState(false);
+  const [inView, setInView] = useState(true);
 
   const rowRefs = useRef([]);
   const autoplayRef = useRef();
@@ -233,7 +234,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               </div>
             ))}
             {/* Grey band that follows the video, 50% overlap */}
-            {videoRect.height > 0 && (
+            {inView && videoRect.height > 0 && (
               <div
                 data-testid="video-grey-band"
                 style={{
