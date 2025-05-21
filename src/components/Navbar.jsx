@@ -204,10 +204,6 @@ export default function Navbar() {
           })}
         </div>
       </div>
-      {/* Version check string for debugging */}
-      <div style={{ position: 'absolute', right: 24, top: 0, color: 'black', fontWeight: 'bold', fontSize: 16, background: 'yellow', padding: '2px 8px', borderRadius: 4, zIndex: 100 }}>
-        VERSION CHECK: {version}
-      </div>
     </nav>
   );
 }

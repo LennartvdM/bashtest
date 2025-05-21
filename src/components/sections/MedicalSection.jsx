@@ -49,33 +49,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
           pointerEvents: 'none',
         }}
       />
-      {/* Red line from highlighter right edge to right edge of viewport */}
-      <div
-        style={{
-          position: 'fixed',
-          top: highlighterRight.y,
-          left: highlighterRight.x,
-          width: `calc(100vw - ${highlighterRight.x}px)`,
-          height: 2,
-          background: 'red',
-          zIndex: 50,
-          pointerEvents: 'none',
-        }}
-      />
-      {/* Red debug dot at highlighter right edge */}
-      <div
-        style={{
-          position: 'fixed',
-          top: highlighterRight.y - 5,
-          left: highlighterRight.x - 5,
-          width: 10,
-          height: 10,
-          background: 'red',
-          borderRadius: '50%',
-          zIndex: 51,
-          pointerEvents: 'none',
-        }}
-      />
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
