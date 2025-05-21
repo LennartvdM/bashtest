@@ -7,7 +7,7 @@ export default function SectionManager({ sections }) {
 
   useEffect(() => {
     const observers = sectionRefs.current.map((ref, idx) => {
-      if (!ref) return null;
+      if (!ref || !(ref instanceof Element)) return null;
       return new window.IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) setCurrentIdx(idx);
@@ -16,11 +16,11 @@ export default function SectionManager({ sections }) {
       );
     });
     sectionRefs.current.forEach((ref, idx) => {
-      if (ref && observers[idx]) observers[idx].observe(ref);
+      if (ref && observers[idx] && ref instanceof Element) observers[idx].observe(ref);
     });
     return () => {
       observers.forEach((observer, idx) => {
-        if (observer && sectionRefs.current[idx]) observer.disconnect();
+        if (observer && sectionRefs.current[idx] && sectionRefs.current[idx] instanceof Element) observer.disconnect();
       });
     };
   }, [sections.length]);
