@@ -154,6 +154,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
   }, [onCenterChange]);
 
   useEffect(() => {
+    let raf;
     function updateVideoRect() {
       if (videoContainerRef.current) {
         const rect = videoContainerRef.current.getBoundingClientRect();
@@ -164,30 +165,26 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           height: rect.height,
         });
       }
+      raf = requestAnimationFrame(updateVideoRect);
     }
     updateVideoRect();
-    window.addEventListener("resize", updateVideoRect);
-    window.addEventListener("scroll", updateVideoRect);
-    return () => {
-      window.removeEventListener("resize", updateVideoRect);
-      window.removeEventListener("scroll", updateVideoRect);
-    };
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Grey rectangle rendered at document level, always following the video container */}
+      {/* Rectangle rendered at document level, always following the video container like the highlighter line */}
       {videoRect.height > 0 && (
         <div
           style={{
             position: 'fixed',
             top: videoRect.top,
             left: 0,
-            width: videoRect.left + videoRect.width * 0.5,
+            width: videoRect.left,
             height: videoRect.height,
             background: 'rgba(255,0,0,0.85)', // bright red for debugging
             mixBlendMode: 'color-dodge',
-            zIndex: 1,
+            zIndex: 10,
             pointerEvents: 'none',
             transition: 'top 0.3s, left 0.3s, width 0.3s, height 0.3s',
           }}
