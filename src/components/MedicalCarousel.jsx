@@ -174,23 +174,6 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      {/* Grey band that follows the video, 50% overlap - rendered at document level, like the white line */}
-      {inView && videoRect.height > 0 && (
-        <div
-          data-testid="video-grey-band"
-          data-debug-label="medical-carousel-grey-band"
-          style={{
-            position: 'fixed',
-            left: 0,
-            top: videoRect.top,
-            width: videoRect.left + videoRect.width / 2,
-            height: videoRect.height,
-            background: '#e0e0e0',
-            zIndex: 10, // below video, above background
-            pointerEvents: 'none',
-          }}
-        />
-      )}
       <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
@@ -224,6 +207,21 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
               border: videoHover ? '2px solid #f5f5f5' : 'none',
             }}
           >
+            {/* Grey band as a background, absolutely positioned inside the video container */}
+            <div
+              data-testid="video-grey-band"
+              data-debug-label="medical-carousel-grey-band"
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: '50%', // 50% overlap
+                height: '100%',
+                background: '#e0e0e0',
+                zIndex: 1, // below video content
+                pointerEvents: 'none',
+              }}
+            />
             {slides.map((s, i) => (
               <div
                 key={s.id}
