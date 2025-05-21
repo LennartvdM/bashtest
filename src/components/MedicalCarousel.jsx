@@ -232,6 +232,23 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
                 />
               </div>
             ))}
+            {/* Grey band that follows the video, 50% overlap */}
+            {videoRect.height > 0 && (
+              <div
+                data-testid="video-grey-band"
+                style={{
+                  position: 'fixed',
+                  left: 0,
+                  top: videoRect.top,
+                  width: videoRect.left + videoRect.width / 2,
+                  height: videoRect.height,
+                  background: '#e0e0e0',
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  transition: 'top 0.3s, height 0.3s, width 0.3s',
+                }}
+              />
+            )}
             {/* Highlighter right-edge line */}
             {ready && Number.isFinite(current) && captionsRef.current && (
               (() => {
