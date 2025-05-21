@@ -196,7 +196,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           matters
         </h2>
         <div className="inline-flex flex-row items-center mx-auto w-full relative">
-          {/* Grey band: fixed at document level, always behind video, never masked or affecting layout */}
+          {/* Grey band: fixed at document level, always behind video, never masked, zero lag */}
           {videoRect.height > 0 && (
             <div
               data-testid="video-grey-band"
