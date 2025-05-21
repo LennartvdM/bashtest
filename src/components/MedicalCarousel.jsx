@@ -153,36 +153,47 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
     };
   }, [onCenterChange]);
 
-  useLayoutEffect(() => {
-    if (videoContainerRef.current) {
-      const rect = videoContainerRef.current.getBoundingClientRect();
-      setVideoRect({
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY,
-        width: rect.width,
-        height: rect.height,
-      });
+  useEffect(() => {
+    function updateVideoRect() {
+      if (videoContainerRef.current) {
+        const rect = videoContainerRef.current.getBoundingClientRect();
+        setVideoRect({
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
     }
+    updateVideoRect();
+    window.addEventListener("resize", updateVideoRect);
+    window.addEventListener("scroll", updateVideoRect);
+    return () => {
+      window.removeEventListener("resize", updateVideoRect);
+      window.removeEventListener("scroll", updateVideoRect);
+    };
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full">
       {/* Debug: Red rectangle extending from left edge to left edge of video */}
-      <div
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: videoRect.top,
-          width: videoRect.left,
-          height: videoRect.height,
-          background: 'rgba(200,200,200,0.15)',
-          mixBlendMode: 'color-dodge',
-          zIndex: 0,
-          pointerEvents: 'none',
-          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-          transform: videoHover ? 'translateY(-12px)' : 'none',
-        }}
-      />
+      {videoRect.height > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: videoRect.top,
+            width: videoRect.left,
+            height: videoRect.height,
+            background: 'rgba(200,200,200,0.15)',
+            mixBlendMode: 'color-dodge',
+            zIndex: 0,
+            pointerEvents: 'none',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+            transform: videoHover ? 'translateY(-12px)' : 'none',
+          }}
+        />
+      )}
       <div className="max-w-6xl mx-auto flex flex-col items-start">
         <h2 className="font-bold leading-tight mb-10 text-left" style={{
           fontFamily: 'Inter, sans-serif',
