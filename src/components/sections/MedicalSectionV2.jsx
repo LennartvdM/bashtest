@@ -255,11 +255,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
             style={{
               marginLeft: 0,
               paddingLeft: 0,
-              position: 'relative',
+              position: 'absolute',
               width: 'auto',
               maxWidth: 520,
               left: 0,
-              top: videoContainerRef.current ? (videoContainerRef.current.offsetTop + videoContainerRef.current.offsetHeight / 2 - rightCaptionsRef.current?.offsetHeight / 2 || 0) : 0,
+              top: videoContainerRef.current && rightCaptionsRef.current
+                ? (videoContainerRef.current.offsetTop + videoContainerRef.current.offsetHeight / 2 - rightCaptionsRef.current.offsetHeight / 2)
+                : 0,
               transform: 'none',
             }}
           >
