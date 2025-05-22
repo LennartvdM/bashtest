@@ -54,7 +54,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   };
 
   return (
-    <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+    <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
       {/* Grey line from video center to left edge of viewport */}
       {/* (Remove the following div) */}
       {/* <div
@@ -142,7 +142,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       {/* Foreground content: flex row, no card, just video | spacer | captions */}
       <div className="relative z-20 flex flex-row items-center justify-center h-screen w-full px-12">
         {/* Left: video+band, with yellow outline */}
-        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0, outline: '3px solid orange', outlineOffset: '-3px' }}>
+        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0, outline: '3px solid orange', outlineOffset: '-3px', background: 'transparent', zIndex: 2 }}>
           <MedicalCarousel current={currentVideo} setVideoCenter={setVideoCenter} />
         </div>
         {/* Spacer: 40px invisible, with visible red outline for debugging */}
