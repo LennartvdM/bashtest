@@ -35,6 +35,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
+  const videoContainerRef = useRef();
 
   // Duplicated highlighter logic for right caption area
   const rightRowRefs = useRef({});
