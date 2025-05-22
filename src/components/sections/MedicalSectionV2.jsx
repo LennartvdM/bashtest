@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 
 const blurVideos = [
@@ -36,6 +36,12 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
 
+  // Duplicated highlighter logic for right caption area
+  const rightRowRefs = useRef({});
+  const rightCaptionsRef = useRef();
+  const [rightRect, setRightRect] = useState({ top: 0, height: 0 });
+  const [rightReady, setRightReady] = useState(false);
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -52,6 +58,16 @@ const MedicalSection = ({ inView, sectionRef }) => {
     setIsPaused(false);
     setHoveredIndex(null);
   };
+
+  // Measure right highlighter position
+  useLayoutEffect(() => {
+    const node = rightRowRefs.current[currentVideo];
+    if (node) {
+      const { offsetTop, offsetHeight } = node;
+      setRightRect({ top: offsetTop, height: offsetHeight });
+      setRightReady(true);
+    }
+  }, [currentVideo, hoveredIndex]);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
@@ -154,15 +170,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
         <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none', outline: '2px solid red', outlineOffset: '-2px', height: '80%' }} />
         {/* Right: captions/highlighter, with yellow outline and all interactivity */}
         <div className="MedicalSection-caption-area flex flex-col items-start justify-center" data-testid="MedicalSection-caption-area" style={{ minWidth: 0, flex: 1, outline: '3px solid orange', outlineOffset: '-3px', position: 'relative' }}>
-          <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
-            {ready && Number.isFinite(currentVideo) && (
+          <div className="relative flex flex-col gap-2 items-start w-full" ref={rightCaptionsRef}>
+            {rightReady && Number.isFinite(currentVideo) && (
               <>
-                {/* Highlighter rectangle */}
+                {/* Duplicated Highlighter rectangle for right section */}
                 <div
                   className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
                   style={{
-                    top: rect.top,
-                    height: rect.height,
+                    top: rightRect.top,
+                    height: rightRect.height,
                     width: 444,
                     left: '50%',
                     transform: 'translateX(-50%)',
@@ -194,7 +210,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 <div
                   className="absolute transition-all duration-700 ease"
                   style={{
-                    top: rect.top + rect.height / 2,
+                    top: rightRect.top + rightRect.height / 2,
                     left: `calc(50% + ${444 / 2}px)`,
                     width: '100vw',
                     height: 2,
@@ -211,7 +227,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             {headlines.map((headline, i) => (
               <button
                 key={i}
-                ref={(el) => (rowRefs.current[i] = el)}
+                ref={(el) => (rightRowRefs.current[i] = el)}
                 onMouseEnter={() => handleHover(i)}
                 onMouseLeave={handleHoverEnd}
                 className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
