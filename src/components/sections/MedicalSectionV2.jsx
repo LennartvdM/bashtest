@@ -86,7 +86,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
         const videoRect = videoContainerRef.current.getBoundingClientRect();
         const captionRect = rightCaptionsRef.current.getBoundingClientRect();
         const parentRect = videoContainerRef.current.parentElement.getBoundingClientRect();
-        const top = (videoRect.top - parentRect.top) + (videoRect.height / 2) - (captionRect.height / 2);
+        // Calculate the center Y of the video relative to the parent
+        const videoCenterY = (videoRect.top - parentRect.top) + (videoRect.height / 2);
+        // Set the caption's top so its center aligns with the video's center
+        const top = videoCenterY - (captionRect.height / 2);
         setCaptionTop(top);
       }
     }
@@ -196,8 +199,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
           width: 40,
           minWidth: 40,
           transform: 'translateX(-50%)',
-          outline: '2px solid red',
-          outlineOffset: '-2px',
           zIndex: 10,
           background: 'transparent',
           pointerEvents: 'none',
@@ -217,7 +218,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', width: '100%' }}>
             {/* Header container, 480px wide, left-aligned, right edge flush to spacer */}
-            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0, outline: '2px solid hotpink', outlineOffset: '-2px' }}>
+            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
               <h2 style={{
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 48,
@@ -236,8 +237,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ].join(', '),
                 alignSelf: 'flex-start',
                 paddingLeft: 0,
-                outline: '2px solid limegreen',
-                outlineOffset: '-2px',
                 textAlign: 'left',
                 width: '100%'
               }}>
