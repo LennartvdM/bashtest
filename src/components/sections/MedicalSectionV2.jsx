@@ -141,14 +141,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: flex row, no card, just video | spacer | captions */}
       <div className="relative z-20 flex flex-row items-center justify-center h-screen w-full px-12">
-        {/* Left: video+band */}
-        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0 }}>
+        {/* Left: video+band, with yellow outline */}
+        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0, outline: '3px solid orange', outlineOffset: '-3px' }}>
           <MedicalCarousel current={currentVideo} setVideoCenter={setVideoCenter} />
         </div>
-        {/* Spacer: 40px invisible */}
-        <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none' }} />
-        {/* Right: captions/highlighter */}
-        <div className="MedicalSection-caption-area flex flex-col items-start justify-center" data-testid="MedicalSection-caption-area" style={{ minWidth: 0, flex: 1 }}>
+        {/* Spacer: 40px invisible, with visible red outline for debugging */}
+        <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none', outline: '2px solid red', outlineOffset: '-2px', height: '80%' }} />
+        {/* Right: captions/highlighter, with yellow outline */}
+        <div className="MedicalSection-caption-area flex flex-col items-start justify-center" data-testid="MedicalSection-caption-area" style={{ minWidth: 0, flex: 1, outline: '3px solid orange', outlineOffset: '-3px' }}>
           <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
             {ready && Number.isFinite(currentVideo) && (
               <>
