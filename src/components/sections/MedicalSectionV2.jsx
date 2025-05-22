@@ -260,7 +260,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               maxWidth: 520,
               left: 0,
               top: videoContainerRef.current && rightCaptionsRef.current
-                ? (videoContainerRef.current.offsetTop + videoContainerRef.current.offsetHeight / 2 - rightCaptionsRef.current.offsetHeight / 2)
+                ? (videoContainerRef.current.offsetTop + (videoContainerRef.current.offsetHeight / 2) - (rightCaptionsRef.current.offsetHeight / 2))
                 : 0,
               transform: 'none',
             }}
