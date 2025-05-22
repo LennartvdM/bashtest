@@ -147,7 +147,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         </div>
         {/* Spacer: 40px invisible, with visible red outline for debugging */}
         <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none', outline: '2px solid red', outlineOffset: '-2px', height: '80%' }} />
-        {/* Right: captions/highlighter, with yellow outline */}
+        {/* Right: captions/highlighter, with yellow outline and all interactivity */}
         <div className="MedicalSection-caption-area flex flex-col items-start justify-center" data-testid="MedicalSection-caption-area" style={{ minWidth: 0, flex: 1, outline: '3px solid orange', outlineOffset: '-3px' }}>
           <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
             {ready && Number.isFinite(currentVideo) && (
