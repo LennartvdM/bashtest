@@ -164,13 +164,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
           </div>
         )
       ))}
-      {/* Foreground content: flex row, no card, just video | spacer | captions */}
+      {/* Foreground content: flex row: spacer | left block (header+video) | right block (captions) */}
       <div className="relative z-20 flex flex-row items-center justify-center h-screen w-full">
-        {/* Left: vertical block, header-container (480px, left-aligned) above video, both centered as a unit */}
-        <div className="flex-1 flex flex-col items-end justify-center" style={{ outline: '3px solid orange', outlineOffset: '-3px', background: 'transparent', zIndex: 2, minWidth: 0, marginRight: 0, paddingRight: 0, height: '100%' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', height: 'auto', width: '100%', position: 'relative', top: '50%', transform: 'translateY(-50%)' }}>
+        {/* Spacer: 40px, always first */}
+        <div style={{ width: 40, minWidth: 40, height: '80%', outline: '2px solid red', outlineOffset: '-2px', zIndex: 10, flexShrink: 0 }} />
+        {/* Left block: header+video, left edge flush to spacer */}
+        <div className="flex flex-col items-start justify-center" style={{ outline: '3px solid orange', outlineOffset: '-3px', background: 'transparent', zIndex: 2, minWidth: 0, height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', height: 'auto', width: '100%', position: 'relative' }}>
             {/* Header container, 480px wide, left-aligned, anchored to spacer */}
-            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 'auto', marginRight: 0, outline: '2px solid hotpink', outlineOffset: '-2px' }}>
+            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', outline: '2px solid hotpink', outlineOffset: '-2px' }}>
               <h2 style={{
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 48,
@@ -200,7 +202,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               </h2>
             </div>
             {/* Video container, 480px wide, flush to header container */}
-            <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
+            <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-start', background: 'none', marginTop: 0 }}>
               <MedicalCarousel
                 current={currentVideo}
                 setVideoCenter={setVideoCenter}
@@ -210,9 +212,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             </div>
           </div>
         </div>
-        {/* Spacer: 40px, centered */}
-        <div style={{ width: 40, minWidth: 40, height: '80%', outline: '2px solid red', outlineOffset: '-2px', zIndex: 10, flexShrink: 0 }} />
-        {/* Right: captions/highlighter, left edge flush to spacer */}
+        {/* Right: captions/highlighter, left edge flush to spacer, vertically center to video container only */}
         <div className="flex-1 flex" style={{ outline: '3px solid orange', outlineOffset: '-3px', minWidth: 0, paddingLeft: 0, marginLeft: 0, alignItems: 'flex-start', justifyContent: 'flex-start', height: '100%' }}>
           <div
             className="MedicalSection-caption-area flex flex-col items-start justify-center"
