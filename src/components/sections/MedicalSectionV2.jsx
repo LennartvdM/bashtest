@@ -69,6 +69,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
     }
   }, [currentVideo, hoveredIndex]);
 
+  // Duplicated handleBarEnd for right highlighter
+  const handleBarEnd = () => {
+    if (!isPaused) {
+      setBarKey((k) => k + 1);
+      setCurrentVideo((c) => (c + 1) % headlines.length);
+    }
+  };
+
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
       {/* Grey line from video center to left edge of viewport */}
@@ -171,7 +179,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         {/* Right: captions/highlighter, with yellow outline and all interactivity */}
         <div className="MedicalSection-caption-area flex flex-col items-start justify-center" data-testid="MedicalSection-caption-area" style={{ minWidth: 0, flex: 1, outline: '3px solid orange', outlineOffset: '-3px', position: 'relative' }}>
           <div className="relative flex flex-col gap-2 items-start w-full" ref={rightCaptionsRef}>
-            {rightReady && Number.isFinite(currentVideo) && (
+            {rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height) && (
               <>
                 {/* Duplicated Highlighter rectangle for right section */}
                 <div
