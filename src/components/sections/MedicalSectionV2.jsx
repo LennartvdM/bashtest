@@ -170,7 +170,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         <div className="flex-1 flex flex-col items-end justify-center" style={{ outline: '3px solid orange', outlineOffset: '-3px', background: 'transparent', zIndex: 2, minWidth: 0, marginRight: 0, paddingRight: 0, height: '100%' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', height: 'auto', width: '100%', position: 'relative', top: '50%', transform: 'translateY(-50%)' }}>
             {/* Header container, 480px wide, left-aligned, anchored to spacer */}
-            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 'auto', marginRight: 0 }}>
+            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 'auto', marginRight: 0, outline: '2px solid hotpink', outlineOffset: '-2px' }}>
               <h2 style={{
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 48,
@@ -190,7 +190,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 alignSelf: 'flex-start',
                 paddingLeft: 0,
                 outline: '2px solid limegreen',
-                outlineOffset: '-2px'
+                outlineOffset: '-2px',
+                textAlign: 'left',
+                width: '100%'
               }}>
                 In the moment,<br />
                 <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
