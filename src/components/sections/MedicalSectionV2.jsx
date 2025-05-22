@@ -43,6 +43,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [rightRect, setRightRect] = useState({ top: 0, height: 0 });
   const [rightReady, setRightReady] = useState(false);
 
+  const [captionTop, setCaptionTop] = useState(0);
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -77,6 +79,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setCurrentVideo((c) => (c + 1) % headlines.length);
     }
   };
+
+  useLayoutEffect(() => {
+    function updateCaptionTop() {
+      if (videoContainerRef.current && rightCaptionsRef.current) {
+        const videoRect = videoContainerRef.current.getBoundingClientRect();
+        const captionRect = rightCaptionsRef.current.getBoundingClientRect();
+        const parentRect = videoContainerRef.current.parentElement.getBoundingClientRect();
+        const top = (videoRect.top - parentRect.top) + (videoRect.height / 2) - (captionRect.height / 2);
+        setCaptionTop(top);
+      }
+    }
+    updateCaptionTop();
+    window.addEventListener('resize', updateCaptionTop);
+    window.addEventListener('scroll', updateCaptionTop);
+    return () => {
+      window.removeEventListener('resize', updateCaptionTop);
+      window.removeEventListener('scroll', updateCaptionTop);
+    };
+  }, [currentVideo]);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
@@ -258,11 +279,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
               position: 'absolute',
               width: 'auto',
               maxWidth: 520,
-              left: 0,
-              top: videoContainerRef.current && rightCaptionsRef.current
-                ? (videoContainerRef.current.offsetTop + (videoContainerRef.current.offsetHeight / 2) - (rightCaptionsRef.current.offsetHeight / 2))
-                : 0,
-              transform: 'none',
+              top: captionTop,
+              // No left/right/transform for horizontal positioning here
             }}
           >
             <div className="relative flex flex-col gap-2 items-start" ref={rightCaptionsRef} style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
