@@ -148,7 +148,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         {/* Spacer: 40px invisible */}
         <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none' }} />
         {/* Right: captions/highlighter */}
-        <div className="flex flex-col items-start justify-center" style={{ minWidth: 0, flex: 1 }}>
+        <div className="MedicalSection-caption-area flex flex-col items-start justify-center" data-testid="MedicalSection-caption-area" style={{ minWidth: 0, flex: 1 }}>
           <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
             {ready && Number.isFinite(currentVideo) && (
               <>
