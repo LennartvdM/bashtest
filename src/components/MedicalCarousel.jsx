@@ -23,115 +23,9 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHighlighterRightChange }) {
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [barKey, setBarKey] = useState(0);
-  const [rect, setRect] = useState({ top: 0, height: 0 });
-  const [ready, setReady] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [videoRect, setVideoRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
+function MedicalCarousel({ current, setVideoCenter }) {
   const [videoHover, setVideoHover] = useState(false);
-  const [inView, setInView] = useState(true);
-
-  const rowRefs = useRef([]);
-  const autoplayRef = useRef();
-  const isMounted = useRef(true);
-  const captionsRef = useRef();
   const videoContainerRef = useRef(null);
-  const [center, setCenter] = useState({ x: 0, y: 0 });
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-      if (autoplayRef.current) {
-        clearTimeout(autoplayRef.current);
-      }
-    };
-  }, []);
-
-  // Highlight position measurement
-  const measure = () => {
-    // Always use current, never null
-    const node = rowRefs.current[current];
-    if (node) {
-      const { offsetTop, offsetHeight } = node;
-      setRect({ top: offsetTop, height: offsetHeight });
-      setReady(true);
-    }
-  };
-
-  useLayoutEffect(measure, [current]);
-
-  useLayoutEffect(() => {
-    // After first render, ensure all refs are set and measure widths
-    measure();
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    // Defer measurement until after refs are set and browser has painted
-    const raf = requestAnimationFrame(() => {
-      measure();
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  useLayoutEffect(() => {
-    if (ready && Number.isFinite(current) && captionsRef.current && onHighlighterRightChange) {
-      const captionsRect = captionsRef.current.getBoundingClientRect();
-      const x = captionsRect.left + rect.left + rect.width + window.scrollX;
-      const y = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
-      onHighlighterRightChange({ x, y });
-    }
-  });
-
-  // Autocycle: only if not paused
-  useEffect(() => {
-    if (isPaused || !isMounted.current) return;
-
-    return () => {
-      if (autoplayRef.current) {
-        clearTimeout(autoplayRef.current);
-      }
-    };
-  }, [current, isPaused]);
-
-  // On loading bar animation end: advance if not paused
-  const handleBarEnd = () => {
-    if (!isPaused && isMounted.current) {
-      setCurrent((c) => {
-        const next = (c + 1) % slides.length;
-        setBarKey((k) => k + 1);
-        return next;
-      });
-    }
-  };
-
-  const handleHover = (index) => {
-    if (typeof index === 'number' && index >= 0 && index < slides.length) {
-      // Only reset the bar if hovering to a different caption
-      if (index !== current) {
-        setBarKey((k) => k + 1);
-      }
-      setCurrent(index);
-      setIsPaused(true);
-      setHoveredIndex(index);
-    }
-  };
-
-  const handleHoverEnd = () => {
-    setIsPaused(false);
-    setHoveredIndex(null);
-  };
-
-  // Call onSlideChange whenever current changes
-  useEffect(() => {
-    if (onSlideChange) {
-      onSlideChange(current);
-    }
-  }, [current, onSlideChange]);
 
   useEffect(() => {
     function updateCenter() {
@@ -141,8 +35,7 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
           x: rect.left + rect.width / 2 + window.scrollX,
           y: rect.top + rect.height / 2 + window.scrollY,
         };
-        setCenter(newCenter);
-        if (onCenterChange) onCenterChange(newCenter);
+        setVideoCenter && setVideoCenter(newCenter);
       }
     }
     updateCenter();
@@ -152,232 +45,70 @@ function MedicalCarousel({ reverse = false, onSlideChange, onCenterChange, onHig
       window.removeEventListener("resize", updateCenter);
       window.removeEventListener("scroll", updateCenter);
     };
-  }, [onCenterChange]);
-
-  useEffect(() => {
-    let raf;
-    function updateVideoRect() {
-      if (videoContainerRef.current) {
-        const rect = videoContainerRef.current.getBoundingClientRect();
-        setVideoRect({
-          left: rect.left + window.scrollX,
-          top: rect.top + window.scrollY,
-          width: rect.width,
-          height: rect.height,
-        });
-      }
-      raf = requestAnimationFrame(updateVideoRect);
-    }
-    updateVideoRect();
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [setVideoCenter]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center w-full">
-      <div className="max-w-6xl mx-auto flex flex-col items-start">
-        <h2 className="font-bold leading-tight mb-10 text-left" style={{
-          fontFamily: 'Inter, sans-serif',
-          fontSize: 50,
-          fontWeight: 700,
-          letterSpacing: -2,
-          lineHeight: 1.2,
-          color: '#e6e6e6', // desaturated off white
-          marginLeft: 0,
-          textShadow: [
-            '0 4px 32px rgba(0,0,0,0.22)',
-            '0 2px 16px rgba(0,0,0,0.18)',
-            '0 1px 2px rgba(0,0,0,0.12)',
-            '0 0px 1px rgba(0,0,0,0.18)',
-            '0 0px 8px rgba(82,156,156,0.10)'
-          ].join(', ')
-        }}>
-          In the moment,<br />
-          <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
-          matters
-        </h2>
-        <div className="inline-flex flex-row items-center mx-auto w-full relative">
-          {/* Grey band: fixed at document level, always behind video, never masked, zero lag */}
-          {videoRect.height > 0 && (
-            <div
-              data-testid="video-grey-band"
-              data-debug-label="medical-carousel-grey-band"
-              style={{
-                position: 'fixed',
-                left: 0,
-                top: videoRect.top,
-                width: videoRect.left + videoRect.width * 0.5, // halfway into video
-                height: videoRect.height,
-                background: '#e0e0e0',
-                zIndex: 1, // behind video container
-                pointerEvents: 'none',
-              }}
-            />
-          )}
+    <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative', minHeight: '320px', minWidth: '320px', maxWidth: '480px', width: '480px', height: '320px'}}>
+      {/* Grey band: in-flow, left border radius, right edge straight */}
+      <div
+        data-testid="video-grey-band"
+        data-debug-label="medical-carousel-grey-band"
+        style={{
+          position: 'relative',
+          left: 0,
+          top: 0,
+          width: '50%',
+          height: '100%',
+          background: '#e0e0e0',
+          zIndex: 1, // behind video container
+          pointerEvents: 'none',
+          borderTopLeftRadius: '16px',
+          borderBottomLeftRadius: '16px',
+          borderTopRightRadius: 0,
+          borderBottomRightRadius: 0,
+          marginRight: '-24px', // Offset to account for video container padding
+          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)', // Match video hover transition
+        }}
+      />
+      <div
+        ref={videoContainerRef}
+        className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 w-full h-full flex items-center justify-center flex-shrink-0 group"
+        onMouseEnter={() => setVideoHover(true)}
+        onMouseLeave={() => setVideoHover(false)}
+        style={{
+          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), border 0.2s',
+          transform: videoHover ? 'translateY(-12px)' : 'none',
+          border: videoHover ? '2px solid #f5f5f5' : 'none',
+          padding: '24px', // Add padding to ensure consistent spacing
+        }}
+      >
+        {slides.map((s, i) => (
           <div
-            ref={videoContainerRef}
-            className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 min-h-[320px] min-w-[320px] max-w-[480px] w-[480px] h-[320px] flex items-center justify-center flex-shrink-0 mb-4 md:mb-0 group"
-            onMouseEnter={() => setVideoHover(true)}
-            onMouseLeave={() => setVideoHover(false)}
-            style={{
-              transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), border 0.2s',
-              transform: videoHover ? 'translateY(-12px)' : 'none',
-              border: videoHover ? '2px solid #f5f5f5' : 'none',
-            }}
+            key={s.id}
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
+              i === current ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+            style={{ pointerEvents: i === current ? 'auto' : 'none' }}
           >
-            {slides.map((s, i) => (
-              <div
-                key={s.id}
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
-                  i === current ? "opacity-100 z-10" : "opacity-0 z-0"
-                }`}
-                style={{ pointerEvents: i === current ? 'auto' : 'none' }}
-              >
-                <video
-                  src={s.video}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  alt={s.alt}
-                  controls={false}
-                  controlsList="nodownload nofullscreen noremoteplayback"
-                  disablePictureInPicture
-                  tabIndex="-1"
-                  aria-hidden="true"
-                  style={{ outline: 'none', transition: 'outline 0.2s' }}
-                />
-              </div>
-            ))}
-            {/* Highlighter right-edge line */}
-            {ready && Number.isFinite(current) && captionsRef.current && (
-              (() => {
-                const captionsRect = captionsRef.current.getBoundingClientRect();
-                const highlighterTop = captionsRect.top + rect.top + rect.height / 2 + window.scrollY;
-                const highlighterRight = captionsRect.left + rect.left + rect.width + window.scrollX;
-                return (
-                  <div
-                    style={{
-                      position: 'fixed',
-                      top: highlighterTop,
-                      left: highlighterRight,
-                      width: `calc(100vw - ${highlighterRight}px)`,
-                      height: 2,
-                      background: '#e0e0e0',
-                      mixBlendMode: 'screen',
-                      zIndex: 30,
-                      pointerEvents: 'none',
-                    }}
-                  />
-                );
-              })()
-            )}
+            <video
+              src={s.video}
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              alt={s.alt}
+              controls={false}
+              controlsList="nodownload nofullscreen noremoteplayback"
+              disablePictureInPicture
+              tabIndex="-1"
+              aria-hidden="true"
+              style={{ outline: 'none', transition: 'outline 0.2s' }}
+            />
           </div>
-          <div className="MedicalCarousel-caption-area flex flex-col justify-center max-w-xl flex-shrink" data-testid="MedicalCarousel-caption-area" style={{paddingLeft: 64}}>
-            <div className="relative flex flex-col gap-2 items-start w-full" ref={captionsRef}>
-              {ready && Number.isFinite(current) && (
-                <>
-                  {/* Highlighter rectangle */}
-                  <div
-                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
-                    style={{
-                      top: rect.top,
-                      height: rect.height,
-                      width: 444,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      paddingLeft: 24,
-                      paddingRight: 24,
-                      background: hoveredIndex === current ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
-                      borderRadius: 10,
-                      boxShadow: hoveredIndex === current ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
-                    }}
-                  >
-                    <div className="w-full h-full rounded-xl relative pointer-events-none">
-                      {/* Loading Bar */}
-                      <div
-                        key={barKey}
-                        className="absolute left-0 bottom-0 h-[5px]"
-                        style={{
-                          background: 'rgba(82,156,156,0.5)',
-                          animation: `grow 7000ms linear forwards`,
-                          animationPlayState: isPaused ? 'paused' : 'running',
-                          left: -24,
-                          width: '100%'
-                        }}
-                        onAnimationEnd={handleBarEnd}
-                      />
-                    </div>
-                  </div>
-                  {/* Second highlighter: animated line protruding to the right */}
-                  <div
-                    className="absolute transition-all duration-700 ease"
-                    style={{
-                      top: rect.top + rect.height / 2,
-                      left: `calc(50% + ${444 / 2}px)`, // static width
-                      width: '100vw',
-                      height: 2,
-                      background: '#e0e0e0',
-                      mixBlendMode: 'screen',
-                      zIndex: 40,
-                      pointerEvents: 'none',
-                      transform: 'translateY(-50%)',
-                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
-                    }}
-                  />
-                </>
-              )}
-              {headlines.map((headline, i) => (
-                <button
-                  key={i}
-                  ref={(el) => (rowRefs.current[i] = el)}
-                  onMouseEnter={() => handleHover(i)}
-                  onMouseLeave={handleHoverEnd}
-                  className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
-                  style={{
-                    display: 'block',
-                    maxWidth: 480,
-                    minWidth: 320,
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    margin: '0 auto',
-                  }}
-                >
-                  <p className="m-0 text-right text-2xl leading-tight" style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 500,
-                    letterSpacing: '-0.5px',
-                    color:
-                      hoveredIndex === i
-                        ? '#2D6A6A' // teal, normal blend
-                        : current === i
-                        ? '#2a2323' // much darker grey-brown, normal blend
-                        : '#bdbdbd', // light grey when inactive
-                    mixBlendMode:
-                      hoveredIndex === i
-                        ? 'normal'
-                        : current === i
-                        ? 'normal'
-                        : 'screen',
-                    transition: 'color 0.6s, transform 0.3s',
-                    transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
-                  }}>
-                    {headline.firstLine}
-                    <br />
-                    {headline.secondLine}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
-      {/* Keyframes for loading bar */}
-      <style>{`
-        @keyframes grow { from { width: 0; } to { width: 112%; } }
-      `}</style>
     </div>
   );
 }
