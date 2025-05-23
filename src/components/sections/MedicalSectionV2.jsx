@@ -226,11 +226,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
           className="content-anchor-frame"
           style={{
             position: 'absolute',
-            top: '60px', // navbar height
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 480,
+            // Vertically center in space below navbar
+            top: '60px',
+            bottom: 0,
             height: headerHeight + gap + videoHeight,
+            margin: 'auto 0',
+            // Horizontally align left edge with spacer
+            left: 'calc(50% - 20px)', // 20px is half the spacer width (spacer is 40px)
+            width: 480,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
