@@ -191,69 +191,95 @@ const MedicalSection = ({ inView, sectionRef }) => {
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
         {/* Spacer: absolute, fixed at horizontal center */}
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          top: '10%',
-          height: '80%',
-          width: 40,
-          minWidth: 40,
-          transform: 'translateX(-50%)',
-          zIndex: 10,
-          background: 'rgba(255, 0, 0, 0.3)',
-          pointerEvents: 'none',
-        }} />
-        {/* Left block: header+video, right edge flush to spacer */}
-        <div style={{
-          position: 'absolute',
-          right: '50%',
-          transform: 'translateX(-20px)', // half spacer width
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-          height: 'auto',
-          zIndex: 2,
-          minWidth: 0,
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', width: '100%' }}>
-            {/* Header container, 480px wide, left-aligned, right edge flush to spacer */}
-            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
-              <h2 style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 48,
-                fontWeight: 700,
-                letterSpacing: -2,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-                marginBottom: 32,
-                textShadow: [
-                  '0 4px 32px rgba(0,0,0,0.22)',
-                  '0 2px 16px rgba(0,0,0,0.18)',
-                  '0 1px 2px rgba(0,0,0,0.12)',
-                  '0 0px 1px rgba(0,0,0,0.18)',
-                  '0 0px 8px rgba(82,156,156,0.10)'
-                ].join(', '),
-                alignSelf: 'flex-start',
-                paddingLeft: 0,
-                textAlign: 'left',
-                width: '100%'
-              }}>
-                In the moment,<br />
-                <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
-                matters
-              </h2>
-            </div>
-            {/* Video container, 480px wide, flush to header container */}
-            <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
-              <MedicalCarousel
-                current={currentVideo}
-                setVideoCenter={setVideoCenter}
-                hoveredIndex={hoveredIndex}
-                isActive={hoveredIndex === currentVideo || isPaused}
-              />
-            </div>
+        <div
+          data-testid="spacer"
+          className="spacer"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '10%',
+            height: '80%',
+            width: 40,
+            minWidth: 40,
+            transform: 'translateX(-50%)',
+            zIndex: 10,
+            background: 'rgba(255, 0, 0, 0.3)',
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Left block: header frame and video, now separated */}
+        <div
+          data-testid="header-frame"
+          className="header-frame"
+          style={{
+            position: 'absolute',
+            right: '50%',
+            transform: 'translateX(-20px)', // half spacer width
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            height: 'auto',
+            zIndex: 2,
+            minWidth: 0,
+            width: 480,
+          }}
+        >
+          {/* Header container, 480px wide, left-aligned, right edge flush to spacer */}
+          <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
+            <h2 style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 48,
+              fontWeight: 700,
+              letterSpacing: -2,
+              lineHeight: 1.2,
+              color: '#fff',
+              margin: 0,
+              marginBottom: 32,
+              textShadow: [
+                '0 4px 32px rgba(0,0,0,0.22)',
+                '0 2px 16px rgba(0,0,0,0.18)',
+                '0 1px 2px rgba(0,0,0,0.12)',
+                '0 0px 1px rgba(0,0,0,0.18)',
+                '0 0px 8px rgba(82,156,156,0.10)'
+              ].join(', '),
+              alignSelf: 'flex-start',
+              paddingLeft: 0,
+              textAlign: 'left',
+              width: '100%'
+            }}>
+              In the moment,<br />
+              <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
+              matters
+            </h2>
+          </div>
+        </div>
+        {/* Video container, 480px wide, flush to header frame, now a sibling */}
+        <div
+          data-testid="video-frame"
+          className="video-frame"
+          style={{
+            position: 'absolute',
+            right: '50%',
+            transform: 'translateX(-20px)', // half spacer width
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            height: 'auto',
+            zIndex: 2,
+            minWidth: 0,
+            width: 480,
+            marginTop: 120, // add spacing below header if needed
+          }}
+        >
+          <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
+            <MedicalCarousel
+              current={currentVideo}
+              setVideoCenter={setVideoCenter}
+              hoveredIndex={hoveredIndex}
+              isActive={hoveredIndex === currentVideo || isPaused}
+            />
           </div>
         </div>
         {/* Right: captions/highlighter, left edge flush to spacer, vertically center to video container only */}
