@@ -45,6 +45,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   const [captionTop, setCaptionTop] = useState(0);
 
+  const headerRef = useRef();
+  const [videoTop, setVideoTop] = useState('30%');
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -101,6 +104,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
       window.removeEventListener('scroll', updateCaptionTop);
     };
   }, [currentVideo]);
+
+  useLayoutEffect(() => {
+    if (headerRef.current) {
+      const headerRect = headerRef.current.getBoundingClientRect();
+      // Place video 32px below header
+      setVideoTop(`${headerRect.top + headerRect.height + 32}px`);
+    }
+  }, []);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
@@ -226,13 +237,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
         {/* Header Frame (with visible outline) */}
         <div
+          ref={headerRef}
           data-testid="header-frame"
           className="header-frame"
           style={{
             position: 'absolute',
             right: '50%',
             transform: 'translateX(-20px)',
-            top: '15%', // above the anchor
+            top: '10%', // restored to old value
             width: 480,
             zIndex: 2,
             border: '2px solid blue',
@@ -277,7 +289,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             position: 'absolute',
             right: '50%',
             transform: 'translateX(-20px)',
-            top: '30%', // same as anchor by default
+            top: videoTop,
             width: 480,
             zIndex: 2,
             border: '2px solid red',
