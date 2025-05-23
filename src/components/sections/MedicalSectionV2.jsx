@@ -55,6 +55,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const captionRef = useRef();
   const contentAnchorRef = useRef();
 
+  const [collectionTop, setCollectionTop] = useState('60px');
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -114,6 +116,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setVideoTop(`${headerRect.height + gap}px`);
     }
   }, []);
+
+  useLayoutEffect(() => {
+    const totalHeight = headerHeight + gap + videoHeight;
+    const viewportHeight = window.innerHeight;
+    const top = 60 + (viewportHeight - 60 - totalHeight) / 2; // 60px navbar
+    setCollectionTop(`${top}px`);
+  }, [headerHeight, gap, videoHeight]);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
@@ -210,7 +219,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             left: '50%',
-            top: '60px',
+            top: collectionTop,
             width: 40,
             height: headerHeight + gap + videoHeight,
             transform: 'translateX(-50%)',
@@ -226,7 +235,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             right: 'calc(50% + 20px)', // 20px is half the spacer width
-            top: `calc(60px + ${headerHeight + gap}px)`,
+            top: collectionTop,
             width: 480,
             height: videoHeight,
             opacity: 0.5,
@@ -242,7 +251,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             right: 'calc(50% + 20px)',
-            top: `calc(60px + ${headerHeight + gap}px)`,
+            top: collectionTop,
             width: 480,
             zIndex: 2,
             border: '2px solid red',
@@ -264,7 +273,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             left: 'calc(50% + 20px)',
-            top: `calc(60px + ${headerHeight + gap}px)`,
+            top: collectionTop,
             width: 480,
             height: videoHeight,
             border: '2px dashed purple',
@@ -392,7 +401,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             right: 'calc(50% + 20px)',
-            top: '60px',
+            top: collectionTop,
             width: 480,
             border: '2px solid blue',
             background: 'rgba(0,0,255,0.05)',
