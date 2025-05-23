@@ -49,27 +49,6 @@ function MedicalCarousel({ current, setVideoCenter }) {
 
   return (
     <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative', minHeight: '320px', minWidth: '320px', maxWidth: '480px', width: '480px', height: '320px'}}>
-      {/* Grey band: in-flow, left border radius, right edge straight */}
-      <div
-        data-testid="video-grey-band"
-        data-debug-label="medical-carousel-grey-band"
-        style={{
-          position: 'relative',
-          left: 0,
-          top: 0,
-          width: '50%',
-          height: '100%',
-          background: '#e0e0e0',
-          zIndex: 1, // behind video container
-          pointerEvents: 'none',
-          borderTopLeftRadius: '16px',
-          borderBottomLeftRadius: '16px',
-          borderTopRightRadius: 0,
-          borderBottomRightRadius: 0,
-          marginRight: '-24px', // Offset to account for video container padding
-          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)', // Match video hover transition
-        }}
-      />
       <div
         ref={videoContainerRef}
         className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 w-full h-full flex items-center justify-center flex-shrink-0 group"
