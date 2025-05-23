@@ -23,8 +23,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ current, setVideoCenter }) {
-  const [videoHover, setVideoHover] = useState(false);
+function MedicalCarousel({ current, setVideoCenter, videoHover, setVideoHover }) {
   const videoContainerRef = useRef(null);
 
   useEffect(() => {

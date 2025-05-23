@@ -58,6 +58,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [collectionTop, setCollectionTop] = useState('60px');
   const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
 
+  const [videoHover, setVideoHover] = useState(false);
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -266,6 +268,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
               setVideoCenter={setVideoCenter}
               hoveredIndex={hoveredIndex}
               isActive={hoveredIndex === currentVideo || isPaused}
+              videoHover={videoHover}
+              setVideoHover={setVideoHover}
             />
           </div>
         </div>
@@ -274,8 +278,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             top: videoAndCaptionTop,
-            left: '-1%', // extend slightly past the left edge
-            right: 'calc(50% + 24px)', // contract a bit more to avoid pixel overlap
+            left: '-1%',
+            right: 'calc(50% + 24px)',
             height: videoHeight,
             background: '#e0e0e0',
             zIndex: 0,
@@ -283,6 +287,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             borderBottomLeftRadius: 0,
             borderTopRightRadius: 16,
             borderBottomRightRadius: 16,
+            transform: videoHover ? 'translateY(-12px)' : 'none',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
           }}
         />
         {/* Caption Anchor (right of spacer) */}
