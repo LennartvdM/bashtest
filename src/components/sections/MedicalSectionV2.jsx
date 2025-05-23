@@ -269,6 +269,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
             />
           </div>
         </div>
+        {/* Grey band behind video container (gantry crane effect) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: videoAndCaptionTop,
+            left: 0,
+            right: 'calc(50% + 20px)', // right edge matches video container
+            height: videoHeight,
+            background: '#e0e0e0',
+            zIndex: 0,
+            borderTopLeftRadius: 16,
+            borderBottomLeftRadius: 16,
+          }}
+        />
         {/* Caption Anchor (right of spacer) */}
         <div
           className="caption-anchor"
