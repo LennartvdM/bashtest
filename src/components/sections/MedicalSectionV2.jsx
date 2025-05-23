@@ -95,10 +95,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
       const videoRect = videoAnchorRef.current.getBoundingClientRect();
       const captionRect = captionRef.current.getBoundingClientRect();
       const parentRect = contentAnchorRef.current.getBoundingClientRect();
-      // Calculate the center Y of the video relative to the green frame
-      const videoCenterY = (videoRect.top - parentRect.top) + (videoRect.height / 2);
-      // Set the caption's top so its center aligns with the video's center
-      const top = videoCenterY - (captionRect.height / 2);
+
+      // Position relative to the green frame
+      const videoAnchorTop = videoRect.top - parentRect.top;
+      const videoAnchorHeight = videoRect.height;
+      const captionHeight = captionRect.height;
+
+      // Center caption on video anchor
+      const top = videoAnchorTop + (videoAnchorHeight / 2) - (captionHeight / 2);
       setCaptionTop(top);
     }
   }, [headerHeight, gap, videoHeight]);
