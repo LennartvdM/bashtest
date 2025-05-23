@@ -46,7 +46,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [captionTop, setCaptionTop] = useState(0);
 
   const headerRef = useRef();
-  const [videoTop, setVideoTop] = useState('30%');
+  const [videoTop, setVideoTop] = useState('0px');
+  const gap = 32;
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -108,8 +109,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
   useLayoutEffect(() => {
     if (headerRef.current) {
       const headerRect = headerRef.current.getBoundingClientRect();
-      // Place video 32px below header
-      setVideoTop(`${headerRect.top + headerRect.height + 32}px`);
+      const parentRect = headerRef.current.parentElement.getBoundingClientRect();
+      const headerTop = headerRect.top - parentRect.top;
+      setVideoTop(`${headerTop + headerRect.height + gap}px`);
     }
   }, []);
 
@@ -225,7 +227,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             position: 'absolute',
             right: '50%',
             transform: 'translateX(-20px)',
-            top: '30%', // intended video position
+            top: videoTop,
             width: 480,
             height: 320, // or whatever the video height is
             opacity: 0.5, // semi-transparent for debugging
