@@ -274,13 +274,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             top: videoAndCaptionTop,
-            left: 0,
-            right: 'calc(50% + 20px)', // right edge matches video container
+            left: '-1%', // extend slightly past the left edge
+            right: 'calc(50% + 24px)', // contract a bit more to avoid pixel overlap
             height: videoHeight,
             background: '#e0e0e0',
             zIndex: 0,
-            borderTopLeftRadius: 16,
-            borderBottomLeftRadius: 16,
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+            borderTopRightRadius: 16,
+            borderBottomRightRadius: 16,
           }}
         />
         {/* Caption Anchor (right of spacer) */}
