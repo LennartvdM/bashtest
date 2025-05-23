@@ -203,262 +203,228 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
-        {/* Spacer: absolute, fixed at horizontal center */}
+        {/* Spacer (centered) */}
         <div
           data-testid="spacer"
           className="spacer"
           style={{
             position: 'absolute',
             left: '50%',
-            top: '10%',
-            height: '80%',
+            top: '60px',
             width: 40,
-            minWidth: 40,
+            height: headerHeight + gap + videoHeight,
             transform: 'translateX(-50%)',
-            zIndex: 10,
             background: 'rgba(255, 0, 0, 0.3)',
             pointerEvents: 'none',
+            zIndex: 10,
           }}
         />
-        {/* Content Anchor Frame (green border for debugging) */}
+        {/* Video Anchor (left of spacer) */}
         <div
-          className="content-anchor-frame"
-          ref={contentAnchorRef}
+          ref={videoAnchorRef}
+          data-testid="video-anchor"
           style={{
             position: 'absolute',
-            top: '60px',
-            bottom: 0,
-            height: headerHeight + gap + videoHeight,
-            margin: 'auto 0',
-            right: 'calc(50% + 20px)', // align right edge to left of spacer
-            width: 480 * 2 + 40, // left block + spacer + right block
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            border: '2px solid green', // debug
-            zIndex: 5,
+            right: 'calc(50% + 20px)', // 20px is half the spacer width
+            top: `calc(60px + ${headerHeight + gap}px)`,
+            width: 480,
+            height: videoHeight,
+            opacity: 0.5,
+            border: '2px dashed orange',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
+        {/* Video Frame (with visible outline) */}
+        <div
+          data-testid="video-frame"
+          className="video-frame"
+          style={{
+            position: 'absolute',
+            right: 'calc(50% + 20px)',
+            top: `calc(60px + ${headerHeight + gap}px)`,
+            width: 480,
+            zIndex: 2,
+            border: '2px solid red',
+            background: 'rgba(255,0,0,0.05)',
           }}
         >
-          {/* Left: header and video anchor */}
-          <div style={{ width: 480, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            {/* Header Frame (with visible outline) */}
-            <div
-              ref={headerRef}
-              data-testid="header-frame"
-              className="header-frame"
-              style={{
-                width: 480,
-                border: '2px solid blue',
-                background: 'rgba(0,0,255,0.05)',
-                marginBottom: gap,
-              }}
-            >
-              {/* Header container, 480px wide, left-aligned, right edge flush to spacer */}
-              <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
-                <h2 style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 48,
-                  fontWeight: 700,
-                  letterSpacing: -2,
-                  lineHeight: 1.2,
-                  color: '#fff',
-                  margin: 0,
-                  marginBottom: 32,
-                  textShadow: [
-                    '0 4px 32px rgba(0,0,0,0.22)',
-                    '0 2px 16px rgba(0,0,0,0.18)',
-                    '0 1px 2px rgba(0,0,0,0.12)',
-                    '0 0px 1px rgba(0,0,0,0.18)',
-                    '0 0px 8px rgba(82,156,156,0.10)'
-                  ].join(', '),
-                  alignSelf: 'flex-start',
-                  paddingLeft: 0,
-                  textAlign: 'left',
-                  width: '100%'
-                }}>
-                  In the moment,<br />
-                  <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
-                  matters
-                </h2>
-              </div>
-            </div>
-            {/* Video Anchor Frame (with visible outline for debugging) */}
-            <div
-              ref={videoAnchorRef}
-              data-testid="video-anchor"
-              style={{
-                width: 480,
-                height: videoHeight,
-                opacity: 0.5, // semi-transparent for debugging
-                border: '2px dashed orange',
-                pointerEvents: 'none',
-                zIndex: 1,
-                position: 'relative',
-              }}
+          <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
+            <MedicalCarousel
+              current={currentVideo}
+              setVideoCenter={setVideoCenter}
+              hoveredIndex={hoveredIndex}
+              isActive={hoveredIndex === currentVideo || isPaused}
             />
-            {/* Video Frame (with visible outline) */}
-            <div
-              data-testid="video-frame"
-              className="video-frame"
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: videoTop,
-                width: 480,
-                zIndex: 2,
-                border: '2px solid red',
-                background: 'rgba(255,0,0,0.05)',
-                // Add animation styles here as needed
-              }}
-            >
-              <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
-                <MedicalCarousel
-                  current={currentVideo}
-                  setVideoCenter={setVideoCenter}
-                  hoveredIndex={hoveredIndex}
-                  isActive={hoveredIndex === currentVideo || isPaused}
-                />
-              </div>
-            </div>
           </div>
-          {/* Spacer (center) - keep as is */}
+        </div>
+        {/* Caption Anchor (right of spacer) */}
+        <div
+          className="caption-anchor"
+          style={{
+            position: 'absolute',
+            left: 'calc(50% + 20px)',
+            top: `calc(60px + ${headerHeight + gap}px)`,
+            width: 480,
+            height: videoHeight,
+            border: '2px dashed purple',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1,
+          }}
+        >
+          {/* Caption Section (centered inside caption anchor) */}
           <div
-            data-testid="spacer"
-            className="spacer"
+            ref={captionRef}
+            className="MedicalSection-caption-area flex flex-col items-start justify-center"
+            data-testid="MedicalSection-caption-area"
             style={{
-              position: 'relative',
-              width: 40,
-              minWidth: 40,
-              height: headerHeight + gap + videoHeight,
-              background: 'rgba(255, 0, 0, 0.3)',
-              pointerEvents: 'none',
-              zIndex: 10,
-            }}
-          />
-          {/* Right: caption anchor placeholder */}
-          <div
-            className="caption-anchor"
-            style={{
-              width: 480,
-              height: videoHeight,
-              border: '2px dashed purple',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              maxWidth: 520,
+              width: 'auto',
+              marginLeft: 0,
+              paddingLeft: 0,
             }}
           >
-            {/* Caption Section (centered inside caption anchor) */}
-            <div
-              ref={captionRef}
-              className="MedicalSection-caption-area flex flex-col items-start justify-center"
-              data-testid="MedicalSection-caption-area"
-              style={{
-                maxWidth: 520,
-                width: 'auto',
-                marginLeft: 0,
-                paddingLeft: 0,
-                // Centered by flex
-              }}
-            >
-              <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
-                {rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height) && (
-                  <>
-                    {/* Duplicated Highlighter rectangle for right section */}
-                    <div
-                      className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
-                      style={{
-                        top: rightRect.top,
-                        height: rightRect.height,
-                        width: 444,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        paddingLeft: 24,
-                        paddingRight: 24,
-                        background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
-                        borderRadius: 10,
-                        boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                        transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
-                      }}
-                    >
-                      <div className="w-full h-full rounded-xl relative pointer-events-none">
-                        {/* Loading Bar */}
-                        <div
-                          key={barKey}
-                          className="absolute left-0 bottom-0 h-[5px]"
-                          style={{
-                            background: 'rgba(82,156,156,0.5)',
-                            animation: `grow 7000ms linear forwards`,
-                            animationPlayState: isPaused ? 'paused' : 'running',
-                            left: -24,
-                            width: '100%'
-                          }}
-                          onAnimationEnd={handleBarEnd}
-                        />
-                      </div>
-                    </div>
-                    {/* Second highlighter: animated line protruding to the right */}
-                    <div
-                      className="absolute transition-all duration-700 ease"
-                      style={{
-                        top: rightRect.top + rightRect.height / 2,
-                        left: `calc(50% + ${444 / 2}px)`,
-                        width: '100vw',
-                        height: 2,
-                        background: '#e0e0e0',
-                        mixBlendMode: 'screen',
-                        zIndex: 40,
-                        pointerEvents: 'none',
-                        transform: 'translateY(-50%)',
-                        transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
-                      }}
-                    />
-                  </>
-                )}
-                {headlines.map((headline, i) => (
-                  <button
-                    key={i}
-                    ref={(el) => (rightRowRefs.current[i] = el)}
-                    onMouseEnter={() => handleHover(i)}
-                    onMouseLeave={handleHoverEnd}
-                    className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
+            <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
+              {rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height) && (
+                <>
+                  {/* Duplicated Highlighter rectangle for right section */}
+                  <div
+                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
                     style={{
-                      display: 'block',
-                      maxWidth: 480,
-                      minWidth: 320,
+                      top: rightRect.top,
+                      height: rightRect.height,
+                      width: 444,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
                       paddingLeft: 24,
                       paddingRight: 24,
-                      margin: '0 auto',
+                      background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
+                      borderRadius: 10,
+                      boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                   >
-                    <p className="m-0 text-right text-2xl leading-tight" style={{
-                      fontFamily: 'Inter, sans-serif',
-                      fontWeight: 500,
-                      letterSpacing: '-0.5px',
-                      color:
-                        hoveredIndex === i
-                          ? '#2D6A6A'
-                          : currentVideo === i
-                          ? '#2a2323'
-                          : '#bdbdbd',
-                      mixBlendMode:
-                        hoveredIndex === i
-                          ? 'normal'
-                          : currentVideo === i
-                          ? 'normal'
-                          : 'screen',
-                      transition: 'color 0.6s, transform 0.3s',
-                      transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
-                    }}>
-                      {headline.firstLine}
-                      <br />
-                      {headline.secondLine}
-                    </p>
-                  </button>
-                ))}
-              </div>
+                    <div className="w-full h-full rounded-xl relative pointer-events-none">
+                      {/* Loading Bar */}
+                      <div
+                        key={barKey}
+                        className="absolute left-0 bottom-0 h-[5px]"
+                        style={{
+                          background: 'rgba(82,156,156,0.5)',
+                          animation: `grow 7000ms linear forwards`,
+                          animationPlayState: isPaused ? 'paused' : 'running',
+                          left: -24,
+                          width: '100%'
+                        }}
+                        onAnimationEnd={handleBarEnd}
+                      />
+                    </div>
+                  </div>
+                  {/* Second highlighter: animated line protruding to the right */}
+                  <div
+                    className="absolute transition-all duration-700 ease"
+                    style={{
+                      top: rightRect.top + rightRect.height / 2,
+                      left: `calc(50% + ${444 / 2}px)`,
+                      width: '100vw',
+                      height: 2,
+                      background: '#e0e0e0',
+                      mixBlendMode: 'screen',
+                      zIndex: 40,
+                      pointerEvents: 'none',
+                      transform: 'translateY(-50%)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                  />
+                </>
+              )}
+              {headlines.map((headline, i) => (
+                <button
+                  key={i}
+                  ref={(el) => (rightRowRefs.current[i] = el)}
+                  onMouseEnter={() => handleHover(i)}
+                  onMouseLeave={handleHoverEnd}
+                  className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
+                  style={{
+                    display: 'block',
+                    maxWidth: 480,
+                    minWidth: 320,
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    margin: '0 auto',
+                  }}
+                >
+                  <p className="m-0 text-right text-2xl leading-tight" style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 500,
+                    letterSpacing: '-0.5px',
+                    color:
+                      hoveredIndex === i
+                        ? '#2D6A6A'
+                        : currentVideo === i
+                        ? '#2a2323'
+                        : '#bdbdbd',
+                    mixBlendMode:
+                      hoveredIndex === i
+                        ? 'normal'
+                        : currentVideo === i
+                        ? 'normal'
+                        : 'screen',
+                    transition: 'color 0.6s, transform 0.3s',
+                    transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
+                  }}>
+                    {headline.firstLine}
+                    <br />
+                    {headline.secondLine}
+                  </p>
+                </button>
+              ))}
             </div>
+          </div>
+        </div>
+        {/* Header Frame (with visible outline, above video anchor) */}
+        <div
+          ref={headerRef}
+          data-testid="header-frame"
+          className="header-frame"
+          style={{
+            position: 'absolute',
+            right: 'calc(50% + 20px)',
+            top: '60px',
+            width: 480,
+            border: '2px solid blue',
+            background: 'rgba(0,0,255,0.05)',
+            zIndex: 2,
+          }}
+        >
+          <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
+            <h2 style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 48,
+              fontWeight: 700,
+              letterSpacing: -2,
+              lineHeight: 1.2,
+              color: '#fff',
+              margin: 0,
+              marginBottom: 32,
+              textShadow: [
+                '0 4px 32px rgba(0,0,0,0.22)',
+                '0 2px 16px rgba(0,0,0,0.18)',
+                '0 1px 2px rgba(0,0,0,0.12)',
+                '0 0px 1px rgba(0,0,0,0.18)',
+                '0 0px 8px rgba(82,156,156,0.10)'
+              ].join(', '),
+              alignSelf: 'flex-start',
+              paddingLeft: 0,
+              textAlign: 'left',
+              width: '100%'
+            }}>
+              In the moment,<br />
+              <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
+              matters
+            </h2>
           </div>
         </div>
       </div>
