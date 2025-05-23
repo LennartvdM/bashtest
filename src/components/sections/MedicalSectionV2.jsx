@@ -56,6 +56,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const contentAnchorRef = useRef();
 
   const [collectionTop, setCollectionTop] = useState('60px');
+  const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -120,8 +121,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
     const viewportHeight = window.innerHeight;
-    const top = 60 + (viewportHeight - 60 - totalHeight) / 2; // 60px navbar
+    const top = 60 + (viewportHeight - 60 - totalHeight) / 2;
     setCollectionTop(`${top}px`);
+    setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
 
   return (
@@ -235,7 +237,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             right: 'calc(50% + 20px)', // 20px is half the spacer width
-            top: collectionTop,
+            top: videoAndCaptionTop,
             width: 480,
             height: videoHeight,
             opacity: 0.5,
@@ -251,7 +253,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             right: 'calc(50% + 20px)',
-            top: collectionTop,
+            top: videoAndCaptionTop,
             width: 480,
             zIndex: 2,
             border: '2px solid red',
@@ -273,7 +275,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{
             position: 'absolute',
             left: 'calc(50% + 20px)',
-            top: collectionTop,
+            top: videoAndCaptionTop,
             width: 480,
             height: videoHeight,
             border: '2px dashed purple',
