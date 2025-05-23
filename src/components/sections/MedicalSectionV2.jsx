@@ -53,6 +53,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   const videoAnchorRef = useRef();
   const captionRef = useRef();
+  const contentAnchorRef = useRef();
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -90,11 +91,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
   };
 
   useLayoutEffect(() => {
-    if (videoAnchorRef.current && captionRef.current) {
+    if (videoAnchorRef.current && captionRef.current && contentAnchorRef.current) {
       const videoRect = videoAnchorRef.current.getBoundingClientRect();
       const captionRect = captionRef.current.getBoundingClientRect();
-      const parentRect = videoAnchorRef.current.parentElement.getBoundingClientRect();
-      // Calculate the center Y of the video relative to the parent
+      const parentRect = contentAnchorRef.current.getBoundingClientRect();
+      // Calculate the center Y of the video relative to the green frame
       const videoCenterY = (videoRect.top - parentRect.top) + (videoRect.height / 2);
       // Set the caption's top so its center aligns with the video's center
       const top = videoCenterY - (captionRect.height / 2);
@@ -217,6 +218,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         />
         {/* Content Anchor Frame (green border for debugging) */}
         <div
+          ref={contentAnchorRef}
           className="content-anchor-frame"
           style={{
             position: 'absolute',
