@@ -46,8 +46,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [captionTop, setCaptionTop] = useState(0);
 
   const headerRef = useRef();
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [videoTop, setVideoTop] = useState('0px');
   const gap = 32;
+  const videoHeight = 320;
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -109,9 +111,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   useLayoutEffect(() => {
     if (headerRef.current) {
       const headerRect = headerRef.current.getBoundingClientRect();
-      const parentRect = headerRef.current.parentElement.getBoundingClientRect();
-      const headerTop = headerRect.top - parentRect.top;
-      setVideoTop(`${headerTop + headerRect.height + gap}px`);
+      setHeaderHeight(headerRect.height);
+      setVideoTop(`${headerRect.height + gap}px`);
     }
   }, []);
 
@@ -220,92 +221,103 @@ const MedicalSection = ({ inView, sectionRef }) => {
             pointerEvents: 'none',
           }}
         />
-        {/* Invisible Anchor Frame (with visible outline for debugging) */}
+        {/* Content Anchor Frame (green border for debugging) */}
         <div
-          data-testid="video-anchor"
+          className="content-anchor-frame"
           style={{
             position: 'absolute',
-            right: '50%',
-            transform: 'translateX(-20px)',
-            top: videoTop,
+            top: '60px', // navbar height
+            left: '50%',
+            transform: 'translateX(-50%)',
             width: 480,
-            height: 320, // or whatever the video height is
-            opacity: 0.5, // semi-transparent for debugging
-            border: '2px dashed orange',
-            pointerEvents: 'none',
-            zIndex: 1,
-          }}
-        />
-
-        {/* Header Frame (with visible outline) */}
-        <div
-          ref={headerRef}
-          data-testid="header-frame"
-          className="header-frame"
-          style={{
-            position: 'absolute',
-            right: '50%',
-            transform: 'translateX(-20px)',
-            top: '10%', // restored to old value
-            width: 480,
-            zIndex: 2,
-            border: '2px solid blue',
-            background: 'rgba(0,0,255,0.05)',
+            height: headerHeight + gap + videoHeight,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            border: '2px solid green', // debug
+            zIndex: 5,
           }}
         >
-          {/* Header container, 480px wide, left-aligned, right edge flush to spacer */}
-          <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
-            <h2 style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: 48,
-              fontWeight: 700,
-              letterSpacing: -2,
-              lineHeight: 1.2,
-              color: '#fff',
-              margin: 0,
-              marginBottom: 32,
-              textShadow: [
-                '0 4px 32px rgba(0,0,0,0.22)',
-                '0 2px 16px rgba(0,0,0,0.18)',
-                '0 1px 2px rgba(0,0,0,0.12)',
-                '0 0px 1px rgba(0,0,0,0.18)',
-                '0 0px 8px rgba(82,156,156,0.10)'
-              ].join(', '),
-              alignSelf: 'flex-start',
-              paddingLeft: 0,
-              textAlign: 'left',
-              width: '100%'
-            }}>
-              In the moment,<br />
-              <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
-              matters
-            </h2>
+          {/* Header Frame (with visible outline) */}
+          <div
+            ref={headerRef}
+            data-testid="header-frame"
+            className="header-frame"
+            style={{
+              width: 480,
+              border: '2px solid blue',
+              background: 'rgba(0,0,255,0.05)',
+              marginBottom: gap,
+            }}
+          >
+            {/* Header container, 480px wide, left-aligned, right edge flush to spacer */}
+            <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
+              <h2 style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 48,
+                fontWeight: 700,
+                letterSpacing: -2,
+                lineHeight: 1.2,
+                color: '#fff',
+                margin: 0,
+                marginBottom: 32,
+                textShadow: [
+                  '0 4px 32px rgba(0,0,0,0.22)',
+                  '0 2px 16px rgba(0,0,0,0.18)',
+                  '0 1px 2px rgba(0,0,0,0.12)',
+                  '0 0px 1px rgba(0,0,0,0.18)',
+                  '0 0px 8px rgba(82,156,156,0.10)'
+                ].join(', '),
+                alignSelf: 'flex-start',
+                paddingLeft: 0,
+                textAlign: 'left',
+                width: '100%'
+              }}>
+                In the moment,<br />
+                <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
+                matters
+              </h2>
+            </div>
           </div>
-        </div>
 
-        {/* Video Frame (with visible outline) */}
-        <div
-          data-testid="video-frame"
-          className="video-frame"
-          style={{
-            position: 'absolute',
-            right: '50%',
-            transform: 'translateX(-20px)',
-            top: videoTop,
-            width: 480,
-            zIndex: 2,
-            border: '2px solid red',
-            background: 'rgba(255,0,0,0.05)',
-            // Add animation styles here as needed
-          }}
-        >
-          <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
-            <MedicalCarousel
-              current={currentVideo}
-              setVideoCenter={setVideoCenter}
-              hoveredIndex={hoveredIndex}
-              isActive={hoveredIndex === currentVideo || isPaused}
-            />
+          {/* Video Anchor Frame (with visible outline for debugging) */}
+          <div
+            data-testid="video-anchor"
+            style={{
+              width: 480,
+              height: videoHeight,
+              opacity: 0.5, // semi-transparent for debugging
+              border: '2px dashed orange',
+              pointerEvents: 'none',
+              zIndex: 1,
+              position: 'relative',
+            }}
+          />
+
+          {/* Video Frame (with visible outline) */}
+          <div
+            data-testid="video-frame"
+            className="video-frame"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: videoTop,
+              width: 480,
+              zIndex: 2,
+              border: '2px solid red',
+              background: 'rgba(255,0,0,0.05)',
+              // Add animation styles here as needed
+            }}
+          >
+            <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
+              <MedicalCarousel
+                current={currentVideo}
+                setVideoCenter={setVideoCenter}
+                hoveredIndex={hoveredIndex}
+                isActive={hoveredIndex === currentVideo || isPaused}
+              />
+            </div>
           </div>
         </div>
         {/* Right: captions/highlighter, left edge flush to spacer, vertically center to video container only */}
