@@ -291,7 +291,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               background: 'rgba(255,0,0,0.05)',
             }}
           >
-            <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: videoHover ? '2px solid #f5f5f5' : '2px solid red', transition: 'border 0.2s' }}>
+            <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: 'none', transition: 'border 0.2s' }}>
               <MedicalCarousel
                 current={currentVideo}
                 setVideoCenter={setVideoCenter}
