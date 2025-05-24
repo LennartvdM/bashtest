@@ -216,6 +216,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
+        {/* Gantry band: absolutely positioned at the section level, extends from left edge to just past video */}
+        <div
+          data-testid="gantry-band"
+          className="gantry-band"
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: videoAndCaptionTop,
+            width: 'calc(50% + 20px + 480px + 1vw)',
+            height: videoHeight,
+            background: '#e0e0e0',
+            zIndex: 1,
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+            borderTopRightRadius: 16,
+            borderBottomRightRadius: 16,
+            pointerEvents: 'none',
+          }}
+        />
         {/* Spacer (centered) */}
         <div
           data-testid="spacer"
@@ -264,25 +283,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             overflow: 'visible', // ensure no masking
           }}
         >
-          {/* Gantry band as sibling, absolutely positioned to extend 1vw further left */}
-          <div
-            data-testid="gantry-band"
-            className="gantry-band"
-            style={{
-              position: 'absolute',
-              left: '-1vw',
-              top: 0,
-              width: `calc(100% + 1vw)`,
-              height: '100%',
-              background: '#e0e0e0',
-              zIndex: 0,
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-              borderTopRightRadius: 16,
-              borderBottomRightRadius: 16,
-              pointerEvents: 'none',
-            }}
-          />
           {/* Video Frame (no hover transform or border) */}
           <div
             data-testid="video-frame"
