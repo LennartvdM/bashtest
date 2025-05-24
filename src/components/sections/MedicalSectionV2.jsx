@@ -259,6 +259,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+            transform: videoHover ? 'translateY(-12px)' : 'none',
+            overflow: 'visible', // ensure no masking
           }}
         >
           {/* Grey band, fills left side, matches video height and right radius */}
@@ -275,6 +278,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               borderBottomLeftRadius: 0,
               borderTopRightRadius: 16,
               borderBottomRightRadius: 16,
+              // No transform or transition here
             }}
           />
           {/* Video Frame (no hover transform or border) */}
@@ -287,6 +291,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               height: '100%',
               zIndex: 2,
               background: 'rgba(255,0,0,0.05)',
+              // No transform or transition here
             }}
           >
             <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: 'none' }}>
