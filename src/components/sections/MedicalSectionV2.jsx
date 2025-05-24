@@ -265,7 +265,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           <div
             style={{
               position: 'absolute',
-              left: '-1%', // extend slightly past the left edge
+              left: '-1vw', // extend 1vw past the left edge to avoid pixel conflicts
               top: 0,
               width: '100%',
               height: '100%',
