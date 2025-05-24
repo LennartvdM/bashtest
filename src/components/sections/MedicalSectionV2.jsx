@@ -259,8 +259,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-            transform: videoHover ? 'translateY(-12px)' : 'none',
           }}
         >
           {/* Grey band, fills left side, matches video height and right radius */}
@@ -279,7 +277,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               borderBottomRightRadius: 16,
             }}
           />
-          {/* Video Frame (with visible outline) */}
+          {/* Video Frame (no hover transform or border) */}
           <div
             data-testid="video-frame"
             className="video-frame"
@@ -291,7 +289,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               background: 'rgba(255,0,0,0.05)',
             }}
           >
-            <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: 'none', transition: 'border 0.2s' }}>
+            <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: 'none' }}>
               <MedicalCarousel
                 current={currentVideo}
                 setVideoCenter={setVideoCenter}

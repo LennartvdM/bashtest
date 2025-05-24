@@ -23,7 +23,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ current, setVideoCenter, videoHover, setVideoHover }) {
+function MedicalCarousel({ current, setVideoCenter }) {
   const videoContainerRef = useRef(null);
 
   useEffect(() => {
@@ -51,13 +51,8 @@ function MedicalCarousel({ current, setVideoCenter, videoHover, setVideoHover })
       <div
         ref={videoContainerRef}
         className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 w-full h-full flex items-center justify-center flex-shrink-0 group"
-        onMouseEnter={() => setVideoHover(true)}
-        onMouseLeave={() => setVideoHover(false)}
         style={{
-          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), border 0.2s',
-          transform: videoHover ? 'translateY(-12px)' : 'none',
-          border: videoHover ? '2px solid #f5f5f5' : 'none',
-          padding: '24px', // Add padding to ensure consistent spacing
+          padding: '24px',
         }}
       >
         {slides.map((s, i) => (
