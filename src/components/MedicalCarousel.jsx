@@ -61,7 +61,7 @@ function MedicalCarousel({ current, setVideoCenter }) {
             className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
               i === current ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
-            style={{ pointerEvents: i === current ? 'auto' : 'none' }}
+            style={{ pointerEvents: i === current ? 'auto' : 'none', background: 'none' }}
           >
             <video
               src={s.video}
@@ -77,7 +77,7 @@ function MedicalCarousel({ current, setVideoCenter }) {
               disablePictureInPicture
               tabIndex="-1"
               aria-hidden="true"
-              style={{ outline: 'none', transition: 'outline 0.2s' }}
+              style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
             />
           </div>
         ))}

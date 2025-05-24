@@ -168,6 +168,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           filter: 'brightness(0.7) saturate(1)',
           willChange: 'opacity',
           pointerEvents: 'none',
+          background: 'none',
         }}
       >
         <video
@@ -181,6 +182,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           tabIndex="-1"
           aria-hidden="true"
           draggable="false"
+          style={{ background: 'none' }}
         />
       </div>
       {/* Other blur videos fade in/out on top */}
@@ -197,6 +199,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               filter: 'brightness(0.7) saturate(1)',
               willChange: 'opacity',
               pointerEvents: 'none',
+              background: 'none',
             }}
           >
             <video
@@ -210,6 +213,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               tabIndex="-1"
               aria-hidden="true"
               draggable="false"
+              style={{ background: 'none' }}
             />
           </div>
         )
