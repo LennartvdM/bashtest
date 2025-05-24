@@ -350,7 +350,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             position: 'absolute',
             left: 'calc(50% + 20px)',
             top: videoAndCaptionTop,
-            width: 480,
+            width: 444,
             height: videoHeight,
             display: 'flex',
             alignItems: 'center',
