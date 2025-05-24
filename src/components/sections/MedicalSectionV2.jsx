@@ -159,7 +159,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           pointerEvents: 'none',
         }}
       />
-      {/* Always-visible base blur video (focus) - always fully opaque */}
+      {/* Static base video (focus) as persistent background */}
       <div
         className="absolute inset-0 flex items-center justify-center z-0"
         style={{
@@ -168,12 +168,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
           filter: 'brightness(0.7) saturate(1)',
           willChange: 'opacity',
           pointerEvents: 'none',
-          opacity: 1,
-          zIndex: 1,
         }}
       >
         <video
-          src={blurVideos[BASE_INDEX].video}
+          src={blurVideos[2].video}
           className="w-full h-full object-cover"
           autoPlay
           muted
@@ -187,11 +185,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
         />
       </div>
       {/* Only fade the top two videos above the base video */}
-      {blurVideos.slice(0, 2).map((video, index) => (
+      {[0, 1].map((i) => (
         <div
-          key={video.id}
+          key={blurVideos[i].id}
           className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
-            currentVideo === index ? 'opacity-100' : 'opacity-0'
+            currentVideo === i ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
             left: '-2vw',
@@ -204,7 +202,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           }}
         >
           <video
-            src={video.video}
+            src={blurVideos[i].video}
             className="w-full h-full object-cover"
             autoPlay
             muted
