@@ -50,7 +50,7 @@ function MedicalCarousel({ current, setVideoCenter }) {
     <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative', minHeight: '320px', minWidth: '320px', maxWidth: '480px', width: '480px', height: '320px'}}>
       <div
         ref={videoContainerRef}
-        className="relative z-10 overflow-hidden rounded-2xl bg-gray-300 w-full h-full flex items-center justify-center flex-shrink-0 group"
+        className="relative z-10 overflow-hidden rounded-2xl w-full h-full flex items-center justify-center flex-shrink-0 group"
         style={{
           padding: '24px',
         }}
