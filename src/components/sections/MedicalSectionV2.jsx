@@ -216,7 +216,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
-        {/* Gantry band: visual element, starts left of browser edge, ends at rough center of video */}
+        {/* Gantry band: visual element, starts left of browser edge, ends at left edge of spacer (center of header/video) */}
         <div
           data-testid="gantry-band"
           className="gantry-band"
@@ -224,7 +224,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             position: 'absolute',
             left: '-1vw',
             top: videoAndCaptionTop,
-            width: 'calc(50% + 260px)',
+            width: 'calc(50% - 20px + 1vw)',
             height: videoHeight,
             background: '#e0e0e0',
             zIndex: 1,
