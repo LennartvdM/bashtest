@@ -283,6 +283,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
             overflow: 'visible', // ensure no masking
           }}
         >
+          {/* Gantry band as background, only under video container */}
+          <div
+            data-testid="gantry-band"
+            className="gantry-band"
+            style={{
+              position: 'absolute',
+              left: '-1vw',
+              top: 0,
+              width: 'calc(100% + 1vw)',
+              height: '100%',
+              background: '#e0e0e0',
+              zIndex: 0,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              borderTopRightRadius: 16,
+              borderBottomRightRadius: 16,
+              pointerEvents: 'none',
+            }}
+          />
           {/* Video Frame (no hover transform or border) */}
           <div
             data-testid="video-frame"
