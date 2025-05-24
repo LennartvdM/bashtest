@@ -289,9 +289,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             className="gantry-band"
             style={{
               position: 'absolute',
-              left: '-1vw',
+              right: 0,
               top: 0,
-              width: 'calc(100% + 1vw)',
+              width: 'calc(480px + 1vw)',
               height: '100%',
               background: '#e0e0e0',
               zIndex: 0,
