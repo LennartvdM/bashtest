@@ -48,40 +48,54 @@ function MedicalCarousel({ current, setVideoCenter }) {
 
   return (
     <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative', minHeight: '320px', minWidth: '320px', maxWidth: '480px', width: '480px', height: '320px'}}>
+      {/* Static base video (focus) as persistent background */}
       <div
-        ref={videoContainerRef}
-        className="relative z-10 overflow-hidden rounded-2xl w-full h-full flex items-center justify-center flex-shrink-0 group"
+        className="absolute inset-0 flex items-center justify-center z-0"
         style={{
-          padding: '24px',
+          borderRadius: '16px',
+          overflow: 'hidden',
         }}
       >
-        {slides.map((s, i) => (
-          <div
-            key={s.id}
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
-              i === current ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-            style={{ pointerEvents: i === current ? 'auto' : 'none', background: 'none' }}
-          >
-            <video
-              src={s.video}
-              className="w-full h-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              alt={s.alt}
-              controls={false}
-              controlsList="nodownload nofullscreen noremoteplayback"
-              disablePictureInPicture
-              tabIndex="-1"
-              aria-hidden="true"
-              style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
-            />
-          </div>
-        ))}
+        <video
+          src={slides[2].video}
+          className="w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          alt={slides[2].alt}
+          tabIndex="-1"
+          aria-hidden="true"
+          draggable="false"
+          style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
+        />
       </div>
+      {/* Only fade the top two videos above the base video */}
+      {[0, 1].map((i) => (
+        <div
+          key={slides[i].id}
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
+            i === current ? "opacity-100 z-10" : "opacity-0 z-0"
+          }`}
+          style={{ pointerEvents: i === current ? 'auto' : 'none', background: 'none', borderRadius: '16px', overflow: 'hidden' }}
+        >
+          <video
+            src={slides[i].video}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            alt={slides[i].alt}
+            tabIndex="-1"
+            aria-hidden="true"
+            draggable="false"
+            style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
+          />
+        </div>
+      ))}
     </div>
   );
 }
