@@ -243,7 +243,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             width: 480,
             height: videoHeight,
             opacity: 0.5,
-            border: '2px dashed orange',
             pointerEvents: 'none',
             zIndex: 1,
           }}
@@ -313,7 +312,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             top: videoAndCaptionTop,
             width: 480,
             height: videoHeight,
-            border: '2px dashed purple',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -440,7 +438,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             right: 'calc(50% + 20px)',
             top: collectionTop,
             width: 480,
-            border: '2px solid blue',
             background: 'rgba(0,0,255,0.05)',
             zIndex: 2,
           }}
