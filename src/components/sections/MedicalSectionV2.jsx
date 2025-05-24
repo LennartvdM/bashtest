@@ -264,15 +264,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
             overflow: 'visible', // ensure no masking
           }}
         >
-          {/* Grey band, fills left side, matches video height and right radius */}
+          {/* Gantry band as sibling, absolutely positioned to extend 1vw further left */}
           <div
             data-testid="gantry-band"
             className="gantry-band"
             style={{
               position: 'absolute',
-              left: '-1vw', // extend 1vw past the left edge to avoid pixel conflicts
+              left: '-1vw',
               top: 0,
-              width: '100%',
+              width: `calc(100% + 1vw)`,
               height: '100%',
               background: '#e0e0e0',
               zIndex: 0,
@@ -280,7 +280,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               borderBottomLeftRadius: 0,
               borderTopRightRadius: 16,
               borderBottomRightRadius: 16,
-              // No transform or transition here
+              pointerEvents: 'none',
             }}
           />
           {/* Video Frame (no hover transform or border) */}
@@ -296,7 +296,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
               // No transform or transition here
             }}
           >
-            <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: 'none' }}>
+            {/* Video container cropped 1px narrower on the right to prevent pixel bleed */}
+            <div
+              ref={videoContainerRef}
+              style={{
+                width: 'calc(100% - 1px)',
+                height: '100%',
+                margin: 0,
+                marginLeft: '1px',
+                alignSelf: 'flex-end',
+                background: 'none',
+                padding: 0,
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderTopRightRadius: 16,
+                borderBottomRightRadius: 16,
+                overflow: 'hidden',
+                border: 'none',
+              }}
+            >
               <MedicalCarousel
                 current={currentVideo}
                 setVideoCenter={setVideoCenter}
