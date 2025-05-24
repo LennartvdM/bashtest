@@ -266,6 +266,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
         >
           {/* Grey band, fills left side, matches video height and right radius */}
           <div
+            data-testid="gantry-band"
+            className="gantry-band"
             style={{
               position: 'absolute',
               left: '-1vw', // extend 1vw past the left edge to avoid pixel conflicts
