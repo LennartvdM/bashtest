@@ -159,7 +159,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           pointerEvents: 'none',
         }}
       />
-      {/* Always-visible base blur video */}
+      {/* Always-visible base blur video (focus) - always fully opaque */}
       <div
         className="absolute inset-0 flex items-center justify-center z-0"
         style={{
@@ -186,39 +186,37 @@ const MedicalSection = ({ inView, sectionRef }) => {
           style={{ background: 'none' }}
         />
       </div>
-      {/* Other blur videos fade in/out on top */}
-      {blurVideos.map((video, index) => (
-        index !== BASE_INDEX && (
-          <div
-            key={video.id}
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
-              index === currentVideo ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{
-              left: '-2vw',
-              width: '104vw',
-              filter: 'brightness(0.7) saturate(1)',
-              willChange: 'opacity',
-              pointerEvents: 'none',
-              background: 'none',
-              zIndex: 2,
-            }}
-          >
-            <video
-              src={video.video}
-              className="w-full h-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              tabIndex="-1"
-              aria-hidden="true"
-              draggable="false"
-              style={{ background: 'none' }}
-            />
-          </div>
-        )
+      {/* Only fade the top two videos above the base video */}
+      {blurVideos.slice(0, 2).map((video, index) => (
+        <div
+          key={video.id}
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
+            currentVideo === index ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            left: '-2vw',
+            width: '104vw',
+            filter: 'brightness(0.7) saturate(1)',
+            willChange: 'opacity',
+            pointerEvents: 'none',
+            background: 'none',
+            zIndex: 2,
+          }}
+        >
+          <video
+            src={video.video}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex="-1"
+            aria-hidden="true"
+            draggable="false"
+            style={{ background: 'none' }}
+          />
+        </div>
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
