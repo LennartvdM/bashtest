@@ -320,7 +320,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 margin: 0,
                 marginLeft: '1px',
                 alignSelf: 'flex-end',
-                background: 'none',
                 padding: 0,
                 borderTopLeftRadius: 0,
                 borderBottomLeftRadius: 0,
