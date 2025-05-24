@@ -248,49 +248,62 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 1,
           }}
         />
-        {/* Video Frame (with visible outline) */}
+        {/* Video Gantry Frame: unifies grey band and video, applies hover transform */}
         <div
-          data-testid="video-frame"
-          className="video-frame"
+          className="video-gantry-frame"
           style={{
             position: 'absolute',
             right: 'calc(50% + 20px)',
             top: videoAndCaptionTop,
             width: 480,
+            height: videoHeight,
             zIndex: 2,
-            border: '2px solid red',
-            background: 'rgba(255,0,0,0.05)',
+            display: 'flex',
+            alignItems: 'stretch',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+            transform: videoHover ? 'translateY(-12px)' : 'none',
           }}
         >
-          <div ref={videoContainerRef} style={{ width: 480, marginLeft: 0, marginRight: 0, alignSelf: 'flex-end', background: 'none', marginTop: 0 }}>
-            <MedicalCarousel
-              current={currentVideo}
-              setVideoCenter={setVideoCenter}
-              hoveredIndex={hoveredIndex}
-              isActive={hoveredIndex === currentVideo || isPaused}
-              videoHover={videoHover}
-              setVideoHover={setVideoHover}
-            />
+          {/* Grey band, fills left side, matches video height and right radius */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '-1%', // extend slightly past the left edge
+              top: 0,
+              width: '100%',
+              height: '100%',
+              background: '#e0e0e0',
+              zIndex: 0,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              borderTopRightRadius: 16,
+              borderBottomRightRadius: 16,
+            }}
+          />
+          {/* Video Frame (with visible outline) */}
+          <div
+            data-testid="video-frame"
+            className="video-frame"
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              zIndex: 2,
+              background: 'rgba(255,0,0,0.05)',
+            }}
+          >
+            <div ref={videoContainerRef} style={{ width: '100%', height: '100%', margin: 0, alignSelf: 'flex-end', background: 'none', padding: 0, borderRadius: 16, overflow: 'hidden', border: videoHover ? '2px solid #f5f5f5' : '2px solid red', transition: 'border 0.2s' }}>
+              <MedicalCarousel
+                current={currentVideo}
+                setVideoCenter={setVideoCenter}
+                hoveredIndex={hoveredIndex}
+                isActive={hoveredIndex === currentVideo || isPaused}
+                videoHover={videoHover}
+                setVideoHover={setVideoHover}
+              />
+            </div>
           </div>
         </div>
-        {/* Grey band behind video container (gantry crane effect) */}
-        <div
-          style={{
-            position: 'absolute',
-            top: videoAndCaptionTop,
-            left: '-1%',
-            right: 'calc(50% + 24px)',
-            height: videoHeight,
-            background: '#e0e0e0',
-            zIndex: 0,
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-            borderTopRightRadius: 16,
-            borderBottomRightRadius: 16,
-            transform: videoHover ? 'translateY(-12px)' : 'none',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-          }}
-        />
         {/* Caption Anchor (right of spacer) */}
         <div
           className="caption-anchor"
