@@ -293,7 +293,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               top: 0,
               width: 'calc(480px + 1vw)',
               height: '100%',
-              background: '#e0e0e0',
+              background: 'none',
               zIndex: 0,
               borderTopLeftRadius: 0,
               borderBottomLeftRadius: 0,
