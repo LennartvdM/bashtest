@@ -224,7 +224,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             position: 'absolute',
             left: '-1vw',
             top: videoAndCaptionTop,
-            width: 'calc(50% - 20px + 1vw)',
+            width: 'calc(50% - 20px - 240px + 1vw)',
             height: videoHeight,
             background: '#e0e0e0',
             zIndex: 1,
@@ -307,7 +307,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               width: '100%',
               height: '100%',
               zIndex: 2,
-              background: 'rgba(255,0,0,0.05)',
+              background: 'none',
               // No transform or transition here
             }}
           >
@@ -382,7 +382,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       transform: 'translateX(-50%)',
                       paddingLeft: 24,
                       paddingRight: 24,
-                      background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
+                      background: 'none',
                       borderRadius: 10,
                       boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
                       transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -476,7 +476,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             right: 'calc(50% + 20px)',
             top: collectionTop,
             width: 480,
-            background: 'rgba(0,0,255,0.05)',
+            background: 'none',
             zIndex: 2,
           }}
         >
