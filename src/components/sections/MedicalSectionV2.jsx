@@ -51,7 +51,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setCaptionsVisible(false);
       
       // Force immediate style updates to ensure reset
-      document.querySelectorAll('.video-gantry-frame, .caption-anchor, .header-frame').forEach(el => {
+      document.querySelectorAll('.video-gantry-frame, .caption-anchor, .header-frame, .gantry-band').forEach(el => {
         if (el) {
           el.style.transition = 'none';
           void el.offsetWidth; // Force reflow
@@ -266,7 +266,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             background: '#e0e0e0',
             zIndex: 1,
             pointerEvents: 'none',
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1)',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
           }}
@@ -314,7 +314,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
             transform: videoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
@@ -379,7 +379,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1,
-            transition: 'opacity 1.5s ease, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
             opacity: captionsVisible ? 1 : 0,
             transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
           }}
