@@ -221,6 +221,24 @@ const MedicalSection = ({ inView, sectionRef }) => {
     };
   }, []);
 
+  // --- Dynamic Gantry Band Joint Calculation ---
+  // We'll use the measured biteRect (video container) to size and position the SVG band and its mask
+  // The band will start at left: 0, top: biteRect.y + 50 (SVG offset),
+  // width: biteRect.x + biteRect.width (right edge of video), height: biteRect.height
+
+  // Calculate SVG band dimensions
+  const bandLeft = 0;
+  const bandTop = biteRect.y + 50; // SVG offset
+  const bandWidth = biteRect.x + biteRect.width;
+  const bandHeight = biteRect.height;
+
+  // Mask cutout matches the video container
+  const cutoutX = biteRect.x;
+  const cutoutY = biteRect.y;
+  const cutoutWidth = biteRect.width;
+  const cutoutHeight = biteRect.height;
+  const cutoutRx = biteRect.rx;
+
   return (
     <>
       <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
@@ -312,27 +330,28 @@ const MedicalSection = ({ inView, sectionRef }) => {
         ))}
         {/* Foreground content: absolute spacer at center, left and right anchored to it */}
         <div className="relative z-20 w-full h-screen flex items-center justify-center">
-          {/* SVG gantry band with static mask and visible bite outline */}
+          {/* Gantry band joint SVG, dynamically positioned and sized */}
           <svg
-            width={400}
-            height={200}
+            width={bandWidth}
+            height={bandHeight}
             style={{
               position: 'absolute',
-              left: 50,
-              top: 50,
+              left: bandLeft,
+              top: bandTop,
               zIndex: 2000,
               pointerEvents: 'none',
+              transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
             }}
           >
             <defs>
               <mask id="gantry-band-mask">
                 <rect width="100%" height="100%" fill="white" />
                 <rect
-                  x={300}
-                  y={40}
-                  width={80}
-                  height={120}
-                  rx={24}
+                  x={cutoutX}
+                  y={cutoutY}
+                  width={cutoutWidth}
+                  height={cutoutHeight}
+                  rx={cutoutRx}
                   fill="black"
                 />
               </mask>
@@ -345,11 +364,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
             />
             {/* Visible outline of the bite for debugging */}
             <rect
-              x={300}
-              y={40}
-              width={80}
-              height={120}
-              rx={24}
+              x={cutoutX}
+              y={cutoutY}
+              width={cutoutWidth}
+              height={cutoutHeight}
+              rx={cutoutRx}
               fill="none"
               stroke="red"
               strokeWidth={3}

@@ -164,42 +164,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: flex row, no card, just video | spacer | captions */}
       <div className="relative z-20 flex flex-row items-center justify-center h-screen w-full px-12">
-        {/* Left: gantry band and video+band */}
-        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0, position: 'relative', height: 320 }}>
-          {/* Gantry band: animated and aligned with video container */}
-          <div
-            className="gantry-band"
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: 240, // half of 480px video width
-              height: 320,
-              zIndex: 10,
-              transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-              transform: `translateX(${videoRect.left ? 0 : -200}px)`,
-              opacity: videoRect.left ? 1 : 0,
-            }}
-          />
-          {/* Red border wrapping the video container */}
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: 480,
-              height: 320,
-              border: '3px solid red',
-              borderRadius: '16px',
-              boxSizing: 'border-box',
-              pointerEvents: 'none',
-              zIndex: 20,
-              transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-              transform: `translateX(${videoRect.left ? 0 : -200}px)`,
-              opacity: videoRect.left ? 1 : 0,
-            }}
-          />
-          <div ref={videoContainerRef} style={{ position: 'relative', width: 480, height: 320, transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease', transform: `translateX(${videoRect.left ? 0 : -200}px)`, opacity: videoRect.left ? 1 : 0 }}>
+        {/* Left: video+band */}
+        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0 }}>
+          <div ref={videoContainerRef} style={{ position: 'relative', width: 480, height: 320 }}>
             <MedicalCarousel current={currentVideo} setVideoCenter={setVideoCenter} />
           </div>
         </div>
