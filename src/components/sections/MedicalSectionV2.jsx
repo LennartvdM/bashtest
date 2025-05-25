@@ -92,7 +92,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
     console.log('handleBarEnd fired', { isPaused, currentVideo });
     if (!isPaused) {
       setBarKey((k) => k + 1);
-      setCurrentVideo((c) => (c + 1) % 2);
+      setCurrentVideo((c) => (c + 1) % 3);
     }
   };
 
