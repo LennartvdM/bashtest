@@ -253,7 +253,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             background: '#e0e0e0',
             zIndex: 1,
             pointerEvents: 'none',
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 0s',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-100px)',
             opacity: videoVisible ? 1 : 0,
           }}
@@ -301,7 +301,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0s, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
             transform: videoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
@@ -309,6 +309,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 : 'translateX(-100px)',
             opacity: videoVisible ? 1 : 0,
             overflow: 'visible',
+            clipPath: 'inset(0 0 0 0)',
           }}
         >
           {/* Gantry band as background, only under video container */}
@@ -386,7 +387,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1,
-            transition: 'opacity 1.5s ease, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'opacity 0s, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
             opacity: captionsVisible ? 1 : 0,
             transform: captionsVisible ? 'translateX(0)' : 'translateX(100px)',
           }}
@@ -513,7 +514,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             width: 480,
             background: 'none',
             zIndex: 2,
-            transition: 'opacity 1.5s ease',
+            transition: 'opacity 0s',
             opacity: headerVisible ? 1 : 0,
           }}
         >
