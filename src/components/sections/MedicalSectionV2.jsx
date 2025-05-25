@@ -89,9 +89,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   // Duplicated handleBarEnd for right highlighter
   const handleBarEnd = () => {
+    console.log('handleBarEnd fired', { isPaused, currentVideo });
     if (!isPaused) {
       setBarKey((k) => k + 1);
-      setCurrentVideo((c) => (c + 1) % headlines.length);
+      setCurrentVideo((c) => (c + 1) % 2);
     }
   };
 
