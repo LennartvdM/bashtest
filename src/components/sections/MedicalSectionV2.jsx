@@ -46,11 +46,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
   useEffect(() => {
     if (inView) {
       // Header animation
-      setTimeout(() => setHeaderVisible(true), 0);
+      setTimeout(() => setHeaderVisible(true), 500);
       // Video animation
-      setTimeout(() => setVideoVisible(true), 300);
+      setTimeout(() => setVideoVisible(true), 800);
       // Captions animation
-      setTimeout(() => setCaptionsVisible(true), 600);
+      setTimeout(() => setCaptionsVisible(true), 1100);
     } else {
       setHeaderVisible(false);
       setVideoVisible(false);
@@ -253,6 +253,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             background: '#e0e0e0',
             zIndex: 1,
             pointerEvents: 'none',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transform: videoVisible ? 'translateX(0)' : 'translateX(-100px)',
+            opacity: videoVisible ? 1 : 0,
           }}
         />
         {/* Spacer (centered) */}
@@ -298,7 +301,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.8s ease, transform 0.8s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
             transform: videoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
@@ -383,7 +386,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1,
-            transition: 'opacity 0.8s ease, transform 0.8s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'opacity 1.5s ease, transform 1.5s cubic-bezier(0.4,0,0.2,1)',
             opacity: captionsVisible ? 1 : 0,
             transform: captionsVisible ? 'translateX(0)' : 'translateX(100px)',
           }}
@@ -510,7 +513,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             width: 480,
             background: 'none',
             zIndex: 2,
-            transition: 'opacity 1s ease',
+            transition: 'opacity 1.5s ease',
             opacity: headerVisible ? 1 : 0,
           }}
         >
