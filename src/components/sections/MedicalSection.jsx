@@ -55,6 +55,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+      {/* Gantry band with cutout mask for visual proof */}
+      <div className="gantry-band" style={{ position: 'absolute', top: 40, left: 40, zIndex: 1000 }} />
       {/* Grey line from video center to left edge of viewport */}
       {/* (Remove the following div) */}
       {/* <div

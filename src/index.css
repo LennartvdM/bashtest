@@ -66,3 +66,16 @@ body::-webkit-scrollbar {
   pointer-events: none;
   border: 2px solid orange;
 }
+
+.gantry-band {
+  width: 700px;
+  height: 320px;
+  background: #a0c4e3;
+  /* SVG mask: white = visible, black = cut out */
+  mask-image: url('data:image/svg+xml;utf8,<svg width="700" height="320" xmlns="http://www.w3.org/2000/svg"><rect width="700" height="320" fill="white"/><rect x="200" y="80" width="300" height="160" rx="40" fill="black"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg width="700" height="320" xmlns="http://www.w3.org/2000/svg"><rect width="700" height="320" fill="white"/><rect x="200" y="80" width="300" height="160" rx="40" fill="black"/></svg>');
+  mask-repeat: no-repeat;
+  mask-size: cover;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+}
