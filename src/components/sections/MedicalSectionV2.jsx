@@ -59,10 +59,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
         }
       });
 
-      // Then start the entrance animations
-      setTimeout(() => setHeaderVisible(true), 500);
-      setTimeout(() => setVideoVisible(true), 800);
-      setTimeout(() => setCaptionsVisible(true), 1100);
+      // Small delay to ensure reset is complete before starting animations
+      requestAnimationFrame(() => {
+        // Then start the entrance animations
+        setTimeout(() => setHeaderVisible(true), 500);
+        setTimeout(() => setVideoVisible(true), 800);
+        setTimeout(() => setCaptionsVisible(true), 1100);
+      });
     } else {
       // Instant reset when leaving viewport
       setHeaderVisible(false);
@@ -266,7 +269,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             background: '#e0e0e0',
             zIndex: 1,
             pointerEvents: 'none',
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1)',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
           }}
