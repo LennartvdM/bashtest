@@ -265,6 +265,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
+            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(100% - 16px) 0, calc(100% - 16px) 16px, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)',
+            WebkitClipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(100% - 16px) 0, calc(100% - 16px) 16px, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)',
           }}
         />
         {/* Spacer (centered) */}
