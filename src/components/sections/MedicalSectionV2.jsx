@@ -45,11 +45,23 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // Handle entrance animations when section comes into view
   useEffect(() => {
     if (inView) {
-      // Header animation
+      // Reset all elements to their initial state first
+      setHeaderVisible(false);
+      setVideoVisible(false);
+      setCaptionsVisible(false);
+      
+      // Force immediate style updates to ensure reset
+      document.querySelectorAll('.video-gantry-frame, .caption-anchor, .header-frame').forEach(el => {
+        if (el) {
+          el.style.transition = 'none';
+          void el.offsetWidth; // Force reflow
+          el.style.transition = '';
+        }
+      });
+
+      // Then start the entrance animations
       setTimeout(() => setHeaderVisible(true), 500);
-      // Video animation
       setTimeout(() => setVideoVisible(true), 800);
-      // Captions animation
       setTimeout(() => setCaptionsVisible(true), 1100);
     } else {
       // Instant reset when leaving viewport
