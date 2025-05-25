@@ -309,6 +309,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
+        {/* Standalone SVG with a black circle for visibility test */}
+        <svg
+          width={400}
+          height={400}
+          style={{
+            position: 'absolute',
+            left: 50,
+            top: 50,
+            zIndex: 2000,
+            pointerEvents: 'none',
+          }}
+        >
+          <circle cx={200} cy={200} r={50} fill="black" opacity="0.8" />
+        </svg>
         {/* SVG gantry band with a static black rectangle for debugging */}
         <svg
           width={400}
