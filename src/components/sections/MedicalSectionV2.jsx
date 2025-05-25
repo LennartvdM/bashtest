@@ -265,16 +265,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
             transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
-            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(100% - 16px) 0, calc(100% - 16px) 16px, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)',
-            WebkitClipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(100% - 16px) 0, calc(100% - 16px) 16px, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)',
-            maskImage: 'url("data:image/svg+xml,%3Csvg width=\'480\' height=\'320\' viewBox=\'0 0 480 320\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0H480V320H0V0ZM464 16H16V304H464V16Z\' fill=\'black\'/%3E%3C/svg%3E")',
-            WebkitMaskImage: 'url("data:image/svg+xml,%3Csvg width=\'480\' height=\'320\' viewBox=\'0 0 480 320\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0H480V320H0V0ZM464 16H16V304H464V16Z\' fill=\'black\'/%3E%3C/svg%3E")',
+            maskImage: `url('data:image/svg+xml;utf8,<svg width="100%25" height="100%25" viewBox="0 0 700 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="700" height="320" fill="white"/><rect x="460" y="0" width="240" height="320" rx="16" fill="black"/></svg>')`,
+            WebkitMaskImage: `url('data:image/svg+xml;utf8,<svg width="100%25" height="100%25" viewBox="0 0 700 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="700" height="320" fill="white"/><rect x="460" y="0" width="240" height="320" rx="16" fill="black"/></svg>')`,
             maskSize: '100% 100%',
             WebkitMaskSize: '100% 100%',
             maskRepeat: 'no-repeat',
             WebkitMaskRepeat: 'no-repeat',
-            maskPosition: 'right',
-            WebkitMaskPosition: 'right',
+            maskPosition: 'left top',
+            WebkitMaskPosition: 'left top',
           }}
         />
         {/* Spacer (centered) */}
