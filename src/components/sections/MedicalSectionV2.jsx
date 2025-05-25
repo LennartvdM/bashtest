@@ -90,6 +90,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   const [videoHover, setVideoHover] = useState(false);
 
+  const bandRef = useRef();
+  const [maskUrl, setMaskUrl] = useState('');
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -158,6 +161,37 @@ const MedicalSection = ({ inView, sectionRef }) => {
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
+
+  // Dynamic SVG mask update
+  useEffect(() => {
+    let frame;
+    function updateMask() {
+      if (!bandRef.current || !videoContainerRef.current) return;
+      const bandRect = bandRef.current.getBoundingClientRect();
+      const videoRect = videoContainerRef.current.getBoundingClientRect();
+      // Calculate video position relative to band
+      const x = videoRect.left - bandRect.left;
+      const y = videoRect.top - bandRect.top;
+      const width = videoRect.width;
+      const height = videoRect.height;
+      // Get border radius (assume px, fallback to 16)
+      let rx = 16;
+      try {
+        const style = window.getComputedStyle(videoContainerRef.current);
+        rx = parseFloat(style.borderTopRightRadius) || 16;
+      } catch {}
+      // SVG: white = visible, black = subtracted
+      const svg = `<svg width='${bandRect.width}' height='${bandRect.height}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><rect x='${x}' y='${y}' width='${width}' height='${height}' rx='${rx}' fill='black'/></svg>`;
+      const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+      setMaskUrl(url);
+    }
+    function onFrame() {
+      updateMask();
+      frame = requestAnimationFrame(onFrame);
+    }
+    onFrame();
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
@@ -249,8 +283,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
-        {/* Gantry band: visual element, starts left of browser edge, ends at left edge of spacer (center of header/video) */}
+        {/* Gantry band: visual element, starts left of browser edge, ends at left edge of video container */}
         <div
+          ref={bandRef}
           data-testid="gantry-band"
           className="gantry-band"
           style={{
@@ -265,45 +300,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
-            maskImage: `url('data:image/svg+xml;utf8,<svg width="100%25" height="100%25" viewBox=\'0 0 700 320\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><rect width=\'700\' height=\'320\' fill=\'white\'/><rect x=\'220\' y=\'0\' width=\'480\' height=\'320\' rx=\'16\' fill=\'black\'/></svg>')`,
-            WebkitMaskImage: `url('data:image/svg+xml;utf8,<svg width=\'100%25\' height=\'100%25\' viewBox=\'0 0 700 320\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><rect width=\'700\' height=\'320\' fill=\'white\'/><rect x=\'220\' y=\'0\' width=\'480\' height=\'320\' rx=\'16\' fill=\'black\'/></svg>')`,
-            maskSize: '100% 100%',
-            WebkitMaskSize: '100% 100%',
-            maskRepeat: 'no-repeat',
-            WebkitMaskRepeat: 'no-repeat',
-            maskPosition: 'left top',
-            WebkitMaskPosition: 'left top',
-          }}
-        />
-        {/* Spacer (centered) */}
-        <div
-          data-testid="spacer"
-          className="spacer"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: collectionTop,
-            width: 40,
-            height: headerHeight + gap + videoHeight,
-            transform: 'translateX(-50%)',
-            background: 'rgba(255, 0, 0, 0.3)',
-            pointerEvents: 'none',
-            zIndex: 10,
-          }}
-        />
-        {/* Video Anchor (left of spacer) */}
-        <div
-          ref={videoAnchorRef}
-          data-testid="video-anchor"
-          style={{
-            position: 'absolute',
-            right: 'calc(50% + 20px)', // 20px is half the spacer width
-            top: videoAndCaptionTop,
-            width: 480,
-            height: videoHeight,
-            opacity: 0.5,
-            pointerEvents: 'none',
-            zIndex: 1,
           }}
         />
         {/* Video Gantry Frame with entrance animation */}
@@ -357,6 +353,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 borderBottomRightRadius: 16,
                 overflow: 'hidden',
                 border: 'none',
+                boxShadow: '0 0 10px #0002',
               }}
             >
               <MedicalCarousel
@@ -370,6 +367,37 @@ const MedicalSection = ({ inView, sectionRef }) => {
             </div>
           </div>
         </div>
+        {/* Spacer (centered) */}
+        <div
+          data-testid="spacer"
+          className="spacer"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: collectionTop,
+            width: 40,
+            height: headerHeight + gap + videoHeight,
+            transform: 'translateX(-50%)',
+            background: 'rgba(255, 0, 0, 0.3)',
+            pointerEvents: 'none',
+            zIndex: 10,
+          }}
+        />
+        {/* Video Anchor (left of spacer) */}
+        <div
+          ref={videoAnchorRef}
+          data-testid="video-anchor"
+          style={{
+            position: 'absolute',
+            right: 'calc(50% + 20px)', // 20px is half the spacer width
+            top: videoAndCaptionTop,
+            width: 480,
+            height: videoHeight,
+            opacity: 0.5,
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
         {/* Caption Anchor with entrance animation */}
         <div
           className="caption-anchor"
