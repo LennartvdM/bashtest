@@ -312,10 +312,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
         ))}
         {/* Foreground content: absolute spacer at center, left and right anchored to it */}
         <div className="relative z-20 w-full h-screen flex items-center justify-center">
-          {/* SVG gantry band with dynamic mask matching video container */}
+          {/* SVG gantry band with static mask subtracting a rounded rectangle from the right edge */}
           <svg
-            width={800}
-            height={600}
+            width={400}
+            height={200}
             style={{
               position: 'absolute',
               left: 50,
@@ -326,24 +326,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
           >
             <defs>
               <mask id="gantry-band-mask">
-                <rect id="gantry-band-mask-bg" x={0} y={0} width={400} height={200} fill="white" />
+                <rect width="100%" height="100%" fill="white" />
                 <rect
-                  id="gantry-band-bite"
-                  x={biteRect.x}
-                  y={biteRect.y}
-                  width={biteRect.width}
-                  height={biteRect.height}
-                  rx={biteRect.rx}
+                  x={300}
+                  y={40}
+                  width={80}
+                  height={120}
+                  rx={24}
                   fill="black"
                 />
               </mask>
             </defs>
             <rect
-              id="gantry-band-bg"
-              x={0}
-              y={0}
-              width={400}
-              height={200}
+              width="100%"
+              height="100%"
               fill="#e0e0e0"
               mask="url(#gantry-band-mask)"
             />
