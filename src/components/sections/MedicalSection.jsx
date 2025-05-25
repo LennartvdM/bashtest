@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 
 const blurVideos = [
@@ -35,6 +35,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
+  const videoContainerRef = useRef();
+  const [videoRect, setVideoRect] = useState({ top: 0, left: 0, width: 0, height: 0 });
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -53,10 +55,29 @@ const MedicalSection = ({ inView, sectionRef }) => {
     setHoveredIndex(null);
   };
 
+  useEffect(() => {
+    function updateRect() {
+      if (videoContainerRef.current) {
+        const rect = videoContainerRef.current.getBoundingClientRect();
+        setVideoRect({
+          top: rect.top + window.scrollY,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
+    }
+    updateRect();
+    window.addEventListener('resize', updateRect);
+    window.addEventListener('scroll', updateRect);
+    return () => {
+      window.removeEventListener('resize', updateRect);
+      window.removeEventListener('scroll', updateRect);
+    };
+  }, []);
+
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
-      {/* Gantry band with cutout mask for visual proof */}
-      <div className="gantry-band" style={{ position: 'absolute', top: 40, left: 40, zIndex: 1000 }} />
       {/* Grey line from video center to left edge of viewport */}
       {/* (Remove the following div) */}
       {/* <div
@@ -143,9 +164,44 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: flex row, no card, just video | spacer | captions */}
       <div className="relative z-20 flex flex-row items-center justify-center h-screen w-full px-12">
-        {/* Left: video+band */}
-        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0 }}>
-          <MedicalCarousel current={currentVideo} setVideoCenter={setVideoCenter} />
+        {/* Left: gantry band and video+band */}
+        <div className="flex flex-col items-end justify-center" style={{ minWidth: 0, position: 'relative', height: 320 }}>
+          {/* Gantry band: animated and aligned with video container */}
+          <div
+            className="gantry-band"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: 240, // half of 480px video width
+              height: 320,
+              zIndex: 10,
+              transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+              transform: `translateX(${videoRect.left ? 0 : -200}px)`,
+              opacity: videoRect.left ? 1 : 0,
+            }}
+          />
+          {/* Red border wrapping the video container */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: 480,
+              height: 320,
+              border: '3px solid red',
+              borderRadius: '16px',
+              boxSizing: 'border-box',
+              pointerEvents: 'none',
+              zIndex: 20,
+              transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+              transform: `translateX(${videoRect.left ? 0 : -200}px)`,
+              opacity: videoRect.left ? 1 : 0,
+            }}
+          />
+          <div ref={videoContainerRef} style={{ position: 'relative', width: 480, height: 320, transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease', transform: `translateX(${videoRect.left ? 0 : -200}px)`, opacity: videoRect.left ? 1 : 0 }}>
+            <MedicalCarousel current={currentVideo} setVideoCenter={setVideoCenter} />
+          </div>
         </div>
         {/* Spacer: 40px invisible */}
         <div style={{ width: 40, minWidth: 40, flexShrink: 0, pointerEvents: 'none' }} />
