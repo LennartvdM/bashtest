@@ -311,10 +311,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
         ))}
         {/* Foreground content: absolute spacer at center, left and right anchored to it */}
         <div className="relative z-20 w-full h-screen flex items-center justify-center">
-          {/* Standalone SVG with a black circle for visibility test */}
+          {/* SVG gantry band with mask-based bite, named elements */}
           <svg
             width={400}
-            height={400}
+            height={200}
             style={{
               position: 'absolute',
               left: 50,
@@ -323,23 +323,26 @@ const MedicalSection = ({ inView, sectionRef }) => {
               pointerEvents: 'none',
             }}
           >
-            <circle cx={200} cy={200} r={50} fill="black" opacity="0.8" />
-          </svg>
-          {/* SVG gantry band with a static black rectangle for debugging */}
-          <svg
-            width={400}
-            height={200}
-            style={{
-              position: 'absolute',
-              left: 100,
-              top: 100,
-              zIndex: 1000,
-              pointerEvents: 'none',
-            }}
-          >
-            <rect width="100%" height="100%" fill="#e0e0e0" />
-            {/* Static black rectangle for debugging */}
-            <rect x={100} y={50} width={100} height={50} fill="black" opacity="0.7" />
+            <defs>
+              <mask id="gantry-band-mask">
+                <rect id="gantry-band-mask-bg" width="100%" height="100%" fill="white" />
+                <rect
+                  id="gantry-band-bite"
+                  x={100}
+                  y={50}
+                  width={100}
+                  height={50}
+                  fill="black"
+                />
+              </mask>
+            </defs>
+            <rect
+              id="gantry-band-bg"
+              width="100%"
+              height="100%"
+              fill="#e0e0e0"
+              mask="url(#gantry-band-mask)"
+            />
           </svg>
           {/* Video Gantry Frame with entrance animation */}
           <div
@@ -612,24 +615,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
           </div>
         </div>
       </div>
-      {ReactDOM.createPortal(
-        <svg
-          id="debug-svg-circle"
-          width={200}
-          height={200}
-          style={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            zIndex: 99999,
-            pointerEvents: 'none',
-            border: '2px solid red',
-          }}
-        >
-          <circle cx={100} cy={100} r={80} fill="black" opacity="1" />
-        </svg>,
-        document.body
-      )}
     </>
   );
 };
