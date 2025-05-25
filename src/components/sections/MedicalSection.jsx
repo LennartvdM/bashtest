@@ -169,7 +169,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 >
-                  <div className="w-full h-full rounded-xl relative pointer-events-none" style={{overflow: 'hidden'}}>
+                  <div className="w-full h-full rounded-xl relative pointer-events-none">
                     {/* Loading Bar */}
                     <div
                       key={barKey}
