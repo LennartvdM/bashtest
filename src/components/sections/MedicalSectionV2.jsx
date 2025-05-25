@@ -97,6 +97,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const shadedFrameRef = useRef();
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
 
+  // Ref for the SVG gantry band
+  const gantryBandRef = useRef();
+  // Ref for the video gantry frame
+  const gantryFrameRef = useRef();
+  // State for gantry frame bounding box
+  const [gantryRect, setGantryRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -197,50 +204,137 @@ const MedicalSection = ({ inView, sectionRef }) => {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // Measure video container position and size for the bite
+  // Measure video container position and size for SVG
   useLayoutEffect(() => {
-    function updateBiteRect() {
+    function updateVideoRect() {
       if (videoContainerRef.current) {
         const rect = videoContainerRef.current.getBoundingClientRect();
-        // SVG is positioned at left: 50, top: 50
         setBiteRect({
-          x: rect.left - 50,
-          y: rect.top - 50,
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
           rx: 16 // or parse from style if needed
         });
       }
     }
-    updateBiteRect();
-    window.addEventListener('resize', updateBiteRect);
-    window.addEventListener('scroll', updateBiteRect);
+    updateVideoRect();
+    window.addEventListener('resize', updateVideoRect);
+    window.addEventListener('scroll', updateVideoRect);
     return () => {
-      window.removeEventListener('resize', updateBiteRect);
-      window.removeEventListener('scroll', updateBiteRect);
+      window.removeEventListener('resize', updateVideoRect);
+      window.removeEventListener('scroll', updateVideoRect);
     };
   }, []);
 
-  // --- Dynamic Gantry Band Joint Calculation ---
-  // We'll use the measured biteRect (video container) to size and position the SVG band and its mask
-  // The band will start at left: 0, top: biteRect.y + 50 (SVG offset),
-  // width: biteRect.x + biteRect.width (right edge of video), height: biteRect.height
+  // Measure the gantry frame bounding box
+  useLayoutEffect(() => {
+    function updateGantryRect() {
+      if (gantryFrameRef.current) {
+        const rect = gantryFrameRef.current.getBoundingClientRect();
+        setGantryRect({
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
+    }
+    updateGantryRect();
+    window.addEventListener('resize', updateGantryRect);
+    window.addEventListener('scroll', updateGantryRect);
+    return () => {
+      window.removeEventListener('resize', updateGantryRect);
+      window.removeEventListener('scroll', updateGantryRect);
+    };
+  }, []);
 
-  // Calculate SVG band dimensions
-  const bandLeft = 0;
-  const bandTop = biteRect.y + 50; // SVG offset
-  const bandWidth = biteRect.x + biteRect.width;
-  const bandHeight = biteRect.height;
+  // SVG should match video container
+  const svgLeft = biteRect.x;
+  const svgTop = biteRect.y;
+  const svgWidth = biteRect.width;
+  const svgHeight = biteRect.height;
 
-  // Mask cutout matches the video container
-  const cutoutX = biteRect.x;
-  const cutoutY = biteRect.y;
-  const cutoutWidth = biteRect.width;
-  const cutoutHeight = biteRect.height;
+  // Mask cutout fills SVG
+  const cutoutX = 0;
+  const cutoutY = 0;
+  const cutoutWidth = svgWidth;
+  const cutoutHeight = svgHeight;
   const cutoutRx = biteRect.rx;
+
+  // --- Document-level SVG Gantry Band (Portal) ---
+  const gantryBandSVG = (
+    <svg
+      ref={gantryBandRef}
+      id="gantry-band-svg"
+      data-testid="gantry-band-svg"
+      width={svgWidth}
+      height={svgHeight}
+      style={{
+        position: 'absolute',
+        left: svgLeft,
+        top: svgTop,
+        zIndex: 2000,
+        pointerEvents: 'none',
+        transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+      }}
+    >
+      <defs>
+        <mask id="gantry-band-mask">
+          <rect width="100%" height="100%" fill="white" />
+          <rect
+            x={cutoutX}
+            y={cutoutY}
+            width={cutoutWidth}
+            height={cutoutHeight}
+            rx={cutoutRx}
+            fill="black"
+          />
+        </mask>
+      </defs>
+      <rect
+        width="100%"
+        height="100%"
+        fill="green"
+        // mask="url(#gantry-band-mask)" // REMOVE MASK FOR DEBUGGING
+      />
+      {/* Visible outline of the bite for debugging */}
+      <rect
+        x={cutoutX}
+        y={cutoutY}
+        width={cutoutWidth}
+        height={cutoutHeight}
+        rx={cutoutRx}
+        fill="none"
+        stroke="red"
+        strokeWidth={3}
+        pointerEvents="none"
+      />
+    </svg>
+  );
+
+  // --- Document-level SVG Gantry Band (Portal) ---
+  const gantryBandOverlay = (
+    <div
+      id="gantry-band-overlay"
+      data-testid="gantry-band-overlay"
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: '100vw',
+        height: '100vh',
+        pointerEvents: 'none',
+        zIndex: 2000,
+      }}
+    >
+      {gantryBandSVG}
+    </div>
+  );
 
   return (
     <>
+      {ReactDOM.createPortal(gantryBandOverlay, document.body)}
       <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
         {/* Grey line from video center to left edge of viewport */}
         {/* (Remove the following div) */}
@@ -330,54 +424,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
         ))}
         {/* Foreground content: absolute spacer at center, left and right anchored to it */}
         <div className="relative z-20 w-full h-screen flex items-center justify-center">
-          {/* Gantry band joint SVG, dynamically positioned and sized */}
-          <svg
-            width={bandWidth}
-            height={bandHeight}
-            style={{
-              position: 'absolute',
-              left: bandLeft,
-              top: bandTop,
-              zIndex: 2000,
-              pointerEvents: 'none',
-              transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-            }}
-          >
-            <defs>
-              <mask id="gantry-band-mask">
-                <rect width="100%" height="100%" fill="white" />
-                <rect
-                  x={cutoutX}
-                  y={cutoutY}
-                  width={cutoutWidth}
-                  height={cutoutHeight}
-                  rx={cutoutRx}
-                  fill="black"
-                />
-              </mask>
-            </defs>
-            <rect
-              width="100%"
-              height="100%"
-              fill="#e0e0e0"
-              mask="url(#gantry-band-mask)"
-            />
-            {/* Visible outline of the bite for debugging */}
-            <rect
-              x={cutoutX}
-              y={cutoutY}
-              width={cutoutWidth}
-              height={cutoutHeight}
-              rx={cutoutRx}
-              fill="none"
-              stroke="red"
-              strokeWidth={3}
-              pointerEvents="none"
-            />
-          </svg>
           {/* Video Gantry Frame with entrance animation */}
           <div
             className="video-gantry-frame"
+            ref={gantryFrameRef}
             style={{
               position: 'absolute',
               right: 'calc(50% + 20px)',
