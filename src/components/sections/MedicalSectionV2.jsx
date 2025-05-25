@@ -312,7 +312,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         ))}
         {/* Foreground content: absolute spacer at center, left and right anchored to it */}
         <div className="relative z-20 w-full h-screen flex items-center justify-center">
-          {/* SVG gantry band with static mask subtracting a rounded rectangle from the right edge */}
+          {/* SVG gantry band with static mask and visible bite outline */}
           <svg
             width={400}
             height={200}
@@ -342,6 +342,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
               height="100%"
               fill="#e0e0e0"
               mask="url(#gantry-band-mask)"
+            />
+            {/* Visible outline of the bite for debugging */}
+            <rect
+              x={300}
+              y={40}
+              width={80}
+              height={120}
+              rx={24}
+              fill="none"
+              stroke="red"
+              strokeWidth={3}
+              pointerEvents="none"
             />
           </svg>
           {/* Video Gantry Frame with entrance animation */}
