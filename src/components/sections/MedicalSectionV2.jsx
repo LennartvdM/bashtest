@@ -59,13 +59,16 @@ const MedicalSection = ({ inView, sectionRef }) => {
         }
       });
 
-      // Small delay to ensure reset is complete before starting animations
-      requestAnimationFrame(() => {
-        // Then start the entrance animations
-        setTimeout(() => setHeaderVisible(true), 500);
-        setTimeout(() => setVideoVisible(true), 800);
-        setTimeout(() => setCaptionsVisible(true), 1100);
-      });
+      // Start animations after a small delay
+      setTimeout(() => {
+        setHeaderVisible(true);
+        setTimeout(() => {
+          setVideoVisible(true);
+          setTimeout(() => {
+            setCaptionsVisible(true);
+          }, 300);
+        }, 300);
+      }, 100);
     } else {
       // Instant reset when leaving viewport
       setHeaderVisible(false);
@@ -272,6 +275,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
+            willChange: 'transform, opacity',
           }}
         />
         {/* Spacer (centered) */}
@@ -325,6 +329,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
             overflow: 'visible',
+            willChange: 'transform, opacity',
           }}
         >
           {/* Video Frame (no hover transform or border) */}
@@ -385,6 +390,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
             opacity: captionsVisible ? 1 : 0,
             transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
+            willChange: 'transform, opacity',
           }}
         >
           {/* Caption Section (centered inside caption anchor) */}
@@ -511,6 +517,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             transition: 'opacity 1.5s ease',
             opacity: headerVisible ? 1 : 0,
+            willChange: 'opacity',
           }}
         >
           <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
