@@ -45,37 +45,27 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // Handle entrance animations when section comes into view
   useEffect(() => {
     if (inView) {
-      // Reset all elements to their initial state first
-      setHeaderVisible(false);
-      setVideoVisible(false);
-      setCaptionsVisible(false);
-      
-      // Force immediate style updates to ensure reset
-      document.querySelectorAll('.video-gantry-frame, .caption-anchor, .header-frame, .gantry-band').forEach(el => {
-        if (el) {
-          el.style.transition = 'none';
-          void el.offsetWidth; // Force reflow
-          el.style.transition = '';
-        }
-      });
+      // Start the entrance animations
+      setTimeout(() => setHeaderVisible(true), 500);
+      setTimeout(() => setVideoVisible(true), 800);
+      setTimeout(() => setCaptionsVisible(true), 1100);
+    }
+  }, [inView]);
 
-      // Start animations after a small delay
-      setTimeout(() => {
-        setHeaderVisible(true);
-        setTimeout(() => {
-          setVideoVisible(true);
-          setTimeout(() => {
-            setCaptionsVisible(true);
-          }, 300);
-        }, 300);
-      }, 100);
-    } else {
+  // Handle exit separately for instant cleanup
+  useEffect(() => {
+    if (!inView) {
       // Instant reset when leaving viewport
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
     }
   }, [inView]);
+
+  // Add debug logs for state changes
+  useEffect(() => {
+    console.log('Animation states:', { headerVisible, videoVisible, captionsVisible });
+  }, [headerVisible, videoVisible, captionsVisible]);
 
   // Duplicated highlighter logic for right caption area
   const rightRowRefs = useRef({});
@@ -272,10 +262,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             background: '#e0e0e0',
             zIndex: 1,
             pointerEvents: 'none',
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
             transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
-            willChange: 'transform, opacity',
           }}
         />
         {/* Spacer (centered) */}
@@ -321,7 +310,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
             transform: videoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
@@ -329,7 +318,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
             overflow: 'visible',
-            willChange: 'transform, opacity',
           }}
         >
           {/* Video Frame (no hover transform or border) */}
@@ -387,10 +375,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1,
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transition: captionsVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
             opacity: captionsVisible ? 1 : 0,
             transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
-            willChange: 'transform, opacity',
           }}
         >
           {/* Caption Section (centered inside caption anchor) */}
@@ -515,9 +502,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             width: 480,
             background: 'none',
             zIndex: 2,
-            transition: 'opacity 1.5s ease',
+            transition: headerVisible ? 'opacity 1.5s ease' : 'none',
             opacity: headerVisible ? 1 : 0,
-            willChange: 'opacity',
           }}
         >
           <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
