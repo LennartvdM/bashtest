@@ -328,10 +328,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 <rect id="gantry-band-mask-bg" width="100%" height="100%" fill="white" />
                 <rect
                   id="gantry-band-bite"
-                  x={100}
-                  y={50}
-                  width={100}
-                  height={50}
+                  x={300}
+                  y={40}
+                  width={80}
+                  height={120}
+                  rx={24}
                   fill="black"
                 />
               </mask>
