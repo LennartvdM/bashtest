@@ -52,9 +52,19 @@ const MedicalSection = ({ inView, sectionRef }) => {
       // Captions animation
       setTimeout(() => setCaptionsVisible(true), 1100);
     } else {
+      // Instant reset when leaving viewport
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
+      // Force immediate style updates
+      document.querySelectorAll('.video-gantry-frame, .caption-anchor, .header-frame').forEach(el => {
+        if (el) {
+          el.style.transition = 'none';
+          // Force reflow
+          void el.offsetWidth;
+          el.style.transition = '';
+        }
+      });
     }
   }, [inView]);
 
@@ -309,7 +319,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
             overflow: 'visible',
-            clipPath: 'inset(0 0 0 0)',
+            maskImage: 'radial-gradient(circle at right, black 50%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(circle at right, black 50%, transparent 100%)',
           }}
         >
           {/* Gantry band as background, only under video container */}
@@ -322,13 +333,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
               top: 0,
               width: 'calc(480px + 1vw)',
               height: '100%',
-              background: 'none',
+              background: '#e0e0e0',
               zIndex: 0,
               borderTopLeftRadius: 0,
               borderBottomLeftRadius: 0,
               borderTopRightRadius: 16,
               borderBottomRightRadius: 16,
               pointerEvents: 'none',
+              maskImage: 'radial-gradient(circle at left, black 50%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(circle at left, black 50%, transparent 100%)',
             }}
           />
           {/* Video Frame (no hover transform or border) */}
