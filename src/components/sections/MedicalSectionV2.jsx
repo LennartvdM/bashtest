@@ -37,6 +37,27 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const videoContainerRef = useRef();
 
+  // Animation states
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [captionsVisible, setCaptionsVisible] = useState(false);
+
+  // Handle entrance animations when section comes into view
+  useEffect(() => {
+    if (inView) {
+      // Header animation
+      setTimeout(() => setHeaderVisible(true), 0);
+      // Video animation
+      setTimeout(() => setVideoVisible(true), 300);
+      // Captions animation
+      setTimeout(() => setCaptionsVisible(true), 600);
+    } else {
+      setHeaderVisible(false);
+      setVideoVisible(false);
+      setCaptionsVisible(false);
+    }
+  }, [inView]);
+
   // Duplicated highlighter logic for right caption area
   const rightRowRefs = useRef({});
   const rightCaptionsRef = useRef();
@@ -265,7 +286,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 1,
           }}
         />
-        {/* Video Gantry Frame: unifies grey band and video, applies hover transform */}
+        {/* Video Gantry Frame with entrance animation */}
         <div
           className="video-gantry-frame"
           style={{
@@ -277,9 +298,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 2,
             display: 'flex',
             alignItems: 'stretch',
-            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-            transform: videoHover ? 'translateY(-12px)' : 'none',
-            overflow: 'visible', // ensure no masking
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.8s ease, transform 0.8s cubic-bezier(0.4,0,0.2,1)',
+            transform: videoHover 
+              ? 'translateY(-12px)' 
+              : videoVisible 
+                ? 'translateX(0)' 
+                : 'translateX(-100px)',
+            opacity: videoVisible ? 1 : 0,
+            overflow: 'visible',
           }}
         >
           {/* Gantry band as background, only under video container */}
@@ -344,7 +370,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             </div>
           </div>
         </div>
-        {/* Caption Anchor (right of spacer) */}
+        {/* Caption Anchor with entrance animation */}
         <div
           className="caption-anchor"
           style={{
@@ -357,6 +383,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1,
+            transition: 'opacity 0.8s ease, transform 0.8s cubic-bezier(0.4,0,0.2,1)',
+            opacity: captionsVisible ? 1 : 0,
+            transform: captionsVisible ? 'translateX(0)' : 'translateX(100px)',
           }}
         >
           {/* Caption Section (centered inside caption anchor) */}
@@ -469,7 +498,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             </div>
           </div>
         </div>
-        {/* Header Frame (with visible outline, above video anchor) */}
+        {/* Header Frame with entrance animation */}
         <div
           ref={headerRef}
           data-testid="header-frame"
@@ -481,6 +510,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             width: 480,
             background: 'none',
             zIndex: 2,
+            transition: 'opacity 1s ease',
+            opacity: headerVisible ? 1 : 0,
           }}
         >
           <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
