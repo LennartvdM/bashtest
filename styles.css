@@ -5,4 +5,32 @@
     100% {
         width: 150%;
     }
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    background: none;
+}
+
+.video-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background: none;
+}
+
+.video-gantry-frame {
+    position: relative;
+    width: 480px;
+    height: 320px;
+    z-index: 2;
+    display: flex;
+    align-items: stretch;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow: visible;
 } 
