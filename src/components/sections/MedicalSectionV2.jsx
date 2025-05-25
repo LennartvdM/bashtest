@@ -309,7 +309,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
-        {/* SVG gantry band with a black rectangle for bite debugging */}
+        {/* SVG gantry band with a static black rectangle for debugging */}
         <svg
           width={400}
           height={200}
@@ -321,18 +321,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             pointerEvents: 'none',
           }}
         >
-          {/* Gantry band */}
           <rect width="100%" height="100%" fill="#e0e0e0" />
-          {/* The 'bite' shape, now just black for debugging */}
-          <rect
-            x={biteRect.x}
-            y={biteRect.y}
-            width={biteRect.width}
-            height={biteRect.height}
-            rx={biteRect.rx}
-            fill="black"
-            opacity="0.7"
-          />
+          {/* Static black rectangle for debugging */}
+          <rect x={100} y={50} width={100} height={50} fill="black" opacity="0.7" />
         </svg>
         {/* Video Gantry Frame with entrance animation */}
         <div
