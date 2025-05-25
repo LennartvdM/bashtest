@@ -197,14 +197,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // Measure shadedframe position and size
+  // Measure video container position and size for the bite
   useLayoutEffect(() => {
     function updateBiteRect() {
-      if (shadedFrameRef.current) {
-        const rect = shadedFrameRef.current.getBoundingClientRect();
+      if (videoContainerRef.current) {
+        const rect = videoContainerRef.current.getBoundingClientRect();
+        // SVG is positioned at left: 50, top: 50
         setBiteRect({
-          x: rect.left - 100, // SVG left (should match SVG's left prop)
-          y: rect.top - 100,  // SVG top (should match SVG's top prop)
+          x: rect.left - 50,
+          y: rect.top - 50,
           width: rect.width,
           height: rect.height,
           rx: 16 // or parse from style if needed
@@ -311,10 +312,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
         ))}
         {/* Foreground content: absolute spacer at center, left and right anchored to it */}
         <div className="relative z-20 w-full h-screen flex items-center justify-center">
-          {/* SVG gantry band with mask-based bite, named elements */}
+          {/* SVG gantry band with dynamic mask matching video container */}
           <svg
-            width={400}
-            height={200}
+            width={800}
+            height={600}
             style={{
               position: 'absolute',
               left: 50,
@@ -325,22 +326,24 @@ const MedicalSection = ({ inView, sectionRef }) => {
           >
             <defs>
               <mask id="gantry-band-mask">
-                <rect id="gantry-band-mask-bg" width="100%" height="100%" fill="white" />
+                <rect id="gantry-band-mask-bg" x={0} y={0} width={400} height={200} fill="white" />
                 <rect
                   id="gantry-band-bite"
-                  x={300}
-                  y={40}
-                  width={80}
-                  height={120}
-                  rx={24}
+                  x={biteRect.x}
+                  y={biteRect.y}
+                  width={biteRect.width}
+                  height={biteRect.height}
+                  rx={biteRect.rx}
                   fill="black"
                 />
               </mask>
             </defs>
             <rect
               id="gantry-band-bg"
-              width="100%"
-              height="100%"
+              x={0}
+              y={0}
+              width={400}
+              height={200}
               fill="#e0e0e0"
               mask="url(#gantry-band-mask)"
             />
@@ -370,7 +373,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             {/* Video Frame (no hover transform or border) */}
             <div
               data-testid="video-frame"
-              className="shadedframe video-frame"
+              className="video-frame"
               style={{
                 position: 'relative',
                 width: '100%',
@@ -378,11 +381,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 zIndex: 2,
                 background: 'none',
               }}
-              ref={shadedFrameRef}
+              ref={videoContainerRef}
             >
               {/* Video container cropped 1px narrower on the right to prevent pixel bleed */}
               <div
-                ref={videoContainerRef}
                 style={{
                   width: 'calc(100% - 1px)',
                   height: '100%',
