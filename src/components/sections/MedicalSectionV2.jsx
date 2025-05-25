@@ -56,15 +56,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
-      // Force immediate style updates
-      document.querySelectorAll('.video-gantry-frame, .caption-anchor, .header-frame').forEach(el => {
-        if (el) {
-          el.style.transition = 'none';
-          // Force reflow
-          void el.offsetWidth;
-          el.style.transition = '';
-        }
-      });
     }
   }, [inView]);
 
@@ -264,7 +255,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 1,
             pointerEvents: 'none',
             transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-            transform: videoVisible ? 'translateX(0)' : 'translateX(-100px)',
+            transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
           }}
         />
@@ -319,31 +310,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
             overflow: 'visible',
-            maskImage: 'radial-gradient(circle at right, black 50%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(circle at right, black 50%, transparent 100%)',
           }}
         >
-          {/* Gantry band as background, only under video container */}
-          <div
-            data-testid="gantry-band"
-            className="gantry-band"
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              width: 'calc(480px + 1vw)',
-              height: '100%',
-              background: '#e0e0e0',
-              zIndex: 0,
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-              borderTopRightRadius: 16,
-              borderBottomRightRadius: 16,
-              pointerEvents: 'none',
-              maskImage: 'radial-gradient(circle at left, black 50%, transparent 100%)',
-              WebkitMaskImage: 'radial-gradient(circle at left, black 50%, transparent 100%)',
-            }}
-          />
           {/* Video Frame (no hover transform or border) */}
           <div
             data-testid="video-frame"
@@ -354,7 +322,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
               height: '100%',
               zIndex: 2,
               background: 'none',
-              // No transform or transition here
             }}
           >
             {/* Video container cropped 1px narrower on the right to prevent pixel bleed */}
