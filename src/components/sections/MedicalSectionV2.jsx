@@ -93,6 +93,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const bandRef = useRef();
   const [maskUrl, setMaskUrl] = useState('');
 
+  const shadedFrameRef = useRef();
+  const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -193,6 +196,29 @@ const MedicalSection = ({ inView, sectionRef }) => {
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  // Measure shadedframe position and size
+  useLayoutEffect(() => {
+    function updateBiteRect() {
+      if (shadedFrameRef.current) {
+        const rect = shadedFrameRef.current.getBoundingClientRect();
+        setBiteRect({
+          x: rect.left - 100, // SVG left (should match SVG's left prop)
+          y: rect.top - 100,  // SVG top (should match SVG's top prop)
+          width: rect.width,
+          height: rect.height,
+          rx: 16 // or parse from style if needed
+        });
+      }
+    }
+    updateBiteRect();
+    window.addEventListener('resize', updateBiteRect);
+    window.addEventListener('scroll', updateBiteRect);
+    return () => {
+      window.removeEventListener('resize', updateBiteRect);
+      window.removeEventListener('scroll', updateBiteRect);
+    };
+  }, []);
+
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden">
       {/* Grey line from video center to left edge of viewport */}
@@ -283,25 +309,38 @@ const MedicalSection = ({ inView, sectionRef }) => {
       ))}
       {/* Foreground content: absolute spacer at center, left and right anchored to it */}
       <div className="relative z-20 w-full h-screen flex items-center justify-center">
-        {/* Gantry band: visual element, starts left of browser edge, ends at left edge of video container */}
-        <div
-          ref={bandRef}
-          data-testid="gantry-band"
-          className="gantry-band"
+        {/* SVG gantry band with dynamic mask subtracted by shadedframe */}
+        <svg
+          width={400}
+          height={200}
           style={{
             position: 'absolute',
-            left: '-1vw',
-            top: videoAndCaptionTop,
-            width: 'calc(50% - 20px - 240px + 1vw)',
-            height: videoHeight,
-            background: '#e0e0e0',
+            left: 100,
+            top: 100,
             zIndex: 1,
             pointerEvents: 'none',
-            transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
-            transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
-            opacity: videoVisible ? 1 : 0,
           }}
-        />
+        >
+          <defs>
+            <mask id="gantryMask">
+              <rect width="100%" height="100%" fill="white" />
+              <rect
+                x={biteRect.x}
+                y={biteRect.y}
+                width={biteRect.width}
+                height={biteRect.height}
+                rx={biteRect.rx}
+                fill="black"
+              />
+            </mask>
+          </defs>
+          <rect
+            width="100%"
+            height="100%"
+            fill="#e0e0e0"
+            mask="url(#gantryMask)"
+          />
+        </svg>
         {/* Video Gantry Frame with entrance animation */}
         <div
           className="video-gantry-frame"
@@ -327,7 +366,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           {/* Video Frame (no hover transform or border) */}
           <div
             data-testid="video-frame"
-            className="video-frame"
+            className="shadedframe video-frame"
             style={{
               position: 'relative',
               width: '100%',
@@ -335,6 +374,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               zIndex: 2,
               background: 'none',
             }}
+            ref={shadedFrameRef}
           >
             {/* Video container cropped 1px narrower on the right to prevent pixel bleed */}
             <div
