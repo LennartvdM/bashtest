@@ -104,49 +104,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // State for gantry frame bounding box
   const [gantryRect, setGantryRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
-  // --- Document-level SVG Overlay Setup ---
-  useEffect(() => {
-    let overlayDiv = document.getElementById('gantry-svg-overlay');
-    if (!overlayDiv) {
-      overlayDiv = document.createElement('div');
-      overlayDiv.id = 'gantry-svg-overlay';
-      overlayDiv.style.position = 'absolute';
-      overlayDiv.style.left = '0';
-      overlayDiv.style.top = '0';
-      overlayDiv.style.width = '100vw';
-      overlayDiv.style.height = '100vh';
-      overlayDiv.style.pointerEvents = 'none';
-      overlayDiv.style.zIndex = 2000;
-      document.body.appendChild(overlayDiv);
-    }
-  }, []);
-
-  // --- SVG Band with Cutout (document-level) ---
-  // Use gantry frame's bounding box for position/size
-  const [svgRect, setSvgRect] = useState({ left: 0, top: 0, width: 480, height: 320 });
-  useLayoutEffect(() => {
-    function updateSvgRect() {
-      if (gantryFrameRef.current) {
-        const rect = gantryFrameRef.current.getBoundingClientRect();
-        setSvgRect({
-          left: rect.left + window.scrollX,
-          top: rect.top + window.scrollY,
-          width: rect.width,
-          height: rect.height,
-        });
-      }
-    }
-    updateSvgRect();
-    window.addEventListener('resize', updateSvgRect);
-    window.addEventListener('scroll', updateSvgRect);
-    return () => {
-      window.removeEventListener('resize', updateSvgRect);
-      window.removeEventListener('scroll', updateSvgRect);
-    };
-  }, []);
-
-  const bandWidth = svgRect.width;
-  const bandHeight = svgRect.height;
+  // --- SVG Band with Cutout (attached to gantry frame) ---
+  const bandWidth = 480;
+  const bandHeight = 320;
   const cutoutX = 0;
   const cutoutY = 0;
   const cutoutWidth = bandWidth;
@@ -161,12 +121,12 @@ const MedicalSection = ({ inView, sectionRef }) => {
       height={bandHeight}
       style={{
         position: 'absolute',
-        left: svgRect.left,
-        top: svgRect.top,
+        left: 0,
+        top: 0,
         width: bandWidth,
         height: bandHeight,
         pointerEvents: 'none',
-        zIndex: 2000,
+        zIndex: 1,
       }}
     >
       <defs>
@@ -376,9 +336,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   return (
     <>
-      {ReactDOM.createPortal(gantryBandSVG, document.getElementById('gantry-svg-overlay'))}
       {/* Gantry Frame: contains only the video container now */}
       <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
+        {/* SVG Band graphic attached to gantry frame */}
+        {gantryBandSVG}
         {/* Video Frame (no hover transform or border) */}
         <div
           data-testid="video-frame"
