@@ -224,55 +224,72 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   return (
     <>
-      {/* CookieCutterBand: band with cutout, vertically aligned with video container */}
+      {/* Section content wrapper: relative for band + video alignment */}
       <div style={{
-        position: 'fixed',
-        left: bandLeft,
-        top: bandTop,
-        transform: 'translateY(-50%)',
-        width: bandWidth,
+        position: 'relative',
+        width: '100%',
         height: bandHeight,
-        zIndex: 1,
-        pointerEvents: 'none',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}>
-        <SimpleCookieCutterBand
-          bandColor="#4fa6a6"
-          bandHeight={bandHeight}
-          bandWidth={bandWidth}
-        />
-      </div>
-      {/* Gantry Frame: contains only the video container now */}
-      <div className="video-gantry-frame" style={gantryFrameStyle}>
-        {/* Video Frame (no hover transform or border) */}
-        <div
-          data-testid="video-frame"
-          className="video-frame"
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 3,
-            background: 'none',
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-            borderTopRightRadius: 16,
-            borderBottomRightRadius: 16,
-            overflow: 'hidden',
-            border: 'none',
-            boxShadow: '0 0 10px #0002',
-          }}
-          ref={videoContainerRef}
-        >
-          <MedicalCarousel
-            current={currentVideo}
-            setVideoCenter={setVideoCenter}
-            hoveredIndex={hoveredIndex}
-            isActive={hoveredIndex === currentVideo || isPaused}
-            videoHover={videoHover}
-            setVideoHover={setVideoHover}
+        {/* CookieCutterBand: sibling to video container */}
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: 0,
+          transform: 'translateX(-50%)',
+          width: bandWidth,
+          height: bandHeight,
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}>
+          <SimpleCookieCutterBand
+            bandColor="#4fa6a6"
+            bandHeight={bandHeight}
+            bandWidth={bandWidth}
           />
+        </div>
+        {/* Gantry Frame: contains only the video container now */}
+        <div className="video-gantry-frame" style={{
+          ...gantryFrameStyle,
+          position: 'absolute',
+          left: '50%',
+          top: 0,
+          transform: 'translateX(-50%)',
+          zIndex: 2,
+        }}>
+          {/* Video Frame (no hover transform or border) */}
+          <div
+            data-testid="video-frame"
+            className="video-frame"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 3,
+              background: 'none',
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              borderTopRightRadius: 16,
+              borderBottomRightRadius: 16,
+              overflow: 'hidden',
+              border: 'none',
+              boxShadow: '0 0 10px #0002',
+            }}
+            ref={videoContainerRef}
+          >
+            <MedicalCarousel
+              current={currentVideo}
+              setVideoCenter={setVideoCenter}
+              hoveredIndex={hoveredIndex}
+              isActive={hoveredIndex === currentVideo || isPaused}
+              videoHover={videoHover}
+              setVideoHover={setVideoHover}
+            />
+          </div>
         </div>
       </div>
       {/* Spacer (centered) */}
