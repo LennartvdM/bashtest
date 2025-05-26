@@ -104,7 +104,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // State for gantry frame bounding box
   const [gantryRect, setGantryRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
-  // --- SVG Band with Cutout (attached to gantry frame) ---
+  // --- Gantry Band Mask SVG ---
+  // SVG mask for a rounded rectangle cutout
   const bandWidth = 480;
   const bandHeight = 320;
   const cutoutX = 0;
@@ -113,48 +114,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const cutoutHeight = bandHeight;
   const cutoutRx = 16;
 
-  const gantryBandSVG = (
-    <svg
-      id="gantry-band-svg"
-      data-testid="gantry-band-svg"
-      width={bandWidth}
-      height={bandHeight}
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: bandWidth,
-        height: bandHeight,
-        pointerEvents: 'none',
-        zIndex: 1,
-      }}
-    >
-      <defs>
-        <mask id="gantry-band-mask">
-          <rect width="100%" height="100%" fill="white" />
-          <rect x={cutoutX} y={cutoutY} width={cutoutWidth} height={cutoutHeight} rx={cutoutRx} fill="black" />
-        </mask>
-      </defs>
-      <rect
-        width="100%"
-        height="100%"
-        fill="rgba(0, 120, 255, 0.25)"
-        mask="url(#gantry-band-mask)"
-      />
-      {/* Red outline for debugging */}
-      <rect
-        x={cutoutX}
-        y={cutoutY}
-        width={cutoutWidth}
-        height={cutoutHeight}
-        rx={cutoutRx}
-        fill="none"
-        stroke="red"
-        strokeWidth={3}
-        pointerEvents="none"
-      />
+  // SVG mask as a data URL
+  const maskSvg = `
+    <svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'>
+      <rect width='100%' height='100%' fill='white'/>
+      <rect x='${cutoutX}' y='${cutoutY}' width='${cutoutWidth}' height='${cutoutHeight}' rx='${cutoutRx}' fill='black'/>
     </svg>
-  );
+  `;
+  const maskUrl = `url('data:image/svg+xml;utf8,${encodeURIComponent(maskSvg)}')`;
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -325,8 +292,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
     <>
       {/* Gantry Frame: contains only the video container now */}
       <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
-        {/* SVG Band graphic attached to gantry frame */}
-        {gantryBandSVG}
+        {/* Black gantry band with SVG mask as background */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: bandWidth,
+            height: bandHeight,
+            background: 'black',
+            WebkitMaskImage: maskUrl,
+            maskImage: maskUrl,
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+            WebkitMaskSize: 'cover',
+            maskSize: 'cover',
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}
+        />
         {/* Video Frame (no hover transform or border) */}
         <div
           data-testid="video-frame"
@@ -349,34 +333,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
           }}
           ref={videoContainerRef}
         >
-          {/* Video container cropped 1px narrower on the right to prevent pixel bleed */}
-          <div
-            style={{
-              width: 'calc(100% - 1px)',
-              height: '100%',
-              margin: 0,
-              marginLeft: '1px',
-              alignSelf: 'flex-end',
-              background: 'none',
-              padding: 0,
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-              borderTopRightRadius: 16,
-              borderBottomRightRadius: 16,
-              overflow: 'hidden',
-              border: 'none',
-              boxShadow: '0 0 10px #0002',
-            }}
-          >
-            <MedicalCarousel
-              current={currentVideo}
-              setVideoCenter={setVideoCenter}
-              hoveredIndex={hoveredIndex}
-              isActive={hoveredIndex === currentVideo || isPaused}
-              videoHover={videoHover}
-              setVideoHover={setVideoHover}
-            />
-          </div>
+          <MedicalCarousel
+            current={currentVideo}
+            setVideoCenter={setVideoCenter}
+            hoveredIndex={hoveredIndex}
+            isActive={hoveredIndex === currentVideo || isPaused}
+            videoHover={videoHover}
+            setVideoHover={setVideoHover}
+          />
         </div>
       </div>
       {/* Spacer (centered) */}
