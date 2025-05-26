@@ -1,8 +1,11 @@
 import React, { useRef, useLayoutEffect, useState } from "react";
 
-export default function CookieCutterBand({ videoRef, bandColor = "white", bandHeight = 320, bandWidth = 900, bandTop = 200 }) {
+export default function CookieCutterBand({ videoRef, bandColor = "yellow", bandHeight = 320, bandWidth = 900, bandTop = 200 }) {
   const [cutout, setCutout] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
   const bandRef = useRef();
+
+  // Debug: confirm render
+  console.log("CookieCutterBand rendered");
 
   // Dynamically measure the video container
   useLayoutEffect(() => {
@@ -37,11 +40,11 @@ export default function CookieCutterBand({ videoRef, bandColor = "white", bandHe
         position: "absolute",
         left: `calc(50% - ${bandWidth / 2}px)`,
         top: bandTop,
-        zIndex: 10,
+        zIndex: 9999,
         pointerEvents: "none"
       }}
     >
-      <defs>
+      {/* <defs>
         <mask id="cookie-cutter-mask">
           <rect width={bandWidth} height={bandHeight} fill="white" />
           <rect
@@ -53,12 +56,12 @@ export default function CookieCutterBand({ videoRef, bandColor = "white", bandHe
             fill="black"
           />
         </mask>
-      </defs>
+      </defs> */}
       <rect
         width={bandWidth}
         height={bandHeight}
         fill={bandColor}
-        mask="url(#cookie-cutter-mask)"
+        // mask="url(#cookie-cutter-mask)"
         style={{ stroke: "red", strokeWidth: 2 }} // for debugging
       />
     </svg>
