@@ -138,7 +138,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       <rect
         width="100%"
         height="100%"
-        fill="green"
+        fill="rgba(0, 120, 255, 0.25)"
         mask="url(#gantry-band-mask)"
       />
       {/* Red outline for debugging */}
@@ -300,19 +300,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
       window.removeEventListener('scroll', updateGantryRect);
     };
   }, []);
-
-  // SVG should match video container
-  const svgLeft = biteRect.x;
-  const svgTop = biteRect.y;
-  const svgWidth = biteRect.width;
-  const svgHeight = biteRect.height;
-
-  // Mask cutout fills SVG
-  const cutoutX = 0;
-  const cutoutY = 0;
-  const cutoutWidth = svgWidth;
-  const cutoutHeight = svgHeight;
-  const cutoutRx = biteRect.rx;
 
   // --- Gantry Frame dimensions and animation ---
   const gantryFrameStyle = {
