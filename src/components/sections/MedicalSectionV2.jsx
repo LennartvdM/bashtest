@@ -282,13 +282,22 @@ const MedicalSection = ({ inView, sectionRef }) => {
     overflow: 'visible',
   };
 
-  // --- SVG Gantry Band (fills gantry frame) ---
+  // --- SVG Band with Cutout ---
+  // The band is the full gantry frame, the cutout matches the video container
+  const bandWidth = 480;
+  const bandHeight = 320;
+  const cutoutX = 0;
+  const cutoutY = 0;
+  const cutoutWidth = 480;
+  const cutoutHeight = 320;
+  const cutoutRx = 16;
+
   const gantryBandSVG = (
     <svg
       id="gantry-band-svg"
       data-testid="gantry-band-svg"
-      width={480}
-      height={320}
+      width={bandWidth}
+      height={bandHeight}
       style={{
         position: 'absolute',
         left: 0,
@@ -302,7 +311,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       <defs>
         <mask id="gantry-band-mask">
           <rect width="100%" height="100%" fill="white" />
-          <rect x="0" y="0" width="100%" height="100%" rx={16} fill="black" />
+          <rect x={cutoutX} y={cutoutY} width={cutoutWidth} height={cutoutHeight} rx={cutoutRx} fill="black" />
         </mask>
       </defs>
       <rect
@@ -311,13 +320,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
         fill="green"
         mask="url(#gantry-band-mask)"
       />
-      {/* Visible outline of the bite for debugging */}
+      {/* Red outline for debugging */}
       <rect
-        x={0}
-        y={0}
-        width={480}
-        height={320}
-        rx={16}
+        x={cutoutX}
+        y={cutoutY}
+        width={cutoutWidth}
+        height={cutoutHeight}
+        rx={cutoutRx}
         fill="none"
         stroke="red"
         strokeWidth={3}
