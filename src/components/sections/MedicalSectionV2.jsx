@@ -91,9 +91,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   const [videoHover, setVideoHover] = useState(false);
 
-  const bandRef = useRef();
-  const [maskUrl, setMaskUrl] = useState('');
-
   const shadedFrameRef = useRef();
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
 
@@ -104,24 +101,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // State for gantry frame bounding box
   const [gantryRect, setGantryRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
-  // --- Gantry Band Mask SVG ---
-  // SVG mask for a rounded rectangle cutout
-  const bandWidth = 480;
-  const bandHeight = 320;
-  const cutoutX = 0;
-  const cutoutY = 0;
-  const cutoutWidth = bandWidth;
-  const cutoutHeight = bandHeight;
-  const cutoutRx = 16;
-
-  // SVG mask as a data URL
-  const maskSvg = `
-    <svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'>
-      <rect width='100%' height='100%' fill='white'/>
-      <rect x='${cutoutX}' y='${cutoutY}' width='${cutoutWidth}' height='${cutoutHeight}' rx='${cutoutRx}' fill='black'/>
-    </svg>
-  `;
-  const maskUrl = `url('data:image/svg+xml;utf8,${encodeURIComponent(maskSvg)}')`;
+  // --- Gantry Frame dimensions and animation ---
+  const gantryFrameStyle = {
+    position: 'absolute',
+    right: 'calc(50% + 20px)',
+    top: videoAndCaptionTop,
+    width: 480,
+    height: 320,
+    zIndex: 2,
+    display: 'flex',
+    alignItems: 'stretch',
+    transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+    transform: videoHover 
+      ? 'translateY(-12px)' 
+      : videoVisible 
+        ? 'translateX(0)' 
+        : 'translateX(-200px)',
+    opacity: videoVisible ? 1 : 0,
+    overflow: 'visible',
+  };
 
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
@@ -192,37 +190,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
 
-  // Dynamic SVG mask update
-  useEffect(() => {
-    let frame;
-    function updateMask() {
-      if (!bandRef.current || !videoContainerRef.current) return;
-      const bandRect = bandRef.current.getBoundingClientRect();
-      const videoRect = videoContainerRef.current.getBoundingClientRect();
-      // Calculate video position relative to band
-      const x = videoRect.left - bandRect.left;
-      const y = videoRect.top - bandRect.top;
-      const width = videoRect.width;
-      const height = videoRect.height;
-      // Get border radius (assume px, fallback to 16)
-      let rx = 16;
-      try {
-        const style = window.getComputedStyle(videoContainerRef.current);
-        rx = parseFloat(style.borderTopRightRadius) || 16;
-      } catch {}
-      // SVG: white = visible, black = subtracted
-      const svg = `<svg width='${bandRect.width}' height='${bandRect.height}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><rect x='${x}' y='${y}' width='${width}' height='${height}' rx='${rx}' fill='black'/></svg>`;
-      const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
-      setMaskUrl(url);
-    }
-    function onFrame() {
-      updateMask();
-      frame = requestAnimationFrame(onFrame);
-    }
-    onFrame();
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
   // Measure video container position and size for SVG
   useLayoutEffect(() => {
     function updateVideoRect() {
@@ -268,49 +235,44 @@ const MedicalSection = ({ inView, sectionRef }) => {
     };
   }, []);
 
-  // --- Gantry Frame dimensions and animation ---
-  const gantryFrameStyle = {
-    position: 'absolute',
-    right: 'calc(50% + 20px)',
-    top: videoAndCaptionTop,
-    width: 480,
-    height: 320,
-    zIndex: 2,
-    display: 'flex',
-    alignItems: 'stretch',
-    transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
-    transform: videoHover 
-      ? 'translateY(-12px)' 
-      : videoVisible 
-        ? 'translateX(0)' 
-        : 'translateX(-200px)',
-    opacity: videoVisible ? 1 : 0,
-    overflow: 'visible',
-  };
+  // --- Gantry Band SVG Border ---
+  // SVG border band (no fill, just a black rounded rectangle stroke)
+  const bandWidth = 480;
+  const bandHeight = 320;
+  const bandRx = 16;
+  const bandStroke = 12; // thickness of the border
+
+  const gantryBandSVG = (
+    <svg
+      width={bandWidth}
+      height={bandHeight}
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        zIndex: 1,
+        pointerEvents: 'none',
+      }}
+    >
+      <rect
+        x={bandStroke / 2}
+        y={bandStroke / 2}
+        width={bandWidth - bandStroke}
+        height={bandHeight - bandStroke}
+        rx={bandRx}
+        fill="none"
+        stroke="black"
+        strokeWidth={bandStroke}
+      />
+    </svg>
+  );
 
   return (
     <>
       {/* Gantry Frame: contains only the video container now */}
       <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
-        {/* Black gantry band with SVG mask as background */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: bandWidth,
-            height: bandHeight,
-            background: 'black',
-            WebkitMaskImage: maskUrl,
-            maskImage: maskUrl,
-            WebkitMaskRepeat: 'no-repeat',
-            maskRepeat: 'no-repeat',
-            WebkitMaskSize: 'cover',
-            maskSize: 'cover',
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
+        {/* SVG border band behind the video */}
+        {gantryBandSVG}
         {/* Video Frame (no hover transform or border) */}
         <div
           data-testid="video-frame"
