@@ -235,44 +235,65 @@ const MedicalSection = ({ inView, sectionRef }) => {
     };
   }, []);
 
-  // --- Gantry Band SVG Border ---
-  // SVG border band (no fill, just a black rounded rectangle stroke)
-  const bandWidth = 480;
+  // --- Gantry Band with Dynamic SVG Mask ---
+  const bandWidth = 900; // wide band
   const bandHeight = 320;
-  const bandRx = 16;
-  const bandStroke = 12; // thickness of the border
+  const bandRx = 0;
+  const biteRx = 16;
+  const biteRef = videoContainerRef;
+  const bandRef = useRef();
+  const [maskUrl, setMaskUrl] = useState('');
 
-  const gantryBandSVG = (
-    <svg
-      width={bandWidth}
-      height={bandHeight}
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        zIndex: 1,
-        pointerEvents: 'none',
-      }}
-    >
-      <rect
-        x={bandStroke / 2}
-        y={bandStroke / 2}
-        width={bandWidth - bandStroke}
-        height={bandHeight - bandStroke}
-        rx={bandRx}
-        fill="none"
-        stroke="black"
-        strokeWidth={bandStroke}
-      />
-    </svg>
-  );
+  // Update mask when video container moves/resizes
+  useLayoutEffect(() => {
+    function updateMask() {
+      if (!bandRef.current || !biteRef.current) return;
+      const bandRect = bandRef.current.getBoundingClientRect();
+      const biteRect = biteRef.current.getBoundingClientRect();
+      // Calculate bite position relative to band
+      const x = biteRect.left - bandRect.left;
+      const y = biteRect.top - bandRect.top;
+      const width = biteRect.width;
+      const height = biteRect.height;
+      const rx = biteRx;
+      // SVG: white = visible, black = cut out
+      const svg = `<svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><rect x='${x}' y='${y}' width='${width}' height='${height}' rx='${rx}' fill='black'/></svg>`;
+      const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+      setMaskUrl(url);
+    }
+    updateMask();
+    window.addEventListener('resize', updateMask);
+    window.addEventListener('scroll', updateMask);
+    return () => {
+      window.removeEventListener('resize', updateMask);
+      window.removeEventListener('scroll', updateMask);
+    };
+  }, []);
 
   return (
     <>
       {/* Gantry Frame: contains only the video container now */}
       <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
-        {/* SVG border band behind the video */}
-        {gantryBandSVG}
+        {/* Wide gantry band with SVG mask and bite */}
+        <div
+          ref={bandRef}
+          style={{
+            position: 'absolute',
+            left: `-${(bandWidth - 480) / 2}px`, // center band under video
+            top: 0,
+            width: bandWidth,
+            height: bandHeight,
+            background: 'black',
+            WebkitMaskImage: maskUrl,
+            maskImage: maskUrl,
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+            WebkitMaskSize: 'cover',
+            maskSize: 'cover',
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}
+        />
         {/* Video Frame (no hover transform or border) */}
         <div
           data-testid="video-frame"
