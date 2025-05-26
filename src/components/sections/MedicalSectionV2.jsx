@@ -270,9 +270,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
           {/* CookieCutterBand: sibling to video container */}
           <div style={{
             position: 'absolute',
-            left: '50%',
+            right: 0,
             top: 0,
-            transform: 'translateX(-50%)',
             width: bandWidth,
             height: bandHeight,
             zIndex: 1,
@@ -288,9 +287,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
           <div className="video-gantry-frame" style={{
             ...gantryFrameStyle,
             position: 'absolute',
-            left: '50%',
+            right: 0,
             top: 0,
-            transform: 'translateX(-50%)',
             zIndex: 2,
             pointerEvents: 'auto',
           }}>
