@@ -104,6 +104,98 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // State for gantry frame bounding box
   const [gantryRect, setGantryRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
+  // --- Document-level SVG Overlay Setup ---
+  useEffect(() => {
+    let overlayDiv = document.getElementById('gantry-svg-overlay');
+    if (!overlayDiv) {
+      overlayDiv = document.createElement('div');
+      overlayDiv.id = 'gantry-svg-overlay';
+      overlayDiv.style.position = 'absolute';
+      overlayDiv.style.left = '0';
+      overlayDiv.style.top = '0';
+      overlayDiv.style.width = '100vw';
+      overlayDiv.style.height = '100vh';
+      overlayDiv.style.pointerEvents = 'none';
+      overlayDiv.style.zIndex = 2000;
+      document.body.appendChild(overlayDiv);
+    }
+  }, []);
+
+  // --- SVG Band with Cutout (document-level) ---
+  // Use gantry frame's bounding box for position/size
+  const [svgRect, setSvgRect] = useState({ left: 0, top: 0, width: 480, height: 320 });
+  useLayoutEffect(() => {
+    function updateSvgRect() {
+      if (gantryFrameRef.current) {
+        const rect = gantryFrameRef.current.getBoundingClientRect();
+        setSvgRect({
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
+          width: rect.width,
+          height: rect.height,
+        });
+      }
+    }
+    updateSvgRect();
+    window.addEventListener('resize', updateSvgRect);
+    window.addEventListener('scroll', updateSvgRect);
+    return () => {
+      window.removeEventListener('resize', updateSvgRect);
+      window.removeEventListener('scroll', updateSvgRect);
+    };
+  }, []);
+
+  const bandWidth = svgRect.width;
+  const bandHeight = svgRect.height;
+  const cutoutX = 0;
+  const cutoutY = 0;
+  const cutoutWidth = bandWidth;
+  const cutoutHeight = bandHeight;
+  const cutoutRx = 16;
+
+  const gantryBandSVG = (
+    <svg
+      id="gantry-band-svg"
+      data-testid="gantry-band-svg"
+      width={bandWidth}
+      height={bandHeight}
+      style={{
+        position: 'absolute',
+        left: svgRect.left,
+        top: svgRect.top,
+        width: bandWidth,
+        height: bandHeight,
+        pointerEvents: 'none',
+        zIndex: 2000,
+      }}
+    >
+      <defs>
+        <mask id="gantry-band-mask">
+          <rect width="100%" height="100%" fill="white" />
+          <rect x={cutoutX} y={cutoutY} width={cutoutWidth} height={cutoutHeight} rx={cutoutRx} fill="black" />
+        </mask>
+      </defs>
+      <rect
+        width="100%"
+        height="100%"
+        fill="green"
+        mask="url(#gantry-band-mask)"
+      />
+      {/* Red outline for debugging */}
+      <rect
+        x={cutoutX}
+        y={cutoutY}
+        width={cutoutWidth}
+        height={cutoutHeight}
+        rx={cutoutRx}
+        fill="none"
+        stroke="red"
+        strokeWidth={3}
+        pointerEvents="none"
+      />
+    </svg>
+  );
+
   const handleSlideChange = (index) => {
     setCurrentVideo(index);
   };
@@ -282,64 +374,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
     overflow: 'visible',
   };
 
-  // --- SVG Band with Cutout ---
-  // The band is the full gantry frame, the cutout matches the video container
-  const bandWidth = 480;
-  const bandHeight = 320;
-  const cutoutX = 0;
-  const cutoutY = 0;
-  const cutoutWidth = 480;
-  const cutoutHeight = 320;
-  const cutoutRx = 16;
-
-  const gantryBandSVG = (
-    <svg
-      id="gantry-band-svg"
-      data-testid="gantry-band-svg"
-      width={bandWidth}
-      height={bandHeight}
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        zIndex: 2,
-      }}
-    >
-      <defs>
-        <mask id="gantry-band-mask">
-          <rect width="100%" height="100%" fill="white" />
-          <rect x={cutoutX} y={cutoutY} width={cutoutWidth} height={cutoutHeight} rx={cutoutRx} fill="black" />
-        </mask>
-      </defs>
-      <rect
-        width="100%"
-        height="100%"
-        fill="green"
-        mask="url(#gantry-band-mask)"
-      />
-      {/* Red outline for debugging */}
-      <rect
-        x={cutoutX}
-        y={cutoutY}
-        width={cutoutWidth}
-        height={cutoutHeight}
-        rx={cutoutRx}
-        fill="none"
-        stroke="red"
-        strokeWidth={3}
-        pointerEvents="none"
-      />
-    </svg>
-  );
-
   return (
     <>
-      {/* Gantry Frame: contains both SVG and video container, animates together */}
+      {ReactDOM.createPortal(gantryBandSVG, document.getElementById('gantry-svg-overlay'))}
+      {/* Gantry Frame: contains only the video container now */}
       <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
-        {gantryBandSVG}
         {/* Video Frame (no hover transform or border) */}
         <div
           data-testid="video-frame"
