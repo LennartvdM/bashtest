@@ -257,7 +257,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
       const height = biteRect.height;
       const rx = biteRx;
       // SVG: white = visible, black = cut out
-      const svg = `<svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><rect x='${x}' y='${y}' width='${width}' height='${height}' rx='${rx}' fill='black'/></svg>`;
+      // For demonstration, use a circle mask instead of a rounded rectangle
+      const cx = x + width / 2;
+      const cy = y + height / 2;
+      const r = Math.min(width, height) / 2;
+      const svg = `<svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><circle cx='${cx}' cy='${cy}' r='${r}' fill='black'/></svg>`;
       const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
       setMaskUrl(url);
     }
