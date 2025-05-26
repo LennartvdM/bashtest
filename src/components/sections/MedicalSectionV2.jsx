@@ -261,6 +261,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       const cy = bandHeight / 2;
       const r = Math.min(bandWidth, bandHeight) / 4;
       const svg = `<svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><circle cx='${cx}' cy='${cy}' r='${r}' fill='black'/></svg>`;
+      console.log('SVG Mask:', svg); // Debug: log the SVG
       const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
       setMaskUrl(url);
     }
@@ -286,7 +287,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             top: 0,
             width: bandWidth,
             height: bandHeight,
-            background: 'black',
+            background: 'white', // Debug: white band
+            border: '2px solid red', // Debug: red border
             WebkitMaskImage: maskUrl,
             maskImage: maskUrl,
             WebkitMaskRepeat: 'no-repeat',
@@ -294,6 +296,19 @@ const MedicalSection = ({ inView, sectionRef }) => {
             WebkitMaskSize: 'cover',
             maskSize: 'cover',
             zIndex: 1,
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Debug: Show video container bounds with a semi-transparent overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(255,0,0,0.2)',
+            zIndex: 4,
             pointerEvents: 'none',
           }}
         />
