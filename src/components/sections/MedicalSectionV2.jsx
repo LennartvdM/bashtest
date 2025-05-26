@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import ReactDOM from 'react-dom';
+import CookieCutterBand from '../CookieCutterBand';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4" },
@@ -276,6 +277,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   return (
     <>
+      {/* CookieCutterBand demo: positioned to video container */}
+      <CookieCutterBand videoRef={videoContainerRef} bandColor="white" bandHeight={320} bandWidth={900} bandTop={200} />
       {/* Gantry Frame: contains only the video container now */}
       <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
         {/* Wide gantry band with SVG mask and bite */}
