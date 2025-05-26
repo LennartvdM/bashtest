@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import ReactDOM from 'react-dom';
-import CookieCutterBand from '../CookieCutterBand';
+import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4" },
@@ -95,12 +95,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const shadedFrameRef = useRef();
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
 
-  // Ref for the SVG gantry band
-  const gantryBandRef = useRef();
-  // Ref for the video gantry frame
-  const gantryFrameRef = useRef();
-  // State for gantry frame bounding box
-  const [gantryRect, setGantryRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
+  // Band and cutout dimensions
+  const bandWidth = 900;
+  const bandHeight = 320;
+  const cutoutWidth = 480;
+  const cutoutHeight = 320;
+  const cornerRadius = 16;
+
+  // Calculate the left offset so the cutout aligns with the video container
+  // The video container is right: 'calc(50% + 20px)', so its left edge is at window.innerWidth/2 + 20px - 480px
+  // The band should be positioned so its cutout's right edge matches the video container's left edge
+  // We'll use left: calc(50% - (bandWidth + 480)/2 + 20px)
+  const bandLeft = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
+  // The band is vertically centered, same as the video container
+  const bandTop = '50%';
 
   // --- Gantry Frame dimensions and animation ---
   const gantryFrameStyle = {
@@ -214,107 +222,27 @@ const MedicalSection = ({ inView, sectionRef }) => {
     };
   }, []);
 
-  // Measure the gantry frame bounding box
-  useLayoutEffect(() => {
-    function updateGantryRect() {
-      if (gantryFrameRef.current) {
-        const rect = gantryFrameRef.current.getBoundingClientRect();
-        setGantryRect({
-          left: rect.left + window.scrollX,
-          top: rect.top + window.scrollY,
-          width: rect.width,
-          height: rect.height,
-        });
-      }
-    }
-    updateGantryRect();
-    window.addEventListener('resize', updateGantryRect);
-    window.addEventListener('scroll', updateGantryRect);
-    return () => {
-      window.removeEventListener('resize', updateGantryRect);
-      window.removeEventListener('scroll', updateGantryRect);
-    };
-  }, []);
-
-  // --- Gantry Band with Dynamic SVG Mask ---
-  const bandWidth = 900; // wide band
-  const bandHeight = 320;
-  const bandRx = 0;
-  const biteRx = 16;
-  const biteRef = videoContainerRef;
-  const bandRef = useRef();
-  const [maskUrl, setMaskUrl] = useState('');
-
-  // Update mask when video container moves/resizes
-  useLayoutEffect(() => {
-    function updateMask() {
-      if (!bandRef.current || !biteRef.current) return;
-      const bandRect = bandRef.current.getBoundingClientRect();
-      const biteRect = biteRef.current.getBoundingClientRect();
-      // Calculate bite position relative to band
-      const x = biteRect.left - bandRect.left;
-      const y = biteRect.top - bandRect.top;
-      const width = biteRect.width;
-      const height = biteRect.height;
-      const rx = biteRx;
-      // Hardcoded SVG mask: circle in the center of the band
-      const cx = bandWidth / 2;
-      const cy = bandHeight / 2;
-      const r = Math.min(bandWidth, bandHeight) / 4;
-      const svg = `<svg width='${bandWidth}' height='${bandHeight}' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='white'/><circle cx='${cx}' cy='${cy}' r='${r}' fill='black'/></svg>`;
-      console.log('SVG Mask:', svg); // Debug: log the SVG
-      const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
-      setMaskUrl(url);
-    }
-    updateMask();
-    window.addEventListener('resize', updateMask);
-    window.addEventListener('scroll', updateMask);
-    return () => {
-      window.removeEventListener('resize', updateMask);
-      window.removeEventListener('scroll', updateMask);
-    };
-  }, []);
-
   return (
     <>
-      {/* CookieCutterBand demo: positioned to video container */}
-      <CookieCutterBand videoRef={videoContainerRef} bandColor="white" bandHeight={320} bandWidth={900} bandTop={200} />
+      {/* CookieCutterBand: band with cutout, vertically aligned with video container */}
+      <div style={{
+        position: 'fixed',
+        left: bandLeft,
+        top: bandTop,
+        transform: 'translateY(-50%)',
+        width: bandWidth,
+        height: bandHeight,
+        zIndex: 1,
+        pointerEvents: 'none',
+      }}>
+        <SimpleCookieCutterBand
+          bandColor="#4fa6a6"
+          bandHeight={bandHeight}
+          bandWidth={bandWidth}
+        />
+      </div>
       {/* Gantry Frame: contains only the video container now */}
-      <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
-        {/* Wide gantry band with SVG mask and bite */}
-        <div
-          ref={bandRef}
-          style={{
-            position: 'absolute',
-            left: `-${(bandWidth - 480) / 2}px`, // center band under video
-            top: 0,
-            width: bandWidth,
-            height: bandHeight,
-            background: 'white', // Debug: white band
-            border: '2px solid red', // Debug: red border
-            WebkitMaskImage: maskUrl,
-            maskImage: maskUrl,
-            WebkitMaskRepeat: 'no-repeat',
-            maskRepeat: 'no-repeat',
-            WebkitMaskSize: 'cover',
-            maskSize: 'cover',
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
-        {/* Debug: Show video container bounds with a semi-transparent overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(255,0,0,0.2)',
-            zIndex: 4,
-            pointerEvents: 'none',
-          }}
-        />
+      <div className="video-gantry-frame" style={gantryFrameStyle}>
         {/* Video Frame (no hover transform or border) */}
         <div
           data-testid="video-frame"
