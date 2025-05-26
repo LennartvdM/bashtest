@@ -262,20 +262,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const cutoutHeight = svgHeight;
   const cutoutRx = biteRect.rx;
 
-  // --- Gantry Mother Div dimensions and animation ---
-  // Use the same dimensions and animation logic as the video-gantry-frame
-  const motherWidth = 480;
-  const motherHeight = 320;
-  const motherLeft = undefined; // We'll use right positioning as before
-  const motherTop = videoAndCaptionTop;
-
-  // Animation/positioning logic (copied from video-gantry-frame)
-  const motherStyle = {
+  // --- Gantry Frame dimensions and animation ---
+  const gantryFrameStyle = {
     position: 'absolute',
     right: 'calc(50% + 20px)',
-    top: motherTop,
-    width: motherWidth,
-    height: motherHeight,
+    top: videoAndCaptionTop,
+    width: 480,
+    height: 320,
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
@@ -289,13 +282,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
     overflow: 'visible',
   };
 
-  // --- SVG Gantry Band (fills mother div) ---
+  // --- SVG Gantry Band (fills gantry frame) ---
   const gantryBandSVG = (
     <svg
       id="gantry-band-svg"
       data-testid="gantry-band-svg"
-      width={motherWidth}
-      height={motherHeight}
+      width={480}
+      height={320}
       style={{
         position: 'absolute',
         left: 0,
@@ -322,8 +315,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
       <rect
         x={0}
         y={0}
-        width={motherWidth}
-        height={motherHeight}
+        width={480}
+        height={320}
         rx={16}
         fill="none"
         stroke="red"
@@ -335,8 +328,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   return (
     <>
-      {/* Gantry Mother Div: contains both SVG and video container, animates together */}
-      <div style={motherStyle} id="gantry-mother">
+      {/* Gantry Frame: contains both SVG and video container, animates together */}
+      <div className="video-gantry-frame" style={gantryFrameStyle} ref={gantryFrameRef}>
         {gantryBandSVG}
         {/* Video Frame (no hover transform or border) */}
         <div
