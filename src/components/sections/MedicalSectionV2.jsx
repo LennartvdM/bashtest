@@ -233,81 +233,101 @@ const MedicalSection = ({ inView, sectionRef }) => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-        {/* CookieCutterBand: sibling to video container */}
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          top: 0,
-          transform: 'translateX(-50%)',
-          width: bandWidth,
-          height: bandHeight,
-          zIndex: 1,
-          pointerEvents: 'none',
-        }}>
-          <SimpleCookieCutterBand
-            bandColor="#4fa6a6"
-            bandHeight={bandHeight}
-            bandWidth={bandWidth}
-          />
-        </div>
-        {/* Gantry Frame: contains only the video container now */}
-        <div className="video-gantry-frame" style={{
-          ...gantryFrameStyle,
-          position: 'absolute',
-          left: '50%',
-          top: 0,
-          transform: 'translateX(-50%)',
-          zIndex: 2,
-        }}>
-          {/* Video Frame (no hover transform or border) */}
-          <div
-            data-testid="video-frame"
-            className="video-frame"
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 3,
-              background: 'none',
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-              borderTopRightRadius: 16,
-              borderBottomRightRadius: 16,
-              overflow: 'hidden',
-              border: 'none',
-              boxShadow: '0 0 10px #0002',
-            }}
-            ref={videoContainerRef}
-          >
-            <MedicalCarousel
-              current={currentVideo}
-              setVideoCenter={setVideoCenter}
-              hoveredIndex={hoveredIndex}
-              isActive={hoveredIndex === currentVideo || isPaused}
-              videoHover={videoHover}
-              setVideoHover={setVideoHover}
+        {/* Spacer (centered) */}
+        <div
+          data-testid="spacer"
+          className="spacer"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: collectionTop,
+            width: 40,
+            height: headerHeight + gap + videoHeight,
+            transform: 'translateX(-50%)',
+            background: 'rgba(255, 0, 0, 0.3)',
+            pointerEvents: 'none',
+            zIndex: 10,
+          }}
+        />
+        {/* Video Anchor (now contains cookiecutter and video container) */}
+        <div
+          ref={videoAnchorRef}
+          data-testid="video-anchor"
+          style={{
+            position: 'absolute',
+            right: 'calc(50% + 20px)',
+            top: videoAndCaptionTop,
+            width: 480,
+            height: videoHeight,
+            opacity: 1,
+            pointerEvents: 'none',
+            zIndex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* CookieCutterBand: sibling to video container */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: 0,
+            transform: 'translateX(-50%)',
+            width: bandWidth,
+            height: bandHeight,
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}>
+            <SimpleCookieCutterBand
+              bandColor="#4fa6a6"
+              bandHeight={bandHeight}
+              bandWidth={bandWidth}
             />
+          </div>
+          {/* Gantry Frame: contains only the video container now */}
+          <div className="video-gantry-frame" style={{
+            ...gantryFrameStyle,
+            position: 'absolute',
+            left: '50%',
+            top: 0,
+            transform: 'translateX(-50%)',
+            zIndex: 2,
+            pointerEvents: 'auto',
+          }}>
+            {/* Video Frame (no hover transform or border) */}
+            <div
+              data-testid="video-frame"
+              className="video-frame"
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: '100%',
+                height: '100%',
+                zIndex: 3,
+                background: 'none',
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderTopRightRadius: 16,
+                borderBottomRightRadius: 16,
+                overflow: 'hidden',
+                border: 'none',
+                boxShadow: '0 0 10px #0002',
+              }}
+              ref={videoContainerRef}
+            >
+              <MedicalCarousel
+                current={currentVideo}
+                setVideoCenter={setVideoCenter}
+                hoveredIndex={hoveredIndex}
+                isActive={hoveredIndex === currentVideo || isPaused}
+                videoHover={videoHover}
+                setVideoHover={setVideoHover}
+              />
+            </div>
           </div>
         </div>
       </div>
-      {/* Spacer (centered) */}
-      <div
-        data-testid="spacer"
-        className="spacer"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: collectionTop,
-          width: 40,
-          height: headerHeight + gap + videoHeight,
-          transform: 'translateX(-50%)',
-          background: 'rgba(255, 0, 0, 0.3)',
-          pointerEvents: 'none',
-          zIndex: 10,
-        }}
-      />
       {/* Video Anchor (left of spacer) */}
       <div
         ref={videoAnchorRef}
