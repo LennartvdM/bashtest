@@ -10,7 +10,7 @@ export default function SimpleCookieCutterBand({
   const maskId = "static-cutout-mask";
   const cutoutWidth = 480; // Fixed width matching your video
   const cutoutHeight = 320; // Fixed height matching your video
-  const cornerRadius = 20;
+  const cornerRadius = 20; // Increased from 16 to 20 to avoid pixel conflicts
   
   // Position cutout at the right side of the band where video intersects
   const cutoutX = bandWidth - cutoutWidth; // flush to the right
@@ -27,8 +27,11 @@ export default function SimpleCookieCutterBand({
       <svg width={bandWidth} height={bandHeight} style={{ display: "block" }}>
         <defs>
           <mask id={maskId}>
-            {/* White area = visible band */}
-            <rect width={bandWidth} height={bandHeight} fill="white" rx={cornerRadius} />
+            {/* White area = visible band with straight left corners */}
+            <path
+              d={`M0,0 L${bandWidth},0 L${bandWidth},${bandHeight} L0,${bandHeight} Z`}
+              fill="white"
+            />
             {/* Black area = cutout (static position) */}
             <rect
               x={cutoutX}
@@ -41,21 +44,17 @@ export default function SimpleCookieCutterBand({
           </mask>
         </defs>
         {/* The actual colored band with mask applied */}
-        <rect
-          width={bandWidth}
-          height={bandHeight}
+        <path
+          d={`M0,0 L${bandWidth},0 L${bandWidth},${bandHeight} L0,${bandHeight} Z`}
           fill={bandColor}
           mask={`url(#${maskId})`}
-          rx={cornerRadius}
         />
         {/* Debug outline to show band boundaries */}
-        <rect
-          width={bandWidth}
-          height={bandHeight}
+        <path
+          d={`M0,0 L${bandWidth},0 L${bandWidth},${bandHeight} L0,${bandHeight} Z`}
           fill="none"
           stroke="rgba(255,0,0,0.3)"
           strokeWidth="2"
-          rx={cornerRadius}
         />
       </svg>
     </div>
