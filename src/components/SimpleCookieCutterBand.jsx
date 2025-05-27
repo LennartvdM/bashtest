@@ -28,7 +28,7 @@ export default function SimpleCookieCutterBand({
         <defs>
           <mask id={maskId}>
             {/* White area = visible band */}
-            <rect width={bandWidth} height={bandHeight} fill="white" />
+            <rect width={bandWidth} height={bandHeight} fill="white" rx={cornerRadius} />
             {/* Black area = cutout (static position) */}
             <rect
               x={cutoutX}
@@ -46,6 +46,7 @@ export default function SimpleCookieCutterBand({
           height={bandHeight}
           fill={bandColor}
           mask={`url(#${maskId})`}
+          rx={cornerRadius}
         />
         {/* Debug outline to show band boundaries */}
         <rect
@@ -54,6 +55,7 @@ export default function SimpleCookieCutterBand({
           fill="none"
           stroke="rgba(255,0,0,0.3)"
           strokeWidth="2"
+          rx={cornerRadius}
         />
       </svg>
     </div>
