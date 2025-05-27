@@ -76,13 +76,6 @@ export default function SimpleCookieCutterBand({
           fill={bandColor}
           mask={`url(#${maskId})`}
         />
-        {/* Debug outline to show band boundaries */}
-        <path
-          d={pathData}
-          fill="none"
-          stroke="rgba(255,0,0,0.3)"
-          strokeWidth="2"
-        />
       </svg>
     </div>
   );
