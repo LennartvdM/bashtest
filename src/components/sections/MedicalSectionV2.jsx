@@ -249,6 +249,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           muted
           loop
           playsInline
+          controls={false}
           preload="auto"
           tabIndex="-1"
           aria-hidden="true"
@@ -278,6 +279,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
               muted
               loop
               playsInline
+              controls={false}
               preload="auto"
               tabIndex="-1"
               aria-hidden="true"
