@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import ReactDOM from 'react-dom';
 import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
-import '../styles/video-controls.css';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4" },
@@ -232,6 +231,22 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+      <style>
+        {`
+          video::-webkit-media-controls { display: none !important; }
+          video::-webkit-media-controls-panel { display: none !important; }
+          video::-webkit-media-controls-enclosure { display: none !important; }
+          video::-webkit-media-controls-overlay-play-button { display: none !important; }
+          video::-webkit-media-controls-play-button { display: none !important; }
+          video::-webkit-media-controls-timeline { display: none !important; }
+          video::-webkit-media-controls-current-time-display { display: none !important; }
+          video::-webkit-media-controls-time-remaining-display { display: none !important; }
+          video::-webkit-media-controls-time-control { display: none !important; }
+          video::-webkit-media-controls-mute-button { display: none !important; }
+          video::-webkit-media-controls-volume-slider { display: none !important; }
+          video::-webkit-media-controls-fullscreen-button { display: none !important; }
+        `}
+      </style>
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
@@ -294,7 +309,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
               MozUserSelect: 'none',
               MsUserSelect: 'none',
               userSelect: 'none',
-              WebkitTouchCallout: 'none'
+              WebkitTouchCallout: 'none',
+              // Hide all video controls
+              '&::-webkit-media-controls': { display: 'none !important' },
+              '&::-webkit-media-controls-panel': { display: 'none !important' },
+              '&::-webkit-media-controls-enclosure': { display: 'none !important' },
+              '&::-webkit-media-controls-overlay-play-button': { display: 'none !important' },
+              '&::-webkit-media-controls-play-button': { display: 'none !important' },
+              '&::-webkit-media-controls-timeline': { display: 'none !important' },
+              '&::-webkit-media-controls-current-time-display': { display: 'none !important' },
+              '&::-webkit-media-controls-time-remaining-display': { display: 'none !important' },
+              '&::-webkit-media-controls-time-control': { display: 'none !important' },
+              '&::-webkit-media-controls-mute-button': { display: 'none !important' },
+              '&::-webkit-media-controls-volume-slider': { display: 'none !important' },
+              '&::-webkit-media-controls-fullscreen-button': { display: 'none !important' }
             }}
           />
         </div>
@@ -366,7 +394,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   MozUserSelect: 'none',
                   MsUserSelect: 'none',
                   userSelect: 'none',
-                  WebkitTouchCallout: 'none'
+                  WebkitTouchCallout: 'none',
+                  // Hide all video controls
+                  '&::-webkit-media-controls': { display: 'none !important' },
+                  '&::-webkit-media-controls-panel': { display: 'none !important' },
+                  '&::-webkit-media-controls-enclosure': { display: 'none !important' },
+                  '&::-webkit-media-controls-overlay-play-button': { display: 'none !important' },
+                  '&::-webkit-media-controls-play-button': { display: 'none !important' },
+                  '&::-webkit-media-controls-timeline': { display: 'none !important' },
+                  '&::-webkit-media-controls-current-time-display': { display: 'none !important' },
+                  '&::-webkit-media-controls-time-remaining-display': { display: 'none !important' },
+                  '&::-webkit-media-controls-time-control': { display: 'none !important' },
+                  '&::-webkit-media-controls-mute-button': { display: 'none !important' },
+                  '&::-webkit-media-controls-volume-slider': { display: 'none !important' },
+                  '&::-webkit-media-controls-fullscreen-button': { display: 'none !important' }
                 }}
               />
             </div>
