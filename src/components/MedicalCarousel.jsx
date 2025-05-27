@@ -71,14 +71,20 @@ function MedicalCarousel({ current, setVideoCenter }) {
           style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
         />
       </div>
-      {/* Only fade the top two videos above the base video */}
+      {/* Videos that fade in/out */}
       {[0, 1].map((i) => (
         <div
           key={slides[i].id}
           className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
-            i === current ? "opacity-100 z-10" : "opacity-0 z-0"
+            i === current ? "opacity-100" : "opacity-0"
           }`}
-          style={{ pointerEvents: i === current ? 'auto' : 'none', background: 'none', borderRadius: '16px', overflow: 'hidden' }}
+          style={{ 
+            pointerEvents: i === current ? 'auto' : 'none', 
+            background: 'none', 
+            borderRadius: '16px', 
+            overflow: 'hidden',
+            zIndex: i + 1 // Ensure proper stacking order
+          }}
         >
           <video
             src={slides[i].video}

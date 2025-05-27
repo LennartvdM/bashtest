@@ -55,6 +55,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
     setHoveredIndex(null);
   };
 
+  const handleBarEnd = () => {
+    if (!isPaused) {
+      setBarKey((k) => k + 1);
+      setCurrentVideo((c) => (c + 1) % 3);
+    }
+  };
+
   useEffect(() => {
     function updateRect() {
       if (videoContainerRef.current) {
