@@ -332,6 +332,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             height: bandHeight,
             zIndex: 1,
             pointerEvents: 'none',
+            transition: videoVisible ? 'opacity 1.5s ease' : 'none',
+            opacity: videoVisible ? 1 : 0,
           }}>
             <SimpleCookieCutterBand
               bandColor="#f0f4f6"
