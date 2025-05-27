@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 export default function SimpleCookieCutterBand({ 
-  bandColor = "#4fa6a6", 
+  bandColor = "#f0f4f6", 
   bandHeight = 320
 }) {
   const [bandWidth, setBandWidth] = useState(900);
