@@ -363,16 +363,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             right: 0,
             top: 0,
             zIndex: 3,
-            pointerEvents: 'auto',
-            transition: isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION,
-            transform: videoHover 
-              ? 'translateY(-12px)' 
-              : videoVisible 
-                ? 'translateX(0)' 
-                : 'translateX(-200px)',
-            opacity: videoVisible ? 1 : 0,
-            outline: videoHover ? '3px solid rgba(228, 228, 228, 0.5)' : 'none',
-            borderRadius: '16px'
+            pointerEvents: 'auto'
           }}>
             {/* Video Frame (no hover transform or border) */}
             <div
