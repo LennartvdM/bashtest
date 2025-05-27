@@ -133,8 +133,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
-    outline: videoHover ? '3px solid rgba(255, 255, 255, 0.5)' : 'none',
-    outlineOffset: '3px',
     borderRadius: '16px',
     boxShadow: videoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
   };
@@ -506,6 +504,25 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 3,
             pointerEvents: 'auto'
           }}>
+            {/* Targeting Outline Animation */}
+            <div
+              className="target-outline"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                border: '3px solid white',
+                borderRadius: 16,
+                pointerEvents: 'none',
+                boxSizing: 'border-box',
+                transform: videoHover ? 'scale(1)' : 'scale(1.15)',
+                opacity: videoHover ? 1 : 0,
+                transition: 'transform 0.4s cubic-bezier(.4,2,.6,1), opacity 0.2s',
+                zIndex: 10
+              }}
+            />
             {/* Video Frame (no hover transform or border) */}
             <div
               data-testid="video-frame"
