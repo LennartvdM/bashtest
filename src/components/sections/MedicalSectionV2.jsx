@@ -343,9 +343,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 0.4 : 0,
-            mixBlendMode: 'screen',
-            outline: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '16px'
+            mixBlendMode: 'screen'
           }}>
             <SimpleCookieCutterBand
               bandColor="#f0f4f6"
@@ -362,7 +360,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 3,
             pointerEvents: 'auto',
             transition: videoVisible 
-              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' 
+              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
               : 'none',
             transform: videoHover 
               ? 'translateY(-12px)' 
@@ -370,6 +368,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
+            outline: videoHover ? '1px solid rgba(255, 255, 255, 1)' : 'none',
+            borderRadius: '16px'
           }}>
             {/* Video Frame (no hover transform or border) */}
             <div
@@ -383,17 +383,12 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 height: '100%',
                 zIndex: 3,
                 background: 'none',
-                borderTopLeftRadius: 0,
-                borderBottomLeftRadius: 0,
-                borderTopRightRadius: 16,
-                borderBottomRightRadius: 16,
+                borderRadius: 16,
                 overflow: 'hidden',
                 border: 'none',
                 boxShadow: 'none',
                 opacity: videoVisible ? 1 : 0,
-                transition: 'opacity 1.5s ease',
-                outline: '1px solid rgba(255, 255, 255, 1)',
-                outlineOffset: '-1px'
+                transition: 'opacity 1.5s ease'
               }}
               ref={videoContainerRef}
             >
