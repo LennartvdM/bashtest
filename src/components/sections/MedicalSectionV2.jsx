@@ -233,18 +233,35 @@ const MedicalSection = ({ inView, sectionRef }) => {
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
       <style>
         {`
-          video::-webkit-media-controls { display: none !important; }
-          video::-webkit-media-controls-panel { display: none !important; }
-          video::-webkit-media-controls-enclosure { display: none !important; }
-          video::-webkit-media-controls-overlay-play-button { display: none !important; }
-          video::-webkit-media-controls-play-button { display: none !important; }
-          video::-webkit-media-controls-timeline { display: none !important; }
-          video::-webkit-media-controls-current-time-display { display: none !important; }
-          video::-webkit-media-controls-time-remaining-display { display: none !important; }
-          video::-webkit-media-controls-time-control { display: none !important; }
-          video::-webkit-media-controls-mute-button { display: none !important; }
-          video::-webkit-media-controls-volume-slider { display: none !important; }
-          video::-webkit-media-controls-fullscreen-button { display: none !important; }
+          video {
+            pointer-events: none !important;
+            outline: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -webkit-touch-callout: none !important;
+          }
+          
+          video::-webkit-media-controls,
+          video::-webkit-media-controls-panel,
+          video::-webkit-media-controls-start-playbook-button,
+          video::-webkit-media-controls-play-button,
+          video::-webkit-media-controls-timeline,
+          video::-webkit-media-controls-current-time-display,
+          video::-webkit-media-controls-time-remaining-display,
+          video::-webkit-media-controls-mute-button,
+          video::-webkit-media-controls-volume-slider,
+          video::-webkit-media-controls-fullscreen-button,
+          video::-webkit-media-controls-overlay-enclosure,
+          video::-webkit-media-controls-overlay-play-button {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+          }
+          
+          video::-ms-media-controls {
+            display: none !important;
+          }
         `}
       </style>
       {/* Always-visible base blur video */}
@@ -284,6 +301,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             draggable="false"
             disablePictureInPicture
             disableRemotePlayback
+            controlsList="nodownload nofullscreen noremoteplayback"
+            onContextMenu={(e) => e.preventDefault()}
             style={{
               display: 'block',
               position: 'relative',
@@ -364,6 +383,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 draggable="false"
                 disablePictureInPicture
                 disableRemotePlayback
+                controlsList="nodownload nofullscreen noremoteplayback"
+                onContextMenu={(e) => e.preventDefault()}
                 style={{
                   display: 'block',
                   position: 'relative',
