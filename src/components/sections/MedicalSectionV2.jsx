@@ -267,12 +267,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
         <div style={{
           width: '100%',
           height: '100%',
-          transform: 'translateZ(0)',
-          WebkitTransform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          perspective: '1000px',
-          WebkitPerspective: '1000px'
+          position: 'relative',
+          display: 'inline-block'
         }}>
           <video
             src={blurVideos[BASE_INDEX].video}
@@ -289,6 +285,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             disablePictureInPicture
             disableRemotePlayback
             style={{
+              display: 'block',
+              position: 'relative',
+              zIndex: 0,
               pointerEvents: 'none',
               userSelect: 'none',
               WebkitUserSelect: 'none',
@@ -309,22 +308,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
               MozUserSelect: 'none',
               MsUserSelect: 'none',
               userSelect: 'none',
-              WebkitTouchCallout: 'none',
-              // Hide all video controls
-              '&::-webkit-media-controls': { display: 'none !important' },
-              '&::-webkit-media-controls-panel': { display: 'none !important' },
-              '&::-webkit-media-controls-enclosure': { display: 'none !important' },
-              '&::-webkit-media-controls-overlay-play-button': { display: 'none !important' },
-              '&::-webkit-media-controls-play-button': { display: 'none !important' },
-              '&::-webkit-media-controls-timeline': { display: 'none !important' },
-              '&::-webkit-media-controls-current-time-display': { display: 'none !important' },
-              '&::-webkit-media-controls-time-remaining-display': { display: 'none !important' },
-              '&::-webkit-media-controls-time-control': { display: 'none !important' },
-              '&::-webkit-media-controls-mute-button': { display: 'none !important' },
-              '&::-webkit-media-controls-volume-slider': { display: 'none !important' },
-              '&::-webkit-media-controls-fullscreen-button': { display: 'none !important' }
+              WebkitTouchCallout: 'none'
             }}
           />
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 1,
+            pointerEvents: 'none'
+          }} />
         </div>
       </div>
       {/* Other blur videos fade in/out on top */}
@@ -352,12 +347,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             <div style={{
               width: '100%',
               height: '100%',
-              transform: 'translateZ(0)',
-              WebkitTransform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-              perspective: '1000px',
-              WebkitPerspective: '1000px'
+              position: 'relative',
+              display: 'inline-block'
             }}>
               <video
                 src={video.video}
@@ -374,6 +365,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 disablePictureInPicture
                 disableRemotePlayback
                 style={{
+                  display: 'block',
+                  position: 'relative',
+                  zIndex: 0,
                   pointerEvents: 'none',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
@@ -394,22 +388,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   MozUserSelect: 'none',
                   MsUserSelect: 'none',
                   userSelect: 'none',
-                  WebkitTouchCallout: 'none',
-                  // Hide all video controls
-                  '&::-webkit-media-controls': { display: 'none !important' },
-                  '&::-webkit-media-controls-panel': { display: 'none !important' },
-                  '&::-webkit-media-controls-enclosure': { display: 'none !important' },
-                  '&::-webkit-media-controls-overlay-play-button': { display: 'none !important' },
-                  '&::-webkit-media-controls-play-button': { display: 'none !important' },
-                  '&::-webkit-media-controls-timeline': { display: 'none !important' },
-                  '&::-webkit-media-controls-current-time-display': { display: 'none !important' },
-                  '&::-webkit-media-controls-time-remaining-display': { display: 'none !important' },
-                  '&::-webkit-media-controls-time-control': { display: 'none !important' },
-                  '&::-webkit-media-controls-mute-button': { display: 'none !important' },
-                  '&::-webkit-media-controls-volume-slider': { display: 'none !important' },
-                  '&::-webkit-media-controls-fullscreen-button': { display: 'none !important' }
+                  WebkitTouchCallout: 'none'
                 }}
               />
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                zIndex: 1,
+                pointerEvents: 'none'
+              }} />
             </div>
           </div>
         )
