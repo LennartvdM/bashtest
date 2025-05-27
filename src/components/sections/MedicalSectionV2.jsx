@@ -49,8 +49,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
     if (inView) {
       // Start the entrance animations with shorter delays
       setTimeout(() => setHeaderVisible(true), 300);
-      setTimeout(() => setVideoVisible(true), 500);
-      setTimeout(() => setCaptionsVisible(true), 700);
+      setTimeout(() => setVideoVisible(true), 900); // 500 + 400
+      setTimeout(() => setCaptionsVisible(true), 1100); // 700 + 400
     }
   }, [inView]);
 
