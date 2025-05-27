@@ -1,16 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function SimpleCookieCutterBand({ 
   bandColor = "#4fa6a6", 
-  bandHeight = 320, 
-  bandWidth = 900 
+  bandHeight = 320
 }) {
-  // Static positioning - no dynamic tracking needed
-  // Just cut out a fixed area where the video will be
+  const [bandWidth, setBandWidth] = useState(900);
   const maskId = "static-cutout-mask";
   const cutoutWidth = 480; // Fixed width matching your video
   const cutoutHeight = 320; // Fixed height matching your video
   const cornerRadius = 20; // Increased from 16 to 20 to avoid pixel conflicts
+  
+  // Calculate band width to extend 5% beyond left side of screen
+  useEffect(() => {
+    const updateBandWidth = () => {
+      const viewportWidth = window.innerWidth;
+      const videoRightEdge = viewportWidth / 2 + 20; // Right edge of video (50% + 20px)
+      const leftExtension = viewportWidth * 0.05; // 5% of viewport width
+      const newBandWidth = videoRightEdge + leftExtension;
+      setBandWidth(newBandWidth);
+    };
+
+    updateBandWidth();
+    window.addEventListener('resize', updateBandWidth);
+    return () => window.removeEventListener('resize', updateBandWidth);
+  }, []);
   
   // Position cutout at the right side of the band where video intersects
   const cutoutX = bandWidth - cutoutWidth; // flush to the right
@@ -33,6 +46,9 @@ export default function SimpleCookieCutterBand({
         width: bandWidth,
         height: bandHeight,
         pointerEvents: "none",
+        position: 'absolute',
+        right: 0,
+        top: 0,
       }}
     >
       <svg width={bandWidth} height={bandHeight} style={{ display: "block" }}>
