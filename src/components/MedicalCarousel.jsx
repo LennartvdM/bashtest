@@ -23,7 +23,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ current, setVideoCenter }) {
+function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover }) {
   const videoContainerRef = useRef(null);
 
   useEffect(() => {
@@ -47,7 +47,19 @@ function MedicalCarousel({ current, setVideoCenter }) {
   }, [setVideoCenter]);
 
   return (
-    <div className="inline-flex flex-row items-center mx-auto w-full relative" style={{position: 'relative', minHeight: '320px', minWidth: '320px', maxWidth: '480px', width: '480px', height: '320px'}}>
+    <div 
+      className="inline-flex flex-row items-center mx-auto w-full relative" 
+      style={{
+        position: 'relative', 
+        minHeight: '320px', 
+        minWidth: '320px', 
+        maxWidth: '480px', 
+        width: '480px', 
+        height: '320px'
+      }}
+      onMouseEnter={() => setVideoHover && setVideoHover(true)}
+      onMouseLeave={() => setVideoHover && setVideoHover(false)}
+    >
       {/* Static base video (focus) as persistent background */}
       <div
         className="absolute inset-0 flex items-center justify-center z-0"
