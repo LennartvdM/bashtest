@@ -45,7 +45,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [captionsVisible, setCaptionsVisible] = useState(false);
 
   // Animation constants
-  const NUDGE_TRANSITION = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), outline 0.2s ease';
+  const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
   const SLIDE_TRANSITION = 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease';
 
   // Handle entrance animations when section comes into view
@@ -126,14 +126,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
     display: 'flex',
     alignItems: 'stretch',
     transition: isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION,
-    transform: videoHover
-      ? 'translateY(-12px)'
-      : videoVisible
-        ? 'translateX(0)'
+    transform: videoHover 
+      ? 'translateY(-12px)' 
+      : videoVisible 
+        ? 'translateX(0)' 
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
     outline: videoHover ? '3px solid rgba(228, 228, 228, 0.5)' : 'none',
+    outlineOffset: '-3px',
     borderRadius: '16px'
   };
 
@@ -479,12 +480,12 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 1,
             pointerEvents: 'none',
             transition: isNudging
-              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
               : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-            transform: videoHover
-              ? 'translateY(-12px)'
-              : videoVisible
-                ? 'translateX(0)'
+            transform: videoHover 
+              ? 'translateY(-12px)' 
+              : videoVisible 
+                ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 0.4 : 0,
             mixBlendMode: 'screen'
