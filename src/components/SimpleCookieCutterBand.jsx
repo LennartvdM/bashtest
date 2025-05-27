@@ -16,6 +16,17 @@ export default function SimpleCookieCutterBand({
   const cutoutX = bandWidth - cutoutWidth; // flush to the right
   const cutoutY = 0; // Vertically centered
 
+  // Create a path that has straight left corners and rounded right corners
+  const pathData = `
+    M0,0 
+    L${bandWidth - cornerRadius},0 
+    A${cornerRadius},${cornerRadius} 0 0 1 ${bandWidth},${cornerRadius}
+    L${bandWidth},${bandHeight - cornerRadius}
+    A${cornerRadius},${cornerRadius} 0 0 1 ${bandWidth - cornerRadius},${bandHeight}
+    L0,${bandHeight}
+    Z
+  `;
+
   return (
     <div
       style={{
@@ -27,9 +38,9 @@ export default function SimpleCookieCutterBand({
       <svg width={bandWidth} height={bandHeight} style={{ display: "block" }}>
         <defs>
           <mask id={maskId}>
-            {/* White area = visible band with straight left corners */}
+            {/* White area = visible band with straight left corners and rounded right corners */}
             <path
-              d={`M0,0 L${bandWidth},0 L${bandWidth},${bandHeight} L0,${bandHeight} Z`}
+              d={pathData}
               fill="white"
             />
             {/* Black area = cutout (static position) */}
@@ -45,13 +56,13 @@ export default function SimpleCookieCutterBand({
         </defs>
         {/* The actual colored band with mask applied */}
         <path
-          d={`M0,0 L${bandWidth},0 L${bandWidth},${bandHeight} L0,${bandHeight} Z`}
+          d={pathData}
           fill={bandColor}
           mask={`url(#${maskId})`}
         />
         {/* Debug outline to show band boundaries */}
         <path
-          d={`M0,0 L${bandWidth},0 L${bandWidth},${bandHeight} L0,${bandHeight} Z`}
+          d={pathData}
           fill="none"
           stroke="rgba(255,0,0,0.3)"
           strokeWidth="2"
