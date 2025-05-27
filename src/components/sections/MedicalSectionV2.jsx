@@ -121,7 +121,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
     display: 'flex',
     alignItems: 'stretch',
     transition: videoVisible 
-      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' 
+      ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1.5s ease, outline 0.2s ease' 
       : 'none',
     transform: videoHover 
       ? 'translateY(-12px)' 
@@ -130,10 +130,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
-    transition: videoVisible 
-      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
-      : 'none',
-    outline: videoHover ? '1px solid rgba(255, 255, 255, 0.8)' : 'none',
+    outline: videoHover ? '1px solid rgba(228, 228, 228, 0.8)' : 'none',
     borderRadius: '16px'
   };
 
@@ -366,7 +363,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 3,
             pointerEvents: 'auto',
             transition: videoVisible 
-              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
+              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1.5s ease, outline 0.2s ease' 
               : 'none',
             transform: videoHover 
               ? 'translateY(-12px)' 
@@ -374,7 +371,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
-            outline: videoHover ? '1px solid rgba(255, 255, 255, 1)' : 'none',
+            outline: videoHover ? '1px solid rgba(228, 228, 228, 0.8)' : 'none',
             borderRadius: '16px'
           }}>
             {/* Video Frame (no hover transform or border) */}
