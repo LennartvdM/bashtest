@@ -133,7 +133,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
-    outline: videoHover ? '3px solid rgba(228, 228, 228, 0.5)' : 'none',
+    outline: videoHover ? '3px solid rgba(255, 255, 255, 0.5)' : 'none',
     outlineOffset: '-3px',
     borderRadius: '16px'
   };
