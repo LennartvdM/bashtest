@@ -240,29 +240,52 @@ const MedicalSection = ({ inView, sectionRef }) => {
           filter: 'brightness(0.7) saturate(1)',
           willChange: 'opacity',
           pointerEvents: 'none',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          perspective: '1000px',
+          WebkitPerspective: '1000px'
         }}
       >
-        <video
-          src={blurVideos[BASE_INDEX].video}
-          className="w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          controls={false}
-          preload="auto"
-          tabIndex="-1"
-          aria-hidden="true"
-          draggable="false"
-          disablePictureInPicture
-          disableRemotePlayback
-          style={{
-            pointerEvents: 'none',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            WebkitTouchCallout: 'none'
-          }}
-        />
+        <div style={{
+          width: '100%',
+          height: '100%',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          perspective: '1000px',
+          WebkitPerspective: '1000px'
+        }}>
+          <video
+            src={blurVideos[BASE_INDEX].video}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            controls={false}
+            preload="auto"
+            tabIndex="-1"
+            aria-hidden="true"
+            draggable="false"
+            disablePictureInPicture
+            disableRemotePlayback
+            style={{
+              pointerEvents: 'none',
+              userSelect: 'none',
+              WebkitUserSelect: 'none',
+              WebkitTouchCallout: 'none',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              perspective: '1000px',
+              WebkitPerspective: '1000px'
+            }}
+          />
+        </div>
       </div>
       {/* Other blur videos fade in/out on top */}
       {blurVideos.map((video, index) => (
@@ -278,29 +301,52 @@ const MedicalSection = ({ inView, sectionRef }) => {
               filter: 'brightness(0.7) saturate(1)',
               willChange: 'opacity',
               pointerEvents: 'none',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              perspective: '1000px',
+              WebkitPerspective: '1000px'
             }}
           >
-            <video
-              src={video.video}
-              className="w-full h-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              controls={false}
-              preload="auto"
-              tabIndex="-1"
-              aria-hidden="true"
-              draggable="false"
-              disablePictureInPicture
-              disableRemotePlayback
-              style={{
-                pointerEvents: 'none',
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-                WebkitTouchCallout: 'none'
-              }}
-            />
+            <div style={{
+              width: '100%',
+              height: '100%',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              perspective: '1000px',
+              WebkitPerspective: '1000px'
+            }}>
+              <video
+                src={video.video}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls={false}
+                preload="auto"
+                tabIndex="-1"
+                aria-hidden="true"
+                draggable="false"
+                disablePictureInPicture
+                disableRemotePlayback
+                style={{
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  WebkitTouchCallout: 'none',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  perspective: '1000px',
+                  WebkitPerspective: '1000px'
+                }}
+              />
+            </div>
           </div>
         )
       ))}
