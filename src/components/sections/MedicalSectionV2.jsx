@@ -120,7 +120,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease',
+    transition: videoVisible 
+      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
+      : 'none',
     transform: videoHover 
       ? 'translateY(-12px)' 
       : videoVisible 
@@ -344,7 +346,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 : 'translateX(-200px)',
             opacity: videoVisible ? 0.4 : 0,
             mixBlendMode: 'screen',
-            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease'
+            transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1.5s ease'
           }}>
             <SimpleCookieCutterBand
               bandColor="#f0f4f6"
