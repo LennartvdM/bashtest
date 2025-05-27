@@ -120,9 +120,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: videoVisible 
-      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
-      : 'none',
+    transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease',
     transform: videoHover 
       ? 'translateY(-12px)' 
       : videoVisible 
@@ -362,9 +360,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             top: 0,
             zIndex: 3,
             pointerEvents: 'auto',
-            transition: videoVisible 
-              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1.5s ease, outline 0.2s ease' 
-              : 'none',
+            transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease',
             transform: videoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
