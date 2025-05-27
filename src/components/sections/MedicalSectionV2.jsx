@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import ReactDOM from 'react-dom';
 import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
+import '../styles/video-controls.css';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4" },
@@ -282,7 +283,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               perspective: '1000px',
-              WebkitPerspective: '1000px'
+              WebkitPerspective: '1000px',
+              WebkitUserDrag: 'none',
+              KhtmlUserDrag: 'none',
+              MozUserDrag: 'none',
+              OUserDrag: 'none',
+              userDrag: 'none',
+              WebkitUserSelect: 'none',
+              KhtmlUserSelect: 'none',
+              MozUserSelect: 'none',
+              MsUserSelect: 'none',
+              userSelect: 'none',
+              WebkitTouchCallout: 'none'
             }}
           />
         </div>
@@ -343,7 +355,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   backfaceVisibility: 'hidden',
                   WebkitBackfaceVisibility: 'hidden',
                   perspective: '1000px',
-                  WebkitPerspective: '1000px'
+                  WebkitPerspective: '1000px',
+                  WebkitUserDrag: 'none',
+                  KhtmlUserDrag: 'none',
+                  MozUserDrag: 'none',
+                  OUserDrag: 'none',
+                  userDrag: 'none',
+                  WebkitUserSelect: 'none',
+                  KhtmlUserSelect: 'none',
+                  MozUserSelect: 'none',
+                  MsUserSelect: 'none',
+                  userSelect: 'none',
+                  WebkitTouchCallout: 'none'
                 }}
               />
             </div>
