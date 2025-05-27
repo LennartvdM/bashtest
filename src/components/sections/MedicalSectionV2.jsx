@@ -111,6 +111,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const bandTop = '50%';
 
   // --- Gantry Frame dimensions and animation ---
+  const isNudging = videoHover;
   const gantryFrameStyle = {
     position: 'absolute',
     right: 'calc(50% + 20px)',
@@ -120,13 +121,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: videoVisible 
-      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
-      : 'none',
-    transform: videoHover 
-      ? 'translateY(-12px)' 
-      : videoVisible 
-        ? 'translateX(0)' 
+    transition: isNudging
+      ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), outline 0.2s ease'
+      : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease',
+    transform: videoHover
+      ? 'translateY(-12px)'
+      : videoVisible
+        ? 'translateX(0)'
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
@@ -336,17 +337,16 @@ const MedicalSection = ({ inView, sectionRef }) => {
             height: bandHeight,
             zIndex: 1,
             pointerEvents: 'none',
-            transition: videoVisible 
-              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' 
-              : 'none',
-            transform: videoHover 
-              ? 'translateY(-12px)' 
-              : videoVisible 
-                ? 'translateX(0)' 
+            transition: isNudging
+              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+            transform: videoHover
+              ? 'translateY(-12px)'
+              : videoVisible
+                ? 'translateX(0)'
                 : 'translateX(-200px)',
             opacity: videoVisible ? 0.4 : 0,
-            mixBlendMode: 'screen',
-            transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1.5s ease'
+            mixBlendMode: 'screen'
           }}>
             <SimpleCookieCutterBand
               bandColor="#f0f4f6"
