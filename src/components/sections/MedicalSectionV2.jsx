@@ -130,7 +130,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
-    outline: videoHover ? '1px solid rgba(228, 228, 228, 0.8)' : 'none',
+    outline: videoHover ? '3px solid rgba(228, 228, 228, 0.5)' : 'none',
     borderRadius: '16px'
   };
 
@@ -371,7 +371,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
-            outline: videoHover ? '1px solid rgba(228, 228, 228, 0.8)' : 'none',
+            outline: videoHover ? '3px solid rgba(228, 228, 228, 0.5)' : 'none',
             borderRadius: '16px'
           }}>
             {/* Video Frame (no hover transform or border) */}
