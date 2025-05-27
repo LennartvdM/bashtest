@@ -233,6 +233,61 @@ const MedicalSection = ({ inView, sectionRef }) => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
+        {/* Always-visible base blur video */}
+        <div
+          className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
+          style={{
+            left: '-2vw',
+            width: '104vw',
+            filter: 'brightness(0.7) saturate(1)',
+            willChange: 'opacity',
+            pointerEvents: 'none',
+          }}
+        >
+          <video
+            src={blurVideos[BASE_INDEX].video}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex="-1"
+            aria-hidden="true"
+            draggable="false"
+          />
+        </div>
+        {/* Other blur videos fade in/out on top */}
+        {blurVideos.map((video, index) => (
+          index !== BASE_INDEX && (
+            <div
+              key={video.id}
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
+                index === currentVideo ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                left: '-2vw',
+                width: '104vw',
+                filter: 'brightness(0.7) saturate(1)',
+                willChange: 'opacity',
+                pointerEvents: 'none',
+              }}
+            >
+              <video
+                src={video.video}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                tabIndex="-1"
+                aria-hidden="true"
+                draggable="false"
+              />
+            </div>
+          )
+        ))}
         {/* Spacer (centered) */}
         <div
           data-testid="spacer"
@@ -278,7 +333,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             pointerEvents: 'none',
           }}>
             <SimpleCookieCutterBand
-              bandColor="#4fa6a6"
+              bandColor="#f0f4f6"
               bandHeight={bandHeight}
               bandWidth={bandWidth}
             />
@@ -310,7 +365,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 borderBottomRightRadius: 16,
                 overflow: 'hidden',
                 border: 'none',
-                boxShadow: '0 0 10px #0002',
+                boxShadow: 'none',
               }}
               ref={videoContainerRef}
             >
