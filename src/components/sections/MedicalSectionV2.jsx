@@ -254,6 +254,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
           tabIndex="-1"
           aria-hidden="true"
           draggable="false"
+          disablePictureInPicture
+          disableRemotePlayback
+          style={{
+            pointerEvents: 'none',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            WebkitTouchCallout: 'none'
+          }}
         />
       </div>
       {/* Other blur videos fade in/out on top */}
@@ -284,6 +292,14 @@ const MedicalSection = ({ inView, sectionRef }) => {
               tabIndex="-1"
               aria-hidden="true"
               draggable="false"
+              disablePictureInPicture
+              disableRemotePlayback
+              style={{
+                pointerEvents: 'none',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none'
+              }}
             />
           </div>
         )
