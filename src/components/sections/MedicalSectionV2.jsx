@@ -130,6 +130,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
         : 'translateX(-200px)',
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
+    transition: videoVisible 
+      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease' 
+      : 'none',
+    outline: videoHover ? '1px solid rgba(255, 255, 255, 0.8)' : 'none',
+    borderRadius: '16px'
   };
 
   const handleSlideChange = (index) => {
@@ -343,7 +348,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 0.4 : 0,
-            mixBlendMode: 'screen'
+            mixBlendMode: 'screen',
+            transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1.5s ease'
           }}>
             <SimpleCookieCutterBand
               bandColor="#f0f4f6"
