@@ -332,7 +332,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
             height: bandHeight,
             zIndex: 1,
             pointerEvents: 'none',
-            transition: videoVisible ? 'opacity 1.5s ease' : 'none',
+            transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+            transform: videoVisible ? 'translateX(0)' : 'translateX(-200px)',
             opacity: videoVisible ? 1 : 0,
           }}>
             <SimpleCookieCutterBand
@@ -349,6 +350,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
             top: 0,
             zIndex: 3,
             pointerEvents: 'auto',
+            transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+            transform: videoHover 
+              ? 'translateY(-12px)' 
+              : videoVisible 
+                ? 'translateX(0)' 
+                : 'translateX(-200px)',
+            opacity: videoVisible ? 1 : 0,
           }}>
             {/* Video Frame (no hover transform or border) */}
             <div
@@ -369,6 +377,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 overflow: 'hidden',
                 border: 'none',
                 boxShadow: 'none',
+                opacity: videoVisible ? 1 : 0,
+                transition: 'opacity 1.5s ease'
               }}
               ref={videoContainerRef}
             >

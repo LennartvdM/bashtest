@@ -68,10 +68,15 @@ function MedicalCarousel({ current, setVideoCenter }) {
           tabIndex="-1"
           aria-hidden="true"
           draggable="false"
-          style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
+          style={{ 
+            outline: 'none', 
+            transition: 'outline 0.2s', 
+            background: 'none',
+            opacity: 1 // Always fully visible
+          }}
         />
       </div>
-      {/* Videos that fade in/out */}
+      {/* Videos that fade in/out (only urgency and coordination) */}
       {[0, 1].map((i) => (
         <div
           key={slides[i].id}
@@ -98,7 +103,13 @@ function MedicalCarousel({ current, setVideoCenter }) {
             tabIndex="-1"
             aria-hidden="true"
             draggable="false"
-            style={{ outline: 'none', transition: 'outline 0.2s', background: 'none' }}
+            style={{ 
+              outline: 'none', 
+              transition: 'outline 0.2s', 
+              background: 'none',
+              opacity: i === current ? 1 : 0,
+              willChange: 'opacity'
+            }}
           />
         </div>
       ))}
