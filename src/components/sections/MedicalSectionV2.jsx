@@ -120,11 +120,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+    transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
     transform: videoHover 
       ? 'translateY(-12px)' 
-      : 'translateX(0)',
-    opacity: 1,
+      : videoVisible 
+        ? 'translateX(0)' 
+        : 'translateX(-200px)',
+    opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
   };
 
@@ -408,9 +410,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 20,
-          transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-          opacity: 1,
-          transform: 'translateX(0)',
+          transition: captionsVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+          opacity: captionsVisible ? 1 : 0,
+          transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
         }}
       >
         {/* Caption Section (centered inside caption anchor) */}
