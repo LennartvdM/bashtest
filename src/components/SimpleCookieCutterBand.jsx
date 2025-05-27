@@ -75,6 +75,10 @@ export default function SimpleCookieCutterBand({
           d={pathData}
           fill={bandColor}
           mask={`url(#${maskId})`}
+          style={{
+            opacity: 0.2,
+            mixBlendMode: 'screen'
+          }}
         />
       </svg>
     </div>
