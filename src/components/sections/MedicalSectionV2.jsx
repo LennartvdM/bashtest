@@ -47,10 +47,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // Handle entrance animations when section comes into view
   useEffect(() => {
     if (inView) {
-      // Start the entrance animations
-      setTimeout(() => setHeaderVisible(true), 500);
-      setTimeout(() => setVideoVisible(true), 800);
-      setTimeout(() => setCaptionsVisible(true), 1100);
+      // Start the entrance animations with shorter delays
+      setTimeout(() => setHeaderVisible(true), 300);
+      setTimeout(() => setVideoVisible(true), 500);
+      setTimeout(() => setCaptionsVisible(true), 700);
     }
   }, [inView]);
 
@@ -120,13 +120,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+    transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
     transform: videoHover 
       ? 'translateY(-12px)' 
-      : videoVisible 
-        ? 'translateX(0)' 
-        : 'translateX(-200px)',
-    opacity: videoVisible ? 1 : 0,
+      : 'translateX(0)',
+    opacity: 1,
     overflow: 'visible',
   };
 
@@ -223,8 +221,63 @@ const MedicalSection = ({ inView, sectionRef }) => {
   }, []);
 
   return (
-    <>
-      {/* Section content wrapper: relative for band + video alignment */}
+    <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+      {/* Always-visible base blur video */}
+      <div
+        className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
+        style={{
+          left: '-2vw',
+          width: '104vw',
+          filter: 'brightness(0.7) saturate(1)',
+          willChange: 'opacity',
+          pointerEvents: 'none',
+        }}
+      >
+        <video
+          src={blurVideos[BASE_INDEX].video}
+          className="w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          tabIndex="-1"
+          aria-hidden="true"
+          draggable="false"
+        />
+      </div>
+      {/* Other blur videos fade in/out on top */}
+      {blurVideos.map((video, index) => (
+        index !== BASE_INDEX && (
+          <div
+            key={video.id}
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
+              index === currentVideo ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{
+              left: '-2vw',
+              width: '104vw',
+              filter: 'brightness(0.7) saturate(1)',
+              willChange: 'opacity',
+              pointerEvents: 'none',
+            }}
+          >
+            <video
+              src={video.video}
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              tabIndex="-1"
+              aria-hidden="true"
+              draggable="false"
+            />
+          </div>
+        )
+      ))}
+      {/* Foreground content: flex row, no card, just video | spacer | captions */}
       <div style={{
         position: 'relative',
         width: '100%',
@@ -232,62 +285,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 20,
       }}>
-        {/* Always-visible base blur video */}
-        <div
-          className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
-          style={{
-            left: '-2vw',
-            width: '104vw',
-            filter: 'brightness(0.7) saturate(1)',
-            willChange: 'opacity',
-            pointerEvents: 'none',
-          }}
-        >
-          <video
-            src={blurVideos[BASE_INDEX].video}
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            tabIndex="-1"
-            aria-hidden="true"
-            draggable="false"
-          />
-        </div>
-        {/* Other blur videos fade in/out on top */}
-        {blurVideos.map((video, index) => (
-          index !== BASE_INDEX && (
-            <div
-              key={video.id}
-              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease z-10 ${
-                index === currentVideo ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{
-                left: '-2vw',
-                width: '104vw',
-                filter: 'brightness(0.7) saturate(1)',
-                willChange: 'opacity',
-                pointerEvents: 'none',
-              }}
-            >
-              <video
-                src={video.video}
-                className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                tabIndex="-1"
-                aria-hidden="true"
-                draggable="false"
-              />
-            </div>
-          )
-        ))}
         {/* Spacer (centered) */}
         <div
           data-testid="spacer"
@@ -316,7 +315,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             height: videoHeight,
             opacity: 1,
             pointerEvents: 'none',
-            zIndex: 1,
+            zIndex: 2,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -344,7 +343,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             position: 'absolute',
             right: 0,
             top: 0,
-            zIndex: 2,
+            zIndex: 3,
             pointerEvents: 'auto',
           }}>
             {/* Video Frame (no hover transform or border) */}
@@ -408,10 +407,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1,
-          transition: captionsVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
-          opacity: captionsVisible ? 1 : 0,
-          transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
+          zIndex: 20,
+          transition: 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+          opacity: 1,
+          transform: 'translateX(0)',
         }}
       >
         {/* Caption Section (centered inside caption anchor) */}
@@ -535,7 +534,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           top: collectionTop,
           width: 480,
           background: 'none',
-          zIndex: 2,
+          zIndex: 20,
           transition: headerVisible ? 'opacity 1.5s ease' : 'none',
           opacity: headerVisible ? 1 : 0,
         }}
@@ -568,7 +567,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           </h2>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
