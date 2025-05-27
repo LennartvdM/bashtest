@@ -482,7 +482,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     top: rightRect.top + rightRect.height / 2,
                     left: `calc(50% + ${444 / 2}px)`,
                     width: '100vw',
-                    height: 2,
+                    height: 5,
                     background: '#e0e0e0',
                     mixBlendMode: 'screen',
                     zIndex: 40,
