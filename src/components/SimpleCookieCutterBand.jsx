@@ -10,7 +10,7 @@ export default function SimpleCookieCutterBand({
   const maskId = "static-cutout-mask";
   const cutoutWidth = 480; // Fixed width matching your video
   const cutoutHeight = 320; // Fixed height matching your video
-  const cornerRadius = 16;
+  const cornerRadius = 20;
   
   // Position cutout at the right side of the band where video intersects
   const cutoutX = bandWidth - cutoutWidth; // flush to the right
