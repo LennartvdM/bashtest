@@ -134,8 +134,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
     outline: videoHover ? '3px solid rgba(255, 255, 255, 0.5)' : 'none',
-    outlineOffset: '-3px',
-    borderRadius: '16px'
+    outlineOffset: '3px',
+    borderRadius: '16px',
+    boxShadow: videoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
   };
 
   const handleSlideChange = (index) => {
