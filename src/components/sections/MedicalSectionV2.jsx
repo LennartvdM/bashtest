@@ -300,7 +300,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             width: 40,
             height: headerHeight + gap + videoHeight,
             transform: 'translateX(-50%)',
-            background: 'rgba(255, 0, 0, 0.3)',
+            background: 'rgba(255, 0, 0, 0)',
             pointerEvents: 'none',
             zIndex: 10,
           }}
