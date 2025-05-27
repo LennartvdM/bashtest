@@ -120,7 +120,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+    transition: videoVisible 
+      ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' 
+      : 'none',
     transform: videoHover 
       ? 'translateY(-12px)' 
       : videoVisible 
@@ -333,7 +335,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             zIndex: 1,
             pointerEvents: 'none',
             transition: videoVisible 
-              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1)' 
+              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' 
               : 'none',
             transform: videoHover 
               ? 'translateY(-12px)' 
@@ -341,7 +343,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ? 'translateX(0)' 
                 : 'translateX(-200px)',
             opacity: videoVisible ? 0.4 : 0,
-            mixBlendMode: 'screen'
+            mixBlendMode: 'screen',
+            outline: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px'
           }}>
             <SimpleCookieCutterBand
               bandColor="#f0f4f6"
@@ -357,7 +361,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             top: 0,
             zIndex: 3,
             pointerEvents: 'auto',
-            transition: videoVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+            transition: videoVisible 
+              ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' 
+              : 'none',
             transform: videoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
@@ -385,7 +391,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 border: 'none',
                 boxShadow: 'none',
                 opacity: videoVisible ? 1 : 0,
-                transition: 'opacity 1.5s ease'
+                transition: 'opacity 1.5s ease',
+                outline: '1px solid rgba(255, 255, 255, 1)',
+                outlineOffset: '-1px'
               }}
               ref={videoContainerRef}
             >
