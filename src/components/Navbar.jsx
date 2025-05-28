@@ -195,6 +195,8 @@ export default function Navbar() {
                     fontSize: 18,
                     height: NAV_CELL_HEIGHT,
                     lineHeight: NAV_CELL_HEIGHT + 'px',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none'
                   }}
                 >
                   {link.label}
