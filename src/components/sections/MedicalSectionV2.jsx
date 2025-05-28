@@ -664,7 +664,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                         highlightOutlineFullOpacity
                           ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
                           : hoveredIndex === currentVideo
-                          ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
+                          ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
                           : 'opacity 0.13s'
                       ].join(', '),
                       opacity: hoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 1 : 0) : 0
