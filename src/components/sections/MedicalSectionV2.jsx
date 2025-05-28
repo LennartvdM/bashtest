@@ -709,7 +709,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 ref={(el) => (rightRowRefs.current[i] = el)}
                 onMouseEnter={() => handleHover(i)}
                 onMouseLeave={handleHoverEnd}
-                className="relative z-10 text-right py-3 rounded-xl transition-all duration-700 ease"
+                className="relative text-right py-3 rounded-xl transition-all duration-700 ease"
                 style={{
                   display: 'block',
                   maxWidth: 480,
@@ -717,6 +717,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   paddingLeft: 24,
                   paddingRight: 24,
                   margin: '0 auto',
+                  zIndex: 40
                 }}
               >
                 <p className="m-0 text-right text-2xl leading-tight" style={{
