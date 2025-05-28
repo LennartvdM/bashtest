@@ -625,6 +625,48 @@ const MedicalSection = ({ inView, sectionRef }) => {
           <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
             {rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height) && (
               <>
+                {/* Targeting outline container */}
+                <div
+                  className="absolute transition-all duration-700 ease"
+                  style={{
+                    top: rightRect.top,
+                    left: '50%',
+                    width: 444,
+                    height: rightRect.height,
+                    transform: 'translateX(-50%)',
+                    zIndex: 5,
+                    pointerEvents: 'none'
+                  }}
+                >
+                  {/* Targeting outline */}
+                  <div
+                    className="absolute inset-0 transition-all duration-700 ease"
+                    style={{
+                      border: '3px solid white',
+                      borderRadius: 10,
+                      mixBlendMode: 'screen',
+                      transform: hoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
+                      transition: 'transform 0.47s ease-out, opacity 0.33s cubic-bezier(0.4,0,0.2,1)',
+                      opacity: hoveredIndex === currentVideo ? (outlineFullOpacity ? 0.8 : 0.4) : 0
+                    }}
+                  />
+                  {/* Horizontal line */}
+                  <div
+                    className="absolute transition-all duration-700 ease"
+                    style={{
+                      top: '50%',
+                      left: '50%',
+                      width: '100vw',
+                      height: 5,
+                      background: '#e0e0e0',
+                      mixBlendMode: 'screen',
+                      pointerEvents: 'none',
+                      transform: 'translateY(-50%)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      opacity: 0.2
+                    }}
+                  />
+                </div>
                 {/* Duplicated Highlighter rectangle for right section */}
                 <div
                   className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
@@ -639,7 +681,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
                     borderRadius: 10,
                     boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)'
+                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex: 30
                   }}
                 >
                   <div className="w-full h-full rounded-xl relative pointer-events-none">
@@ -652,47 +695,12 @@ const MedicalSection = ({ inView, sectionRef }) => {
                         animation: `grow-overflow 7000ms linear forwards`,
                         animationPlayState: isPaused ? 'paused' : 'running',
                         left: -24,
-                        width: '100%',
-                        zIndex: 35
+                        width: '100%'
                       }}
                       onAnimationEnd={handleBarEnd}
                     />
                   </div>
                 </div>
-                {/* Second highlighter: animated line protruding to the right */}
-                <div
-                  className="absolute transition-all duration-700 ease"
-                  style={{
-                    top: rightRect.top,
-                    left: '50%',
-                    width: 444,
-                    height: rightRect.height,
-                    border: '3px solid white',
-                    borderRadius: 10,
-                    mixBlendMode: 'screen',
-                    zIndex: 30,
-                    pointerEvents: 'none',
-                    transform: hoveredIndex === currentVideo ? 'translateX(-50%) scale(1)' : 'translateX(-50%) scale(1.08, 1.3)',
-                    transition: 'transform 0.47s ease-out, opacity 0.33s cubic-bezier(0.4,0,0.2,1), top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1)',
-                    opacity: hoveredIndex === currentVideo ? (outlineFullOpacity ? 0.8 : 0.4) : 0
-                  }}
-                />
-                <div
-                  className="absolute transition-all duration-700 ease"
-                  style={{
-                    top: rightRect.top + rightRect.height / 2,
-                    left: `calc(50% + ${444 / 2}px)`,
-                    width: '100vw',
-                    height: 5,
-                    background: '#e0e0e0',
-                    mixBlendMode: 'screen',
-                    zIndex: 15,
-                    pointerEvents: 'none',
-                    transform: 'translateY(-50%)',
-                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
-                    opacity: 0.2
-                  }}
-                />
               </>
             )}
             {headlines.map((headline, i) => (
