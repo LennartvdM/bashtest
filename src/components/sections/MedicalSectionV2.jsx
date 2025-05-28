@@ -545,7 +545,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 pointerEvents: 'none',
                 boxSizing: 'border-box',
                 transform: videoHover ? 'scale(1)' : 'scale(1.08)',
-                opacity: videoHover ? (outlineFullOpacity ? 1 : 0.4) : 0,
+                opacity: videoHover ? (outlineFullOpacity ? 0.9 : 0.4) : 0,
                 transition: [
                   videoHover 
                     ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
@@ -671,7 +671,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                           ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
                           : 'opacity 0.13s'
                       ].join(', '),
-                      opacity: hoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 1 : 0.4) : 0
+                      opacity: hoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
                     }}
                   />
                   {/* Horizontal line */}
