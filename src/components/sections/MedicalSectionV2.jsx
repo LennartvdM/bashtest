@@ -663,7 +663,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   className="absolute transition-all duration-700 ease"
                   style={{
                     top: rightRect.top,
-                    left: `calc(50% + ${444 / 2}px)`,
+                    left: '50%',
                     width: 444,
                     height: rightRect.height,
                     border: '2px solid white',
@@ -671,9 +671,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     mixBlendMode: 'screen',
                     zIndex: 40,
                     pointerEvents: 'none',
-                    transform: hoveredIndex === currentVideo ? 'translateX(-50%) scale(1)' : 'translateX(-50%) scale(1.05)',
-                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
-                    opacity: hoveredIndex === currentVideo ? 0.8 : 0
+                    transform: hoveredIndex === currentVideo ? 'translateX(-50%) scale(1)' : 'translateX(-50%) scale(1.08)',
+                    transition: 'transform 0.47s ease-out, opacity 0.33s cubic-bezier(0.4,0,0.2,1), top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    opacity: hoveredIndex === currentVideo ? (outlineFullOpacity ? 0.8 : 0.4) : 0
                   }}
                 />
                 <div
