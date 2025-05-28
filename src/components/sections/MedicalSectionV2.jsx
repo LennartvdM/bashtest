@@ -654,7 +654,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                           ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
                           : 'opacity 0.13s'
                       ].join(', '),
-                      opacity: hoveredIndex === currentVideo ? (outlineFullOpacity ? 1 : 0.4) : 0
+                      opacity: hoveredIndex === currentVideo ? 1 : 0
                     }}
                   />
                   {/* Horizontal line */}
