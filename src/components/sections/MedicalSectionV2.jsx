@@ -762,6 +762,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       : 'screen',
                   transition: 'color 0.6s, transform 0.3s',
                   transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none'
                 }}>
                   {headline.firstLine}
                   <br />
@@ -808,7 +810,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
             alignSelf: 'flex-start',
             paddingLeft: 0,
             textAlign: 'left',
-            width: '100%'
+            width: '100%',
+            userSelect: 'none',
+            WebkitUserSelect: 'none'
           }}>
             In the moment,<br />
             <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
