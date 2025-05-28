@@ -660,7 +660,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       mixBlendMode: 'screen',
                       transform: hoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
                       transition: [
-                        'transform 0.47s ease-out 0.2s',
+                        'transform 0.47s cubic-bezier(0.4, 0, 0.2, 1) 0.2s',
                         highlightOutlineFullOpacity
                           ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
                           : hoveredIndex === currentVideo
