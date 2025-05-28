@@ -229,6 +229,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
     };
   }, []);
 
+  const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
+
+  // Animate outline opacity: fast to 1, then gently to 0.4
+  useEffect(() => {
+    let timeout;
+    if (videoHover) {
+      setOutlineFullOpacity(true);
+      timeout = setTimeout(() => setOutlineFullOpacity(false), 150);
+    } else {
+      setOutlineFullOpacity(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [videoHover]);
+
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
       <style>
@@ -517,9 +531,16 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 borderRadius: 16,
                 pointerEvents: 'none',
                 boxSizing: 'border-box',
-                transform: videoHover ? 'scale(1)' : 'scale(1.15)',
-                opacity: videoHover ? 1 : 0,
-                transition: 'transform 0.4s cubic-bezier(.4,2,.6,1), opacity 0.2s',
+                transform: videoHover ? 'scale(1)' : 'scale(1.08)',
+                opacity: videoHover ? (outlineFullOpacity ? 1 : 0.4) : 0,
+                transition: [
+                  'transform 0.7s ease-out',
+                  outlineFullOpacity
+                    ? 'opacity 0.15s cubic-bezier(.4,2,.6,1)'
+                    : videoHover
+                    ? 'opacity 0.5s cubic-bezier(.4,0,.2,1)'
+                    : 'opacity 0.2s'
+                ].join(', '),
                 zIndex: 10
               }}
             />
