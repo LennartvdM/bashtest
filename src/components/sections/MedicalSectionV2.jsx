@@ -678,7 +678,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     transform: 'translateX(-50%)',
                     paddingLeft: 24,
                     paddingRight: 24,
-                    background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,0.9)',
+                    background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
                     borderRadius: 10,
                     boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
                     transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -691,7 +691,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       key={barKey}
                       className="absolute left-0 bottom-0 h-[5px]"
                       style={{
-                        background: 'rgba(82,156,156,0.5)',
+                        background: 'rgba(82,156,156,1)',
                         animation: `grow-overflow 7000ms linear forwards`,
                         animationPlayState: isPaused ? 'paused' : 'running',
                         left: -24,
