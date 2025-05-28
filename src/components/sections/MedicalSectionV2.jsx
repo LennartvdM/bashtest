@@ -652,7 +652,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                         animation: `grow-overflow 7000ms linear forwards`,
                         animationPlayState: isPaused ? 'paused' : 'running',
                         left: -24,
-                        width: '100%'
+                        width: '100%',
+                        zIndex: 35
                       }}
                       onAnimationEnd={handleBarEnd}
                     />
