@@ -230,6 +230,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   }, []);
 
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
+  const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
 
   // Animate outline opacity: fast to 1, then gently to 0.4
   useEffect(() => {
@@ -242,6 +243,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
     }
     return () => clearTimeout(timeout);
   }, [videoHover]);
+
+  // Animate highlighter outline opacity: fast to 1, then gently to 0.4
+  useEffect(() => {
+    let timeout;
+    if (hoveredIndex === currentVideo) {
+      setHighlightOutlineFullOpacity(true);
+      timeout = setTimeout(() => setHighlightOutlineFullOpacity(false), 150);
+    } else {
+      setHighlightOutlineFullOpacity(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [hoveredIndex, currentVideo]);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
@@ -648,13 +661,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       transform: hoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
                       transition: [
                         'transform 0.47s ease-out 0.2s',
-                        outlineFullOpacity
+                        highlightOutlineFullOpacity
                           ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
-                          : videoHover
+                          : hoveredIndex === currentVideo
                           ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
                           : 'opacity 0.13s'
                       ].join(', '),
-                      opacity: hoveredIndex === currentVideo ? 1 : 0
+                      opacity: hoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 1 : 0.4) : 0
                     }}
                   />
                   {/* Horizontal line */}
