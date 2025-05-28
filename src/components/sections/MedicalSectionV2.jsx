@@ -547,7 +547,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 transform: videoHover ? 'scale(1)' : 'scale(1.08)',
                 opacity: videoHover ? (outlineFullOpacity ? 1 : 0.4) : 0,
                 transition: [
-                  'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s',
+                  videoHover 
+                    ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
+                    : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
                   outlineFullOpacity
                     ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
                     : videoHover
@@ -660,7 +662,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       mixBlendMode: 'screen',
                       transform: hoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
                       transition: [
-                        'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s',
+                        hoveredIndex === currentVideo 
+                          ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
+                          : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
                         highlightOutlineFullOpacity
                           ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
                           : hoveredIndex === currentVideo
