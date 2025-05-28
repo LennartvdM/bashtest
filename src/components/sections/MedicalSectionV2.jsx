@@ -685,7 +685,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     height: 5,
                     background: '#e0e0e0',
                     mixBlendMode: 'screen',
-                    zIndex: 40,
+                    zIndex: 25,
                     pointerEvents: 'none',
                     transform: 'translateY(-50%)',
                     transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
