@@ -646,8 +646,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       borderRadius: 10,
                       mixBlendMode: 'screen',
                       transform: hoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
-                      transition: 'transform 0.47s ease-out, opacity 0.33s cubic-bezier(0.4,0,0.2,1)',
-                      opacity: hoveredIndex === currentVideo ? (outlineFullOpacity ? 0.8 : 0.4) : 0
+                      transition: [
+                        'transform 0.47s ease-out 0.2s',
+                        outlineFullOpacity
+                          ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
+                          : videoHover
+                          ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
+                          : 'opacity 0.13s'
+                      ].join(', '),
+                      opacity: hoveredIndex === currentVideo ? (outlineFullOpacity ? 1 : 0.4) : 0
                     }}
                   />
                   {/* Horizontal line */}
