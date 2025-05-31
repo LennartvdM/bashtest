@@ -124,7 +124,7 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
               background: 'none', 
               borderRadius: '16px', 
               overflow: 'hidden',
-              zIndex: i + 1, // Ensure proper stacking order
+              zIndex: 2 - i, // Reverse the z-index so urgency (0) is on top of coordination (1)
               opacity: opacity
             }}
           >
