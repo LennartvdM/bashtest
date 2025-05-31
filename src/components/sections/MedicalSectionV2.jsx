@@ -27,6 +27,7 @@ const headlines = [
 ];
 
 const MedicalSection = ({ inView, sectionRef }) => {
+  // All useState hooks first
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
   const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
@@ -39,15 +40,16 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const videoContainerRef = useRef();
   const [interactionsEnabled, setInteractionsEnabled] = useState(false);
-
-  // Safe hover states that only trigger when interactions are enabled
-  const safeVideoHover = interactionsEnabled && videoHover;
-  const safeHoveredIndex = interactionsEnabled ? hoveredIndex : null;
+  const [videoHover, setVideoHover] = useState(false);
 
   // Animation states
   const [headerVisible, setHeaderVisible] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
   const [captionsVisible, setCaptionsVisible] = useState(false);
+
+  // Derived/computed values after all state declarations
+  const safeVideoHover = interactionsEnabled && videoHover;
+  const safeHoveredIndex = interactionsEnabled ? hoveredIndex : null;
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -102,8 +104,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   const [collectionTop, setCollectionTop] = useState('60px');
   const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
-
-  const [videoHover, setVideoHover] = useState(false);
 
   const shadedFrameRef = useRef();
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
