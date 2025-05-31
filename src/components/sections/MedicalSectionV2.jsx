@@ -41,6 +41,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const videoContainerRef = useRef();
   const [interactionsEnabled, setInteractionsEnabled] = useState(false);
   const [videoHover, setVideoHover] = useState(false);
+  const hoverTimeoutRef = useRef(null);
 
   // Animation states
   const [headerVisible, setHeaderVisible] = useState(false);
@@ -152,6 +153,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   const handleHover = (index) => {
     if (!interactionsEnabled) return;
+    
+    // Clear any pending hover end
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    
     if (typeof index === 'number' && index >= 0 && index < headlines.length) {
       if (index !== currentVideo) setBarKey((k) => k + 1);
       setCurrentVideo(index);
@@ -159,10 +167,20 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setHoveredIndex(index);
     }
   };
+
   const handleHoverEnd = () => {
     if (!interactionsEnabled) return;
-    setIsPaused(false);
-    setHoveredIndex(null);
+    
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    
+    // Add a small delay before clearing hover state
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+      setHoveredIndex(null);
+    }, 50); // 50ms delay
   };
 
   // Measure right highlighter position
@@ -266,6 +284,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
     }
     return () => clearTimeout(timeout);
   }, [safeHoveredIndex, currentVideo]);
+
+  // Add cleanup useEffect after other useEffect hooks
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
