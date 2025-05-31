@@ -23,6 +23,16 @@ const headlines = [
   }
 ];
 
+/* 
+IMPORTANT: This is NOT a crossfade - it's a sequential card removal system.
+State 0: A=100%, B=100% (stacked on top of each other)
+State 1: A=0%, B=100% (remove top card A)  
+State 2: A=0%, B=0% (remove card B, reveal base C)
+
+DO NOT "fix" this to crossfade between A and B.
+The stacking is intentional to avoid ugly transitions.
+*/
+
 function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled }) {
   const videoContainerRef = useRef(null);
 
@@ -89,43 +99,58 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
           }}
         />
       </div>
-      {/* Videos that fade in/out (only urgency and coordination) */}
-      {[0, 1].map((i) => (
-        <div
-          key={slides[i].id}
-          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease ${
-            i === current ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ 
-            pointerEvents: i === current ? 'auto' : 'none', 
-            background: 'none', 
-            borderRadius: '16px', 
-            overflow: 'hidden',
-            zIndex: i + 1 // Ensure proper stacking order
-          }}
-        >
-          <video
-            src={slides[i].video}
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            alt={slides[i].alt}
-            tabIndex="-1"
-            aria-hidden="true"
-            draggable="false"
+
+      {/* Overlay videos that stack and remove sequentially */}
+      {[0, 1].map((i) => {
+        // Calculate opacity based on current state
+        let opacity = 1;
+        if (current === 0) {
+          // State 0: Both videos at 100%
+          opacity = 1;
+        } else if (current === 1) {
+          // State 1: First video at 0%, second at 100%
+          opacity = i === 0 ? 0 : 1;
+        } else {
+          // State 2: Both videos at 0%
+          opacity = 0;
+        }
+
+        return (
+          <div
+            key={slides[i].id}
+            className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease"
             style={{ 
-              outline: 'none', 
-              transition: 'outline 0.2s', 
-              background: 'none',
-              opacity: i === current ? 1 : 0,
-              willChange: 'opacity'
+              pointerEvents: i === current ? 'auto' : 'none', 
+              background: 'none', 
+              borderRadius: '16px', 
+              overflow: 'hidden',
+              zIndex: i + 1, // Ensure proper stacking order
+              opacity: opacity
             }}
-          />
-        </div>
-      ))}
+          >
+            <video
+              src={slides[i].video}
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              alt={slides[i].alt}
+              tabIndex="-1"
+              aria-hidden="true"
+              draggable="false"
+              style={{ 
+                outline: 'none', 
+                transition: 'outline 0.2s', 
+                background: 'none',
+                opacity: 1, // Video itself is always at full opacity
+                willChange: 'opacity'
+              }}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
