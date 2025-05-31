@@ -640,17 +640,15 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                   <div
                     className="absolute transition-all duration-700 ease"
                     style={{
-                      top: '50%',
-                      right: 'calc(50% + 222px)',        // Start from right edge of highlighter
-                      width: 'calc(50% + 222px)',        // Extend all the way to left screen edge
-                      height: 5,
+                      top: leftRect.top + leftRect.height / 2,
+                      left: 0,
+                      width: `calc(50% - 20px + 222px)`,
+                      height: 2,
                       background: '#e0e0e0',
                       mixBlendMode: 'screen',
                       zIndex: 40,
                       pointerEvents: 'none',
-                      transform: 'translateY(-50%)',
-                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), right 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
-                      opacity: 0.2
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   />
                   {/* Targeting outline container */}
@@ -670,7 +668,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                     <div
                       className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
                       style={{
-                        top: leftRect.top,
+                        top: 0,
                         height: leftRect.height,
                         width: 444,
                         left: '50%',
