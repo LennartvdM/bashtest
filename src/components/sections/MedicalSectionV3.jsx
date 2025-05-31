@@ -789,7 +789,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           opacity: headerVisible ? 1 : 0,
         }}
       >
-        <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 0 }}> {/* CHANGED: was marginRight */}
+        <div style={{ width: 480, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', marginRight: 0 }}>
           <h2 style={{
             fontFamily: 'Inter, sans-serif',
             fontSize: 48,
@@ -806,9 +806,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               '0 0px 1px rgba(0,0,0,0.18)',
               '0 0px 8px rgba(82,156,156,0.10)'
             ].join(', '),
-            alignSelf: 'flex-start',
-            paddingLeft: 0,
-            textAlign: 'left',
+            alignSelf: 'flex-end',
+            paddingRight: 0,
+            textAlign: 'right',
             width: '100%',
             userSelect: 'none',
             WebkitUserSelect: 'none'
