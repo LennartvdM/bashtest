@@ -636,20 +636,20 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginRight: 0, paddingRight: 0 }}> {/* CHANGED: was marginLeft/paddingLeft */}
               {leftReady && Number.isFinite(currentVideo) && Number.isFinite(leftRect.top) && Number.isFinite(leftRect.height) && (
                 <>
-                  {/* WHITE LINE - EXTENDS LEFTWARD TO SCREEN EDGE */}
+                  {/* Second highlighter: animated line protruding to the left */}
                   <div
                     className="absolute transition-all duration-700 ease"
                     style={{
                       top: leftRect.top + leftRect.height / 2,
-                      left: 0,
-                      width: `calc(50% - 20px + 222px)`,
+                      right: `calc(50% + ${444 / 2}px)`,
+                      width: '100vw',
                       height: 2,
                       background: '#e0e0e0',
                       mixBlendMode: 'screen',
                       zIndex: 40,
                       pointerEvents: 'none',
                       transform: 'translateY(-50%)',
-                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), right 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   />
                   {/* Targeting outline container */}
