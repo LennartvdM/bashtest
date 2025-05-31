@@ -643,13 +643,14 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                       top: leftRect.top + leftRect.height / 2,
                       right: `calc(50% + ${444 / 2}px)`,
                       width: '100vw',
-                      height: 2,
+                      height: 5,
                       background: '#e0e0e0',
                       mixBlendMode: 'screen',
                       zIndex: 40,
                       pointerEvents: 'none',
                       transform: 'translateY(-50%)',
                       transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), right 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      opacity: 0.2
                     }}
                   />
                   {/* Targeting outline container */}
