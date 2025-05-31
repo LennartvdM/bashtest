@@ -713,6 +713,39 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       opacity: safeHoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
                     }}
                   />
+                  {/* Duplicated Highlighter rectangle for right section */}
+                  <div
+                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
+                    style={{
+                      top: 0,
+                      height: rightRect.height,
+                      width: 444,
+                      left: 0,
+                      paddingLeft: 24,
+                      paddingRight: 24,
+                      background: safeHoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
+                      borderRadius: 10,
+                      boxShadow: safeHoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      zIndex: 30
+                    }}
+                  >
+                    <div className="w-full h-full rounded-xl relative pointer-events-none">
+                      {/* Loading Bar */}
+                      <div
+                        key={barKey}
+                        className="absolute left-0 bottom-0 h-[5px]"
+                        style={{
+                          background: 'rgba(82,156,156,1)',
+                          animation: `grow-overflow 7000ms linear forwards`,
+                          animationPlayState: isPaused ? 'paused' : 'running',
+                          left: -24,
+                          width: '100%'
+                        }}
+                        onAnimationEnd={handleBarEnd}
+                      />
+                    </div>
+                  </div>
                   {/* Horizontal line */}
                   <div
                     className="absolute transition-all duration-700 ease"
@@ -729,40 +762,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       opacity: 0.2
                     }}
                   />
-                </div>
-                {/* Duplicated Highlighter rectangle for right section */}
-                <div
-                  className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
-                  style={{
-                    top: rightRect.top,
-                    height: rightRect.height,
-                    width: 444,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    background: safeHoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
-                    borderRadius: 10,
-                    boxShadow: safeHoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                    transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)',
-                    zIndex: 30
-                  }}
-                >
-                  <div className="w-full h-full rounded-xl relative pointer-events-none">
-                    {/* Loading Bar */}
-                    <div
-                      key={barKey}
-                      className="absolute left-0 bottom-0 h-[5px]"
-                      style={{
-                        background: 'rgba(82,156,156,1)',
-                        animation: `grow-overflow 7000ms linear forwards`,
-                        animationPlayState: isPaused ? 'paused' : 'running',
-                        left: -24,
-                        width: '100%'
-                      }}
-                      onAnimationEnd={handleBarEnd}
-                    />
-                  </div>
                 </div>
               </>
             )}
