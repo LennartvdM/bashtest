@@ -23,7 +23,7 @@ const headlines = [
   }
 ];
 
-function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover }) {
+function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled }) {
   const videoContainerRef = useRef(null);
 
   useEffect(() => {
@@ -55,10 +55,11 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
         minWidth: '320px', 
         maxWidth: '480px', 
         width: '480px', 
-        height: '320px'
+        height: '320px',
+        cursor: interactionsEnabled ? 'pointer' : 'default'
       }}
-      onMouseEnter={() => setVideoHover && setVideoHover(true)}
-      onMouseLeave={() => setVideoHover && setVideoHover(false)}
+      onMouseEnter={() => interactionsEnabled && setVideoHover?.(true)}
+      onMouseLeave={() => interactionsEnabled && setVideoHover?.(false)}
     >
       {/* Static base video (focus) as persistent background */}
       <div

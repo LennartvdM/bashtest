@@ -38,6 +38,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
   const videoContainerRef = useRef();
+  const [interactionsEnabled, setInteractionsEnabled] = useState(false);
+
+  // Safe hover states that only trigger when interactions are enabled
+  const safeVideoHover = interactionsEnabled && videoHover;
+  const safeHoveredIndex = interactionsEnabled ? hoveredIndex : null;
 
   // Animation states
   const [headerVisible, setHeaderVisible] = useState(false);
@@ -55,6 +60,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setTimeout(() => setHeaderVisible(true), 300);
       setTimeout(() => setVideoVisible(true), 900); // 500 + 400
       setTimeout(() => setCaptionsVisible(true), 1100); // 700 + 400
+      
+      // Enable interactions after all animations complete (1100ms start + 1500ms duration)
+      setTimeout(() => setInteractionsEnabled(true), 3000);
     }
   }, [inView]);
 
@@ -65,6 +73,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
+      setInteractionsEnabled(false);
     }
   }, [inView]);
 
@@ -115,7 +124,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const bandTop = '50%';
 
   // --- Gantry Frame dimensions and animation ---
-  const isNudging = videoHover;
+  const isNudging = safeVideoHover;
   const gantryFrameStyle = {
     position: 'absolute',
     right: 'calc(50% + 20px)',
@@ -126,7 +135,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
     display: 'flex',
     alignItems: 'stretch',
     transition: isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION,
-    transform: videoHover 
+    transform: safeVideoHover 
       ? 'translateY(-12px)' 
       : videoVisible 
         ? 'translateX(0)' 
@@ -134,7 +143,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
     opacity: videoVisible ? 1 : 0,
     overflow: 'visible',
     borderRadius: '16px',
-    boxShadow: videoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
+    boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
   };
 
   const handleSlideChange = (index) => {
@@ -142,6 +151,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
   };
 
   const handleHover = (index) => {
+    if (!interactionsEnabled) return;
     if (typeof index === 'number' && index >= 0 && index < headlines.length) {
       if (index !== currentVideo) setBarKey((k) => k + 1);
       setCurrentVideo(index);
@@ -150,6 +160,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
     }
   };
   const handleHoverEnd = () => {
+    if (!interactionsEnabled) return;
     setIsPaused(false);
     setHoveredIndex(null);
   };
@@ -235,26 +246,26 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // Animate outline opacity: fast to 1, then gently to 0.4
   useEffect(() => {
     let timeout;
-    if (videoHover) {
+    if (safeVideoHover) {
       setOutlineFullOpacity(true);
       timeout = setTimeout(() => setOutlineFullOpacity(false), 150);
     } else {
       setOutlineFullOpacity(false);
     }
     return () => clearTimeout(timeout);
-  }, [videoHover]);
+  }, [safeVideoHover]);
 
   // Animate highlighter outline opacity: fast to 1, then gently to 0.4
   useEffect(() => {
     let timeout;
-    if (hoveredIndex === currentVideo) {
+    if (safeHoveredIndex === currentVideo) {
       setHighlightOutlineFullOpacity(true);
       timeout = setTimeout(() => setHighlightOutlineFullOpacity(false), 150);
     } else {
       setHighlightOutlineFullOpacity(false);
     }
     return () => clearTimeout(timeout);
-  }, [hoveredIndex, currentVideo]);
+  }, [safeHoveredIndex, currentVideo]);
 
   return (
     <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
@@ -508,7 +519,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             transition: isNudging
               ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
               : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-            transform: videoHover 
+            transform: safeVideoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
                 ? 'translateX(0)' 
@@ -544,15 +555,15 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 borderRadius: 16,
                 pointerEvents: 'none',
                 boxSizing: 'border-box',
-                transform: videoHover ? 'scale(1)' : 'scale(1.08)',
-                opacity: videoHover ? (outlineFullOpacity ? 0.9 : 0.4) : 0,
+                transform: safeVideoHover ? 'scale(1)' : 'scale(1.08)',
+                opacity: safeVideoHover ? (outlineFullOpacity ? 0.9 : 0.4) : 0,
                 transition: [
-                  videoHover 
+                  safeVideoHover 
                     ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
                     : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
                   outlineFullOpacity
                     ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
-                    : videoHover
+                    : safeVideoHover
                     ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
                     : 'opacity 0.13s'
                 ].join(', '),
@@ -583,10 +594,11 @@ const MedicalSection = ({ inView, sectionRef }) => {
               <MedicalCarousel
                 current={currentVideo}
                 setVideoCenter={setVideoCenter}
-                hoveredIndex={hoveredIndex}
-                isActive={hoveredIndex === currentVideo || isPaused}
-                videoHover={videoHover}
+                hoveredIndex={safeHoveredIndex}
+                isActive={safeHoveredIndex === currentVideo || isPaused}
+                videoHover={safeVideoHover}
                 setVideoHover={setVideoHover}
+                interactionsEnabled={interactionsEnabled}
               />
             </div>
           </div>
@@ -660,18 +672,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
                       border: '3px solid white',
                       borderRadius: 10,
                       mixBlendMode: 'screen',
-                      transform: hoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
+                      transform: safeHoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
                       transition: [
-                        hoveredIndex === currentVideo 
+                        safeHoveredIndex === currentVideo 
                           ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
                           : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
                         highlightOutlineFullOpacity
                           ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
-                          : hoveredIndex === currentVideo
+                          : safeHoveredIndex === currentVideo
                           ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
                           : 'opacity 0.13s'
                       ].join(', '),
-                      opacity: hoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
+                      opacity: safeHoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
                     }}
                   />
                   {/* Horizontal line */}
@@ -702,9 +714,9 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     transform: 'translateX(-50%)',
                     paddingLeft: 24,
                     paddingRight: 24,
-                    background: hoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
+                    background: safeHoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
                     borderRadius: 10,
-                    boxShadow: hoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                    boxShadow: safeHoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
                     transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)',
                     zIndex: 30
                   }}
@@ -731,8 +743,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
               <button
                 key={i}
                 ref={(el) => (rightRowRefs.current[i] = el)}
-                onMouseEnter={() => handleHover(i)}
-                onMouseLeave={handleHoverEnd}
+                onMouseEnter={interactionsEnabled ? () => handleHover(i) : undefined}
+                onMouseLeave={interactionsEnabled ? handleHoverEnd : undefined}
                 className="relative text-right py-3 rounded-xl transition-all duration-700 ease"
                 style={{
                   display: 'block',
@@ -741,7 +753,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   paddingLeft: 24,
                   paddingRight: 24,
                   margin: '0 auto',
-                  zIndex: 40
+                  zIndex: 40,
+                  cursor: interactionsEnabled ? 'pointer' : 'default'
                 }}
               >
                 <p className="m-0 text-right text-2xl leading-tight" style={{
@@ -749,19 +762,19 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   fontWeight: 500,
                   letterSpacing: '-0.5px',
                   color:
-                    hoveredIndex === i
+                    safeHoveredIndex === i
                       ? '#2D6A6A'
                       : currentVideo === i
                       ? '#2a2323'
                       : '#bdbdbd',
                   mixBlendMode:
-                    hoveredIndex === i
+                    safeHoveredIndex === i
                       ? 'normal'
                       : currentVideo === i
                       ? 'normal'
                       : 'screen',
                   transition: 'color 0.6s, transform 0.3s',
-                  transform: hoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
+                  transform: safeHoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
                   userSelect: 'none',
                   WebkitUserSelect: 'none'
                 }}>
