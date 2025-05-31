@@ -564,7 +564,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                   outlineFullOpacity
                     ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
                     : safeVideoHover
-                    ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
+                    ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
                     : 'opacity 0.13s'
                 ].join(', '),
                 zIndex: 10
