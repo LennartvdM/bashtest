@@ -7,14 +7,16 @@ import ProjectsSection from '../components/sections/ProjectsSection';
 import ContactSection from '../components/sections/ContactSection';
 import MedicalSection from '../components/sections/MedicalSection';
 import MedicalSectionV2 from '../components/sections/MedicalSectionV2';
+import MedicalSectionV3 from '../components/sections/MedicalSectionV3';
 
 const sections = [
   { name: 'one', component: HeroSection },
   { name: 'two', component: SkillsSection },
   { name: 'three', component: MedicalSection },
   { name: 'four', component: MedicalSectionV2 },
-  { name: 'five', component: ProjectsSection },
-  { name: 'six', component: ContactSection },
+  { name: 'five', component: MedicalSectionV3 },
+  { name: 'six', component: ProjectsSection },
+  { name: 'seven', component: ContactSection },
 ];
 
 const Home = () => {
