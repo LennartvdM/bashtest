@@ -648,6 +648,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                       mixBlendMode: 'screen',
                       zIndex: 40,
                       pointerEvents: 'none',
+                      transform: 'translateY(-50%)',
                       transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   />
