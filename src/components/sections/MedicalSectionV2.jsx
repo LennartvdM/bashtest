@@ -665,6 +665,27 @@ const MedicalSection = ({ inView, sectionRef }) => {
                     pointerEvents: 'none'
                   }}
                 >
+                  {/* Targeting outline */}
+                  <div
+                    className="absolute inset-0 transition-all duration-700 ease"
+                    style={{
+                      border: '3px solid white',
+                      borderRadius: 10,
+                      mixBlendMode: 'screen',
+                      transform: safeHoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
+                      transition: [
+                        safeHoveredIndex === currentVideo 
+                          ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
+                          : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
+                        highlightOutlineFullOpacity
+                          ? 'opacity 0.1s cubic-bezier(.4,2,.6,1)'
+                          : safeHoveredIndex === currentVideo
+                          ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
+                          : 'opacity 0.13s'
+                      ].join(', '),
+                      opacity: safeHoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
+                    }}
+                  />
                   {/* Horizontal line */}
                   <div
                     className="absolute transition-all duration-700 ease"
