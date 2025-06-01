@@ -75,6 +75,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
     }
   }, [inView]);
 
+  // Add new useEffect for highlighter reset
+  useEffect(() => {
+    if (interactionsEnabled && inView) {
+      // Small delay after interactions are enabled, then "hover" the first caption
+      const resetTimer = setTimeout(() => {
+        handleHover(0);
+      }, 500);
+      
+      return () => clearTimeout(resetTimer);
+    }
+  }, [interactionsEnabled, inView]);
+
   // Handle exit separately for instant cleanup
   useEffect(() => {
     if (!inView) {
