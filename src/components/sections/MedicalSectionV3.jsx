@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom';
 import MirroredCookieCutterBand from '../MirroredCookieCutterBand';
 
 const blurVideos = [
-  { id: "0", video: "/videos/blururgency.mp4" },
-  { id: "1", video: "/videos/blurcoordination.mp4" },
-  { id: "2", video: "/videos/blurfocus.mp4" }, // base video
+  { id: "0", video: "/videos/blur_v3_skills.mp4" },
+  { id: "1", video: "/videos/blur_v3_team.mp4" },
+  { id: "2", video: "/videos/blur_v3_perspectives.mp4" }, // base video
 ];
 
 const BASE_INDEX = 2; // index of the always-visible base video
@@ -24,6 +24,12 @@ const headlines = [
     firstLine: "Shared understanding enhances",
     secondLine: "decisiveness."
   }
+];
+
+const mainVideos = [
+  { id: "0", video: "/videos/v3_skills.mp4" },
+  { id: "1", video: "/videos/v3_team.mp4" },
+  { id: "2", video: "/videos/v3_perspectives.mp4" },
 ];
 
 const MedicalSectionV3 = ({ inView, sectionRef }) => {
@@ -599,6 +605,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                 videoHover={safeVideoHover}
                 setVideoHover={setVideoHover}
                 interactionsEnabled={interactionsEnabled}
+                videos={mainVideos}
               />
             </div>
           </div>
