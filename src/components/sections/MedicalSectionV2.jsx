@@ -65,13 +65,13 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // Handle entrance animations when section comes into view
   useEffect(() => {
     if (inView) {
-      // Start the entrance animations with shorter delays
+      // Start the entrance animations with longer delays to account for header animation
       setTimeout(() => setHeaderVisible(true), 300);
-      setTimeout(() => setVideoVisible(true), 900); // 500 + 400
-      setTimeout(() => setCaptionsVisible(true), 1100); // 700 + 400
+      setTimeout(() => setVideoVisible(true), 1650); // was 900, now 300 + 750 + 600
+      setTimeout(() => setCaptionsVisible(true), 1850); // was 1100, now 300 + 750 + 800
       
-      // Enable interactions after all animations complete (1100ms start + 1500ms duration)
-      setTimeout(() => setInteractionsEnabled(true), 3000);
+      // Enable interactions after all animations complete
+      setTimeout(() => setInteractionsEnabled(true), 4000); // was 3000, now 4000
     }
   }, [inView]);
 
@@ -860,9 +860,41 @@ const MedicalSection = ({ inView, sectionRef }) => {
             userSelect: 'none',
             WebkitUserSelect: 'none'
           }}>
-            In the moment,<br />
-            <span style={{ color: '#3fd1c7' }}>only</span> the patient<br />
-            matters
+            <span 
+              style={{
+                transition: 'opacity 1.5s ease',
+                opacity: headerVisible ? 1 : 0,
+              }}
+            >
+              In the moment,
+            </span>
+            <br />
+            <span 
+              style={{
+                transition: 'opacity 1.5s ease 0.75s', // 750ms delay for second part
+                opacity: headerVisible ? 1 : 0,
+                color: '#3fd1c7'
+              }}
+            >
+              only
+            </span>
+            <span 
+              style={{
+                transition: 'opacity 1.5s ease 0.75s', // Same delay as "only"
+                opacity: headerVisible ? 1 : 0,
+              }}
+            >
+              {' '}the patient
+            </span>
+            <br />
+            <span 
+              style={{
+                transition: 'opacity 1.5s ease 0.75s', // Same delay
+                opacity: headerVisible ? 1 : 0,
+              }}
+            >
+              matters
+            </span>
           </h2>
         </div>
       </div>
