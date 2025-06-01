@@ -65,27 +65,22 @@ const MedicalSection = ({ inView, sectionRef }) => {
   // Handle entrance animations when section comes into view
   useEffect(() => {
     if (inView) {
-      // Start the entrance animations with much longer delays
-      setTimeout(() => setHeaderVisible(true), 450); // was 300, now 450 (50% longer)
-      setTimeout(() => setVideoVisible(true), 2925); // was 1650, now 450 + 1125 + 900 + 450
-      setTimeout(() => setCaptionsVisible(true), 3225); // was 1850, now 450 + 1125 + 900 + 750
+      // Immediately set to first caption during entrance
+      setCurrentVideo(0);
+      setIsPaused(true); // Keep paused during entrance ceremony
       
-      // Enable interactions after all animations complete
-      setTimeout(() => setInteractionsEnabled(true), 6000); // was 4000, now 6000
+      // Start the entrance animations
+      setTimeout(() => setHeaderVisible(true), 450);
+      setTimeout(() => setVideoVisible(true), 2925);
+      setTimeout(() => setCaptionsVisible(true), 3225);
+      
+      // Enable interactions and start auto-cycle after all animations complete
+      setTimeout(() => {
+        setInteractionsEnabled(true);
+        setIsPaused(false); // This will allow the auto-cycle to begin
+      }, 6000);
     }
   }, [inView]);
-
-  // Add new useEffect for highlighter reset
-  useEffect(() => {
-    if (interactionsEnabled && inView) {
-      // Small delay after interactions are enabled, then "hover" the first caption
-      const resetTimer = setTimeout(() => {
-        handleHover(0);
-      }, 500);
-      
-      return () => clearTimeout(resetTimer);
-    }
-  }, [interactionsEnabled, inView]);
 
   // Handle exit separately for instant cleanup
   useEffect(() => {
@@ -95,6 +90,8 @@ const MedicalSection = ({ inView, sectionRef }) => {
       setVideoVisible(false);
       setCaptionsVisible(false);
       setInteractionsEnabled(false);
+      setCurrentVideo(0); // Add this line
+      setIsPaused(true); // Add this line
     }
   }, [inView]);
 
