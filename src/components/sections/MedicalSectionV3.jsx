@@ -624,7 +624,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           {/* Caption Section (centered inside caption anchor) */}
           <div
             ref={captionRef}
-            className="MedicalSection-caption-area flex flex-col items-start justify-center"
+            className="MedicalSection-caption-area flex flex-col items-start justify-start"
             data-testid="MedicalSection-caption-area"
             style={{
               maxWidth: 520,
@@ -633,7 +633,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               paddingRight: 0, // CHANGED: was paddingLeft
             }}
           >
-            <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginRight: 0, paddingRight: 0 }}> {/* CHANGED: was marginLeft/paddingLeft */}
+            <div className="relative flex flex-col gap-2 items-start justify-start" style={{ width: 'auto', marginRight: 0, paddingRight: 0 }}>
               {leftReady && Number.isFinite(currentVideo) && Number.isFinite(leftRect.top) && Number.isFinite(leftRect.height) && (
                 <>
                   {/* Second highlighter: animated line protruding to the left */}
@@ -730,19 +730,19 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                   ref={(el) => (leftRowRefs.current[i] = el)}
                   onMouseEnter={interactionsEnabled ? () => handleHover(i) : undefined}
                   onMouseLeave={interactionsEnabled ? handleHoverEnd : undefined}
-                  className="relative text-left py-3 rounded-xl transition-all duration-700 ease" // CHANGED: was text-right
+                  className="relative text-left py-3 rounded-xl transition-all duration-700 ease"
                   style={{
                     display: 'block',
                     maxWidth: 480,
                     minWidth: 320,
                     paddingLeft: 24,
                     paddingRight: 24,
-                    margin: '0 auto',
+                    margin: 0,
                     zIndex: 40,
                     cursor: interactionsEnabled ? 'pointer' : 'default'
                   }}
                 >
-                  <p className="m-0 text-left text-2xl leading-tight" style={{ // CHANGED: was text-right
+                  <p className="m-0 text-left text-2xl leading-tight" style={{
                     fontFamily: 'Inter, sans-serif',
                     fontWeight: 500,
                     letterSpacing: '-0.5px',
