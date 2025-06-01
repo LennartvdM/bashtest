@@ -60,18 +60,18 @@ const MedicalSection = ({ inView, sectionRef }) => {
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
-  const SLIDE_TRANSITION = 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease, outline 0.2s ease';
+  const SLIDE_TRANSITION = 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease, outline 0.2s ease';
 
   // Handle entrance animations when section comes into view
   useEffect(() => {
     if (inView) {
-      // Start the entrance animations with longer delays to account for header animation
-      setTimeout(() => setHeaderVisible(true), 300);
-      setTimeout(() => setVideoVisible(true), 1650); // was 900, now 300 + 750 + 600
-      setTimeout(() => setCaptionsVisible(true), 1850); // was 1100, now 300 + 750 + 800
+      // Start the entrance animations with much longer delays
+      setTimeout(() => setHeaderVisible(true), 450); // was 300, now 450 (50% longer)
+      setTimeout(() => setVideoVisible(true), 2925); // was 1650, now 450 + 1125 + 900 + 450
+      setTimeout(() => setCaptionsVisible(true), 3225); // was 1850, now 450 + 1125 + 900 + 750
       
       // Enable interactions after all animations complete
-      setTimeout(() => setInteractionsEnabled(true), 4000); // was 3000, now 4000
+      setTimeout(() => setInteractionsEnabled(true), 6000); // was 4000, now 6000
     }
   }, [inView]);
 
@@ -666,7 +666,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 20,
-          transition: captionsVisible ? 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease' : 'none',
+          transition: captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none',
           opacity: captionsVisible ? 1 : 0,
           transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
         }}
@@ -832,7 +832,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           width: 480,
           background: 'none',
           zIndex: 20,
-          transition: headerVisible ? 'opacity 1.5s ease' : 'none',
+          transition: headerVisible ? 'opacity 2.25s ease' : 'none',
           opacity: headerVisible ? 1 : 0,
         }}
       >
@@ -862,7 +862,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
           }}>
             <span 
               style={{
-                transition: 'opacity 1.5s ease',
+                transition: 'opacity 2.25s ease',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
@@ -871,7 +871,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             <br />
             <span 
               style={{
-                transition: 'opacity 1.5s ease 0.75s', // 750ms delay for second part
+                transition: 'opacity 2.25s ease 1.125s',
                 opacity: headerVisible ? 1 : 0,
                 color: '#3fd1c7'
               }}
@@ -880,7 +880,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             </span>
             <span 
               style={{
-                transition: 'opacity 1.5s ease 0.75s', // Same delay as "only"
+                transition: 'opacity 2.25s ease 1.125s',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
@@ -889,7 +889,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
             <br />
             <span 
               style={{
-                transition: 'opacity 1.5s ease 0.75s', // Same delay
+                transition: 'opacity 2.25s ease 1.125s',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
