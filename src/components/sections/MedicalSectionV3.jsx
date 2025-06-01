@@ -13,16 +13,16 @@ const BASE_INDEX = 2; // index of the always-visible base video
 
 const headlines = [
   {
-    firstLine: "Yet, reflection",
-    secondLine: "strengthens the next"
-  },
-  {
     firstLine: "Quiet reflection allows for",
     secondLine: "sharpening skills."
   },
   {
     firstLine: "Further video debriefs foster",
     secondLine: "cohesion amongst peers."
+  },
+  {
+    firstLine: "Shared understanding enhances",
+    secondLine: "decisiveness."
   }
 ];
 
