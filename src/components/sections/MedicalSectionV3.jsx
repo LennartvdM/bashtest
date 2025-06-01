@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom';
 import MirroredCookieCutterBand from '../MirroredCookieCutterBand';
 
 const blurVideos = [
-  { id: "0", video: "/videos/blur_v3_skills.mp4" },
-  { id: "1", video: "/videos/blur_v3_team.mp4" },
-  { id: "2", video: "/videos/blur_v3_perspectives.mp4" }, // base video
+  { id: "0", video: "/videos/blursskills.mp4" },
+  { id: "1", video: "/videos/blurteam.mp4" },
+  { id: "2", video: "/videos/blursperspectives.mp4" }, // base video
 ];
 
 const BASE_INDEX = 2; // index of the always-visible base video
@@ -27,9 +27,9 @@ const headlines = [
 ];
 
 const mainVideos = [
-  { id: "0", video: "/videos/v3_skills.mp4" },
-  { id: "1", video: "/videos/v3_team.mp4" },
-  { id: "2", video: "/videos/v3_perspectives.mp4" },
+  { id: "0", video: "/videos/skills.mp4", alt: "Sharpening skills" },
+  { id: "1", video: "/videos/team.mp4", alt: "Team cohesion" },
+  { id: "2", video: "/videos/perspectives.mp4", alt: "Shared perspectives" },
 ];
 
 const MedicalSectionV3 = ({ inView, sectionRef }) => {
