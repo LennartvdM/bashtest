@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom';
 import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
 
 const blurVideos = [
-  { id: "0", video: "/videos/blururgency.mp4" },
-  { id: "1", video: "/videos/blurcoordination.mp4" },
-  { id: "2", video: "/videos/blurfocus.mp4" }, // base video
+  { id: "0", video: "/videos/blururgency.mp4", alt: "Blurred medical urgency" },
+  { id: "1", video: "/videos/blurcoordination.mp4", alt: "Blurred team coordination" },
+  { id: "2", video: "/videos/blurfocus.mp4", alt: "Blurred medical focus" }, // base video
 ];
 
 const BASE_INDEX = 2; // index of the always-visible base video
@@ -24,6 +24,12 @@ const headlines = [
     firstLine: "Task‑driven focus can lead to",
     secondLine: "tunnel vision and misalignment."
   }
+];
+
+const mainVideos = [
+  { id: "0", video: "/videos/urgency.mp4", alt: "Medical urgency demonstration" },
+  { id: "1", video: "/videos/coordination.mp4", alt: "Medical team coordination" },
+  { id: "2", video: "/videos/focus.mp4", alt: "Medical focus and precision" },
 ];
 
 const MedicalSection = ({ inView, sectionRef }) => {
@@ -626,6 +632,7 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 videoHover={safeVideoHover}
                 setVideoHover={setVideoHover}
                 interactionsEnabled={interactionsEnabled}
+                videos={mainVideos}
               />
             </div>
           </div>

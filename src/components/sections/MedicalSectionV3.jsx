@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom';
 import MirroredCookieCutterBand from '../MirroredCookieCutterBand';
 
 const blurVideos = [
-  { id: "0", video: "/videos/blursskills.mp4" },
-  { id: "1", video: "/videos/blurteam.mp4" },
-  { id: "2", video: "/videos/blursperspectives.mp4" }, // base video
+  { id: "0", video: "/videos/blursskills.mp4", alt: "Blurred skills demonstration" },
+  { id: "1", video: "/videos/blurteam.mp4", alt: "Blurred team coordination" },
+  { id: "2", video: "/videos/blurperspectives.mp4", alt: "Blurred perspectives" },
 ];
 
 const BASE_INDEX = 2; // index of the always-visible base video

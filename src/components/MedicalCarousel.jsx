@@ -2,7 +2,8 @@ import { useState, useRef, useLayoutEffect, useEffect } from "react";
 
 const AUTOPLAY_MS = 6600; // 6.6 seconds
 
-const slides = [
+// Default slides if no videos prop is provided
+const defaultSlides = [
   { id: "0", video: "/videos/urgency.mp4", alt: "Medical urgency demonstration" },
   { id: "1", video: "/videos/coordination.mp4", alt: "Medical team coordination" },
   { id: "2", video: "/videos/focus.mp4", alt: "Medical focus and precision" },
@@ -33,8 +34,11 @@ DO NOT "fix" this to crossfade between A and B.
 The stacking is intentional to avoid ugly transitions.
 */
 
-function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled }) {
+function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos }) {
   const videoContainerRef = useRef(null);
+
+  // Use videos prop if provided, otherwise fallback to default slides
+  const videoSlides = videos || defaultSlides;
 
   useEffect(() => {
     function updateCenter() {
@@ -80,14 +84,14 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
         }}
       >
         <video
-          src={slides[2].video}
+          src={videoSlides[2].video}
           className="w-full h-full object-cover"
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          alt={slides[2].alt}
+          alt={videoSlides[2].alt}
           tabIndex="-1"
           aria-hidden="true"
           draggable="false"
@@ -117,7 +121,7 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
 
         return (
           <div
-            key={slides[i].id}
+            key={videoSlides[i].id}
             className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease"
             style={{ 
               pointerEvents: i === current ? 'auto' : 'none', 
@@ -129,14 +133,14 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
             }}
           >
             <video
-              src={slides[i].video}
+              src={videoSlides[i].video}
               className="w-full h-full object-cover"
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
-              alt={slides[i].alt}
+              alt={videoSlides[i].alt}
               tabIndex="-1"
               aria-hidden="true"
               draggable="false"
