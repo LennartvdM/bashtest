@@ -37,7 +37,6 @@ const mainVideos = [
 const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const { 
     sectionState, 
-    isVisible, 
     shouldAnimate, 
     isActive,
     isPreserved 
@@ -75,46 +74,56 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Modified entrance animation effect
   useEffect(() => {
     if (shouldAnimate) {
-      // Start entrance ceremony
+      // Reset to initial state for fresh entrance
       setCurrentVideo(0);
       setIsPaused(true);
+      setHeaderVisible(false);
+      setVideoVisible(false);
+      setCaptionsVisible(false);
+      setInteractionsEnabled(false);
       
-      setTimeout(() => setHeaderVisible(true), 450);
-      setTimeout(() => setVideoVisible(true), 2925);
-      setTimeout(() => setCaptionsVisible(true), 3225);
+      // Start entrance ceremony
+      const timers = [];
       
-      setTimeout(() => {
+      timers.push(setTimeout(() => setHeaderVisible(true), 450));
+      timers.push(setTimeout(() => setVideoVisible(true), 2925));
+      timers.push(setTimeout(() => setCaptionsVisible(true), 3225));
+      timers.push(setTimeout(() => {
         setInteractionsEnabled(true);
         setIsPaused(false);
-      }, 6000);
+      }, 6000));
+      
+      return () => timers.forEach(timer => clearTimeout(timer));
     }
   }, [shouldAnimate]);
 
   // Gentle cleanup when preserved
   useEffect(() => {
     if (isPreserved) {
-      // Pause videos but keep state
       setIsPaused(true);
       setInteractionsEnabled(false);
-      // Don't reset visual states - keep them ready
+      setVideoHover(false);
+      setHoveredIndex(null);
     }
   }, [isPreserved]);
 
   // Full cleanup only when cleaned
   useEffect(() => {
     if (sectionState === 'cleaned') {
-      // Now do full reset
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
       setCurrentVideo(0);
       setIsPaused(true);
       setInteractionsEnabled(false);
+      setVideoHover(false);
+      setHoveredIndex(null);
+      setBarKey(0);
     }
   }, [sectionState]);
 
   // Render only if visible
-  if (!isVisible) return null;
+  if (sectionState === 'idle' || sectionState === 'cleaned') return null;
 
   // Duplicated highlighter logic for right caption area
   const rightRowRefs = useRef({});
@@ -326,7 +335,14 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   }, []);
 
   return (
-    <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+    <div 
+      ref={sectionRef} 
+      className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]"
+      style={{
+        opacity: sectionState === 'idle' || sectionState === 'cleaned' ? 0 : 1,
+        transition: 'opacity 0.3s ease'
+      }}
+    >
       <style>
         {`
           video {

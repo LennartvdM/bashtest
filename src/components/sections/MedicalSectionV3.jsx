@@ -37,7 +37,6 @@ const mainVideos = [
 const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const { 
     sectionState, 
-    isVisible, 
     shouldAnimate, 
     isActive,
     isPreserved 
@@ -121,9 +120,6 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       setBarKey(0);
     }
   }, [sectionState]);
-
-  // Early return if not visible
-  if (!isVisible) return null;
 
   // Duplicated highlighter logic for left caption area
   const leftRowRefs = useRef({});
@@ -309,7 +305,14 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   }, [safeHoveredIndex, currentVideo]);
 
   return (
-    <div ref={sectionRef} className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]">
+    <div 
+      ref={sectionRef} 
+      className="h-screen w-full relative overflow-hidden bg-[#f5f8fa]"
+      style={{
+        opacity: sectionState === 'idle' || sectionState === 'cleaned' ? 0 : 1,
+        transition: 'opacity 0.3s ease'
+      }}
+    >
       <style>
         {`
           video {

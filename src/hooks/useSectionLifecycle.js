@@ -5,8 +5,27 @@ export const useSectionLifecycle = (sectionId, inView) => {
   const cleanupTimerRef = useRef(null);
   const entranceTimerRef = useRef(null);
   const entranceCompleteRef = useRef(false);
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (inView) {
+        setSectionState('entering');
+        entranceCompleteRef.current = false;
+        
+        if (entranceTimerRef.current) {
+          clearTimeout(entranceTimerRef.current);
+        }
+        
+        entranceTimerRef.current = setTimeout(() => {
+          entranceCompleteRef.current = true;
+          setSectionState('active');
+        }, 4000);
+      }
+      return;
+    }
+
     if (inView && sectionState === 'idle') {
       // Section comes into view
       setSectionState('entering');
@@ -52,7 +71,7 @@ export const useSectionLifecycle = (sectionId, inView) => {
 
   return {
     sectionState,
-    isVisible: sectionState !== 'idle' && sectionState !== 'cleaned',
+    isVisible: true, // Always render the component, let the section handle its own visibility
     shouldAnimate: sectionState === 'entering',
     isActive: sectionState === 'active',
     isPreserved: sectionState === 'preserving'
