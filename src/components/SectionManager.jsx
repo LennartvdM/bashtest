@@ -15,21 +15,23 @@ export default function SectionManager({ sections }) {
         { threshold: 0.5 }
       );
     });
+    
     sectionRefs.current.forEach((ref, idx) => {
-      if (ref && observers[idx] && ref instanceof Element) observers[idx].observe(ref);
+      if (ref && observers[idx] && ref instanceof Element) {
+        observers[idx].observe(ref);
+      }
     });
+    
     return () => {
-      observers.forEach((observer, idx) => {
-        if (observer && sectionRefs.current[idx] && sectionRefs.current[idx] instanceof Element) observer.disconnect();
-      });
+      observers.forEach(observer => observer?.disconnect());
     };
   }, [sections.length]);
 
   return (
     <>
       {sections.map((section, idx) => {
-        // Render all sections for scroll-snap, but only activate current/adjacent
-        const active = Math.abs(idx - currentIdx) <= 1;
+        // Always render all sections for scroll-snap
+        // Let the section itself handle visibility
         return (
           <ScrollSection
             key={section.name}
@@ -38,7 +40,7 @@ export default function SectionManager({ sections }) {
             {({ inView, ref }) => {
               sectionRefs.current[idx] = ref;
               const SectionComponent = section.component;
-              return <SectionComponent inView={inView} sectionRef={ref} active={active} />;
+              return <SectionComponent inView={inView} sectionRef={ref} />;
             }}
           </ScrollSection>
         );

@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import ReactDOM from 'react-dom';
 import MirroredCookieCutterBand from '../MirroredCookieCutterBand';
+import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
+import VideoManager from '../VideoManager';
 
 const blurVideos = [
   { id: "0", video: "/videos/blursskills.mp4", alt: "Blurred skills demonstration" },
@@ -33,6 +35,14 @@ const mainVideos = [
 ];
 
 const MedicalSectionV3 = ({ inView, sectionRef }) => {
+  const { 
+    sectionState, 
+    isVisible, 
+    shouldAnimate, 
+    isActive,
+    isPreserved 
+  } = useSectionLifecycle('medical-v3', inView);
+
   // All useState hooks first
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
@@ -61,43 +71,59 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
   const SLIDE_TRANSITION = 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease, outline 0.2s ease';
 
-  // Handle entrance animations when section comes into view
+  // Modified entrance animation effect
   useEffect(() => {
-    if (inView) {
-      // Immediately set to first caption during entrance
+    if (shouldAnimate) {
+      // Reset to initial state for fresh entrance
       setCurrentVideo(0);
-      setIsPaused(true); // Keep paused during entrance ceremony
-      
-      // Start the entrance animations
-      setTimeout(() => setHeaderVisible(true), 450);
-      setTimeout(() => setVideoVisible(true), 2925);
-      setTimeout(() => setCaptionsVisible(true), 3225);
-      
-      // Enable interactions and start auto-cycle after all animations complete
-      setTimeout(() => {
-        setInteractionsEnabled(true);
-        setIsPaused(false); // This will allow the auto-cycle to begin
-      }, 6000);
-    }
-  }, [inView]);
-
-  // Handle exit separately for instant cleanup
-  useEffect(() => {
-    if (!inView) {
-      // Instant reset when leaving viewport
+      setIsPaused(true);
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
       setInteractionsEnabled(false);
-      setCurrentVideo(0); // Add this line
-      setIsPaused(true); // Add this line
+      
+      // Start entrance ceremony
+      const timers = [];
+      
+      timers.push(setTimeout(() => setHeaderVisible(true), 450));
+      timers.push(setTimeout(() => setVideoVisible(true), 2925));
+      timers.push(setTimeout(() => setCaptionsVisible(true), 3225));
+      timers.push(setTimeout(() => {
+        setInteractionsEnabled(true);
+        setIsPaused(false);
+      }, 6000));
+      
+      return () => timers.forEach(timer => clearTimeout(timer));
     }
-  }, [inView]);
+  }, [shouldAnimate]);
 
-  // Add debug logs for state changes
+  // Gentle cleanup when preserved
   useEffect(() => {
-    console.log('Animation states:', { headerVisible, videoVisible, captionsVisible });
-  }, [headerVisible, videoVisible, captionsVisible]);
+    if (isPreserved) {
+      setIsPaused(true);
+      setInteractionsEnabled(false);
+      setVideoHover(false);
+      setHoveredIndex(null);
+    }
+  }, [isPreserved]);
+
+  // Full cleanup only when cleaned
+  useEffect(() => {
+    if (sectionState === 'cleaned') {
+      setHeaderVisible(false);
+      setVideoVisible(false);
+      setCaptionsVisible(false);
+      setCurrentVideo(0);
+      setIsPaused(true);
+      setInteractionsEnabled(false);
+      setVideoHover(false);
+      setHoveredIndex(null);
+      setBarKey(0);
+    }
+  }, [sectionState]);
+
+  // Early return if not visible
+  if (!isVisible) return null;
 
   // Duplicated highlighter logic for left caption area
   const leftRowRefs = useRef({});
@@ -340,13 +366,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           position: 'relative',
           display: 'inline-block'
         }}>
-          <video
+          <VideoManager
             src={blurVideos[BASE_INDEX].video}
+            isPlaying={isActive || shouldAnimate}
             className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
             controls={false}
             preload="auto"
             tabIndex="-1"
@@ -356,42 +379,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             disableRemotePlayback
             controlsList="nodownload nofullscreen noremoteplayback"
             onContextMenu={(e) => e.preventDefault()}
-            style={{
-              display: 'block',
-              position: 'relative',
-              zIndex: 0,
-              pointerEvents: 'none',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-              WebkitTouchCallout: 'none',
-              transform: 'translateZ(0)',
-              WebkitTransform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-              perspective: '1000px',
-              WebkitPerspective: '1000px',
-              WebkitUserDrag: 'none',
-              KhtmlUserDrag: 'none',
-              MozUserDrag: 'none',
-              OUserDrag: 'none',
-              userDrag: 'none',
-              WebkitUserSelect: 'none',
-              KhtmlUserSelect: 'none',
-              MozUserSelect: 'none',
-              MsUserSelect: 'none',
-              userSelect: 'none',
-              WebkitTouchCallout: 'none'
-            }}
           />
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 1,
-            pointerEvents: 'none'
-          }} />
         </div>
       </div>
       {/* Other blur videos fade in/out on top */}
@@ -422,13 +410,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               position: 'relative',
               display: 'inline-block'
             }}>
-              <video
+              <VideoManager
                 src={video.video}
+                isPlaying={isActive || shouldAnimate}
                 className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
                 controls={false}
                 preload="auto"
                 tabIndex="-1"
@@ -438,42 +423,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                 disableRemotePlayback
                 controlsList="nodownload nofullscreen noremoteplayback"
                 onContextMenu={(e) => e.preventDefault()}
-                style={{
-                  display: 'block',
-                  position: 'relative',
-                  zIndex: 0,
-                  pointerEvents: 'none',
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  WebkitTouchCallout: 'none',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                  perspective: '1000px',
-                  WebkitPerspective: '1000px',
-                  WebkitUserDrag: 'none',
-                  KhtmlUserDrag: 'none',
-                  MozUserDrag: 'none',
-                  OUserDrag: 'none',
-                  userDrag: 'none',
-                  WebkitUserSelect: 'none',
-                  KhtmlUserSelect: 'none',
-                  MozUserSelect: 'none',
-                  MsUserSelect: 'none',
-                  userSelect: 'none',
-                  WebkitTouchCallout: 'none'
-                }}
               />
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 1,
-                pointerEvents: 'none'
-              }} />
             </div>
           </div>
         )

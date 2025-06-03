@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import ReactDOM from 'react-dom';
 import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
+import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
+import VideoManager from '../VideoManager';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4", alt: "Blurred medical urgency" },
@@ -32,7 +34,15 @@ const mainVideos = [
   { id: "2", video: "/videos/focus.mp4", alt: "Medical focus and precision" },
 ];
 
-const MedicalSection = ({ inView, sectionRef }) => {
+const MedicalSectionV2 = ({ inView, sectionRef }) => {
+  const { 
+    sectionState, 
+    isVisible, 
+    shouldAnimate, 
+    isActive,
+    isPreserved 
+  } = useSectionLifecycle('medical-v2', inView);
+
   // All useState hooks first
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
@@ -62,43 +72,49 @@ const MedicalSection = ({ inView, sectionRef }) => {
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
   const SLIDE_TRANSITION = 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease, outline 0.2s ease';
 
-  // Handle entrance animations when section comes into view
+  // Modified entrance animation effect
   useEffect(() => {
-    if (inView) {
-      // Immediately set to first caption during entrance
+    if (shouldAnimate) {
+      // Start entrance ceremony
       setCurrentVideo(0);
-      setIsPaused(true); // Keep paused during entrance ceremony
+      setIsPaused(true);
       
-      // Start the entrance animations
       setTimeout(() => setHeaderVisible(true), 450);
       setTimeout(() => setVideoVisible(true), 2925);
       setTimeout(() => setCaptionsVisible(true), 3225);
       
-      // Enable interactions and start auto-cycle after all animations complete
       setTimeout(() => {
         setInteractionsEnabled(true);
-        setIsPaused(false); // This will allow the auto-cycle to begin
+        setIsPaused(false);
       }, 6000);
     }
-  }, [inView]);
+  }, [shouldAnimate]);
 
-  // Handle exit separately for instant cleanup
+  // Gentle cleanup when preserved
   useEffect(() => {
-    if (!inView) {
-      // Instant reset when leaving viewport
+    if (isPreserved) {
+      // Pause videos but keep state
+      setIsPaused(true);
+      setInteractionsEnabled(false);
+      // Don't reset visual states - keep them ready
+    }
+  }, [isPreserved]);
+
+  // Full cleanup only when cleaned
+  useEffect(() => {
+    if (sectionState === 'cleaned') {
+      // Now do full reset
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
+      setCurrentVideo(0);
+      setIsPaused(true);
       setInteractionsEnabled(false);
-      setCurrentVideo(0); // Add this line
-      setIsPaused(true); // Add this line
     }
-  }, [inView]);
+  }, [sectionState]);
 
-  // Add debug logs for state changes
-  useEffect(() => {
-    console.log('Animation states:', { headerVisible, videoVisible, captionsVisible });
-  }, [headerVisible, videoVisible, captionsVisible]);
+  // Render only if visible
+  if (!isVisible) return null;
 
   // Duplicated highlighter logic for right caption area
   const rightRowRefs = useRef({});
@@ -367,13 +383,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
           position: 'relative',
           display: 'inline-block'
         }}>
-          <video
+          <VideoManager
             src={blurVideos[BASE_INDEX].video}
+            isPlaying={isActive || shouldAnimate}
             className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
             controls={false}
             preload="auto"
             tabIndex="-1"
@@ -383,32 +396,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
             disableRemotePlayback
             controlsList="nodownload nofullscreen noremoteplayback"
             onContextMenu={(e) => e.preventDefault()}
-            style={{
-              display: 'block',
-              position: 'relative',
-              zIndex: 0,
-              pointerEvents: 'none',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-              WebkitTouchCallout: 'none',
-              transform: 'translateZ(0)',
-              WebkitTransform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-              perspective: '1000px',
-              WebkitPerspective: '1000px',
-              WebkitUserDrag: 'none',
-              KhtmlUserDrag: 'none',
-              MozUserDrag: 'none',
-              OUserDrag: 'none',
-              userDrag: 'none',
-              WebkitUserSelect: 'none',
-              KhtmlUserSelect: 'none',
-              MozUserSelect: 'none',
-              MsUserSelect: 'none',
-              userSelect: 'none',
-              WebkitTouchCallout: 'none'
-            }}
           />
           <div style={{
             position: 'absolute',
@@ -449,13 +436,10 @@ const MedicalSection = ({ inView, sectionRef }) => {
               position: 'relative',
               display: 'inline-block'
             }}>
-              <video
+              <VideoManager
                 src={video.video}
+                isPlaying={isActive || shouldAnimate}
                 className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
                 controls={false}
                 preload="auto"
                 tabIndex="-1"
@@ -465,32 +449,6 @@ const MedicalSection = ({ inView, sectionRef }) => {
                 disableRemotePlayback
                 controlsList="nodownload nofullscreen noremoteplayback"
                 onContextMenu={(e) => e.preventDefault()}
-                style={{
-                  display: 'block',
-                  position: 'relative',
-                  zIndex: 0,
-                  pointerEvents: 'none',
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  WebkitTouchCallout: 'none',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                  perspective: '1000px',
-                  WebkitPerspective: '1000px',
-                  WebkitUserDrag: 'none',
-                  KhtmlUserDrag: 'none',
-                  MozUserDrag: 'none',
-                  OUserDrag: 'none',
-                  userDrag: 'none',
-                  WebkitUserSelect: 'none',
-                  KhtmlUserSelect: 'none',
-                  MozUserSelect: 'none',
-                  MsUserSelect: 'none',
-                  userSelect: 'none',
-                  WebkitTouchCallout: 'none'
-                }}
               />
               <div style={{
                 position: 'absolute',
@@ -911,4 +869,4 @@ const MedicalSection = ({ inView, sectionRef }) => {
   );
 };
 
-export default MedicalSection; 
+export default MedicalSectionV2; 
