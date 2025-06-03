@@ -45,22 +45,40 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // All useState hooks first
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
-  const [highlighterLeft, setHighlighterLeft] = useState({ x: 0, y: 0 }); // RENAMED FROM highlighterRight
-  const rowRefs = useRef({});
-  const captionsRef = useRef();
+  const [highlighterLeft, setHighlighterLeft] = useState({ x: 0, y: 0 });
   const [ready, setReady] = useState(false);
   const [barKey, setBarKey] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [rect, setRect] = useState({ top: 0, height: 0 });
-  const videoContainerRef = useRef();
   const [interactionsEnabled, setInteractionsEnabled] = useState(false);
   const [videoHover, setVideoHover] = useState(false);
-
-  // Animation states
   const [headerVisible, setHeaderVisible] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
   const [captionsVisible, setCaptionsVisible] = useState(false);
+  const [leftRect, setLeftRect] = useState({ top: 0, height: 0 });
+  const [leftReady, setLeftReady] = useState(false);
+  const [captionTop, setCaptionTop] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [videoTop, setVideoTop] = useState('0px');
+  const [collectionTop, setCollectionTop] = useState('60px');
+  const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
+  const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
+  const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
+  const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
+
+  // All useRef hooks next
+  const rowRefs = useRef({});
+  const captionsRef = useRef();
+  const videoContainerRef = useRef();
+  const hoverTimeoutRef = useRef(null);
+  const leftRowRefs = useRef({});
+  const leftCaptionsRef = useRef();
+  const headerRef = useRef();
+  const videoAnchorRef = useRef();
+  const captionRef = useRef();
+  const contentAnchorRef = useRef();
+  const shadedFrameRef = useRef();
 
   // Derived/computed values after all state declarations
   const safeVideoHover = interactionsEnabled && videoHover;
@@ -69,6 +87,42 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
   const SLIDE_TRANSITION = 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease, outline 0.2s ease';
+
+  // Band and cutout dimensions
+  const bandWidth = 900;
+  const bandHeight = 320;
+  const cutoutWidth = 480;
+  const cutoutHeight = 320;
+  const cornerRadius = 16;
+  const gap = 32;
+  const videoHeight = 320;
+
+  // Calculate the right offset so the cutout aligns with the video container
+  const bandRight = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
+  const bandTop = '50%';
+
+  // --- Gantry Frame dimensions and animation ---
+  const isNudging = safeVideoHover;
+  const gantryFrameStyle = {
+    position: 'absolute',
+    left: 'calc(50% + 20px)',
+    top: videoAndCaptionTop,
+    width: 480,
+    height: 320,
+    zIndex: 2,
+    display: 'flex',
+    alignItems: 'stretch',
+    transition: isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION,
+    transform: safeVideoHover 
+      ? 'translateY(-12px)' 
+      : videoVisible 
+        ? 'translateX(0)' 
+        : 'translateX(200px)',
+    opacity: videoVisible ? 1 : 0,
+    overflow: 'visible',
+    borderRadius: '16px',
+    boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
+  };
 
   // Modified entrance animation effect
   useEffect(() => {
@@ -121,87 +175,6 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   }, [sectionState]);
 
-  // Duplicated highlighter logic for left caption area
-  const leftRowRefs = useRef({});
-  const leftCaptionsRef = useRef();
-  const [leftRect, setLeftRect] = useState({ top: 0, height: 0 });
-  const [leftReady, setLeftReady] = useState(false);
-
-  const [captionTop, setCaptionTop] = useState(0);
-
-  const headerRef = useRef();
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const [videoTop, setVideoTop] = useState('0px');
-  const gap = 32;
-  const videoHeight = 320;
-
-  const videoAnchorRef = useRef();
-  const captionRef = useRef();
-  const contentAnchorRef = useRef();
-
-  const [collectionTop, setCollectionTop] = useState('60px');
-  const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
-
-  const shadedFrameRef = useRef();
-  const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
-
-  // Band and cutout dimensions
-  const bandWidth = 900;
-  const bandHeight = 320;
-  const cutoutWidth = 480;
-  const cutoutHeight = 320;
-  const cornerRadius = 16;
-
-  // Calculate the right offset so the cutout aligns with the video container
-  // The video container is left: 'calc(50% + 20px)', so its right edge is at window.innerWidth/2 + 20px + 480px
-  // The band should be positioned so its cutout's left edge matches the video container's right edge
-  const bandRight = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
-  // The band is vertically centered, same as the video container
-  const bandTop = '50%';
-
-  // --- Gantry Frame dimensions and animation ---
-  const isNudging = safeVideoHover;
-  const gantryFrameStyle = {
-    position: 'absolute',
-    left: 'calc(50% + 20px)', // CHANGED: was right
-    top: videoAndCaptionTop,
-    width: 480,
-    height: 320,
-    zIndex: 2,
-    display: 'flex',
-    alignItems: 'stretch',
-    transition: isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION,
-    transform: safeVideoHover 
-      ? 'translateY(-12px)' 
-      : videoVisible 
-        ? 'translateX(0)' 
-        : 'translateX(200px)', // CHANGED: was -200px
-    opacity: videoVisible ? 1 : 0,
-    overflow: 'visible',
-    borderRadius: '16px',
-    boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
-  };
-
-  const handleSlideChange = (index) => {
-    setCurrentVideo(index);
-  };
-
-  const handleHover = (index) => {
-    if (!interactionsEnabled) return;
-    if (typeof index === 'number' && index >= 0 && index < headlines.length) {
-      if (index !== currentVideo) setBarKey((k) => k + 1);
-      setCurrentVideo(index);
-      setIsPaused(true);
-      setHoveredIndex(index);
-    }
-  };
-
-  const handleHoverEnd = () => {
-    if (!interactionsEnabled) return;
-    setIsPaused(false);
-    setHoveredIndex(null);
-  };
-
   // Measure left highlighter position
   useLayoutEffect(() => {
     const node = leftRowRefs.current[currentVideo];
@@ -212,27 +185,17 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   }, [currentVideo, hoveredIndex]);
 
-  // Duplicated handleBarEnd for left highlighter
-  const handleBarEnd = () => {
-    console.log('handleBarEnd fired', { isPaused, currentVideo });
-    if (!isPaused) {
-      setBarKey((k) => k + 1);
-      setCurrentVideo((c) => (c + 1) % 3);
-    }
-  };
-
+  // Position calculations
   useLayoutEffect(() => {
     if (videoAnchorRef.current && captionRef.current && contentAnchorRef.current) {
       const videoRect = videoAnchorRef.current.getBoundingClientRect();
       const captionRect = captionRef.current.getBoundingClientRect();
       const parentRect = contentAnchorRef.current.getBoundingClientRect();
 
-      // Position relative to the green frame
       const videoAnchorTop = videoRect.top - parentRect.top;
       const videoAnchorHeight = videoRect.height;
       const captionHeight = captionRect.height;
 
-      // Center caption on video anchor
       const top = videoAnchorTop + (videoAnchorHeight / 2) - (captionHeight / 2);
       setCaptionTop(top);
     }
@@ -264,7 +227,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
-          rx: 16 // or parse from style if needed
+          rx: 16
         });
       }
     }
@@ -277,10 +240,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     };
   }, []);
 
-  const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
-  const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
-
-  // Animate outline opacity: fast to 1, then gently to 0.4
+  // Animate outline opacity
   useEffect(() => {
     let timeout;
     if (safeVideoHover) {
@@ -292,7 +252,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     return () => clearTimeout(timeout);
   }, [safeVideoHover]);
 
-  // Animate highlighter outline opacity: fast to 1, then gently to 0.4
+  // Animate highlighter outline opacity
   useEffect(() => {
     let timeout;
     if (safeHoveredIndex === currentVideo) {
@@ -303,6 +263,42 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
     return () => clearTimeout(timeout);
   }, [safeHoveredIndex, currentVideo]);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleSlideChange = (index) => {
+    setCurrentVideo(index);
+  };
+
+  const handleHover = (index) => {
+    if (!interactionsEnabled) return;
+    if (typeof index === 'number' && index >= 0 && index < headlines.length) {
+      if (index !== currentVideo) setBarKey((k) => k + 1);
+      setCurrentVideo(index);
+      setIsPaused(true);
+      setHoveredIndex(index);
+    }
+  };
+
+  const handleHoverEnd = () => {
+    if (!interactionsEnabled) return;
+    setIsPaused(false);
+    setHoveredIndex(null);
+  };
+
+  const handleBarEnd = () => {
+    if (!isPaused) {
+      setBarKey((k) => k + 1);
+      setCurrentVideo((c) => (c + 1) % 3);
+    }
+  };
 
   return (
     <div 
