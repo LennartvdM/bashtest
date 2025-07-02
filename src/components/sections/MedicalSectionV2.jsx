@@ -88,7 +88,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const shouldTransition = sectionState !== 'cleaned' && sectionState !== 'idle';
   
   // Debug logging
-  console.log('MedicalSectionV2 - Section state:', sectionState, 'Should transition:', shouldTransition);
+  console.log('MedicalSectionV2 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Video visible:', videoVisible, 'Transform:', videoVisible ? 'translateX(0)' : 'translateX(-200px)');
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -119,12 +119,14 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     display: 'flex',
     alignItems: 'stretch',
     transition: shouldTransition ? (isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION) : 'none',
-    transform: safeVideoHover 
-      ? 'translateY(-12px)' 
-      : videoVisible 
-        ? 'translateX(0)' 
-        : 'translateX(-200px)',
-    opacity: videoVisible ? 1 : 0,
+    transform: shouldTransition 
+      ? (safeVideoHover 
+          ? 'translateY(-12px)' 
+          : videoVisible 
+            ? 'translateX(0)' 
+            : 'translateX(-200px)')
+      : 'translateX(-200px)', // Always reset position when not transitioning
+    opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0, // Always hide when not transitioning
     overflow: 'visible',
     borderRadius: '16px',
     boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
@@ -550,12 +552,14 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             transition: shouldTransition ? (isNudging
               ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
               : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none',
-            transform: safeVideoHover 
-              ? 'translateY(-12px)' 
-              : videoVisible 
-                ? 'translateX(0)' 
-                : 'translateX(-200px)',
-            opacity: videoVisible ? 0.4 : 0,
+            transform: shouldTransition 
+              ? (safeVideoHover 
+                  ? 'translateY(-12px)' 
+                  : videoVisible 
+                    ? 'translateX(0)' 
+                    : 'translateX(-200px)')
+              : 'translateX(-200px)', // Always reset position when not transitioning
+            opacity: shouldTransition ? (videoVisible ? 0.4 : 0) : 0, // Always hide when not transitioning
             mixBlendMode: 'screen'
           }}>
             <SimpleCookieCutterBand
@@ -617,7 +621,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 overflow: 'hidden',
                 border: 'none',
                 boxShadow: 'none',
-                opacity: videoVisible ? 1 : 0,
+                opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0, // Always hide when not transitioning
                 transition: shouldTransition ? 'opacity 1.5s ease' : 'none'
               }}
               ref={videoContainerRef}
