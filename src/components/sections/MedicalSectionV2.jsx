@@ -84,6 +84,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const safeVideoHover = interactionsEnabled && videoHover;
   const safeHoveredIndex = interactionsEnabled ? hoveredIndex : null;
 
+  // Transition control to prevent rewind animations
+  const shouldTransition = sectionState !== 'cleaned' && sectionState !== 'idle';
+
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
   const SLIDE_TRANSITION = 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease, outline 0.2s ease';
@@ -112,7 +115,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION,
+    transition: shouldTransition ? (isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION) : 'none',
     transform: safeVideoHover 
       ? 'translateY(-12px)' 
       : videoVisible 
@@ -422,7 +425,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               perspective: '1000px',
-              WebkitPerspective: '1000px'
+              WebkitPerspective: '1000px',
+              transition: shouldTransition ? 'opacity 700ms ease' : 'none'
             }}
           >
             <div style={{
@@ -511,9 +515,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             height: bandHeight,
             zIndex: 1,
             pointerEvents: 'none',
-            transition: isNudging
+            transition: shouldTransition ? (isNudging
               ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
-              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none',
             transform: safeVideoHover 
               ? 'translateY(-12px)' 
               : videoVisible 
@@ -552,7 +556,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 boxSizing: 'border-box',
                 transform: safeVideoHover ? 'scale(1)' : 'scale(1.08)',
                 opacity: safeVideoHover ? (outlineFullOpacity ? 0.9 : 0.4) : 0,
-                transition: [
+                transition: shouldTransition ? [
                   safeVideoHover 
                     ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
                     : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -561,7 +565,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                     : safeVideoHover
                     ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
                     : 'opacity 0.13s'
-                ].join(', '),
+                ].join(', ') : 'none',
                 zIndex: 10
               }}
             />
@@ -582,7 +586,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 border: 'none',
                 boxShadow: 'none',
                 opacity: videoVisible ? 1 : 0,
-                transition: 'opacity 1.5s ease'
+                transition: shouldTransition ? 'opacity 1.5s ease' : 'none'
               }}
               ref={videoContainerRef}
             >
@@ -628,7 +632,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 20,
-          transition: captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none',
+          transition: shouldTransition ? (captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none') : 'none',
           opacity: captionsVisible ? 1 : 0,
           transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
         }}
@@ -658,7 +662,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                     height: rightRect.height,
                     transform: 'translateX(-50%)',
                     zIndex: 5,
-                    pointerEvents: 'none'
+                    pointerEvents: 'none',
+                    transition: shouldTransition ? 'all 700ms ease' : 'none'
                   }}
                 >
                   {/* Targeting outline */}
@@ -669,7 +674,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                       borderRadius: 10,
                       mixBlendMode: 'screen',
                       transform: safeHoveredIndex === currentVideo ? 'scale(1)' : 'scale(1.08, 1.3)',
-                      transition: [
+                      transition: shouldTransition ? [
                         safeHoveredIndex === currentVideo 
                           ? 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s'
                           : 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -678,7 +683,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                           : safeHoveredIndex === currentVideo
                           ? 'opacity 0.33s cubic-bezier(.4,0,.2,1) 0.2s'
                           : 'opacity 0.13s'
-                      ].join(', '),
+                      ].join(', ') : 'none',
                       opacity: safeHoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
                     }}
                   />
@@ -695,7 +700,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                       background: safeHoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
                       borderRadius: 10,
                       boxShadow: safeHoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       zIndex: 30
                     }}
                   >
@@ -727,7 +732,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                       mixBlendMode: 'screen',
                       pointerEvents: 'none',
                       transform: 'translateY(-50%)',
-                      transition: 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       opacity: 0.2
                     }}
                   />
@@ -749,7 +754,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                   paddingRight: 24,
                   margin: '0 auto',
                   zIndex: 40,
-                  cursor: interactionsEnabled ? 'pointer' : 'default'
+                  cursor: interactionsEnabled ? 'pointer' : 'default',
+                  transition: shouldTransition ? 'all 700ms ease' : 'none'
                 }}
               >
                 <p className="m-0 text-right text-2xl leading-tight" style={{
@@ -768,7 +774,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                       : currentVideo === i
                       ? 'normal'
                       : 'screen',
-                  transition: 'color 0.6s, transform 0.3s',
+                  transition: shouldTransition ? 'color 0.6s, transform 0.3s' : 'none',
                   transform: safeHoveredIndex === i ? 'translateY(-1px)' : 'translateY(0)',
                   userSelect: 'none',
                   WebkitUserSelect: 'none'
@@ -794,7 +800,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           width: 480,
           background: 'none',
           zIndex: 20,
-          transition: headerVisible ? 'opacity 2.25s ease' : 'none',
+          transition: shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none',
           opacity: headerVisible ? 1 : 0,
         }}
       >
@@ -824,7 +830,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           }}>
             <span 
               style={{
-                transition: 'opacity 2.25s ease',
+                transition: shouldTransition ? 'opacity 2.25s ease' : 'none',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
@@ -833,7 +839,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             <br />
             <span 
               style={{
-                transition: 'opacity 2.25s ease 1.125s',
+                transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
                 opacity: headerVisible ? 1 : 0,
                 color: '#3fd1c7'
               }}
@@ -842,7 +848,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             </span>
             <span 
               style={{
-                transition: 'opacity 2.25s ease 1.125s',
+                transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
@@ -851,7 +857,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             <br />
             <span 
               style={{
-                transition: 'opacity 2.25s ease 1.125s',
+                transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
