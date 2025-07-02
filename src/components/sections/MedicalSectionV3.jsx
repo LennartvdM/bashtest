@@ -342,7 +342,6 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       ref={sectionRef} 
       className="h-screen w-full relative overflow-hidden"
       style={{
-        backgroundColor: '#1c3424', // Dark green-gray camouflage color matching video brightness(0.7)
         opacity: sectionState === 'idle' || sectionState === 'cleaned' ? 0 : 1,
         transition: 'opacity 0.3s ease'
       }}

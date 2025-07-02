@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-export default function ScrollSection({ name, children }) {
+export default function ScrollSection({ name, children, background }) {
   const ref = useRef();
   const [inView, setInView] = useState(false);
 
@@ -22,6 +22,7 @@ export default function ScrollSection({ name, children }) {
         width: '100%',
         scrollSnapAlign: 'start',
         position: 'relative',
+        backgroundColor: background || 'transparent',
       }}
     >
       {children({ inView, ref })}
