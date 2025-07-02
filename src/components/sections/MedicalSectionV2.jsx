@@ -541,46 +541,47 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           }}
         >
           {/* CookieCutterBand: sibling to video container */}
-          <div style={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            width: bandWidth,
-            height: bandHeight,
-            zIndex: 1,
-            pointerEvents: 'none',
-            transition: shouldTransition ? (isNudging
-              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
-              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none !important',
-            transform: shouldTransition 
-              ? (safeVideoHover 
-                  ? 'translateY(-12px)' 
-                  : videoVisible 
-                    ? 'translateX(0)' 
-                    : 'translateX(-200px)')
-              : 'translateX(-200px)', // Always reset position when not transitioning
-            opacity: shouldTransition ? (videoVisible ? 0.4 : 0) : 0, // Always hide when not transitioning
-            mixBlendMode: 'screen'
-          }}>
-            <SimpleCookieCutterBand
-              bandColor="#f0f4f6"
-              bandHeight={bandHeight}
-              bandWidth={bandWidth}
-            />
-          </div>
-          {/* Gantry Frame: contains only the video container now */}
-          <div 
-            className="video-gantry-frame" 
-            data-section-inactive={!shouldTransition}
-            style={{
-              ...gantryFrameStyle,
+          {shouldTransition && (
+            <div style={{
               position: 'absolute',
               right: 0,
               top: 0,
-              zIndex: 3,
-              pointerEvents: 'auto'
-            }}
-          >
+              width: bandWidth,
+              height: bandHeight,
+              zIndex: 1,
+              pointerEvents: 'none',
+              transition: isNudging
+                ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
+                : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
+              transform: safeVideoHover 
+                ? 'translateY(-12px)' 
+                : videoVisible 
+                  ? 'translateX(0)' 
+                  : 'translateX(-200px)',
+              opacity: videoVisible ? 0.4 : 0,
+              mixBlendMode: 'screen'
+            }}>
+              <SimpleCookieCutterBand
+                bandColor="#f0f4f6"
+                bandHeight={bandHeight}
+                bandWidth={bandWidth}
+              />
+            </div>
+          )}
+          {/* Gantry Frame: contains only the video container now */}
+          {shouldTransition && (
+            <div 
+              className="video-gantry-frame" 
+              data-section-inactive={!shouldTransition}
+              style={{
+                ...gantryFrameStyle,
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                zIndex: 3,
+                pointerEvents: 'auto'
+              }}
+            >
             {/* Targeting Outline Animation */}
             <div
               className="target-outline"
@@ -642,6 +643,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               />
             </div>
           </div>
+          )}
         </div>
       </div>
       {/* Video Anchor (left of spacer) */}
