@@ -619,7 +619,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                 videos={mainVideos}
               />
             </div>
-          )}
+          </div>
         </div>
         {/* Caption Anchor with entrance animation */}
         <div
