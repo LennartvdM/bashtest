@@ -118,7 +118,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
-    transition: shouldTransition ? (isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION) : 'none',
+    transition: shouldTransition ? (isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION) : 'none !important',
     transform: shouldTransition 
       ? (safeVideoHover 
           ? 'translateY(-12px)' 
@@ -551,7 +551,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             pointerEvents: 'none',
             transition: shouldTransition ? (isNudging
               ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
-              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none',
+              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none !important',
             transform: shouldTransition 
               ? (safeVideoHover 
                   ? 'translateY(-12px)' 
@@ -569,14 +569,18 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             />
           </div>
           {/* Gantry Frame: contains only the video container now */}
-          <div className="video-gantry-frame" style={{
-            ...gantryFrameStyle,
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            zIndex: 3,
-            pointerEvents: 'auto'
-          }}>
+          <div 
+            className="video-gantry-frame" 
+            data-section-inactive={!shouldTransition}
+            style={{
+              ...gantryFrameStyle,
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              zIndex: 3,
+              pointerEvents: 'auto'
+            }}
+          >
             {/* Targeting Outline Animation */}
             <div
               className="target-outline"
@@ -622,7 +626,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 border: 'none',
                 boxShadow: 'none',
                 opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0, // Always hide when not transitioning
-                transition: shouldTransition ? 'opacity 1.5s ease' : 'none'
+                transition: shouldTransition ? 'opacity 1.5s ease' : 'none !important'
               }}
               ref={videoContainerRef}
             >

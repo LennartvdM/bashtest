@@ -32,4 +32,15 @@
     display: flex;
     align-items: stretch;
     overflow: visible;
+}
+
+/* Force disable transitions when section is not active */
+.video-gantry-frame[data-section-inactive="true"] {
+    transition: none !important;
+    animation: none !important;
+}
+
+.video-gantry-frame[data-section-inactive="true"] * {
+    transition: none !important;
+    animation: none !important;
 } 
