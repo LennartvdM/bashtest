@@ -85,11 +85,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const safeHoveredIndex = interactionsEnabled ? hoveredIndex : null;
 
   // Transition control to prevent rewind animations
-  const shouldTransition = sectionState !== 'cleaned' && sectionState !== 'idle';
-  const isExiting = sectionState === 'preserving';
+  const shouldTransition = sectionState === 'entering' || sectionState === 'active';
   
   // Debug logging
-  console.log('MedicalSectionV3 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Is exiting:', isExiting, 'Video visible:', videoVisible);
+  console.log('MedicalSectionV3 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Video visible:', videoVisible);
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -169,27 +168,19 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   }, [isPreserved]);
 
-  // Handle exit animation when preserving
+
+
+  // Full cleanup when section becomes inactive
   useEffect(() => {
-    if (isExiting) {
-      console.log('🟡 Section preserving - starting exit animation');
-      // Start exit animation sequence
+    if (sectionState === 'preserving' || sectionState === 'cleaned' || sectionState === 'idle') {
+      setHeaderVisible(false);
+      setVideoVisible(false);
+      setCaptionsVisible(false);
+      setCurrentVideo(0);
+      setIsPaused(true);
       setInteractionsEnabled(false);
       setVideoHover(false);
       setHoveredIndex(null);
-      setIsPaused(true);
-      
-      // Exit animation timing
-      setTimeout(() => setCaptionsVisible(false), 0);
-      setTimeout(() => setVideoVisible(false), 300);
-      setTimeout(() => setHeaderVisible(false), 600);
-    }
-  }, [isExiting]);
-
-  // Full cleanup only when cleaned
-  useEffect(() => {
-    if (sectionState === 'cleaned') {
-      setCurrentVideo(0);
       setBarKey(0);
     }
   }, [sectionState]);
