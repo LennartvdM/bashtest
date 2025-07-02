@@ -86,9 +86,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
 
   // Transition control to prevent rewind animations
   const shouldTransition = sectionState !== 'cleaned' && sectionState !== 'idle';
+  const isExiting = sectionState === 'preserving';
   
   // Debug logging
-  console.log('MedicalSectionV3 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Video visible:', videoVisible, 'Transform:', videoVisible ? 'translateX(0)' : 'translateX(200px)');
+  console.log('MedicalSectionV3 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Is exiting:', isExiting, 'Video visible:', videoVisible);
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -168,17 +169,27 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   }, [isPreserved]);
 
-  // Full cleanup only when cleaned
+  // Handle exit animation when preserving
   useEffect(() => {
-    if (sectionState === 'cleaned') {
-      setHeaderVisible(false);
-      setVideoVisible(false);
-      setCaptionsVisible(false);
-      setCurrentVideo(0);
-      setIsPaused(true);
+    if (isExiting) {
+      console.log('🟡 Section preserving - starting exit animation');
+      // Start exit animation sequence
       setInteractionsEnabled(false);
       setVideoHover(false);
       setHoveredIndex(null);
+      setIsPaused(true);
+      
+      // Exit animation timing
+      setTimeout(() => setCaptionsVisible(false), 0);
+      setTimeout(() => setVideoVisible(false), 300);
+      setTimeout(() => setHeaderVisible(false), 600);
+    }
+  }, [isExiting]);
+
+  // Full cleanup only when cleaned
+  useEffect(() => {
+    if (sectionState === 'cleaned') {
+      setCurrentVideo(0);
       setBarKey(0);
     }
   }, [sectionState]);
@@ -197,17 +208,6 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
         el.style.transform = 'translateX(200px)';
         el.style.opacity = '0';
       });
-      
-      // Then reset positions
-      setHeaderVisible(false);
-      setVideoVisible(false);
-      setCaptionsVisible(false);
-      setCurrentVideo(0);
-      setIsPaused(true);
-      setInteractionsEnabled(false);
-      setVideoHover(false);
-      setHoveredIndex(null);
-      setBarKey(0);
       
       // Force a reflow to ensure styles are applied
       document.body.offsetHeight;
@@ -519,49 +519,46 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           }}
         >
           {/* CookieCutterBand: sibling to video container */}
-          {shouldTransition && (
-            <div style={{
+          <div style={{
+            position: 'absolute',
+            left: 0, // CHANGED: was right: 0
+            top: 0,
+            width: bandWidth,
+            height: bandHeight,
+            zIndex: 1,
+            pointerEvents: 'none',
+            transition: shouldTransition ? (isNudging
+              ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
+              : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none !important',
+            transform: shouldTransition 
+              ? (safeVideoHover 
+                  ? 'translateY(-12px)' 
+                  : videoVisible 
+                    ? 'translateX(0)' 
+                    : 'translateX(200px)')
+              : 'translateX(200px)', // Always reset position when not transitioning
+            opacity: shouldTransition ? (videoVisible ? 0.4 : 0) : 0, // Always hide when not transitioning
+            mixBlendMode: 'screen'
+          }}>
+            <MirroredCookieCutterBand
+              bandColor="#f0f4f6"
+              bandHeight={bandHeight}
+              bandWidth={bandWidth}
+            />
+          </div>
+          {/* Gantry Frame: contains only the video container now */}
+          <div 
+            className="video-gantry-frame" 
+            data-section-inactive={!shouldTransition}
+            style={{
+              ...gantryFrameStyle,
               position: 'absolute',
               left: 0, // CHANGED: was right: 0
               top: 0,
-              width: bandWidth,
-              height: bandHeight,
-              zIndex: 1,
-              pointerEvents: 'none',
-              transition: shouldTransition ? (isNudging
-                ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
-                : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease') : 'none !important',
-              transform: shouldTransition 
-                ? (safeVideoHover 
-                    ? 'translateY(-12px)' 
-                    : videoVisible 
-                      ? 'translateX(0)' 
-                      : 'translateX(200px)')
-                : 'translateX(200px)', // Always reset position when not transitioning
-              opacity: shouldTransition ? (videoVisible ? 0.4 : 0) : 0, // Always hide when not transitioning
-              mixBlendMode: 'screen'
-            }}>
-              <MirroredCookieCutterBand
-                bandColor="#f0f4f6"
-                bandHeight={bandHeight}
-                bandWidth={bandWidth}
-              />
-            </div>
-          )}
-          {/* Gantry Frame: contains only the video container now */}
-          {shouldTransition && (
-            <div 
-              className="video-gantry-frame" 
-              data-section-inactive={!shouldTransition}
-              style={{
-                ...gantryFrameStyle,
-                position: 'absolute',
-                left: 0, // CHANGED: was right: 0
-                top: 0,
-                zIndex: 3,
-                pointerEvents: 'auto'
-              }}
-            >
+              zIndex: 3,
+              pointerEvents: 'auto'
+            }}
+          >
             {/* Targeting Outline Animation */}
             <div
               className="target-outline"
