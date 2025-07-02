@@ -652,7 +652,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 videos={mainVideos}
               />
             </div>
-          )}
+          </div>
         </div>
       </div>
       {/* Video Anchor (left of spacer) */}
