@@ -86,6 +86,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
 
   // Transition control to prevent rewind animations
   const shouldTransition = sectionState !== 'cleaned' && sectionState !== 'idle';
+  
+  // Debug logging
+  console.log('MedicalSectionV2 - Section state:', sectionState, 'Should transition:', shouldTransition);
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -175,6 +178,35 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
       setVideoHover(false);
       setHoveredIndex(null);
       setBarKey(0);
+    }
+  }, [sectionState]);
+
+  // Force remove transitions when section becomes idle
+  useEffect(() => {
+    if (sectionState === 'idle') {
+      // Force remove all transitions on media elements
+      const mediaElements = document.querySelectorAll('.video-gantry-frame, .video-frame');
+      mediaElements.forEach(el => {
+        el.style.transition = 'none';
+      });
+      
+      // Then reset positions
+      setHeaderVisible(false);
+      setVideoVisible(false);
+      setCaptionsVisible(false);
+      setCurrentVideo(0);
+      setIsPaused(true);
+      setInteractionsEnabled(false);
+      setVideoHover(false);
+      setHoveredIndex(null);
+      setBarKey(0);
+      
+      // Re-enable transitions on next frame if needed
+      requestAnimationFrame(() => {
+        mediaElements.forEach(el => {
+          el.style.transition = '';
+        });
+      });
     }
   }, [sectionState]);
 
