@@ -33,7 +33,7 @@ export default function SectionManager({ sections }) {
         // Always render all sections for scroll-snap
         // Let the section itself handle visibility
         // Set dark background for medical sections to prevent white flash
-        const isMedicalSection = section.name === 'four' || section.name === 'five';
+        const isMedicalSection = section.name === 'two' || section.name === 'three';
         const background = isMedicalSection ? '#1c3424' : undefined;
         
         return (
