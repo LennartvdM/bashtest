@@ -196,36 +196,61 @@ export default function WorldMapSection({ inView, sectionRef }) {
     // Global animation parameters (one set for all locations)
     // Zoom-in level (where the camera settles per location)
     const [zoomInLevel, setZoomInLevel] = useState(5)
-    // Zoom-out duration in seconds (one-way). Internal transitionDuration is split in half per logic
+    // Zoom-out duration in seconds (hold while zoomed out)
     const [zoomOutDuration, setZoomOutDuration] = useState(2)
-    // How long to remain zoomed-in before moving to the next location
-    const [zoomInHoldDuration, setZoomInHoldDuration] = useState(5)
+    // Zoom-in duration in seconds (hold while zoomed in)
+    const [zoomInDuration, setZoomInDuration] = useState(5)
 
     // SVG path for the map - you'll need to replace this with your actual worldmap.svg path
     const [svgPath, setSvgPath] = useState("/worldmap.svg")
 
-    // Auto-play through locations
+    // Auto-play through locations as pairs of segments: OUT (zoomed out) then IN (zoomed in)
+    // OUT: move to location at zoom-out level, hold for zoomOutDuration
+    // IN: stay on location and animate to zoom-in level, then hold for zoomInDuration
     useEffect(() => {
-        if (isPlaying && locations.length > 0) {
-            const interval = setInterval(() => {
-                setPlayIndex(prev => {
-                    const next = (prev + 1) % locations.length
-                    const location = locations[next]
-                    setViewportSettings(prev => ({
-                        ...prev,
-                        x: location.x,
-                        y: location.y,
-                        // Always use the global zoom-in level
-                        zoom: zoomInLevel
-                    }))
-                    setCurrentLocation(location)
-                    return next
-                })
-            }, (viewportSettings.transitionDuration + zoomInHoldDuration) * 1000)
+        if (!isPlaying || locations.length === 0) return
 
-            return () => clearInterval(interval)
+        const steps = locations.flatMap((loc) => ([
+            { type: 'out', location: loc },
+            { type: 'in', location: loc },
+        ]))
+
+        const currentStep = steps[playIndex % steps.length]
+
+        // Apply the step
+        if (currentStep.type === 'out') {
+            // Move to location at zoom-out level; make peak equal to out level to avoid extra pulse
+            setViewportSettings(prev => ({
+                ...prev,
+                x: currentStep.location.x,
+                y: currentStep.location.y,
+                zoom: prev.peakZoom,
+                peakZoom: prev.peakZoom,
+            }))
+            setCurrentLocation(currentStep.location)
+        } else {
+            // Stay on same location and animate to zoom-in level; use out level as peak
+            setViewportSettings(prev => ({
+                ...prev,
+                x: currentStep.location.x,
+                y: currentStep.location.y,
+                zoom: zoomInLevel,
+                peakZoom: prev.peakZoom,
+            }))
+            setCurrentLocation(currentStep.location)
         }
-    }, [isPlaying, locations, viewportSettings.transitionDuration, zoomInHoldDuration, zoomInLevel])
+
+        // Determine delay: include transition time only on IN to account for zoom animation
+        const delayMs = currentStep.type === 'out'
+            ? Math.max(0, zoomOutDuration) * 1000
+            : (Math.max(0, zoomInDuration) * 1000) + (Math.max(0, viewportSettings.transitionDuration) * 1000)
+
+        const timeoutId = setTimeout(() => {
+            setPlayIndex((i) => i + 1)
+        }, delayMs)
+
+        return () => clearTimeout(timeoutId)
+    }, [isPlaying, locations, playIndex, zoomOutDuration, zoomInDuration, zoomInLevel, viewportSettings.transitionDuration])
 
     const addLocation = () => {
         const newLocation = {
@@ -311,7 +336,9 @@ export const defaultViewportSettings = {
             setViewportSettings(parsed)
             if (typeof parsed.zoomInLevel === 'number') setZoomInLevel(parsed.zoomInLevel)
             if (typeof parsed.zoomOutDuration === 'number') setZoomOutDuration(parsed.zoomOutDuration)
-            if (typeof parsed.zoomInHoldDuration === 'number') setZoomInHoldDuration(parsed.zoomInHoldDuration)
+            // Backward compat: support zoomInHoldDuration key
+            if (typeof parsed.zoomInHoldDuration === 'number') setZoomInDuration(parsed.zoomInHoldDuration)
+            if (typeof parsed.zoomInDuration === 'number') setZoomInDuration(parsed.zoomInDuration)
         }
     }
 
@@ -383,7 +410,7 @@ export const defaultViewportSettings = {
                 disableSpring: viewportSettings.disableSpring,
                 zoomInLevel,
                 zoomOutDuration,
-                zoomInHoldDuration
+                zoomInDuration
             }
         }
         
@@ -490,7 +517,7 @@ export const defaultViewportSettings = {
                     {editMode && (
                         <div className="absolute bottom-4 left-4 bg-gray-800 text-white p-3 rounded-lg">
                             <div className="text-sm font-mono">
-                                X: {viewportSettings.x} | Y: {viewportSettings.y} | Zoom-in level: {zoomInLevel.toFixed(1)}
+                                X: {viewportSettings.x} | Y: {viewportSettings.y} | Zoom-in level: {zoomInLevel.toFixed(1)} | Zoom-out level: {viewportSettings.peakZoom.toFixed(1)}
                             </div>
                         </div>
                     )}
@@ -622,13 +649,8 @@ export const defaultViewportSettings = {
                                             step="0.1"
                                             value={zoomOutDuration}
                                             onChange={(e) => {
-                                                const val = parseFloat(e.target.value) || 1.5
+                                                const val = parseFloat(e.target.value) || 2
                                                 setZoomOutDuration(val)
-                                                // Internal animation splits equally; total transition is out+in
-                                                setViewportSettings(prev => ({
-                                                    ...prev,
-                                                    transitionDuration: val * 2
-                                                }))
                                             }}
                                             className="flex-1 bg-gray-600 px-2 py-1 rounded text-sm"
                                         />
@@ -656,15 +678,15 @@ export const defaultViewportSettings = {
                                 </div>
 
                                 <div>
-                                    <label className="text-sm text-gray-400">Zoom-in hold (s)</label>
+                                    <label className="text-sm text-gray-400">Zoom-in duration (s)</label>
                                     <div className="flex gap-2 items-center">
                                         <input
                                             type="number"
                                             min="0"
                                             max="20"
                                             step="0.1"
-                                            value={zoomInHoldDuration}
-                                            onChange={(e) => setZoomInHoldDuration(parseFloat(e.target.value) || 0)}
+                                            value={zoomInDuration}
+                                            onChange={(e) => setZoomInDuration(parseFloat(e.target.value) || 0)}
                                             className="flex-1 bg-gray-600 px-2 py-1 rounded text-sm"
                                         />
                                         <span className="text-xs text-gray-500">s</span>
