@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useRef, useState, useEffect, useCallback } from "react"
 import { motion, useSpring, useTransform, animate } from "framer-motion"
 import { Settings, Plus, Copy, Trash2, Eye, EyeOff, Move, Play, Save, MapPin, Zap, ZapOff, Upload, Download } from "lucide-react"
 
@@ -7,6 +7,8 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     const containerRef = useRef(null)
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [isDragging, setIsDragging] = useState(false)
+    const [visibleCountries, setVisibleCountries] = useState([])
+    const [svgData, setSvgData] = useState(null)
 
     const svgWidth = 1440
     const svgHeight = 700
@@ -27,6 +29,54 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     const motionX = useSpring(x, effectiveSpringConfig)
     const motionY = useSpring(y, effectiveSpringConfig)
     const motionZoom = useSpring(zoom, effectiveSpringConfig)
+
+    // Load and parse SVG data once
+    useEffect(() => {
+        fetch('/worldmap.svg')
+            .then(response => response.text())
+            .then(svgText => {
+                const parser = new DOMParser()
+                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml')
+                const paths = svgDoc.querySelectorAll('path.cls-1')
+                
+                const countries = Array.from(paths).map((path, index) => {
+                    const bbox = path.getBBox()
+                    return {
+                        id: index,
+                        path: path.getAttribute('d'),
+                        bbox: {
+                            x: bbox.x,
+                            y: bbox.y,
+                            width: bbox.width,
+                            height: bbox.height
+                        }
+                    }
+                })
+                
+                setSvgData(countries)
+            })
+            .catch(error => {
+                console.error('Failed to load SVG:', error)
+                // Fallback to original image approach
+                setSvgData([])
+            })
+    }, [])
+
+    // Calculate which countries are visible in current viewBox
+    const calculateVisibleCountries = useCallback((viewBox) => {
+        if (!svgData || svgData.length === 0) return []
+        
+        const [vbX, vbY, vbWidth, vbHeight] = viewBox.split(' ').map(Number)
+        
+        return svgData.filter(country => {
+            const { bbox } = country
+            // Check if country bounding box intersects with viewBox
+            return !(bbox.x + bbox.width < vbX || 
+                    bbox.x > vbX + vbWidth || 
+                    bbox.y + bbox.height < vbY || 
+                    bbox.y > vbY + vbHeight)
+        })
+    }, [svgData])
 
     useEffect(() => {
         motionX.set(x)
@@ -70,9 +120,13 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
         return `0 0 ${svgWidth} ${svgHeight}`
     }
 
-    const viewBox = useTransform([motionX, motionY, motionZoom], (latest) =>
-        calculateViewBox(...latest)
-    )
+    const viewBox = useTransform([motionX, motionY, motionZoom], (latest) => {
+        const vb = calculateViewBox(...latest)
+        // Update visible countries when viewBox changes
+        const visible = calculateVisibleCountries(vb)
+        setVisibleCountries(visible)
+        return vb
+    })
 
     const handleMouseDown = (e) => {
         if (!onViewportChange) return
@@ -129,11 +183,24 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 preserveAspectRatio="xMidYMid slice"
                 viewBox={viewBox}
             >
-                <image
-                    href="/worldmap.svg"
-                    width={svgWidth}
-                    height={svgHeight}
-                />
+                {/* Render only visible countries for performance */}
+                {svgData && svgData.length > 0 ? (
+                    visibleCountries.map(country => (
+                        <path
+                            key={country.id}
+                            d={country.path}
+                            fill="white"
+                            className="cls-1"
+                        />
+                    ))
+                ) : (
+                    // Fallback to original image if SVG parsing failed
+                    <image
+                        href="/worldmap.svg"
+                        width={svgWidth}
+                        height={svgHeight}
+                    />
+                )}
             </motion.svg>
             {showCrosshair && (
                 <svg
