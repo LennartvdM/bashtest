@@ -177,10 +177,26 @@ export default function WorldMapSection({ inView, sectionRef }) {
     const [playIndex, setPlayIndex] = useState(0)
     const fileInputRef = useRef(null)
     
-    const [locations, setLocations] = useState([
-        { id: 1, name: "Amsterdam", x: 696, y: 164, zoom: 5 },
-        { id: 2, name: "Vienna", x: 713, y: 197, zoom: 5 },
-        { id: 3, name: "Budapest", x: 725, y: 201, zoom: 5 },
+    // Each location has a pair: OUT (zoomed out) and IN (zoomed in)
+    const [locationPairs, setLocationPairs] = useState([
+        {
+            id: 1,
+            name: "Amsterdam",
+            out: { x: 696, y: 164, zoom: 1 }, // zoom-out segment
+            in: { x: 696, y: 164, zoom: 5 }   // zoom-in segment
+        },
+        {
+            id: 2,
+            name: "Vienna", 
+            out: { x: 713, y: 197, zoom: 1 }, // zoom-out segment
+            in: { x: 713, y: 197, zoom: 5 }   // zoom-in segment
+        },
+        {
+            id: 3,
+            name: "Budapest",
+            out: { x: 725, y: 201, zoom: 1 }, // zoom-out segment
+            in: { x: 725, y: 201, zoom: 5 }   // zoom-in segment
+        },
     ])
     
     const [viewportSettings, setViewportSettings] = useState({
@@ -204,40 +220,36 @@ export default function WorldMapSection({ inView, sectionRef }) {
     // SVG path for the map - you'll need to replace this with your actual worldmap.svg path
     const [svgPath, setSvgPath] = useState("/worldmap.svg")
 
-    // Auto-play through locations as pairs of segments: OUT (zoomed out) then IN (zoomed in)
-    // OUT: move to location at zoom-out level, hold for zoomOutDuration
-    // IN: stay on location and animate to zoom-in level, then hold for zoomInDuration
+    // Auto-play through location pairs: OUT then IN for each location
     useEffect(() => {
-        if (!isPlaying || locations.length === 0) return
+        if (!isPlaying || locationPairs.length === 0) return
 
-        const steps = locations.flatMap((loc) => ([
-            { type: 'out', location: loc },
-            { type: 'in', location: loc },
+        const steps = locationPairs.flatMap((pair) => ([
+            { type: 'out', pair: pair },
+            { type: 'in', pair: pair },
         ]))
 
         const currentStep = steps[playIndex % steps.length]
 
         // Apply the step
         if (currentStep.type === 'out') {
-            // Move to location at zoom-out level; make peak equal to out level to avoid extra pulse
+            // Move to location at zoom-out level
             setViewportSettings(prev => ({
                 ...prev,
-                x: currentStep.location.x,
-                y: currentStep.location.y,
-                zoom: prev.peakZoom,
-                peakZoom: prev.peakZoom,
+                x: currentStep.pair.out.x,
+                y: currentStep.pair.out.y,
+                zoom: currentStep.pair.out.zoom,
             }))
-            setCurrentLocation(currentStep.location)
+            setCurrentLocation(currentStep.pair)
         } else {
-            // Stay on same location and animate to zoom-in level; use out level as peak
+            // Stay on same location and animate to zoom-in level
             setViewportSettings(prev => ({
                 ...prev,
-                x: currentStep.location.x,
-                y: currentStep.location.y,
-                zoom: zoomInLevel,
-                peakZoom: prev.peakZoom,
+                x: currentStep.pair.in.x,
+                y: currentStep.pair.in.y,
+                zoom: currentStep.pair.in.zoom,
             }))
-            setCurrentLocation(currentStep.location)
+            setCurrentLocation(currentStep.pair)
         }
 
         // Determine delay: include transition time only on IN to account for zoom animation
@@ -250,54 +262,62 @@ export default function WorldMapSection({ inView, sectionRef }) {
         }, delayMs)
 
         return () => clearTimeout(timeoutId)
-    }, [isPlaying, locations, playIndex, zoomOutDuration, zoomInDuration, zoomInLevel, viewportSettings.transitionDuration])
+    }, [isPlaying, locationPairs, playIndex, zoomOutDuration, zoomInDuration, viewportSettings.transitionDuration])
 
-    const addLocation = () => {
-        const newLocation = {
+    const addLocationPair = () => {
+        const newPair = {
             id: Date.now(),
-            name: `Location ${locations.length + 1}`,
-            x: viewportSettings.x,
-            y: viewportSettings.y,
-            // Zoom is globally controlled; keep for backward compatibility
-            zoom: zoomInLevel
+            name: `Location ${locationPairs.length + 1}`,
+            out: { 
+                x: viewportSettings.x, 
+                y: viewportSettings.y, 
+                zoom: viewportSettings.peakZoom 
+            },
+            in: { 
+                x: viewportSettings.x, 
+                y: viewportSettings.y, 
+                zoom: zoomInLevel 
+            }
         }
-        setLocations([...locations, newLocation])
-        setCurrentLocation(newLocation)
+        setLocationPairs([...locationPairs, newPair])
+        setCurrentLocation(newPair)
     }
 
-    const updateLocation = (id, updates) => {
-        setLocations(locations.map(loc => 
-            loc.id === id ? { ...loc, ...updates } : loc
+    const updateLocationPair = (id, updates) => {
+        setLocationPairs(locationPairs.map(pair => 
+            pair.id === id ? { ...pair, ...updates } : pair
         ))
     }
 
-    const deleteLocation = (id) => {
-        setLocations(locations.filter(loc => loc.id !== id))
+    const deleteLocationPair = (id) => {
+        setLocationPairs(locationPairs.filter(pair => pair.id !== id))
         if (currentLocation?.id === id) {
             setCurrentLocation(null)
         }
     }
 
-    const goToLocation = (location) => {
+    const goToLocationPair = (pair) => {
         setViewportSettings({
             ...viewportSettings,
-            x: location.x,
-            y: location.y,
-            // Always use the global zoom-in level
-            zoom: zoomInLevel
+            x: pair.in.x,
+            y: pair.in.y,
+            zoom: pair.in.zoom
         })
-        setCurrentLocation(location)
+        setCurrentLocation(pair)
     }
 
     const handleViewportChange = (newSettings) => {
         setViewportSettings({ ...viewportSettings, ...newSettings })
         if (currentLocation && editMode) {
-            updateLocation(currentLocation.id, newSettings)
+            // Update the IN segment of the current pair
+            updateLocationPair(currentLocation.id, {
+                in: { ...currentLocation.in, ...newSettings }
+            })
         }
     }
 
     const exportLocations = () => {
-        const code = `export const mapLocations = ${JSON.stringify(locations, null, 2)};
+        const code = `export const locationPairs = ${JSON.stringify(locationPairs, null, 2)};
 
 export const defaultViewportSettings = {
   showCrosshair: false,
@@ -306,7 +326,7 @@ export const defaultViewportSettings = {
   disableSpring: ${viewportSettings.disableSpring},
   zoomInLevel: ${zoomInLevel},
   zoomOutDuration: ${zoomOutDuration},
-  zoomInHoldDuration: ${zoomInHoldDuration}
+  zoomInDuration: ${zoomInDuration}
 };`
         
         navigator.clipboard.writeText(code)
@@ -314,22 +334,22 @@ export const defaultViewportSettings = {
     }
 
     const saveToLocalStorage = () => {
-        localStorage.setItem('worldMapLocations', JSON.stringify(locations))
+        localStorage.setItem('worldMapLocationPairs', JSON.stringify(locationPairs))
         localStorage.setItem('worldMapSettings', JSON.stringify({
             ...viewportSettings,
             zoomInLevel,
             zoomOutDuration,
-            zoomInHoldDuration
+            zoomInDuration
         }))
-        alert('Locations saved!')
+        alert('Location pairs saved!')
     }
 
     const loadFromLocalStorage = () => {
-        const savedLocations = localStorage.getItem('worldMapLocations')
+        const savedPairs = localStorage.getItem('worldMapLocationPairs')
         const savedSettings = localStorage.getItem('worldMapSettings')
         
-        if (savedLocations) {
-            setLocations(JSON.parse(savedLocations))
+        if (savedPairs) {
+            setLocationPairs(JSON.parse(savedPairs))
         }
         if (savedSettings) {
             const parsed = JSON.parse(savedSettings)
@@ -358,11 +378,25 @@ export const defaultViewportSettings = {
                 } catch {
                     // If not JSON, try to extract from the exported code format
                     const locationsMatch = content.match(/export const mapLocations = (\[[\s\S]*?\]);/)
+                    const pairsMatch = content.match(/export const locationPairs = (\[[\s\S]*?\]);/)
                     const settingsMatch = content.match(/export const defaultViewportSettings = ([\s\S]*?);/)
                     
-                    if (locationsMatch) {
+                    if (pairsMatch) {
                         data = {
-                            locations: JSON.parse(locationsMatch[1]),
+                            locationPairs: JSON.parse(pairsMatch[1]),
+                            settings: settingsMatch ? JSON.parse(settingsMatch[1]) : null
+                        }
+                    } else if (locationsMatch) {
+                        // Convert old format to new format
+                        const oldLocations = JSON.parse(locationsMatch[1])
+                        const newPairs = oldLocations.map(loc => ({
+                            id: loc.id,
+                            name: loc.name,
+                            out: { x: loc.x, y: loc.y, zoom: 1 },
+                            in: { x: loc.x, y: loc.y, zoom: loc.zoom || 5 }
+                        }))
+                        data = {
+                            locationPairs: newPairs,
                             settings: settingsMatch ? JSON.parse(settingsMatch[1]) : null
                         }
                     } else {
@@ -371,22 +405,30 @@ export const defaultViewportSettings = {
                 }
 
                 // Handle different data structures
-                if (data.locations && Array.isArray(data.locations)) {
-                    setLocations(data.locations)
+                if (data.locationPairs && Array.isArray(data.locationPairs)) {
+                    setLocationPairs(data.locationPairs)
+                } else if (data.locations && Array.isArray(data.locations)) {
+                    // Convert old format
+                    const newPairs = data.locations.map(loc => ({
+                        id: loc.id,
+                        name: loc.name,
+                        out: { x: loc.x, y: loc.y, zoom: 1 },
+                        in: { x: loc.x, y: loc.y, zoom: loc.zoom || 5 }
+                    }))
+                    setLocationPairs(newPairs)
                 } else if (Array.isArray(data)) {
-                    setLocations(data)
+                    // Assume it's an array of pairs
+                    setLocationPairs(data)
                 } else {
-                    throw new Error('No valid locations found')
+                    throw new Error('No valid location pairs found')
                 }
 
                 if (data.settings) {
                     setViewportSettings(prev => ({ ...prev, ...data.settings }))
                     if (typeof data.settings.zoomInLevel === 'number') setZoomInLevel(data.settings.zoomInLevel)
-                    if (typeof data.settings.zoomOutDuration === 'number') {
-                        setZoomOutDuration(data.settings.zoomOutDuration)
-                        setViewportSettings(prev => ({ ...prev, transitionDuration: data.settings.zoomOutDuration * 2 }))
-                    }
-                    if (typeof data.settings.zoomInHoldDuration === 'number') setZoomInHoldDuration(data.settings.zoomInHoldDuration)
+                    if (typeof data.settings.zoomOutDuration === 'number') setZoomOutDuration(data.settings.zoomOutDuration)
+                    if (typeof data.settings.zoomInHoldDuration === 'number') setZoomInDuration(data.settings.zoomInHoldDuration)
+                    if (typeof data.settings.zoomInDuration === 'number') setZoomInDuration(data.settings.zoomInDuration)
                 }
 
                 alert('File imported successfully!')
@@ -402,7 +444,7 @@ export const defaultViewportSettings = {
 
     const downloadLocations = () => {
         const data = {
-            locations: locations,
+            locationPairs: locationPairs,
             settings: {
                 showCrosshair: viewportSettings.showCrosshair,
                 transitionDuration: viewportSettings.transitionDuration,
@@ -526,7 +568,7 @@ export const defaultViewportSettings = {
                 {/* Side Panel */}
                 {showPanel && (
                     <div className="w-96 bg-gray-800 text-white p-6 overflow-y-auto">
-                        <h2 className="text-2xl font-bold mb-6">Map Locations</h2>
+                        <h2 className="text-2xl font-bold mb-6">Location Pairs</h2>
                         
                         {/* Import/Export Buttons */}
                         <div className="flex gap-2 mb-6">
@@ -556,44 +598,57 @@ export const defaultViewportSettings = {
                             style={{ display: 'none' }}
                         />
                         
-                        {/* Location List */}
-                        <div className="space-y-2 mb-6">
-                            {locations.map(location => (
+                        {/* Location Pairs List */}
+                        <div className="space-y-4 mb-6">
+                            {locationPairs.map(pair => (
                                 <div
-                                    key={location.id}
+                                    key={pair.id}
                                     className={`p-4 bg-gray-700 rounded-lg cursor-pointer transition-all ${
-                                        currentLocation?.id === location.id ? 'ring-2 ring-blue-500' : ''
+                                        currentLocation?.id === pair.id ? 'ring-2 ring-blue-500' : ''
                                     }`}
-                                    onClick={() => goToLocation(location)}
+                                    onClick={() => goToLocationPair(pair)}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">
-                                            {editMode && currentLocation?.id === location.id ? (
+                                            {editMode && currentLocation?.id === pair.id ? (
                                                 <input
                                                     type="text"
-                                                    value={location.name}
-                                                    onChange={(e) => updateLocation(location.id, { name: e.target.value })}
+                                                    value={pair.name}
+                                                    onChange={(e) => updateLocationPair(pair.id, { name: e.target.value })}
                                                     className="bg-gray-600 px-2 py-1 rounded w-full"
                                                     onClick={(e) => e.stopPropagation()}
                                                 />
                                             ) : (
                                                 <h3 className="font-semibold flex items-center gap-2">
                                                     <MapPin size={16} />
-                                                    {location.name}
+                                                    {pair.name}
                                                 </h3>
                                             )}
-                                            <p className="text-sm text-gray-400 mt-1">
-                                                X: {location.x}, Y: {location.y}
-                                            </p>
+                                            
+                                            {/* OUT segment */}
+                                            <div className="mt-2 p-2 bg-gray-800 rounded border-l-2 border-blue-400">
+                                                <div className="text-xs text-blue-400 font-medium mb-1">ZOOM OUT</div>
+                                                <p className="text-sm text-gray-400">
+                                                    X: {pair.out.x}, Y: {pair.out.y}, Zoom: {pair.out.zoom.toFixed(1)}
+                                                </p>
+                                            </div>
+                                            
+                                            {/* IN segment */}
+                                            <div className="mt-2 p-2 bg-gray-800 rounded border-l-2 border-green-400">
+                                                <div className="text-xs text-green-400 font-medium mb-1">ZOOM IN</div>
+                                                <p className="text-sm text-gray-400">
+                                                    X: {pair.in.x}, Y: {pair.in.y}, Zoom: {pair.in.zoom.toFixed(1)}
+                                                </p>
+                                            </div>
                                         </div>
                                         {editMode && (
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation()
-                                                    deleteLocation(location.id)
+                                                    deleteLocationPair(pair.id)
                                                 }}
                                                 className="ml-2 p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition-colors"
-                                                title="Delete location"
+                                                title="Delete location pair"
                                             >
                                                 <Trash2 size={16} />
                                             </button>
@@ -603,14 +658,14 @@ export const defaultViewportSettings = {
                             ))}
                         </div>
                         
-                        {/* Add Location Button */}
+                        {/* Add Location Pair Button */}
                         {editMode && (
                             <button
-                                onClick={addLocation}
+                                onClick={addLocationPair}
                                 className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 mb-6"
                             >
                                 <Plus size={20} />
-                                Add Current Position
+                                Add Current Position as Pair
                             </button>
                         )}
                         
