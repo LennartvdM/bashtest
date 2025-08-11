@@ -39,8 +39,22 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 const svgDoc = parser.parseFromString(svgText, 'image/svg+xml')
                 const paths = svgDoc.querySelectorAll('path.cls-1')
                 
+                console.log('Found paths:', paths.length)
+                
                 const countries = Array.from(paths).map((path, index) => {
-                    const bbox = path.getBBox()
+                    // Create a temporary SVG element to calculate bounding box
+                    const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+                    tempSvg.setAttribute('viewBox', '0 0 1440 700')
+                    tempSvg.style.position = 'absolute'
+                    tempSvg.style.visibility = 'hidden'
+                    document.body.appendChild(tempSvg)
+                    
+                    const clonedPath = path.cloneNode(true)
+                    tempSvg.appendChild(clonedPath)
+                    
+                    const bbox = clonedPath.getBBox()
+                    document.body.removeChild(tempSvg)
+                    
                     return {
                         id: index,
                         path: path.getAttribute('d'),
@@ -53,6 +67,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                     }
                 })
                 
+                console.log('Parsed countries:', countries.length)
                 setSvgData(countries)
             })
             .catch(error => {
@@ -68,7 +83,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
         
         const [vbX, vbY, vbWidth, vbHeight] = viewBox.split(' ').map(Number)
         
-        return svgData.filter(country => {
+        const visible = svgData.filter(country => {
             const { bbox } = country
             // Check if country bounding box intersects with viewBox
             return !(bbox.x + bbox.width < vbX || 
@@ -76,6 +91,9 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                     bbox.y + bbox.height < vbY || 
                     bbox.y > vbY + vbHeight)
         })
+        
+        console.log('Visible countries:', visible.length, 'out of', svgData.length)
+        return visible
     }, [svgData])
 
     useEffect(() => {
@@ -191,14 +209,26 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
             >
                 {/* Render only visible countries for performance */}
                 {svgData && svgData.length > 0 ? (
-                    visibleCountries.map(country => (
-                        <path
-                            key={country.id}
-                            d={country.path}
-                            fill="white"
-                            className="cls-1"
-                        />
-                    ))
+                    visibleCountries.length > 0 ? (
+                        visibleCountries.map(country => (
+                            <path
+                                key={country.id}
+                                d={country.path}
+                                fill="white"
+                                className="cls-1"
+                            />
+                        ))
+                    ) : (
+                        // Fallback: render all countries if no visible ones found
+                        svgData.map(country => (
+                            <path
+                                key={country.id}
+                                d={country.path}
+                                fill="white"
+                                className="cls-1"
+                            />
+                        ))
+                    )
                 ) : (
                     // Fallback to original image if SVG parsing failed
                     <image
