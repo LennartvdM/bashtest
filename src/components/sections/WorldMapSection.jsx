@@ -83,16 +83,23 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
         
         const [vbX, vbY, vbWidth, vbHeight] = viewBox.split(' ').map(Number)
         
+        // Add a much wider safety zone (50% of viewport size) to prevent abrupt disappearances
+        const safetyZone = Math.max(vbWidth, vbHeight) * 0.5
+        const expandedVbX = vbX - safetyZone
+        const expandedVbY = vbY - safetyZone
+        const expandedVbWidth = vbWidth + (safetyZone * 2)
+        const expandedVbHeight = vbHeight + (safetyZone * 2)
+        
         const visible = svgData.filter(country => {
             const { bbox } = country
-            // Check if country bounding box intersects with viewBox
-            return !(bbox.x + bbox.width < vbX || 
-                    bbox.x > vbX + vbWidth || 
-                    bbox.y + bbox.height < vbY || 
-                    bbox.y > vbY + vbHeight)
+            // Check if country bounding box intersects with expanded viewBox
+            return !(bbox.x + bbox.width < expandedVbX || 
+                    bbox.x > expandedVbX + expandedVbWidth || 
+                    bbox.y + bbox.height < expandedVbY || 
+                    bbox.y > expandedVbY + expandedVbHeight)
         })
         
-        console.log('Visible countries:', visible.length, 'out of', svgData.length)
+        console.log('Visible countries:', visible.length, 'out of', svgData.length, 'with safety zone:', safetyZone.toFixed(1))
         return visible
     }, [svgData])
 
