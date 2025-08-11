@@ -687,6 +687,11 @@ export const defaultViewportSettings = {
                                                 const val = parseFloat(e.target.value) || 1
                                                 setZoomInLevel(val)
                                                 setViewportSettings(prev => ({ ...prev, zoom: val }))
+                                                // Update all IN segments in real-time
+                                                setLocationPairs(prev => prev.map(pair => ({
+                                                    ...pair,
+                                                    in: { ...pair.in, zoom: val }
+                                                })))
                                             }}
                                             className="flex-1 bg-gray-600 px-2 py-1 rounded text-sm"
                                         />
@@ -722,10 +727,18 @@ export const defaultViewportSettings = {
                                             max="5"
                                             step="0.1"
                                             value={viewportSettings.peakZoom}
-                                            onChange={(e) => setViewportSettings({
-                                                ...viewportSettings,
-                                                peakZoom: parseFloat(e.target.value) || 0.8
-                                            })}
+                                            onChange={(e) => {
+                                                const val = parseFloat(e.target.value) || 0.8
+                                                setViewportSettings(prev => ({
+                                                    ...prev,
+                                                    peakZoom: val
+                                                }))
+                                                // Update all OUT segments in real-time
+                                                setLocationPairs(prev => prev.map(pair => ({
+                                                    ...pair,
+                                                    out: { ...pair.out, zoom: val }
+                                                })))
+                                            }}
                                             className="flex-1 bg-gray-600 px-2 py-1 rounded text-sm"
                                         />
                                         <span className="text-xs text-gray-500">x</span>
