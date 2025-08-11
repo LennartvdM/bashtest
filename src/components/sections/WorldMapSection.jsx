@@ -122,11 +122,17 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
 
     const viewBox = useTransform([motionX, motionY, motionZoom], (latest) => {
         const vb = calculateViewBox(...latest)
-        // Update visible countries when viewBox changes
-        const visible = calculateVisibleCountries(vb)
-        setVisibleCountries(visible)
         return vb
     })
+
+    // Update visible countries when viewBox changes
+    useEffect(() => {
+        if (svgData && svgData.length > 0) {
+            const currentViewBox = calculateViewBox(x, y, zoom)
+            const visible = calculateVisibleCountries(currentViewBox)
+            setVisibleCountries(visible)
+        }
+    }, [x, y, zoom, svgData, calculateVisibleCountries])
 
     const handleMouseDown = (e) => {
         if (!onViewportChange) return
