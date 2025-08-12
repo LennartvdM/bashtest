@@ -148,7 +148,6 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
 
     const viewBox = useTransform([motionX, motionY, motionZoom], (latest) => {
         const vb = calculateViewBox(...latest)
-        console.log('Motion viewBox:', vb, 'from values:', latest)
         return vb
     })
 
@@ -156,7 +155,6 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     useEffect(() => {
         if (svgData && svgData.length > 0) {
             const currentViewBox = calculateViewBox(x, y, zoom)
-            console.log('ViewBox changed:', currentViewBox)
             const newlyVisible = calculateVisibleCountries(currentViewBox)
             
             // Clear any existing deload timeout
@@ -172,35 +170,25 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 
                 // Add countries that are newly visible
                 const countriesToAdd = newlyVisible.filter(c => !currentIds.has(c.id))
-                if (countriesToAdd.length > 0) {
-                    console.log(`Adding ${countriesToAdd.length} newly visible countries`)
-                }
                 
-                // Keep countries that are still visible
+                // Keep countries that are still visible OR were recently visible (for delayed deloading)
                 const countriesToKeep = prevVisible.filter(c => newIds.has(c.id))
                 
                 // Countries to remove (no longer visible)
                 const countriesToRemove = prevVisible.filter(c => !newIds.has(c.id))
                 
                 if (countriesToRemove.length > 0) {
-                    console.log(`Setting deload timeout for ${countriesToRemove.length} countries`)
-                    
                     // Set a timeout to remove countries after 1 second delay
                     const timeoutId = setTimeout(() => {
-                        console.log(`Executing deload timeout, removing ${countriesToRemove.length} countries`)
-                        setVisibleCountries(currentVisible => {
-                            const finalResult = currentVisible.filter(c => newIds.has(c.id))
-                            console.log(`After deload: ${finalResult.length} countries remaining`)
-                            return finalResult
-                        })
+                        setVisibleCountries(currentVisible => 
+                            currentVisible.filter(c => newIds.has(c.id))
+                        )
                     }, 1000) // 1 second delay
                     deloadTimeoutRef.current = timeoutId
                 }
                 
                 // Return current visible countries plus newly added ones
-                const result = [...countriesToKeep, ...countriesToAdd]
-                console.log(`Total visible countries: ${result.length}`)
-                return result
+                return [...countriesToKeep, ...countriesToAdd]
             })
         }
     }, [x, y, zoom, svgData, calculateVisibleCountries])
