@@ -171,8 +171,8 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 // Add countries that are newly visible
                 const countriesToAdd = newlyVisible.filter(c => !currentIds.has(c.id))
                 
-                // Keep countries that are still visible OR were recently visible (for delayed deloading)
-                const countriesToKeep = prevVisible.filter(c => newIds.has(c.id))
+                // Keep ALL currently visible countries (including ones that should be removed later)
+                const countriesToKeep = prevVisible
                 
                 // Countries to remove (no longer visible)
                 const countriesToRemove = prevVisible.filter(c => !newIds.has(c.id))
