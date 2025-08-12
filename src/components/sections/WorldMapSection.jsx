@@ -10,6 +10,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     const [visibleCountries, setVisibleCountries] = useState([])
     const [svgData, setSvgData] = useState(null)
     const deloadTimeoutRef = useRef(null)
+    const [fadingCountries, setFadingCountries] = useState(new Set())
 
     const svgWidth = 1440
     const svgHeight = 700
@@ -174,6 +175,13 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 const countriesToAdd = newlyVisible.filter(c => !currentIds.has(c.id))
                 if (countriesToAdd.length > 0) {
                     console.log(`Adding ${countriesToAdd.length} newly visible countries`)
+                    // Start fade-in animation for new countries
+                    const newCountryIds = countriesToAdd.map(c => c.id)
+                    setFadingCountries(prev => {
+                        const newSet = new Set(prev)
+                        newCountryIds.forEach(id => newSet.delete(id)) // Remove from fading if they were fading out
+                        return newSet
+                    })
                 }
                 
                 // Keep countries that are still visible
@@ -184,6 +192,11 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 
                 if (countriesToRemove.length > 0) {
                     console.log(`Setting deload timeout for ${countriesToRemove.length} countries`)
+                    
+                    // Start fade-out animation immediately
+                    const countriesToFade = countriesToRemove.map(c => c.id)
+                    setFadingCountries(prev => new Set([...prev, ...countriesToFade]))
+                    
                     // Set a timeout to remove countries after 1 second delay
                     const timeoutId = setTimeout(() => {
                         console.log(`Executing deload timeout, removing ${countriesToRemove.length} countries`)
@@ -191,6 +204,12 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                             const finalResult = currentVisible.filter(c => newIds.has(c.id))
                             console.log(`After deload: ${finalResult.length} countries remaining`)
                             return finalResult
+                        })
+                        // Clear fading state for these countries
+                        setFadingCountries(prev => {
+                            const newSet = new Set(prev)
+                            countriesToFade.forEach(id => newSet.delete(id))
+                            return newSet
                         })
                     }, 1000) // 1 second delay
                     deloadTimeoutRef.current = timeoutId
@@ -268,14 +287,22 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 preserveAspectRatio="xMidYMid slice"
                 viewBox={viewBox}
             >
-                {/* Render all countries for testing - disable lazy loading temporarily */}
+                {/* Render all countries with fade-out animation */}
                 {svgData && svgData.length > 0 ? (
                     svgData.map(country => (
-                        <path
+                        <motion.path
                             key={country.id}
                             d={country.path}
                             fill="white"
                             className="cls-1"
+                            initial={{ opacity: 0 }}
+                            animate={{ 
+                                opacity: fadingCountries.has(country.id) ? 0 : 1 
+                            }}
+                            transition={{ 
+                                duration: fadingCountries.has(country.id) ? 0.8 : 0.3,
+                                ease: "easeOut"
+                            }}
                         />
                     ))
                 ) : (
