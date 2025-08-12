@@ -9,6 +9,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     const [isDragging, setIsDragging] = useState(false)
     const [visibleCountries, setVisibleCountries] = useState([])
     const [svgData, setSvgData] = useState(null)
+    const [deloadTimeout, setDeloadTimeout] = useState(null)
 
     const svgWidth = 1440
     const svgHeight = 700
@@ -150,14 +151,56 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
         return vb
     })
 
-    // Update visible countries when viewBox changes
+    // Update visible countries when viewBox changes with delayed deloading
     useEffect(() => {
         if (svgData && svgData.length > 0) {
             const currentViewBox = calculateViewBox(x, y, zoom)
-            const visible = calculateVisibleCountries(currentViewBox)
-            setVisibleCountries(visible)
+            const newlyVisible = calculateVisibleCountries(currentViewBox)
+            
+            // Clear any existing deload timeout
+            if (deloadTimeout) {
+                clearTimeout(deloadTimeout)
+                setDeloadTimeout(null)
+            }
+            
+            // Immediately add newly visible countries
+            setVisibleCountries(prevVisible => {
+                const currentIds = new Set(prevVisible.map(c => c.id))
+                const newIds = new Set(newlyVisible.map(c => c.id))
+                
+                // Add countries that are newly visible
+                const countriesToAdd = newlyVisible.filter(c => !currentIds.has(c.id))
+                
+                // Keep countries that are still visible
+                const countriesToKeep = prevVisible.filter(c => newIds.has(c.id))
+                
+                // Countries to remove (no longer visible)
+                const countriesToRemove = prevVisible.filter(c => !newIds.has(c.id))
+                
+                if (countriesToRemove.length > 0) {
+                    // Set a timeout to remove countries after 1 second delay
+                    const timeoutId = setTimeout(() => {
+                        setVisibleCountries(currentVisible => 
+                            currentVisible.filter(c => newIds.has(c.id))
+                        )
+                    }, 1000) // 1 second delay
+                    setDeloadTimeout(timeoutId)
+                }
+                
+                // Return current visible countries plus newly added ones
+                return [...countriesToKeep, ...countriesToAdd]
+            })
         }
-    }, [x, y, zoom, svgData, calculateVisibleCountries])
+    }, [x, y, zoom, svgData, calculateVisibleCountries, deloadTimeout])
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (deloadTimeout) {
+                clearTimeout(deloadTimeout)
+            }
+        }
+    }, [deloadTimeout])
 
     const handleMouseDown = (e) => {
         if (!onViewportChange) return
