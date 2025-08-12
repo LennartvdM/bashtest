@@ -778,21 +778,49 @@ export const defaultViewportSettings = {
                                                 </h3>
                                             )}
                                             
-                                            {/* OUT segment */}
-                                            <div className="mt-2 p-2 bg-gray-800 rounded border-l-2 border-blue-400">
-                                                <div className="text-xs text-blue-400 font-medium mb-1">ZOOM OUT</div>
-                                                <p className="text-sm text-gray-400">
-                                                    X: {pair.out.x}, Y: {pair.out.y}, Zoom: {pair.out.zoom.toFixed(1)}
-                                                </p>
-                                            </div>
-                                            
-                                            {/* IN segment */}
-                                            <div className="mt-2 p-2 bg-gray-800 rounded border-l-2 border-green-400">
-                                                <div className="text-xs text-green-400 font-medium mb-1">ZOOM IN</div>
-                                                <p className="text-sm text-gray-400">
-                                                    X: {pair.in.x}, Y: {pair.in.y}, Zoom: {pair.in.zoom.toFixed(1)}
-                                                </p>
-                                            </div>
+                                                                                         {/* OUT segment */}
+                                             <div className={`mt-2 p-2 rounded border-l-2 transition-colors ${
+                                                 currentLocation?.id === pair.id && 
+                                                 Math.abs(viewportSettings.x - pair.out.x) < 5 && 
+                                                 Math.abs(viewportSettings.y - pair.out.y) < 5 && 
+                                                 Math.abs(viewportSettings.zoom - pair.out.zoom) < 0.5
+                                                     ? 'bg-blue-900/50 border-blue-300' 
+                                                     : 'bg-gray-800 border-blue-400'
+                                             }`}>
+                                                 <div className={`text-xs font-medium mb-1 ${
+                                                     currentLocation?.id === pair.id && 
+                                                     Math.abs(viewportSettings.x - pair.out.x) < 5 && 
+                                                     Math.abs(viewportSettings.y - pair.out.y) < 5 && 
+                                                     Math.abs(viewportSettings.zoom - pair.out.zoom) < 0.5
+                                                         ? 'text-blue-300' 
+                                                         : 'text-blue-400'
+                                                 }`}>ZOOM OUT</div>
+                                                 <p className="text-sm text-gray-400">
+                                                     X: {pair.out.x}, Y: {pair.out.y}, Zoom: {pair.out.zoom.toFixed(1)}
+                                                 </p>
+                                             </div>
+                                             
+                                             {/* IN segment */}
+                                             <div className={`mt-2 p-2 rounded border-l-2 transition-colors ${
+                                                 currentLocation?.id === pair.id && 
+                                                 Math.abs(viewportSettings.x - pair.in.x) < 5 && 
+                                                 Math.abs(viewportSettings.y - pair.in.y) < 5 && 
+                                                 Math.abs(viewportSettings.zoom - pair.in.zoom) < 0.5
+                                                     ? 'bg-green-900/50 border-green-300' 
+                                                     : 'bg-gray-800 border-green-400'
+                                             }`}>
+                                                 <div className={`text-xs font-medium mb-1 ${
+                                                     currentLocation?.id === pair.id && 
+                                                     Math.abs(viewportSettings.x - pair.in.x) < 5 && 
+                                                     Math.abs(viewportSettings.y - pair.in.y) < 5 && 
+                                                     Math.abs(viewportSettings.zoom - pair.in.zoom) < 0.5
+                                                         ? 'text-green-300' 
+                                                         : 'text-green-400'
+                                                 }`}>ZOOM IN</div>
+                                                 <p className="text-sm text-gray-400">
+                                                     X: {pair.in.x}, Y: {pair.in.y}, Zoom: {pair.in.zoom.toFixed(1)}
+                                                 </p>
+                                             </div>
                                         </div>
                                         {editMode && (
                                             <button
