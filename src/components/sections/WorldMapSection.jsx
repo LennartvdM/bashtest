@@ -170,6 +170,9 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 
                 // Add countries that are newly visible
                 const countriesToAdd = newlyVisible.filter(c => !currentIds.has(c.id))
+                if (countriesToAdd.length > 0) {
+                    console.log(`Adding ${countriesToAdd.length} newly visible countries`)
+                }
                 
                 // Keep countries that are still visible
                 const countriesToKeep = prevVisible.filter(c => newIds.has(c.id))
@@ -178,8 +181,10 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 const countriesToRemove = prevVisible.filter(c => !newIds.has(c.id))
                 
                 if (countriesToRemove.length > 0) {
+                    console.log(`Setting deload timeout for ${countriesToRemove.length} countries`)
                     // Set a timeout to remove countries after 1 second delay
                     const timeoutId = setTimeout(() => {
+                        console.log(`Executing deload timeout, removing ${countriesToRemove.length} countries`)
                         setVisibleCountries(currentVisible => 
                             currentVisible.filter(c => newIds.has(c.id))
                         )
@@ -188,10 +193,12 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 }
                 
                 // Return current visible countries plus newly added ones
-                return [...countriesToKeep, ...countriesToAdd]
+                const result = [...countriesToKeep, ...countriesToAdd]
+                console.log(`Total visible countries: ${result.length}`)
+                return result
             })
         }
-    }, [x, y, zoom, svgData, calculateVisibleCountries, deloadTimeout])
+    }, [x, y, zoom, svgData, calculateVisibleCountries])
 
     // Cleanup timeout on unmount
     useEffect(() => {
