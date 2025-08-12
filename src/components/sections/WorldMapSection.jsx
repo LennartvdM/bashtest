@@ -148,6 +148,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
 
     const viewBox = useTransform([motionX, motionY, motionZoom], (latest) => {
         const vb = calculateViewBox(...latest)
+        console.log('Motion viewBox:', vb, 'from values:', latest)
         return vb
     })
 
@@ -186,9 +187,11 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                     // Set a timeout to remove countries after 1 second delay
                     const timeoutId = setTimeout(() => {
                         console.log(`Executing deload timeout, removing ${countriesToRemove.length} countries`)
-                        setVisibleCountries(currentVisible => 
-                            currentVisible.filter(c => newIds.has(c.id))
-                        )
+                        setVisibleCountries(currentVisible => {
+                            const finalResult = currentVisible.filter(c => newIds.has(c.id))
+                            console.log(`After deload: ${finalResult.length} countries remaining`)
+                            return finalResult
+                        })
                     }, 1000) // 1 second delay
                     deloadTimeoutRef.current = timeoutId
                 }
@@ -265,28 +268,16 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                 preserveAspectRatio="xMidYMid slice"
                 viewBox={viewBox}
             >
-                {/* Render only visible countries for performance */}
+                {/* Render all countries for testing - disable lazy loading temporarily */}
                 {svgData && svgData.length > 0 ? (
-                    visibleCountries.length > 0 ? (
-                        visibleCountries.map(country => (
-                            <path
-                                key={country.id}
-                                d={country.path}
-                                fill="white"
-                                className="cls-1"
-                            />
-                        ))
-                    ) : (
-                        // Fallback: render all countries if no visible ones found
-                        svgData.map(country => (
-                            <path
-                                key={country.id}
-                                d={country.path}
-                                fill="white"
-                                className="cls-1"
-                            />
-                        ))
-                    )
+                    svgData.map(country => (
+                        <path
+                            key={country.id}
+                            d={country.path}
+                            fill="white"
+                            className="cls-1"
+                        />
+                    ))
                 ) : (
                     // Fallback to original image if SVG parsing failed
                     <image
