@@ -9,7 +9,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     const [isDragging, setIsDragging] = useState(false)
     const [visibleCountries, setVisibleCountries] = useState([])
     const [svgData, setSvgData] = useState(null)
-    const [deloadTimeout, setDeloadTimeout] = useState(null)
+    const deloadTimeoutRef = useRef(null)
 
     const svgWidth = 1440
     const svgHeight = 700
@@ -155,12 +155,13 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     useEffect(() => {
         if (svgData && svgData.length > 0) {
             const currentViewBox = calculateViewBox(x, y, zoom)
+            console.log('ViewBox changed:', currentViewBox)
             const newlyVisible = calculateVisibleCountries(currentViewBox)
             
             // Clear any existing deload timeout
-            if (deloadTimeout) {
-                clearTimeout(deloadTimeout)
-                setDeloadTimeout(null)
+            if (deloadTimeoutRef.current) {
+                clearTimeout(deloadTimeoutRef.current)
+                deloadTimeoutRef.current = null
             }
             
             // Immediately add newly visible countries
@@ -189,7 +190,7 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
                             currentVisible.filter(c => newIds.has(c.id))
                         )
                     }, 1000) // 1 second delay
-                    setDeloadTimeout(timeoutId)
+                    deloadTimeoutRef.current = timeoutId
                 }
                 
                 // Return current visible countries plus newly added ones
@@ -203,11 +204,11 @@ function WorldMapViewport({ x, y, zoom, showCrosshair, transitionDuration, peakZ
     // Cleanup timeout on unmount
     useEffect(() => {
         return () => {
-            if (deloadTimeout) {
-                clearTimeout(deloadTimeout)
+            if (deloadTimeoutRef.current) {
+                clearTimeout(deloadTimeoutRef.current)
             }
         }
-    }, [deloadTimeout])
+    }, [])
 
     const handleMouseDown = (e) => {
         if (!onViewportChange) return
