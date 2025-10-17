@@ -61,15 +61,16 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
   }, [setVideoCenter]);
 
   return (
-    <div 
-      className="inline-flex flex-row items-center mx-auto w-full relative" 
+    <div
+      className="inline-flex flex-row items-center mx-auto w-full relative"
       style={{
-        position: 'relative', 
-        minHeight: '320px', 
-        minWidth: '320px', 
-        maxWidth: '480px', 
-        width: '480px', 
-        height: '320px',
+        position: 'relative',
+        minHeight: '0px',
+        minWidth: '0px',
+        maxWidth: '480px',
+        width: '100%',
+        height: 'auto',
+        aspectRatio: '3 / 2',
         cursor: interactionsEnabled ? 'pointer' : 'default'
       }}
       onMouseEnter={() => interactionsEnabled && setVideoHover?.(true)}
