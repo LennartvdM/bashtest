@@ -61,14 +61,14 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
   }, [setVideoCenter]);
 
   return (
-    <div 
-      className="inline-flex flex-row items-center mx-auto w-full relative" 
+    <div
+      className="inline-flex flex-row items-center mx-auto w-full relative"
       style={{
-        position: 'relative', 
+        position: 'relative',
         minHeight: '0px',
-        minWidth: '280px',
+        minWidth: '0px',
         maxWidth: '480px',
-        width: 'min(92vw, 480px)',
+        width: '100%',
         height: 'auto',
         aspectRatio: '3 / 2',
         cursor: interactionsEnabled ? 'pointer' : 'default'

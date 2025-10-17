@@ -67,6 +67,12 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
+  const [isTabletLayout, setIsTabletLayout] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return window.innerWidth < 1200;
+  });
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -84,6 +90,20 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Derived/computed values after all state declarations
   const safeVideoHover = interactionsEnabled && videoHover;
   const safeHoveredIndex = interactionsEnabled ? hoveredIndex : null;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleResize = () => {
+      setIsTabletLayout(window.innerWidth < 1200);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Transition control to prevent rewind animations
   const shouldTransition = sectionState === 'entering' || sectionState === 'active';
@@ -103,6 +123,10 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const cornerRadius = 16;
   const gap = 32;
   const videoHeight = 320;
+  const videoContainerWidth = isTabletLayout ? 'min(480px, 90vw)' : 480;
+  const captionContainerWidth = isTabletLayout ? 'min(520px, 90vw)' : 444;
+  const videoOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(-200px)';
+  const captionOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(200px)';
 
   // Calculate the left offset so the cutout aligns with the video container
   const bandLeft = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
@@ -111,23 +135,24 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // --- Gantry Frame dimensions and animation ---
   const isNudging = safeVideoHover;
   const gantryFrameStyle = {
-    position: 'absolute',
-    right: 'calc(50% + 20px)',
-    top: videoAndCaptionTop,
-    width: 480,
-    height: 320,
+    position: isTabletLayout ? 'relative' : 'absolute',
+    left: isTabletLayout ? 'auto' : undefined,
+    right: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
+    top: isTabletLayout ? 'auto' : videoAndCaptionTop,
+    width: '100%',
+    height: '100%',
     zIndex: 2,
     display: 'flex',
     alignItems: 'stretch',
     transition: shouldTransition ? (isNudging ? NUDGE_TRANSITION : SLIDE_TRANSITION) : 'none !important',
-    transform: shouldTransition 
-      ? (safeVideoHover 
-          ? 'translateY(-12px)' 
-          : videoVisible 
-            ? 'translateX(0)' 
-            : 'translateX(-200px)')
-      : 'translateX(-200px)', // Always reset position when not transitioning
-    opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0, // Always hide when not transitioning
+    transform: shouldTransition
+      ? (safeVideoHover
+          ? 'translateY(-12px)'
+          : videoVisible
+            ? 'translate3d(0,0,0)'
+            : videoOffscreenTransform)
+      : videoOffscreenTransform,
+    opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0,
     overflow: 'visible',
     borderRadius: '16px',
     boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
@@ -248,12 +273,23 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   }, []);
 
   useLayoutEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (isTabletLayout) {
+      const baseTop = 60;
+      setCollectionTop(`${baseTop}px`);
+      setVideoAndCaptionTop(`${baseTop + headerHeight + gap}px`);
+      return;
+    }
+
     const totalHeight = headerHeight + gap + videoHeight;
     const viewportHeight = window.innerHeight;
     const top = 60 + (viewportHeight - 60 - totalHeight) / 2;
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
-  }, [headerHeight, gap, videoHeight]);
+  }, [headerHeight, gap, videoHeight, isTabletLayout]);
 
   // Responsive breakpoint: stack vertically under 1200px
   useEffect(() => {
@@ -512,11 +548,12 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
       <div style={{
         position: 'relative',
         width: '100%',
-        height: isNarrow ? 'auto' : bandHeight,
+        height: isTabletLayout ? 'auto' : bandHeight,
         display: 'flex',
-        flexDirection: isNarrow ? 'column' : 'row',
+        flexDirection: isTabletLayout ? 'column' : 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        gap: isTabletLayout ? 32 : 0,
         zIndex: 20,
       }}>
         {/* Spacer (centered) */}
@@ -533,6 +570,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             background: 'rgba(255, 0, 0, 0)',
             pointerEvents: 'none',
             zIndex: 10,
+            display: isTabletLayout ? 'none' : 'block',
           }}
         />
         {/* Video Anchor (now contains cookiecutter and video container) */}
@@ -540,19 +578,20 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           ref={videoAnchorRef}
           data-testid="video-anchor"
           style={{
-            position: 'absolute',
-            right: isNarrow ? 'auto' : 'calc(50% + 20px)',
-            left: isNarrow ? '50%' : 'auto',
-            top: isNarrow ? '0px' : videoAndCaptionTop,
-            transform: isNarrow ? 'translateX(-50%)' : 'none',
-            width: isNarrow ? 'min(92vw, 480px)' : 480,
-            height: videoHeight,
+            position: isTabletLayout ? 'relative' : 'absolute',
+            right: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
+            top: isTabletLayout ? 'auto' : videoAndCaptionTop,
+            width: videoContainerWidth,
+            maxWidth: isTabletLayout ? '90vw' : 480,
+            height: isTabletLayout ? 'auto' : videoHeight,
+            aspectRatio: isTabletLayout ? '3 / 2' : undefined,
             opacity: 1,
             pointerEvents: 'none',
             zIndex: 2,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            margin: isTabletLayout ? '0 auto' : undefined,
           }}
         >
           {/* CookieCutterBand: sibling to video container */}
@@ -562,18 +601,18 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               right: isNarrow ? '50%' : 0,
               transform: isNarrow ? 'translateX(50%)' : undefined,
               top: 0,
-              width: bandWidth,
+              width: isTabletLayout ? '100%' : bandWidth,
               height: bandHeight,
               zIndex: 1,
               pointerEvents: 'none',
               transition: isNudging
                 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
                 : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-              transform: safeVideoHover 
-                ? 'translateY(-12px)' 
-                : videoVisible 
-                  ? 'translateX(0)' 
-                  : 'translateX(-200px)',
+              transform: safeVideoHover
+                ? 'translateY(-12px)'
+                : videoVisible
+                  ? 'translate3d(0,0,0)'
+                  : videoOffscreenTransform,
               opacity: videoVisible ? 0.4 : 0,
               mixBlendMode: 'screen'
             }}>
@@ -586,15 +625,15 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           )}
           {/* Gantry Frame: contains only the video container now */}
           {shouldTransition && (
-            <div 
-              className="video-gantry-frame" 
+            <div
+              className="video-gantry-frame"
               data-section-inactive={!shouldTransition}
               style={{
                 ...gantryFrameStyle,
-                position: 'absolute',
-                right: isNarrow ? '50%' : 0,
-                transform: isNarrow ? 'translate(50%, 0)' : gantryFrameStyle.transform,
-                top: 0,
+                position: isTabletLayout ? 'relative' : 'absolute',
+                right: isTabletLayout ? 'auto' : 0,
+                left: isTabletLayout ? 'auto' : undefined,
+                top: isTabletLayout ? 'auto' : 0,
                 zIndex: 3,
                 pointerEvents: 'auto'
               }}
@@ -632,11 +671,12 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               data-testid="video-frame"
               className="video-frame"
               style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
+                position: isTabletLayout ? 'relative' : 'absolute',
+                left: isTabletLayout ? 'auto' : 0,
+                top: isTabletLayout ? 'auto' : 0,
                 width: '100%',
-                height: '100%',
+                height: isTabletLayout ? 'auto' : '100%',
+                aspectRatio: isTabletLayout ? '3 / 2' : undefined,
                 zIndex: 3,
                 background: 'none',
                 borderRadius: 16,
@@ -668,32 +708,37 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
         ref={videoAnchorRef}
         data-testid="video-anchor"
         style={{
-          position: 'absolute',
-          right: 'calc(50% + 20px)', // 20px is half the spacer width
-          top: videoAndCaptionTop,
-          width: 480,
-          height: videoHeight,
-          opacity: 0.5,
+          position: isTabletLayout ? 'relative' : 'absolute',
+          right: isTabletLayout ? 'auto' : 'calc(50% + 20px)', // 20px is half the spacer width
+          top: isTabletLayout ? 'auto' : videoAndCaptionTop,
+          width: videoContainerWidth,
+          maxWidth: isTabletLayout ? '90vw' : 480,
+          height: isTabletLayout ? 'auto' : videoHeight,
+          opacity: isTabletLayout ? 0 : 0.5,
           pointerEvents: 'none',
           zIndex: 1,
+          display: isTabletLayout ? 'none' : 'block',
         }}
       />
       {/* Caption Anchor with entrance animation */}
       <div
         className="caption-anchor"
         style={{
-          position: 'absolute',
-          left: isNarrow ? '50%' : 'calc(50% + 20px)',
-          top: isNarrow ? `${videoHeight + gap}px` : videoAndCaptionTop,
-          width: isNarrow ? 'min(92vw, 520px)' : 444,
-          height: videoHeight,
+          position: isTabletLayout ? 'relative' : 'absolute',
+          left: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
+          top: isTabletLayout ? 'auto' : videoAndCaptionTop,
+          width: captionContainerWidth,
+          maxWidth: isTabletLayout ? '90vw' : 444,
+          height: isTabletLayout ? 'auto' : videoHeight,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: isTabletLayout ? 'stretch' : 'center',
+          justifyContent: isTabletLayout ? 'flex-start' : 'center',
           zIndex: 20,
           transition: shouldTransition ? (captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none') : 'none',
           opacity: captionsVisible ? 1 : 0,
-          transform: captionsVisible ? (isNarrow ? 'translate(-50%, 0)' : 'translateX(0)') : (isNarrow ? 'translate(-50%, 0)' : 'translateX(200px)'),
+          transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
+          margin: isTabletLayout ? '0 auto' : undefined,
+          
         }}
       >
         {/* Caption Section (centered inside caption anchor) */}
@@ -702,13 +747,20 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           className="MedicalSection-caption-area flex flex-col items-start justify-center"
           data-testid="MedicalSection-caption-area"
           style={{
-            maxWidth: 520,
-            width: 'auto',
+            maxWidth: isTabletLayout ? '100%' : 520,
+            width: isTabletLayout ? '100%' : 'auto',
             marginLeft: 0,
             paddingLeft: 0,
           }}
         >
-          <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
+          <div
+            className="relative flex flex-col gap-2 items-start"
+            style={{
+              width: '100%',
+              marginLeft: 0,
+              paddingLeft: 0,
+            }}
+          >
             {rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height) && (
               <>
                 {/* Targeting outline container */}
@@ -717,12 +769,13 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                   style={{
                     top: rightRect.top,
                     left: '50%',
-                    width: 444,
+                    width: isTabletLayout ? '100%' : 444,
                     height: rightRect.height,
                     transform: 'translateX(-50%)',
                     zIndex: 5,
                     pointerEvents: 'none',
-                    transition: shouldTransition ? 'all 700ms ease' : 'none'
+                    transition: shouldTransition ? 'all 700ms ease' : 'none',
+                    display: isTabletLayout ? 'none' : undefined,
                   }}
                 >
                   {/* Targeting outline */}
@@ -747,15 +800,15 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                     }}
                   />
                   {/* Duplicated Highlighter rectangle for right section */}
-                  <div
-                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
-                    style={{
-                      top: 0,
-                      height: rightRect.height,
-                      width: 444,
-                      left: 0,
-                      paddingLeft: 24,
-                      paddingRight: 24,
+                <div
+                  className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
+                  style={{
+                    top: 0,
+                    height: rightRect.height,
+                    width: isTabletLayout ? '100%' : 444,
+                    left: 0,
+                    paddingLeft: 24,
+                    paddingRight: 24,
                       background: safeHoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
                       borderRadius: 10,
                       boxShadow: safeHoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
@@ -792,7 +845,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                       pointerEvents: 'none',
                       transform: 'translateY(-50%)',
                       transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-                      opacity: 0.2
+                      opacity: 0.2,
+                      display: isTabletLayout ? 'none' : undefined,
                     }}
                   />
                 </div>
@@ -807,8 +861,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 className="relative text-right py-3 rounded-xl transition-all duration-700 ease"
                 style={{
                   display: 'block',
-                  maxWidth: 480,
-                  minWidth: 320,
+                  maxWidth: isTabletLayout ? '100%' : 480,
+                  minWidth: isTabletLayout ? '0px' : 320,
+                  width: isTabletLayout ? '100%' : 'auto',
                   paddingLeft: 24,
                   paddingRight: 24,
                   margin: '0 auto',
@@ -853,17 +908,24 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
         data-testid="header-frame"
         className="header-frame"
         style={{
-          position: 'absolute',
-          right: 'calc(50% + 20px)',
-          top: collectionTop,
-          width: 480,
+          position: isTabletLayout ? 'relative' : 'absolute',
+          right: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
+          top: isTabletLayout ? 'auto' : collectionTop,
+          width: isTabletLayout ? 'min(520px, 90vw)' : 480,
           background: 'none',
           zIndex: 20,
           transition: shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none',
           opacity: headerVisible ? 1 : 0,
+          margin: isTabletLayout ? '0 auto 32px' : 0,
         }}
       >
-        <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: isTabletLayout ? 'center' : 'flex-start',
+          marginRight: 0
+        }}>
           <h2 style={{
             fontFamily: 'Inter, sans-serif',
             fontSize: 48,
@@ -880,9 +942,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               '0 0px 1px rgba(0,0,0,0.18)',
               '0 0px 8px rgba(82,156,156,0.10)'
             ].join(', '),
-            alignSelf: 'flex-start',
+            alignSelf: isTabletLayout ? 'center' : 'flex-start',
             paddingLeft: 0,
-            textAlign: 'left',
+            textAlign: isTabletLayout ? 'center' : 'left',
             width: '100%',
             userSelect: 'none',
             WebkitUserSelect: 'none'
