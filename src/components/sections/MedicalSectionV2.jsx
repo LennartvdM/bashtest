@@ -65,6 +65,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
 
   // All useRef hooks next
@@ -253,6 +254,17 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
+
+  // Responsive breakpoint: stack vertically under 1200px
+  useEffect(() => {
+    function handleResize() {
+      const narrow = window.innerWidth < 1200;
+      setIsNarrow(narrow);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Measure video container position and size for SVG
   useLayoutEffect(() => {
@@ -500,8 +512,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
       <div style={{
         position: 'relative',
         width: '100%',
-        height: bandHeight,
+        height: isNarrow ? 'auto' : bandHeight,
         display: 'flex',
+        flexDirection: isNarrow ? 'column' : 'row',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 20,
@@ -528,9 +541,11 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           data-testid="video-anchor"
           style={{
             position: 'absolute',
-            right: 'calc(50% + 20px)',
-            top: videoAndCaptionTop,
-            width: 480,
+            right: isNarrow ? 'auto' : 'calc(50% + 20px)',
+            left: isNarrow ? '50%' : 'auto',
+            top: isNarrow ? '0px' : videoAndCaptionTop,
+            transform: isNarrow ? 'translateX(-50%)' : 'none',
+            width: isNarrow ? 'min(92vw, 480px)' : 480,
             height: videoHeight,
             opacity: 1,
             pointerEvents: 'none',
@@ -544,7 +559,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           {shouldTransition && (
             <div style={{
               position: 'absolute',
-              right: 0,
+              right: isNarrow ? '50%' : 0,
+              transform: isNarrow ? 'translateX(50%)' : undefined,
               top: 0,
               width: bandWidth,
               height: bandHeight,
@@ -576,7 +592,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               style={{
                 ...gantryFrameStyle,
                 position: 'absolute',
-                right: 0,
+                right: isNarrow ? '50%' : 0,
+                transform: isNarrow ? 'translate(50%, 0)' : gantryFrameStyle.transform,
                 top: 0,
                 zIndex: 3,
                 pointerEvents: 'auto'
@@ -666,9 +683,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
         className="caption-anchor"
         style={{
           position: 'absolute',
-          left: 'calc(50% + 20px)',
-          top: videoAndCaptionTop,
-          width: 444,
+          left: isNarrow ? '50%' : 'calc(50% + 20px)',
+          top: isNarrow ? `${videoHeight + gap}px` : videoAndCaptionTop,
+          width: isNarrow ? 'min(92vw, 520px)' : 444,
           height: videoHeight,
           display: 'flex',
           alignItems: 'center',
@@ -676,7 +693,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           zIndex: 20,
           transition: shouldTransition ? (captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none') : 'none',
           opacity: captionsVisible ? 1 : 0,
-          transform: captionsVisible ? 'translateX(0)' : 'translateX(200px)',
+          transform: captionsVisible ? (isNarrow ? 'translate(-50%, 0)' : 'translateX(0)') : (isNarrow ? 'translate(-50%, 0)' : 'translateX(200px)'),
         }}
       >
         {/* Caption Section (centered inside caption anchor) */}

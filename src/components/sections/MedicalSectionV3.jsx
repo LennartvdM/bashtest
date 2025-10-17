@@ -66,6 +66,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -253,6 +254,17 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
+
+  // Responsive breakpoint: stack vertically under 1200px
+  useEffect(() => {
+    function handleResize() {
+      const narrow = window.innerWidth < 1200;
+      setIsNarrow(narrow);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Measure video container position and size for SVG
   useLayoutEffect(() => {
@@ -469,8 +481,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       <div style={{
         position: 'relative',
         width: '100%',
-        height: bandHeight,
+        height: isNarrow ? 'auto' : bandHeight,
         display: 'flex',
+        flexDirection: isNarrow ? 'column' : 'row',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 20,
@@ -497,9 +510,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           data-testid="video-anchor"
           style={{
             position: 'absolute',
-            left: 'calc(50% + 20px)', // CHANGED: was right
-            top: videoAndCaptionTop,
-            width: 480,
+            left: isNarrow ? '50%' : 'calc(50% + 20px)', // CHANGED: was right
+            top: isNarrow ? '0px' : videoAndCaptionTop,
+            transform: isNarrow ? 'translateX(-50%)' : 'none',
+            width: isNarrow ? 'min(92vw, 480px)' : 480,
             height: videoHeight,
             opacity: 1,
             pointerEvents: 'none',
@@ -513,7 +527,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           {shouldTransition && (
             <div style={{
               position: 'absolute',
-              left: 0, // CHANGED: was right: 0
+              left: isNarrow ? '50%' : 0, // CHANGED: was right: 0
               top: 0,
               width: bandWidth,
               height: bandHeight,
@@ -522,11 +536,11 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               transition: isNudging
                 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
                 : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-              transform: safeVideoHover 
+              transform: (isNarrow ? 'translateX(-50%) ' : '') + (safeVideoHover 
                 ? 'translateY(-12px)' 
                 : videoVisible 
                   ? 'translateX(0)' 
-                  : 'translateX(200px)',
+                  : 'translateX(200px)'),
               opacity: videoVisible ? 0.4 : 0,
               mixBlendMode: 'screen'
             }}>
@@ -545,10 +559,11 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               style={{
                 ...gantryFrameStyle,
                 position: 'absolute',
-                left: 0, // CHANGED: was right: 0
+                left: isNarrow ? '50%' : 0, // CHANGED: was right: 0
                 top: 0,
                 zIndex: 3,
-                pointerEvents: 'auto'
+                pointerEvents: 'auto',
+                transform: isNarrow ? 'translate(-50%, 0)' : gantryFrameStyle.transform
               }}
             >
             {/* Targeting Outline Animation */}
@@ -619,9 +634,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           className="caption-anchor"
           style={{
             position: 'absolute',
-            right: 'calc(50% + 20px)',
-            top: videoAndCaptionTop,
-            width: 444,
+            right: isNarrow ? 'auto' : 'calc(50% + 20px)',
+            left: isNarrow ? '50%' : 'auto',
+            top: isNarrow ? `${videoHeight + gap}px` : videoAndCaptionTop,
+            width: isNarrow ? 'min(92vw, 520px)' : 444,
             height: videoHeight,
             display: 'flex',
             alignItems: 'center',
@@ -629,7 +645,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             zIndex: 20,
             transition: shouldTransition ? (captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none') : 'none',
             opacity: captionsVisible ? 1 : 0,
-            transform: captionsVisible ? 'translateX(0)' : 'translateX(-200px)',
+            transform: captionsVisible ? (isNarrow ? 'translate(-50%, 0)' : 'translateX(0)') : (isNarrow ? 'translate(-50%, 0)' : 'translateX(-200px)'),
           }}
         >
           {/* Caption Section (centered inside caption anchor) */}
