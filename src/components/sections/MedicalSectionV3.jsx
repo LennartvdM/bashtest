@@ -480,7 +480,52 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           </div>
         )
       ))}
-      {/* Foreground content: flex row, no card, just video | spacer | captions */}
+      {/* Header on tablet: render above the carousel */}
+      {isTabletLayout && (
+        <div
+          ref={headerRef}
+          data-testid="header-frame-tablet"
+          className="header-frame-tablet"
+          style={{
+            position: 'relative',
+            width: 'min(520px, 90vw)',
+            background: 'none',
+            zIndex: 20,
+            opacity: headerVisible ? 1 : 0,
+            margin: '0 auto 24px',
+            transition: shouldTransition ? (headerVisible ? 'opacity 1.2s ease' : 'none') : 'none'
+          }}
+        >
+          <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+            <h2 style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 40,
+              fontWeight: 700,
+              letterSpacing: -2,
+              lineHeight: 1.2,
+              color: '#fff',
+              margin: 0,
+              textShadow: [
+                '0 4px 32px rgba(0,0,0,0.22)',
+                '0 2px 16px rgba(0,0,0,0.18)',
+                '0 1px 2px rgba(0,0,0,0.12)',
+                '0 0px 1px rgba(0,0,0,0.18)',
+                '0 0px 8px rgba(82,156,156,0.10)'
+              ].join(', '),
+              textAlign: 'center',
+              width: '100%'
+            }}>
+              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease' : 'none' }}>Yet, </span>
+              <span style={{ opacity: headerVisible ? 1 : 0, color: '#3fd1c7', transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>reflection</span>
+              <br />
+              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>strengthens</span>
+              <br />
+              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>the next</span>
+            </h2>
+          </div>
+        </div>
+      )}
+      {/* Foreground content: flex row (desktop) or column (tablet) */}
       <div style={{
         position: 'relative',
         width: '100%',
@@ -811,12 +856,13 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           </div>
         </div>
       </div>
-      {/* Header Frame with entrance animation */}
+      {/* Header Frame with entrance animation (desktop only) */}
       <div
         ref={headerRef}
         data-testid="header-frame"
         className="header-frame"
         style={{
+          display: isTabletLayout ? 'none' : 'block',
           position: 'absolute',
           left: 'calc(50% + 20px)',
           top: collectionTop,
