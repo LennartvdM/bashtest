@@ -358,7 +358,8 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       className="h-screen w-full relative overflow-hidden"
       style={{
         opacity: sectionState === 'idle' || sectionState === 'cleaned' ? 0 : 1,
-        transition: 'opacity 0.3s ease'
+        transition: 'opacity 0.3s ease',
+        paddingTop: isTabletLayout ? 16 : 0
       }}
     >
       <style>
@@ -492,14 +493,14 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             background: 'none',
             zIndex: 20,
             opacity: headerVisible ? 1 : 0,
-            margin: '0 auto 24px',
+            margin: '0 auto 16px',
             transition: shouldTransition ? (headerVisible ? 'opacity 1.2s ease' : 'none') : 'none'
           }}
         >
           <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
             <h2 style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: 40,
+              fontSize: 36,
               fontWeight: 700,
               letterSpacing: -2,
               lineHeight: 1.2,
