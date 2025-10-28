@@ -352,6 +352,46 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   };
 
+  // Tablet Portrait: simplified render path
+  if (isTabletLayout) {
+    return (
+      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 16, paddingBottom: 24 }}>
+        <div style={{ width: 'min(520px, 90vw)', margin: '0 auto 16px' }}>
+          <h2 style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 36,
+            fontWeight: 700,
+            letterSpacing: -2,
+            lineHeight: 1.2,
+            color: '#fff',
+            margin: 0,
+            textAlign: 'center'
+          }}>
+            Yet, <span style={{ color: '#3fd1c7' }}>reflection</span>
+            <br />
+            strengthens
+            <br />
+            the next
+          </h2>
+        </div>
+        <div style={{ width: 'min(480px, 92vw)', margin: '0 auto 16px' }}>
+          <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden' }}>
+            <MedicalCarousel current={currentVideo} interactionsEnabled={true} videos={mainVideos} />
+          </div>
+        </div>
+        <div style={{ width: 'min(520px, 90vw)', margin: '0 auto', textAlign: 'center' }}>
+          {headlines.map((headline, i) => (
+            <p key={i} style={{ margin: '16px 0', fontFamily: 'Inter, sans-serif', fontSize: 20, lineHeight: 1.35, color: '#e8e8e8' }}>
+              {headline.firstLine}
+              <br />
+              {headline.secondLine}
+            </p>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       ref={sectionRef} 
