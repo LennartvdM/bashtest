@@ -524,14 +524,14 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             background: 'none',
             zIndex: 20,
             opacity: headerVisible ? 1 : 0,
-            margin: '0 auto 16px',
+            margin: '0 auto 24px',
             transition: shouldTransition ? (headerVisible ? 'opacity 1.2s ease' : 'none') : 'none'
           }}
         >
           <div style={{ width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
             <h2 style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: 36,
+              fontSize: 40,
               fontWeight: 700,
               letterSpacing: -2,
               lineHeight: 1.2,
@@ -583,6 +583,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             background: 'rgba(255, 0, 0, 0)',
             pointerEvents: 'none',
             zIndex: 10,
+            display: isTabletLayout ? 'none' : 'block',
           }}
         />
         {/* Video Anchor (now contains cookiecutter and video container) */}
