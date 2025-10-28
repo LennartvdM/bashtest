@@ -361,13 +361,13 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: 16,
+          justifyContent: 'space-evenly',
+          gap: 12,
         }}>
         <div style={{ width: 'min(520px, 90vw)' }}>
           <h2 style={{
             fontFamily: 'Inter, sans-serif',
-            fontSize: 36,
+            fontSize: 'clamp(28px, 4.5vw, 36px)',
             fontWeight: 700,
             letterSpacing: -2,
             lineHeight: 1.2,
@@ -382,14 +382,14 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             the next
           </h2>
         </div>
-        <div style={{ width: 'min(480px, 92vw)' }}>
+        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
           <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden' }}>
             <MedicalCarousel current={currentVideo} interactionsEnabled={true} videos={mainVideos} />
           </div>
         </div>
         <div style={{ width: 'min(520px, 90vw)', textAlign: 'center' }}>
           {headlines.map((headline, i) => (
-            <p key={i} style={{ margin: '16px 0', fontFamily: 'Inter, sans-serif', fontSize: 20, lineHeight: 1.35, color: '#e8e8e8' }}>
+            <p key={i} style={{ margin: 'clamp(8px, 2vh, 16px) 0', fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2.4vw, 20px)', lineHeight: 1.35, color: '#e8e8e8' }}>
               {headline.firstLine}
               <br />
               {headline.secondLine}
