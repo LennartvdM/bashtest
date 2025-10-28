@@ -355,8 +355,16 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // Tablet Portrait: simplified render path
   if (isTabletLayout) {
     return (
-      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 16, paddingBottom: 24 }}>
-        <div style={{ width: 'min(520px, 90vw)', margin: '0 auto 16px' }}>
+      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 16, paddingBottom: 16 }}>
+        <div style={{
+          minHeight: 'calc(100vh - 60px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 16,
+        }}>
+        <div style={{ width: 'min(520px, 90vw)' }}>
           <h2 style={{
             fontFamily: 'Inter, sans-serif',
             fontSize: 36,
@@ -374,12 +382,12 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             the next
           </h2>
         </div>
-        <div style={{ width: 'min(480px, 92vw)', margin: '0 auto 16px' }}>
+        <div style={{ width: 'min(480px, 92vw)' }}>
           <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden' }}>
             <MedicalCarousel current={currentVideo} interactionsEnabled={true} videos={mainVideos} />
           </div>
         </div>
-        <div style={{ width: 'min(520px, 90vw)', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ width: 'min(520px, 90vw)', textAlign: 'center' }}>
           {headlines.map((headline, i) => (
             <p key={i} style={{ margin: '16px 0', fontFamily: 'Inter, sans-serif', fontSize: 20, lineHeight: 1.35, color: '#e8e8e8' }}>
               {headline.firstLine}
@@ -387,6 +395,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               {headline.secondLine}
             </p>
           ))}
+        </div>
         </div>
       </div>
     );
