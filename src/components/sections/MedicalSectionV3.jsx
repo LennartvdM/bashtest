@@ -418,9 +418,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               onPauseChange={(p) => setIsPaused(!!p)}
               style={{ width: '100%', height: '100%' }}
             />
-            {/* Progress bar */}
-            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 6, background: 'rgba(0,0,0,0.15)' }} />
-            <div key={barKey} style={{ position: 'absolute', left: 0, bottom: 0, height: 6, background: 'rgba(82,156,156,0.9)', width: '0%', animation: `tablet-progress 7000ms linear forwards`, animationPlayState: isPaused ? 'paused' : 'running' }} />
+            {/* Progress moved to active caption highlight */}
           </div>
         </div>
         <div style={{ width: 'min(520px, 90vw)', textAlign: 'center' }}>
@@ -444,7 +442,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                   background: active ? 'rgba(232,232,232,0.95)' : 'rgba(232,232,232,0.35)',
                   boxShadow: active ? '0 2px 8px rgba(0,0,0,0.18)' : 'none',
                   transition: 'background 200ms ease, box-shadow 200ms ease',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
               >
                 <span style={{ display: 'inline-block', fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2.4vw, 20px)', lineHeight: 1.35, color: active ? '#2a2323' : '#e8e8e8' }}>
@@ -452,6 +452,24 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                   <br />
                   {headline.secondLine}
                 </span>
+                {active && (
+                  <>
+                    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 6, background: 'rgba(0,0,0,0.12)' }} />
+                    <div
+                      key={barKey}
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        bottom: 0,
+                        height: 6,
+                        background: 'rgba(82,156,156,0.9)',
+                        width: '0%',
+                        animation: `tablet-progress 7000ms linear forwards`,
+                        animationPlayState: isPaused ? 'paused' : 'running'
+                      }}
+                    />
+                  </>
+                )}
               </button>
             );
           })}
