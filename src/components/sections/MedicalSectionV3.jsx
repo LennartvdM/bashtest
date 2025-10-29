@@ -410,6 +410,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               videos={mainVideos}
               current={currentVideo}
               onChange={(idx) => {
+                console.log('[Tablet V3] onChange to', idx);
                 setCurrentVideo(idx);
                 setIsPaused(true);
                 setBarKey((k) => k + 1);

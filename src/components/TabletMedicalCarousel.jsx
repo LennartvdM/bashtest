@@ -15,11 +15,13 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    console.log('[TabletCarousel] mounted with', videos.length, 'videos, current=', current);
 
     const onPointerDown = (e) => {
       isPointerDownRef.current = true;
       startXRef.current = e.clientX ?? (e.touches && e.touches[0]?.clientX);
       if (onPauseChange) onPauseChange(true);
+      console.log('[TabletCarousel] pointer down');
     };
     const onPointerUp = (e) => {
       if (!isPointerDownRef.current) return;
@@ -27,8 +29,13 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
       if (typeof startXRef.current === 'number' && typeof endX === 'number') {
         const delta = endX - startXRef.current;
         if (Math.abs(delta) > 32) {
-          if (delta < 0) onChange?.((current + 1) % videos.length);
-          else onChange?.((current - 1 + videos.length) % videos.length);
+          if (delta < 0) {
+            console.log('[TabletCarousel] swipe next');
+            onChange?.((current + 1) % videos.length);
+          } else {
+            console.log('[TabletCarousel] swipe prev');
+            onChange?.((current - 1 + videos.length) % videos.length);
+          }
         }
       }
       isPointerDownRef.current = false;
@@ -60,7 +67,7 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
 
   const active = videos[current];
   return (
-    <div ref={containerRef} className={className} style={{ position: 'relative', ...style }}>
+    <div ref={containerRef} className={className} style={{ position: 'relative', touchAction: 'pan-y', ...style }}>
       <div style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden' }}>
         <video
           key={active?.id}
@@ -78,8 +85,8 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
         />
       </div>
       {/* Left/Right tap zones for accessibility (optional) */}
-      <button aria-label="Previous" onClick={() => onChange?.((current - 1 + videos.length) % videos.length)} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '15%', background: 'transparent', border: 'none' }} />
-      <button aria-label="Next" onClick={() => onChange?.((current + 1) % videos.length)} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '15%', background: 'transparent', border: 'none' }} />
+      <button aria-label="Previous" onClick={() => { console.log('[TabletCarousel] tap prev'); onChange?.((current - 1 + videos.length) % videos.length); }} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '15%', background: 'transparent', border: 'none', zIndex: 5 }} />
+      <button aria-label="Next" onClick={() => { console.log('[TabletCarousel] tap next'); onChange?.((current + 1) % videos.length); }} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '15%', background: 'transparent', border: 'none', zIndex: 5 }} />
     </div>
   );
 }
