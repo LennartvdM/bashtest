@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
+import TabletMedicalCarousel from '../TabletMedicalCarousel';
 import ReactDOM from 'react-dom';
 import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
 import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
@@ -110,6 +111,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const captionContainerWidth = isTabletLayout ? 'min(520px, 90vw)' : 444;
   const videoOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(-200px)';
   const captionOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(200px)';
+  const TABLET_AUTOPLAY_MS = 7000;
 
   // Calculate the left offset so the cutout aligns with the video container
   const bandLeft = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
@@ -172,6 +174,25 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
       return () => timers.forEach(timer => clearTimeout(timer));
     }
   }, [shouldAnimate]);
+
+  // Tablet autoplay loop and progress sync
+  useEffect(() => {
+    if (!isTabletLayout) return;
+    console.log('[Tablet V2] autoplay init');
+    const id = setInterval(() => {
+      if (!isPaused) {
+        setBarKey((k) => k + 1);
+        setCurrentVideo((c) => (c + 1) % 3);
+      }
+    }, TABLET_AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [isTabletLayout, isPaused]);
+
+  useEffect(() => {
+    if (isTabletLayout) {
+      setBarKey((k) => k + 1);
+    }
+  }, [isTabletLayout]);
 
   // Gentle cleanup when preserved
   useEffect(() => {
@@ -369,6 +390,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   if (isTabletLayout) {
     return (
       <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 'clamp(32px, 6vh, 72px)', paddingBottom: 16 }}>
+        <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         <div style={{
           minHeight: 'calc(100vh - 60px - clamp(32px, 6vh, 72px))',
           display: 'flex',
@@ -396,18 +418,55 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           </h2>
         </div>
         <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
-          <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden' }}>
-            <MedicalCarousel current={currentVideo} interactionsEnabled={true} videos={mainVideos} />
+          <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
+            <TabletMedicalCarousel
+              videos={mainVideos}
+              current={currentVideo}
+              onChange={(idx) => {
+                setCurrentVideo(idx);
+                setIsPaused(true);
+                setBarKey((k) => k + 1);
+              }}
+              onPauseChange={(p) => setIsPaused(!!p)}
+              style={{ width: '100%', height: '100%' }}
+            />
+            {/* Progress bar */}
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 6, background: 'rgba(0,0,0,0.15)' }} />
+            <div key={barKey} style={{ position: 'absolute', left: 0, bottom: 0, height: 6, background: 'rgba(82,156,156,0.9)', width: '0%', animation: `tablet-progress 7000ms linear forwards`, animationPlayState: isPaused ? 'paused' : 'running' }} />
           </div>
         </div>
         <div style={{ width: 'min(520px, 90vw)', textAlign: 'center' }}>
-          {headlines.map((headline, i) => (
-            <p key={i} style={{ margin: 'clamp(8px, 2vh, 16px) 0', fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2.4vw, 20px)', lineHeight: 1.35, color: '#e8e8e8' }}>
-              {headline.firstLine}
-              <br />
-              {headline.secondLine}
-            </p>
-          ))}
+          {headlines.map((headline, i) => {
+            const active = i === currentVideo;
+            return (
+              <button
+                key={i}
+                onClick={() => {
+                  if (i !== currentVideo) setBarKey((k) => k + 1);
+                  setCurrentVideo(i);
+                  setIsPaused(true);
+                  setTimeout(() => setIsPaused(false), 100);
+                }}
+                style={{
+                  width: '100%',
+                  margin: 'clamp(8px, 2vh, 16px) 0',
+                  padding: '12px 16px',
+                  borderRadius: 12,
+                  border: 'none',
+                  background: active ? 'rgba(232,232,232,0.95)' : 'rgba(232,232,232,0.35)',
+                  boxShadow: active ? '0 2px 8px rgba(0,0,0,0.18)' : 'none',
+                  transition: 'background 200ms ease, box-shadow 200ms ease',
+                  cursor: 'pointer'
+                }}
+              >
+                <span style={{ display: 'inline-block', fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2.4vw, 20px)', lineHeight: 1.35, color: active ? '#2a2323' : '#e8e8e8' }}>
+                  {headline.firstLine}
+                  <br />
+                  {headline.secondLine}
+                </span>
+              </button>
+            );
+          })}
         </div>
         </div>
       </div>
