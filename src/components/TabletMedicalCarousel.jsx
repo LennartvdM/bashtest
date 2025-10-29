@@ -68,7 +68,15 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
   const active = videos[current];
   return (
     <div ref={containerRef} className={className} style={{ position: 'relative', touchAction: 'pan-y', ...style }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden' }}>
+      <style>
+        {`
+          @keyframes tablet-fade { from { opacity: 0; } to { opacity: 1; } }
+          @media (prefers-reduced-motion: reduce) {
+            .tablet-fade { animation: none !important; }
+          }
+        `}
+      </style>
+      <div className="tablet-fade" style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', animation: 'tablet-fade 420ms ease' }}>
         <video
           key={active?.id}
           src={active?.video}
