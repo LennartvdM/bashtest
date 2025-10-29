@@ -355,9 +355,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // Tablet Portrait: simplified render path
   if (isTabletLayout) {
     return (
-      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 16, paddingBottom: 16 }}>
+      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 'clamp(32px, 6vh, 72px)', paddingBottom: 16 }}>
         <div style={{
-          minHeight: 'calc(100vh - 60px)',
+          minHeight: 'calc(100vh - 60px - clamp(32px, 6vh, 72px))',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
