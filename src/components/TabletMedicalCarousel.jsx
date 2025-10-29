@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 // Touch-first, controlled carousel for tablet portrait
 // Props:
@@ -11,6 +11,7 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
   const startXRef = useRef(null);
   const isPointerDownRef = useRef(false);
   const containerRef = useRef(null);
+  const [prevIndex, setPrevIndex] = useState(null);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -65,18 +66,48 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
     };
   }, [current, videos.length, onChange, onPauseChange]);
 
+  // Track previous index to enable crossfade
+  useEffect(() => {
+    setPrevIndex((prev) => (prev === current ? prev : prev === null ? current : prev));
+    // On current change, set previous to last value and clear after fade
+    const timeout = setTimeout(() => setPrevIndex(current), 720); // match fade duration
+    return () => clearTimeout(timeout);
+  }, [current]);
+
   const active = videos[current];
+  const prev = typeof prevIndex === 'number' && prevIndex !== current ? videos[prevIndex] : null;
   return (
     <div ref={containerRef} className={className} style={{ position: 'relative', touchAction: 'pan-y', ...style }}>
       <style>
         {`
-          @keyframes tablet-fade { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes tablet-fade-in { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes tablet-fade-out { from { opacity: 1; } to { opacity: 0; } }
           @media (prefers-reduced-motion: reduce) {
-            .tablet-fade { animation: none !important; }
+            .tablet-fade-in, .tablet-fade-out { animation: none !important; }
           }
         `}
       </style>
-      <div className="tablet-fade" style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', animation: 'tablet-fade 420ms ease' }}>
+      {/* Previous layer fading out */}
+      {prev && (
+        <div className="tablet-fade-out" style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', animation: 'tablet-fade-out 700ms ease', pointerEvents: 'none', zIndex: 1 }}>
+          <video
+            key={`prev-${prev?.id}`}
+            src={prev?.video}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex={-1}
+            aria-hidden="true"
+            draggable="false"
+            style={{ outline: 'none', background: 'none' }}
+          />
+        </div>
+      )}
+      {/* Active layer fading in */}
+      <div className="tablet-fade-in" style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', animation: 'tablet-fade-in 700ms ease', zIndex: 2 }}>
         <video
           key={active?.id}
           src={active?.video}
