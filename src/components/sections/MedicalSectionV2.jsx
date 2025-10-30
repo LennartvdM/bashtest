@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
 import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
 import VideoManager from '../VideoManager';
+import TabletTravellingBar from '../TabletTravellingBar';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4", alt: "Blurred medical urgency" },
@@ -437,78 +438,18 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             {/* Progress moved to active caption highlight */}
           </div>
         </div>
-        <div style={{ width: 'min(520px, 90vw)', textAlign: 'center' }}>
-          {/* Animated sliding highlighter bar for tablet */}
-          <div
-            style={{
-              position: 'absolute',
-              left: highlighterLeftPx,
-              width: highlighterWidthPx,
-              height: 6,
-              background: 'rgba(82,156,156,0.9)',
-              bottom: 0,
-              borderRadius: 6,
-              boxShadow: '0 1px 6px rgba(0,0,0,0.25)',
-              transition: 'left 1.5s cubic-bezier(0.4,0,0.2,1), width 1.5s cubic-bezier(0.4,0,0.2,1)',
-              zIndex: 4,
-              pointerEvents: 'none',
+        <div style={{ width: 'min(520px, 90vw)', margin: '0 auto', textAlign: 'center', position: 'relative' }}>
+          <TabletTravellingBar
+            captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
+            current={currentVideo}
+            onSelect={i => {
+              setCurrentVideo(i);
+              setIsPaused(true);
+              setBarKey(k => k + 1);
+              setTimeout(() => setIsPaused(false), 100);
             }}
+            style={{ margin: '0 auto', background: 'none' }}
           />
-          {/* Map and ref caption buttons for highlighter tracking */}
-          {headlines.map((headline, i) => {
-            const active = i === currentVideo;
-            return (
-              <button
-                key={i}
-                ref={el => captionButtonRefs.current[i] = el}
-                onClick={() => {
-                  if (i !== currentVideo) setBarKey(k => k + 1);
-                  setCurrentVideo(i);
-                  setIsPaused(true);
-                  setTimeout(() => setIsPaused(false), 100);
-                }}
-                style={{
-                  width: '100%',
-                  margin: 'clamp(8px, 2vh, 16px) 0',
-                  padding: '12px 16px',
-                  borderRadius: 12,
-                  border: 'none',
-                  background: active ? 'rgba(232,232,232,0.95)' : 'rgba(232,232,232,0.35)',
-                  boxShadow: active ? '0 2px 8px rgba(0,0,0,0.18)' : 'none',
-                  transition: 'background 1.5s cubic-bezier(0.4,0,0.2,1), box-shadow 1.5s cubic-bezier(0.4,0,0.2,1)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  zIndex: 6,
-                }}
-              >
-                <span style={{ display: 'inline-block', fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2.4vw, 20px)', lineHeight: 1.35, color: active ? '#2a2323' : '#e8e8e8' }}>
-                  {headline.firstLine}
-                  <br />
-                  {headline.secondLine}
-                </span>
-                {active && (
-                  <>
-                    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 6, background: 'rgba(0,0,0,0.12)' }} />
-                    <div
-                      key={barKey}
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        bottom: 0,
-                        height: 6,
-                        background: 'rgba(82,156,156,0.9)',
-                        width: '0%',
-                        animation: `tablet-progress 7000ms linear forwards`,
-                        animationPlayState: isPaused ? 'paused' : 'running',
-                        transition: 'width 1.5s cubic-bezier(0.4,0,0.2,1)',
-                      }}
-                    />
-                  </>
-                )}
-              </button>
-            );
-          })}
         </div>
         </div>
       </div>
