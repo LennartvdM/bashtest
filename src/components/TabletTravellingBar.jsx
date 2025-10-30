@@ -12,7 +12,7 @@ import React, { useRef, useEffect, useState } from "react";
 const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
-  const [bar, setBar] = useState({ left: 0, width: 0 });
+  const [bar, setBar] = useState({ top: 0, height: 0 });
 
   // Effect: Update bar position when caption or size changes
   useEffect(() => {
@@ -22,8 +22,8 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
       const btnRect = btn.getBoundingClientRect();
       const contRect = container.getBoundingClientRect();
       setBar({
-        left: btnRect.left - contRect.left,
-        width: btnRect.width,
+        top: btnRect.top - contRect.top,
+        height: btnRect.height,
       });
     }
   }, [current, captions.length]);
@@ -37,8 +37,8 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
         const btnRect = btn.getBoundingClientRect();
         const contRect = container.getBoundingClientRect();
         setBar({
-          left: btnRect.left - contRect.left,
-          width: btnRect.width,
+          top: btnRect.top - contRect.top,
+          height: btnRect.height,
         });
       }
     };
@@ -52,23 +52,24 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
       style={{
         position: 'relative',
         display: 'flex',
+        flexDirection: 'column', // Changed to column for vertical layout
         width: '100%',
         background: 'none',
         ...style
       }}
     >
-      {/* Animated underbar */}
+      {/* Animated vertical bar */}
       <div
         style={{
           position: 'absolute',
-          left: bar.left,
-          width: bar.width,
-          height: 6,
-          bottom: 0,
+          top: bar.top,
+          height: bar.height,
+          left: 0, // Positioned on the left
+          width: '6px', // Vertical bar width
           background: 'rgba(82,156,156,0.9)',
           borderRadius: 6,
           boxShadow: '0 1px 6px rgba(0,0,0,0.15)',
-          transition: 'left 1.2s cubic-bezier(0.4,0,0.2,1), width 1.2s cubic-bezier(0.4,0,0.2,1)',
+          transition: 'top 1.2s cubic-bezier(0.4,0,0.2,1), height 1.2s cubic-bezier(0.4,0,0.2,1)',
           zIndex: 2,
           pointerEvents: 'none',
         }}
@@ -79,8 +80,8 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
           ref={el => buttonRefs.current[idx] = el}
           onClick={() => onSelect(idx)}
           style={{
-            flex: 1,
-            padding: '16px 0 12px 0',
+            width: '100%', // Full width for vertical items
+            padding: '16px 0 12px 24px', // Add left padding to not overlap with bar
             background: 'transparent',
             border: 'none',
             color: idx === current ? '#2a2323' : '#bdbdbd',
@@ -92,6 +93,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
             position: 'relative',
             zIndex: 3,
             transition: 'color 0.3s',
+            textAlign: 'left', // Align text to the left
           }}
         >
           {caption}
