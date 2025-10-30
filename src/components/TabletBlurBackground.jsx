@@ -16,18 +16,18 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
     blurVideos[1] || blurVideos[0] || {},
     blurVideos[2] || blurVideos[1] || blurVideos[0] || {},
   ];
-  // Opacity logic: above+current are visible, lower (-1...current-1) fade out
+  // Opacity logic: above+current are visible, lower fade out
   const getOpacity = idx => (idx >= current ? 1 : 0);
   const getZ = idx => 10 - idx;
 
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 0, width: '100%', height: '100%' }}>
+    <div style={{ position: 'absolute', top: '-6vh', left: 0, width: '100%', height: '112vh', zIndex: 0 }}>
       {[2, 1, 0].map(i => (
         <div
           key={bg[i].id || i}
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0, left: 0, right: 0, bottom: 0,
             zIndex: getZ(i),
             opacity: getOpacity(i),
             pointerEvents: 'none',
@@ -38,7 +38,7 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
         >
           <video
             src={bg[i].video}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+            style={{ width: '100%', minHeight: '100%', minWidth: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
             autoPlay
             muted
             loop
