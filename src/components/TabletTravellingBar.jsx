@@ -69,7 +69,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
           background: 'rgba(232, 232, 232, 0.9)', // Off-white highlighter color
           borderRadius: '12px', // Rounded corners
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
-          transition: 'top 1.2s cubic-bezier(0.4,0,0.2,1), height 1.2s cubic-bezier(0.4,0,0.2,1)',
+          transition: 'top 0.6s cubic-bezier(0.4,0,0.2,1), height 0.6s cubic-bezier(0.4,0,0.2,1)',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
         }}
