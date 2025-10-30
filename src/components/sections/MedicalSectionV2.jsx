@@ -80,6 +80,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const captionRef = useRef();
   const contentAnchorRef = useRef();
   const shadedFrameRef = useRef();
+  const captionButtonRefs = useRef([]);
+  const [highlighterLeftPx, setHighlighterLeftPx] = useState(0);
+  const [highlighterWidthPx, setHighlighterWidthPx] = useState(0);
 
   // Derived/computed values after all state declarations
   const safeVideoHover = interactionsEnabled && videoHover;
@@ -435,13 +438,31 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           </div>
         </div>
         <div style={{ width: 'min(520px, 90vw)', textAlign: 'center' }}>
+          {/* Animated sliding highlighter bar for tablet */}
+          <div
+            style={{
+              position: 'absolute',
+              left: highlighterLeftPx,
+              width: highlighterWidthPx,
+              height: 6,
+              background: 'rgba(82,156,156,0.9)',
+              bottom: 0,
+              borderRadius: 6,
+              boxShadow: '0 1px 6px rgba(0,0,0,0.25)',
+              transition: 'left 1.5s cubic-bezier(0.4,0,0.2,1), width 1.5s cubic-bezier(0.4,0,0.2,1)',
+              zIndex: 4,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Map and ref caption buttons for highlighter tracking */}
           {headlines.map((headline, i) => {
             const active = i === currentVideo;
             return (
               <button
                 key={i}
+                ref={el => captionButtonRefs.current[i] = el}
                 onClick={() => {
-                  if (i !== currentVideo) setBarKey((k) => k + 1);
+                  if (i !== currentVideo) setBarKey(k => k + 1);
                   setCurrentVideo(i);
                   setIsPaused(true);
                   setTimeout(() => setIsPaused(false), 100);
@@ -454,10 +475,11 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                   border: 'none',
                   background: active ? 'rgba(232,232,232,0.95)' : 'rgba(232,232,232,0.35)',
                   boxShadow: active ? '0 2px 8px rgba(0,0,0,0.18)' : 'none',
-                  transition: 'background 200ms ease, box-shadow 200ms ease',
+                  transition: 'background 1.5s cubic-bezier(0.4,0,0.2,1), box-shadow 1.5s cubic-bezier(0.4,0,0.2,1)',
                   cursor: 'pointer',
                   position: 'relative',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  zIndex: 6,
                 }}
               >
                 <span style={{ display: 'inline-block', fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2.4vw, 20px)', lineHeight: 1.35, color: active ? '#2a2323' : '#e8e8e8' }}>
@@ -478,7 +500,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                         background: 'rgba(82,156,156,0.9)',
                         width: '0%',
                         animation: `tablet-progress 7000ms linear forwards`,
-                        animationPlayState: isPaused ? 'paused' : 'running'
+                        animationPlayState: isPaused ? 'paused' : 'running',
+                        transition: 'width 1.5s cubic-bezier(0.4,0,0.2,1)',
                       }}
                     />
                   </>
