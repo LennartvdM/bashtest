@@ -6,6 +6,7 @@ import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
 import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
 import VideoManager from '../VideoManager';
 import TabletTravellingBar from '../TabletTravellingBar';
+import TabletBlurBackground from '../TabletBlurBackground';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4", alt: "Blurred medical urgency" },
@@ -395,6 +396,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     return (
       <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 'clamp(32px, 6vh, 72px)', paddingBottom: 16 }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
+        <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
         <div style={{
           minHeight: 'calc(100vh - 60px - clamp(32px, 6vh, 72px))',
           display: 'flex',
