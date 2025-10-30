@@ -123,14 +123,15 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
         return (
           <div
             key={videoSlides[i].id}
-            className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease"
+            className="absolute inset-0 flex items-center justify-center transition-opacity" // Remove duration-700, use style transition below
             style={{ 
               pointerEvents: i === current ? 'auto' : 'none', 
               background: 'none', 
               borderRadius: '16px', 
               overflow: 'hidden',
               zIndex: 2 - i, // Reverse the z-index so urgency (0) is on top of coordination (1)
-              opacity: opacity
+              opacity: opacity,
+              transition: 'opacity 1.2s cubic-bezier(0.4,0,0.2,1)' // Slower fade
             }}
           >
             <video
