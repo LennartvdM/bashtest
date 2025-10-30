@@ -7,7 +7,7 @@ import React from "react";
  *   - blurVideos: [{id, video, alt}],
  *   - current: number (active idx),
  *   - fadeDuration (optional): seconds, default 1.2
- * Usage: place as absolute/fixed full-background in tablet sections.
+ * Usage: placed as full-viewport background for tablet sections.
  */
 const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2 }) => {
   // Guarantee 3 videos
@@ -21,26 +21,36 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
   const getZ = idx => 10 - idx;
 
   return (
-    <div style={{position:'absolute', inset:0, zIndex:0, width:'100%', height:'100%'}}>
-      {[2,1,0].map(i =>
-        <div key={bg[i].id || i}
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
+      {[2, 1, 0].map(i => (
+        <div
+          key={bg[i].id || i}
           style={{
-            position:'absolute',
-            inset:0,
-            zIndex:getZ(i),
-            opacity:getOpacity(i),
-            pointerEvents:'none',
-            transition:`opacity ${fadeDuration}s cubic-bezier(0.4,0,0.2,1)`,
-            filter:'blur(32px) brightness(0.7) saturate(1.2)',
-            overflow:'hidden',
-          }}>
+            position: 'absolute',
+            inset: 0,
+            zIndex: getZ(i),
+            opacity: getOpacity(i),
+            pointerEvents: 'none',
+            transition: `opacity ${fadeDuration}s cubic-bezier(0.4,0,0.2,1)`,
+            // NOTE: the videos are already pre-blurred; avoid additional filters to prevent edge taper
+            filter: 'none',
+            overflow: 'hidden',
+          }}
+        >
           <video
             src={bg[i].video}
-            style={{width:'100%',height:'100%',objectFit:'cover'}} 
-            autoPlay muted loop playsInline preload="auto"
-            tabIndex={-1} aria-hidden="true" draggable="false"/>
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex={-1}
+            aria-hidden="true"
+            draggable="false"
+          />
         </div>
-      )}
+      ))}
     </div>
   );
 };
