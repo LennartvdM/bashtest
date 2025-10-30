@@ -7,7 +7,7 @@ import React from "react";
  *   - blurVideos: [{id, video, alt}],
  *   - current: number (active idx),
  *   - fadeDuration (optional): seconds, default 1.2
- * Usage: placed as full-viewport background for tablet sections.
+ * Usage: placed as absolute full-background for each MedicalSection.
  */
 const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2 }) => {
   // Guarantee 3 videos
@@ -21,7 +21,7 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
   const getZ = idx => 10 - idx;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
+    <div style={{ position: 'absolute', inset: 0, zIndex: 0, width: '100%', height: '100%' }}>
       {[2, 1, 0].map(i => (
         <div
           key={bg[i].id || i}
@@ -32,7 +32,6 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
             opacity: getOpacity(i),
             pointerEvents: 'none',
             transition: `opacity ${fadeDuration}s cubic-bezier(0.4,0,0.2,1)`,
-            // NOTE: the videos are already pre-blurred; avoid additional filters to prevent edge taper
             filter: 'none',
             overflow: 'hidden',
           }}
