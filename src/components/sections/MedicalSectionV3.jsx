@@ -407,13 +407,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             color: '#fff',
             margin: 0,
             textAlign: 'center',
-            textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)'
+            textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)',
+            textWrap: 'balance'
           }}>
-            Yet, <span style={{ color: '#3fd1c7' }}>reflection</span>
-            <br />
-            strengthens
-            <br />
-            the next
+            Yet, <span style={{ color: '#3fd1c7' }}>reflection</span> strengthens the next
           </h2>
         </div>
         <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
