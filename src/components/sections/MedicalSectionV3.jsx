@@ -393,7 +393,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           justifyContent: 'flex-start',
           gap: 24,
           paddingTop: 24,
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px'
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+          position: 'relative',
+          zIndex: 1
         }}>
         <div style={{ width: 'min(520px, 90vw)' }}>
           <h2 style={{
@@ -404,7 +406,8 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             lineHeight: 1.2,
             color: '#fff',
             margin: 0,
-            textAlign: 'center'
+            textAlign: 'center',
+            textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)'
           }}>
             Yet, <span style={{ color: '#3fd1c7' }}>reflection</span>
             <br />
