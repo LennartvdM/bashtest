@@ -15,6 +15,7 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
   const containerRef = useRef(null);
   const measureRef = useRef(null);
   const [fontSize, setFontSize] = useState(maxPx);
+  const roRef = useRef(null);
 
   const fit = () => {
     const container = containerRef.current;
@@ -28,10 +29,9 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
     let low = minPx;
     let high = maxPx;
     let best = minPx;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 14; i++) {
       const mid = Math.floor((low + high) / 2);
       measure.style.fontSize = mid + 'px';
-      // widest line width
       let widest = 0;
       Array.from(measure.children).forEach((child) => {
         const w = child.getBoundingClientRect().width;
@@ -49,18 +49,32 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
 
   useLayoutEffect(() => {
     fit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const onResize = () => fit();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    // Re-fit when fonts are ready and on container resize
+    let ro;
+    if (window.ResizeObserver) {
+      ro = new ResizeObserver(() => fit());
+      if (containerRef.current) ro.observe(containerRef.current);
+    }
+    const onReady = () => fit();
+    if (document && document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(onReady);
+    } else {
+      window.addEventListener('load', onReady);
+    }
+    return () => {
+      if (ro && containerRef.current) ro.unobserve(containerRef.current);
+      if (!(document && document.fonts && document.fonts.ready)) {
+        window.removeEventListener('load', onReady);
+      }
+    };
   }, []);
 
   return (
     <div ref={containerRef} style={{ width: '100%', ...style }}>
-      {/* Visible heading */}
+      {/* Visible heading without wrapping inside lines */}
       <h2 style={{
         fontFamily: 'Inter, sans-serif',
         fontWeight: 700,
@@ -73,14 +87,11 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
         fontSize
       }}>
         {lines.map((ln, i) => (
-          <React.Fragment key={i}>
-            {ln}
-            {i < lines.length - 1 && <br />}
-          </React.Fragment>
+          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap' }}>{ln}</div>
         ))}
       </h2>
 
-      {/* Hidden measurer */}
+      {/* Hidden measurer mirrors structure exactly, also nowrap */}
       <div ref={measureRef} style={{
         position: 'absolute',
         visibility: 'hidden',
@@ -90,12 +101,10 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
         fontWeight: 700,
         letterSpacing: -2,
         lineHeight,
-        whiteSpace: 'pre',
       }}>
         {lines.map((ln, i) => (
-          <div key={i} style={{ display: 'block' }}>
-            {/* Render as plain text width measurement; if ln is node with spans, it will still approximate width */}
-            <span>{ln}</span>
+          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap' }}>
+            {ln}
           </div>
         ))}
       </div>
