@@ -1,50 +1,34 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-/**
- * AutoFitHeading
- * - Renders multi-line heading (lines separated by <br />) that scales font-size
- *   to fit container width, respecting min/max.
- * Props:
- *   - lines: React.ReactNode[] (each item renders on its own line)
- *   - minPx: number (default 24)
- *   - maxPx: number (default 44)
- *   - lineHeight: number (default 1.2)
- *   - style: React.CSSProperties (optional)
- */
-const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, style, lineAligns = [] }) => {
+// Auto-scaling multi-line heading: preserves explicit breaks, scales block via transform
+const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, lineAligns = [] }) => {
   const containerRef = useRef(null);
-  const measureRef = useRef(null);
-  const [fontSize, setFontSize] = useState(maxPx);
-  const roRef = useRef(null);
+  const contentRef = useRef(null);
+  const [scale, setScale] = useState(1);
+
+  const resolveAlign = (i) => lineAligns[i] || 'center';
 
   const fit = () => {
     const container = containerRef.current;
-    const measure = measureRef.current;
-    if (!container || !measure) return;
+    const content = contentRef.current;
+    if (!container || !content) return;
 
-    const available = container.clientWidth;
-    if (available <= 0) return;
+    // Reset to scale 1 for accurate measure
+    content.style.transform = 'scale(1)';
+    // Force reflow
+    // eslint-disable-next-line no-unused-expressions
+    content.offsetHeight;
 
-    // Binary search font-size within [minPx, maxPx]
-    let low = minPx;
-    let high = maxPx;
-    let best = minPx;
-    for (let i = 0; i < 14; i++) {
-      const mid = Math.floor((low + high) / 2);
-      measure.style.fontSize = mid + 'px';
-      let widest = 0;
-      Array.from(measure.children).forEach((child) => {
-        const w = child.getBoundingClientRect().width;
-        if (w > widest) widest = w;
-      });
-      if (widest <= available) {
-        best = mid;
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-    setFontSize(best);
+    const cw = container.clientWidth;
+    const ch = container.clientHeight; // may be 0 if height is auto
+    const bounds = content.getBoundingClientRect();
+    const bw = bounds.width || 1;
+    const bh = bounds.height || 1;
+
+    const scaleX = cw / bw;
+    const scaleY = ch > 0 ? (ch / bh) : Number.POSITIVE_INFINITY; // fit by width if no height
+    const newScale = Math.max(0.01, Math.min(scaleX, scaleY) * 0.9);
+    setScale(newScale);
   };
 
   useLayoutEffect(() => {
@@ -52,61 +36,47 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
   }, []);
 
   useEffect(() => {
-    // Re-fit when fonts are ready and on container resize
-    let ro;
-    if (window.ResizeObserver) {
-      ro = new ResizeObserver(() => fit());
-      if (containerRef.current) ro.observe(containerRef.current);
-    }
-    const onReady = () => fit();
+    const container = containerRef.current;
+    if (!container) return;
+    const ro = new ResizeObserver(() => fit());
+    ro.observe(container);
+    if (contentRef.current) ro.observe(contentRef.current);
+
+    const onFontsReady = () => fit();
     if (document && document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(onReady);
+      document.fonts.ready.then(onFontsReady);
     } else {
-      window.addEventListener('load', onReady);
+      window.addEventListener('load', onFontsReady);
     }
+
     return () => {
-      if (ro && containerRef.current) ro.unobserve(containerRef.current);
+      ro.disconnect();
       if (!(document && document.fonts && document.fonts.ready)) {
-        window.removeEventListener('load', onReady);
+        window.removeEventListener('load', onFontsReady);
       }
     };
   }, []);
 
-  const resolveAlign = (i) => lineAligns[i] || 'center';
-
   return (
-    <div ref={containerRef} style={{ width: '100%', ...style }}>
-      {/* Visible heading without wrapping inside lines */}
-      <h2 style={{
-        fontFamily: 'Inter, sans-serif',
-        fontWeight: 700,
-        letterSpacing: -2,
-        lineHeight,
-        color: '#fff',
-        margin: 0,
-        textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)',
-        fontSize
-      }}>
+    <div ref={containerRef} style={{ width: '100%', overflow: 'hidden', ...style }}>
+      <div
+        ref={contentRef}
+        style={{
+          display: 'inline-block',
+          transform: `scale(${scale})`,
+          transformOrigin: 'center center',
+          whiteSpace: 'nowrap',
+          lineHeight,
+          fontFamily: 'Inter, sans-serif',
+          fontWeight: 700,
+          letterSpacing: -2,
+          fontSize: basePx,
+          color: '#fff',
+          textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)'
+        }}
+      >
         {lines.map((ln, i) => (
-          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap', textAlign: resolveAlign(i) }}>{ln}</div>
-        ))}
-      </h2>
-
-      {/* Hidden measurer mirrors structure exactly, also nowrap */}
-      <div ref={measureRef} style={{
-        position: 'absolute',
-        visibility: 'hidden',
-        pointerEvents: 'none',
-        inset: 0,
-        fontFamily: 'Inter, sans-serif',
-        fontWeight: 700,
-        letterSpacing: -2,
-        lineHeight,
-      }}>
-        {lines.map((ln, i) => (
-          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap', textAlign: resolveAlign(i) }}>
-            {ln}
-          </div>
+          <div key={i} style={{ display: 'block', textAlign: resolveAlign(i) }}>{ln}</div>
         ))}
       </div>
     </div>
