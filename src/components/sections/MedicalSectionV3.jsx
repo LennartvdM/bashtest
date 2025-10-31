@@ -390,8 +390,8 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-evenly',
-          gap: 12,
+          justifyContent: 'flex-start',
+          gap: 24,
         }}>
         <div style={{ width: 'min(520px, 90vw)' }}>
           <h2 style={{
