@@ -11,7 +11,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
  *   - lineHeight: number (default 1.2)
  *   - style: React.CSSProperties (optional)
  */
-const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, style }) => {
+const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, style, lineAligns = [] }) => {
   const containerRef = useRef(null);
   const measureRef = useRef(null);
   const [fontSize, setFontSize] = useState(maxPx);
@@ -72,6 +72,8 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
     };
   }, []);
 
+  const resolveAlign = (i) => lineAligns[i] || 'center';
+
   return (
     <div ref={containerRef} style={{ width: '100%', ...style }}>
       {/* Visible heading without wrapping inside lines */}
@@ -82,12 +84,11 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
         lineHeight,
         color: '#fff',
         margin: 0,
-        textAlign: 'center',
         textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)',
         fontSize
       }}>
         {lines.map((ln, i) => (
-          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap' }}>{ln}</div>
+          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap', textAlign: resolveAlign(i) }}>{ln}</div>
         ))}
       </h2>
 
@@ -103,7 +104,7 @@ const AutoFitHeading = ({ lines = [], minPx = 24, maxPx = 44, lineHeight = 1.2, 
         lineHeight,
       }}>
         {lines.map((ln, i) => (
-          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap' }}>
+          <div key={i} style={{ display: 'block', whiteSpace: 'nowrap', textAlign: resolveAlign(i) }}>
             {ln}
           </div>
         ))}
