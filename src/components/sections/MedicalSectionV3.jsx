@@ -398,18 +398,21 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           position: 'relative',
           zIndex: 1
         }}>
-        <div style={{ width: 'min(520px, 90vw)' }}>
-          <AutoFitHeading
-            lines={[
-              'Yet,',
-              <span key="reflection-line"><span style={{ color: '#3fd1c7' }}>reflection</span></span>,
-              'strengthens',
-              'the next'
-            ]}
-            minPx={26}
-            maxPx={44}
-            lineHeight={1.2}
-          />
+        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))', margin: '0 auto' }}>
+          <div style={{ width: '70%', margin: 0 }}>
+            <AutoFitHeading
+              lines={[
+                'Yet,',
+                <span key="reflection-line"><span style={{ color: '#3fd1c7' }}>reflection</span></span>,
+                'strengthens',
+                'the next'
+              ]}
+              minPx={26}
+              maxPx={44}
+              lineHeight={1.2}
+              lineAligns={['left','left','left','left']}
+            />
+          </div>
         </div>
         <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
           <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden', position: 'relative' }}>

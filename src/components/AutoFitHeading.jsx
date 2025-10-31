@@ -13,27 +13,23 @@ const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, line
     const content = contentRef.current;
     if (!container || !content) return;
 
-    // Reset to scale 1 for accurate measure
     content.style.transform = 'scale(1)';
-    // Force reflow
     // eslint-disable-next-line no-unused-expressions
     content.offsetHeight;
 
     const cw = container.clientWidth;
-    const ch = container.clientHeight; // may be 0 if height is auto
+    const ch = container.clientHeight;
     const bounds = content.getBoundingClientRect();
     const bw = bounds.width || 1;
     const bh = bounds.height || 1;
 
     const scaleX = cw / bw;
-    const scaleY = ch > 0 ? (ch / bh) : Number.POSITIVE_INFINITY; // fit by width if no height
+    const scaleY = ch > 0 ? (ch / bh) : Number.POSITIVE_INFINITY;
     const newScale = Math.max(0.01, Math.min(scaleX, scaleY) * 0.9);
     setScale(newScale);
   };
 
-  useLayoutEffect(() => {
-    fit();
-  }, []);
+  useLayoutEffect(() => { fit(); }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -64,7 +60,7 @@ const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, line
         style={{
           display: 'inline-block',
           transform: `scale(${scale})`,
-          transformOrigin: 'top center',
+          transformOrigin: 'top left',
           whiteSpace: 'nowrap',
           lineHeight,
           fontFamily: 'Inter, sans-serif',

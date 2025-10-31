@@ -410,7 +410,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           position: 'relative',
           zIndex: 1
         }}>
-        <div style={{ width: '70%', margin: '0 auto' }}>
+        {/* Header wrapper matches video width; inner is 70% aligned left */}
+        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))', margin: '0 auto' }}>
+          <div style={{ width: '70%', margin: 0 }}>
           <AutoFitHeading
             lines={[
               'In the moment,',
@@ -420,8 +422,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             minPx={26}
             maxPx={44}
             lineHeight={1.2}
-            lineAligns={['center','center','right']}
+            lineAligns={['left','left','left']}
           />
+          </div>
         </div>
         <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
           <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
