@@ -410,7 +410,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           position: 'relative',
           zIndex: 1
         }}>
-        <div style={{ width: '70%', maxWidth: 'min(520px, 90vw)', margin: '0 auto' }}>
+        <div style={{ width: '70%', margin: '0 auto' }}>
           <AutoFitHeading
             lines={[
               'In the moment,',
