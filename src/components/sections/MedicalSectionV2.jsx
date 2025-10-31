@@ -7,6 +7,7 @@ import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
 import VideoManager from '../VideoManager';
 import TabletTravellingBar from '../TabletTravellingBar';
 import TabletBlurBackground from '../TabletBlurBackground';
+import AutoFitHeading from '../AutoFitHeading';
 
 const blurVideos = [
   { id: "0", video: "/videos/blururgency.mp4", alt: "Blurred medical urgency" },
@@ -410,20 +411,16 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           zIndex: 1
         }}>
         <div style={{ width: 'min(520px, 90vw)' }}>
-          <h2 style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 'clamp(28px, 4.5vw, 36px)',
-            fontWeight: 700,
-            letterSpacing: -2,
-            lineHeight: 1.2,
-            color: '#fff',
-            margin: 0,
-            textAlign: 'center',
-            textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)',
-            textWrap: 'balance'
-          }}>
-            In the moment, <span style={{ color: '#3fd1c7' }}>only</span> the patient matters
-          </h2>
+          <AutoFitHeading
+            lines={[
+              'In the moment,',
+              <span key="only-line"> <span style={{ color: '#3fd1c7' }}>only</span> the patient</span>,
+              'matters'
+            ]}
+            minPx={26}
+            maxPx={44}
+            lineHeight={1.2}
+          />
         </div>
         <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
           <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
