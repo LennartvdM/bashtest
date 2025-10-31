@@ -398,7 +398,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
         <div style={{
-          minHeight: 'calc(100vh - 60px - clamp(32px, 6vh, 72px))',
+          minHeight: '100dvh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

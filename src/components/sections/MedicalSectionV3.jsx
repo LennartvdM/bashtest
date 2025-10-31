@@ -386,7 +386,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
         {/* Local blurred background for this section */}
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
         <div style={{
-          minHeight: 'calc(100vh - 60px - clamp(32px, 6vh, 72px))',
+          minHeight: '100dvh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
