@@ -1,4 +1,4 @@
-// redeploy marker
+// redeploy marker: 2025-10-31T00:00:00Z
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import TabletMedicalCarousel from '../TabletMedicalCarousel';
