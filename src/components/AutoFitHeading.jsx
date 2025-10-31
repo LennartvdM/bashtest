@@ -58,13 +58,13 @@ const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, line
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', overflow: 'hidden', ...style }}>
+    <div ref={containerRef} style={{ width: '100%', overflow: 'visible', ...style }}>
       <div
         ref={contentRef}
         style={{
           display: 'inline-block',
           transform: `scale(${scale})`,
-          transformOrigin: 'center center',
+          transformOrigin: 'top center',
           whiteSpace: 'nowrap',
           lineHeight,
           fontFamily: 'Inter, sans-serif',
