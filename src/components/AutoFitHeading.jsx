@@ -60,7 +60,7 @@ const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, line
         style={{
           display: 'inline-block',
           transform: `scale(${scale})`,
-          transformOrigin: 'top left',
+          transformOrigin: 'center left',
           whiteSpace: 'nowrap',
           lineHeight,
           fontFamily: 'Inter, sans-serif',
