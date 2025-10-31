@@ -70,6 +70,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
+  const [tabletHeaderStyle, setTabletHeaderStyle] = useState({});
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -398,7 +399,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           position: 'relative',
           zIndex: 1
         }}>
-        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))', margin: '0 auto', display: 'flex', alignItems: 'center', minHeight: '18vh' }}>
+        <div style={tabletHeaderStyle}>
           <div style={{ width: '70%', margin: 0 }}>
             <AutoFitHeading
               lines={[
