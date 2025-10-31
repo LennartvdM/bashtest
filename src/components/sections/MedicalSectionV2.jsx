@@ -404,6 +404,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           alignItems: 'center',
           justifyContent: 'flex-start',
           gap: 24,
+          paddingTop: 24,
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)'
         }}>
         <div style={{ width: 'min(520px, 90vw)' }}>
           <h2 style={{
