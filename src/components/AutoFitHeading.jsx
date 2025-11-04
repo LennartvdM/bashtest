@@ -91,7 +91,7 @@ const AutoFitHeading = ({
             textAlign: resolveAlign(i),
             opacity: visible ? 1 : 0,
             transform: visible ? 'translateY(0)' : 'translateY(8px)',
-            transition: `opacity 900ms ease ${shouldDelay ? staggerDelayMs : 0}ms, transform 900ms cubic-bezier(0.4,0,0.2,1) ${shouldDelay ? staggerDelayMs : 0}ms`,
+            transition: `opacity 2250ms ease ${shouldDelay ? staggerDelayMs : 0}ms, transform 2250ms cubic-bezier(0.4,0,0.2,1) ${shouldDelay ? staggerDelayMs : 0}ms`,
             willChange: 'opacity, transform'
           };
 
@@ -103,7 +103,7 @@ const AutoFitHeading = ({
 
             // Immediate segment (before comma)
             const immediate = (
-              <span key={`pre-${i}`} style={{ opacity: visible ? 1 : 0, transition: 'opacity 900ms ease 0ms' }}>{before}</span>
+              <span key={`pre-${i}`} style={{ opacity: visible ? 1 : 0, transition: 'opacity 2250ms ease 0ms' }}>{before}</span>
             );
 
             // Delayed segment (after comma)
@@ -112,7 +112,7 @@ const AutoFitHeading = ({
                 key={`post-${i}`}
                 style={{
                   opacity: visible ? 1 : 0,
-                  transition: `opacity 900ms ease ${staggerDelayMs}ms`,
+                  transition: `opacity 2250ms ease ${staggerDelayMs}ms`,
                   ...(afterCommaStyle || {})
                 }}
               >

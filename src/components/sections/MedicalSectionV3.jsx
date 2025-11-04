@@ -405,7 +405,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           margin: '0 auto',
           textAlign: 'left',
           opacity: headerVisible ? 1 : 0,
-          transition: shouldTransition ? (headerVisible ? 'opacity 1.2s ease' : 'none') : 'none'
+          transition: shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none'
         }}>
           <div style={{ width: '70%', margin: 0 }}>
             <AutoFitHeading
@@ -434,7 +434,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             overflow: 'hidden',
             position: 'relative',
             opacity: videoVisible ? 1 : 0,
-            transition: shouldTransition ? 'opacity 1.2s ease, transform 1.2s ease' : 'none',
+            transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
             transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
           }}>
             <TabletMedicalCarousel
@@ -458,7 +458,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           textAlign: 'center',
           position: 'relative',
           opacity: captionsVisible ? 1 : 0,
-          transition: shouldTransition ? 'opacity 1.2s ease, transform 1.2s ease' : 'none',
+          transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
           transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
         }}>
           <TabletTravellingBar
