@@ -424,17 +424,17 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           <AutoFitHeading
             lines={[
               'In the moment,',
-              <span key="only-line"> <span style={{ color: '#3fd1c7' }}>only</span> the patient</span>,
-              'matters'
+              <span key="only-line"><span style={{ color: '#3fd1c7' }}>only</span> the patient</span>,
+              'Matters'
             ]}
             minPx={26}
             maxPx={44}
             lineHeight={1.2}
             lineAligns={['left','left','left']}
-            animate
             visible={headerVisible}
-            delayStepMs={600}
-            baseDelayMs={0}
+            commaStagger
+            staggerDelayMs={600}
+            postGroupStartIndex={1}
           />
           </div>
         </div>

@@ -410,19 +410,18 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           <div style={{ width: '70%', margin: 0 }}>
             <AutoFitHeading
               lines={[
-                'Yet,',
-                <span key="reflection-line"><span style={{ color: '#3fd1c7' }}>reflection</span></span>,
+              'Yet, reflection',
                 'strengthens',
                 'the next'
               ]}
               minPx={26}
               maxPx={44}
               lineHeight={1.2}
-              lineAligns={['left','left','left','left']}
-            animate
+            lineAligns={['left','left','left','left']}
             visible={headerVisible}
-            delayStepMs={600}
-            baseDelayMs={0}
+            commaStagger
+            staggerDelayMs={600}
+            postGroupStartIndex={0}
             />
           </div>
         </div>

@@ -7,10 +7,12 @@ const AutoFitHeading = ({
   lineHeight = 1.1,
   style,
   lineAligns = [],
-  animate = false,
+  // Animation controls
   visible = true,
-  delayStepMs = 400,
-  baseDelayMs = 0
+  commaStagger = false,
+  staggerDelayMs = 600,
+  // Starting index (inclusive) whose lines appear with the delayed group (post-comma)
+  postGroupStartIndex = null
 }) => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
@@ -81,23 +83,46 @@ const AutoFitHeading = ({
           textShadow: '0 4px 24px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)'
         }}
       >
-        {lines.map((ln, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'block',
-              textAlign: resolveAlign(i),
-              opacity: animate ? (visible ? 1 : 0) : 1,
-              transform: animate ? (visible ? 'translateY(0)' : 'translateY(8px)') : 'none',
-              transition: animate
-                ? `opacity 900ms ease ${baseDelayMs + i * delayStepMs}ms, transform 900ms cubic-bezier(0.4,0,0.2,1) ${baseDelayMs + i * delayStepMs}ms`
-                : 'none',
-              willChange: animate ? 'opacity, transform' : 'auto'
-            }}
-          >
-            {ln}
-          </div>
-        ))}
+        {lines.map((ln, i) => {
+          const shouldDelay = postGroupStartIndex !== null && i >= postGroupStartIndex;
+          const baseStyle = {
+            display: 'block',
+            textAlign: resolveAlign(i),
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(8px)',
+            transition: `opacity 900ms ease ${shouldDelay ? staggerDelayMs : 0}ms, transform 900ms cubic-bezier(0.4,0,0.2,1) ${shouldDelay ? staggerDelayMs : 0}ms`,
+            willChange: 'opacity, transform'
+          };
+
+          // If we need to stagger after the comma on this line and it is a string
+          if (commaStagger && typeof ln === 'string' && ln.includes(',')) {
+            const idx = ln.indexOf(',');
+            const before = ln.slice(0, idx + 1); // include comma
+            const after = ln.slice(idx + 1);
+
+            // Immediate segment (before comma)
+            const immediate = (
+              <span key={`pre-${i}`} style={{ opacity: visible ? 1 : 0, transition: 'opacity 900ms ease 0ms' }}>{before}</span>
+            );
+
+            // Delayed segment (after comma)
+            const delayed = (
+              <span key={`post-${i}`} style={{ opacity: visible ? 1 : 0, transition: `opacity 900ms ease ${staggerDelayMs}ms` }}>{after}</span>
+            );
+
+            return (
+              <div key={i} style={baseStyle}>
+                {immediate}
+                {delayed}
+              </div>
+            );
+          }
+
+          // Default: whole line with baseStyle, applying delay if in post group
+          return (
+            <div key={i} style={baseStyle}>{ln}</div>
+          );
+        })}
       </div>
     </div>
   );
