@@ -12,7 +12,8 @@ const AutoFitHeading = ({
   commaStagger = false,
   staggerDelayMs = 600,
   // Starting index (inclusive) whose lines appear with the delayed group (post-comma)
-  postGroupStartIndex = null
+  postGroupStartIndex = null,
+  afterCommaStyle
 }) => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
@@ -107,7 +108,16 @@ const AutoFitHeading = ({
 
             // Delayed segment (after comma)
             const delayed = (
-              <span key={`post-${i}`} style={{ opacity: visible ? 1 : 0, transition: `opacity 900ms ease ${staggerDelayMs}ms` }}>{after}</span>
+              <span
+                key={`post-${i}`}
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transition: `opacity 900ms ease ${staggerDelayMs}ms`,
+                  ...(afterCommaStyle || {})
+                }}
+              >
+                {after}
+              </span>
             );
 
             return (

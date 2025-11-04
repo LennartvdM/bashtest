@@ -420,8 +420,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             lineAligns={['left','left','left','left']}
             visible={headerVisible}
             commaStagger
-            staggerDelayMs={600}
+            staggerDelayMs={1125}
             postGroupStartIndex={0}
+            afterCommaStyle={{ color: '#3fd1c7' }}
             />
           </div>
         </div>
