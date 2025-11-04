@@ -400,7 +400,13 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           position: 'relative',
           zIndex: 1
         }}>
-        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))', margin: '0 auto', textAlign: 'left' }}>
+        <div style={{
+          width: 'min(92vw, clamp(260px, 60vh, 480px))',
+          margin: '0 auto',
+          textAlign: 'left',
+          opacity: headerVisible ? 1 : 0,
+          transition: shouldTransition ? (headerVisible ? 'opacity 1.2s ease' : 'none') : 'none'
+        }}>
           <div style={{ width: '70%', margin: 0 }}>
             <AutoFitHeading
               lines={[
@@ -417,7 +423,16 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           </div>
         </div>
         <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
-          <div style={{ width: '100%', aspectRatio: '3 / 2', borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
+          <div style={{
+            width: '100%',
+            aspectRatio: '3 / 2',
+            borderRadius: 16,
+            overflow: 'hidden',
+            position: 'relative',
+            opacity: videoVisible ? 1 : 0,
+            transition: shouldTransition ? 'opacity 1.2s ease, transform 1.2s ease' : 'none',
+            transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
+          }}>
             <TabletMedicalCarousel
               videos={mainVideos}
               current={currentVideo}
@@ -433,7 +448,15 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             {/* Progress moved to active caption highlight */}
           </div>
         </div>
-        <div style={{ width: 'min(520px, 90vw)', margin: '0 auto', textAlign: 'center', position: 'relative' }}>
+        <div style={{
+          width: 'min(520px, 90vw)',
+          margin: '0 auto',
+          textAlign: 'center',
+          position: 'relative',
+          opacity: captionsVisible ? 1 : 0,
+          transition: shouldTransition ? 'opacity 1.2s ease, transform 1.2s ease' : 'none',
+          transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
+        }}>
           <TabletTravellingBar
             captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
             current={currentVideo}
