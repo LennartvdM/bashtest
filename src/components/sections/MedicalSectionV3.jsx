@@ -72,6 +72,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
   const [tabletHeaderStyle, setTabletHeaderStyle] = useState({});
+  const [navbarHeight, setNavbarHeight] = useState(60);
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -156,6 +157,22 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Track fixed navbar height for correct vertical offset across transitions
+  useEffect(() => {
+    const readNav = () => {
+      const nav = document.querySelector('nav');
+      const h = nav ? (nav.getBoundingClientRect().height || 60) : 60;
+      setNavbarHeight(h);
+    };
+    readNav();
+    window.addEventListener('resize', readNav);
+    window.addEventListener('scroll', readNav, { passive: true });
+    return () => {
+      window.removeEventListener('resize', readNav);
+      window.removeEventListener('scroll', readNav);
+    };
+  }, [sectionState]);
 
   // Modified entrance animation effect
   useEffect(() => {
@@ -387,7 +404,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   if (isTabletLayout) {
     const renderActive = sectionState === 'entering' || sectionState === 'active' || sectionState === 'preserving';
     return (
-      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 'clamp(32px, 6vh, 72px)', paddingBottom: 16 }}>
+      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ marginTop: navbarHeight, paddingTop: 24, paddingBottom: 16 }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         {/* Local blurred background for this section */}
         {renderActive && (
