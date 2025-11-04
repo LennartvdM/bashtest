@@ -417,7 +417,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   if (isTabletLayout) {
     const renderActive = sectionState === 'entering' || sectionState === 'active' || sectionState === 'preserving';
     return (
-      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ marginTop: navbarHeight, paddingTop: 24, paddingBottom: 16, background: '#1c3424' }}>
+      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: navbarHeight + 24, paddingBottom: 16, background: '#1c3424' }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
         <div style={{
