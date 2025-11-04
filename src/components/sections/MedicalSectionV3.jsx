@@ -419,6 +419,10 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               maxPx={44}
               lineHeight={1.2}
               lineAligns={['left','left','left','left']}
+            animate
+            visible={headerVisible}
+            delayStepMs={600}
+            baseDelayMs={0}
             />
           </div>
         </div>

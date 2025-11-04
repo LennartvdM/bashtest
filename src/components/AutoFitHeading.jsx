@@ -1,7 +1,17 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 // Auto-scaling multi-line heading: preserves explicit breaks, scales block via transform
-const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, lineAligns = [] }) => {
+const AutoFitHeading = ({
+  lines = [],
+  basePx = 44,
+  lineHeight = 1.1,
+  style,
+  lineAligns = [],
+  animate = false,
+  visible = true,
+  delayStepMs = 400,
+  baseDelayMs = 0
+}) => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -72,7 +82,21 @@ const AutoFitHeading = ({ lines = [], basePx = 44, lineHeight = 1.1, style, line
         }}
       >
         {lines.map((ln, i) => (
-          <div key={i} style={{ display: 'block', textAlign: resolveAlign(i) }}>{ln}</div>
+          <div
+            key={i}
+            style={{
+              display: 'block',
+              textAlign: resolveAlign(i),
+              opacity: animate ? (visible ? 1 : 0) : 1,
+              transform: animate ? (visible ? 'translateY(0)' : 'translateY(8px)') : 'none',
+              transition: animate
+                ? `opacity 900ms ease ${baseDelayMs + i * delayStepMs}ms, transform 900ms cubic-bezier(0.4,0,0.2,1) ${baseDelayMs + i * delayStepMs}ms`
+                : 'none',
+              willChange: animate ? 'opacity, transform' : 'auto'
+            }}
+          >
+            {ln}
+          </div>
         ))}
       </div>
     </div>
