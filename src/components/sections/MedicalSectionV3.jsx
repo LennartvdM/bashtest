@@ -293,7 +293,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
     const viewportHeight = window.innerHeight;
-    const top = 60 + (viewportHeight - 60 - totalHeight) / 2;
+    const nav = document.querySelector('nav');
+    const navbarHeight = nav ? (nav.getBoundingClientRect().height || 60) : 60;
+    const top = navbarHeight + (viewportHeight - navbarHeight - totalHeight) / 2;
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
@@ -383,11 +385,14 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
 
   // Tablet Portrait: simplified render path
   if (isTabletLayout) {
+    const renderActive = sectionState === 'entering' || sectionState === 'active' || sectionState === 'preserving';
     return (
       <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ paddingTop: 'clamp(32px, 6vh, 72px)', paddingBottom: 16 }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         {/* Local blurred background for this section */}
-        <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
+        {renderActive && (
+          <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
+        )}
         <div style={{
           minHeight: '100dvh',
           display: 'flex',
@@ -437,6 +442,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
             transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
           }}>
+            {renderActive && (
             <TabletMedicalCarousel
               videos={mainVideos}
               current={currentVideo}
@@ -449,6 +455,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
               onPauseChange={(p) => setIsPaused(!!p)}
               style={{ width: '100%', height: '100%' }}
             />
+            )}
             {/* Progress moved to active caption highlight */}
           </div>
         </div>
@@ -461,6 +468,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
           transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
         }}>
+          {renderActive && (
           <TabletTravellingBar
             captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
             current={currentVideo}
@@ -475,6 +483,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             paused={isPaused}
             animationKey={barKey}
           />
+          )}
         </div>
         </div>
       </div>
