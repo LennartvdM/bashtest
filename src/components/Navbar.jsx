@@ -106,8 +106,33 @@ export default function Navbar() {
     // eslint-disable-next-line
   }, [blob?.left, blob?.width, blob?.height]);
 
+  // Expose nav height as CSS variable for layout consumers (e.g., tablet sections)
+  useEffect(() => {
+    const updateVar = () => {
+      try {
+        const navEl = containerRef.current?.closest('nav') || containerRef.current;
+        const h = navEl?.getBoundingClientRect()?.height || 60;
+        document.documentElement.style.setProperty('--nav-h', `${Math.round(h)}px`);
+      } catch {}
+    };
+    updateVar();
+    window.addEventListener('resize', updateVar);
+    window.addEventListener('scroll', updateVar, { passive: true });
+    return () => {
+      window.removeEventListener('resize', updateVar);
+      window.removeEventListener('scroll', updateVar);
+    };
+  }, []);
+
   return (
-    <nav className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}>
+    <nav ref={containerRef} className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
+      onLoadCapture={() => {
+        try {
+          const h = containerRef.current?.getBoundingClientRect()?.height || 60;
+          document.documentElement.style.setProperty('--nav-h', `${Math.round(h)}px`);
+        } catch {}
+      }}
+    >
       {/* Logo */}
       <div className="flex items-center h-full pl-6 pr-4 cursor-pointer" onClick={() => navigate('/')}> 
         <span className="sr-only">Home</span>
