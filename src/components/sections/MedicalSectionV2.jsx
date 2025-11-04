@@ -413,7 +413,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           zIndex: 1
         }}>
         {/* Header wrapper matches video width; inner is 70% aligned left */}
-        <div style={tabletHeaderStyle}>
+        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))', margin: '0 auto', textAlign: 'left' }}>
           <div style={{ width: '70%', margin: 0 }}>
           <AutoFitHeading
             lines={[
@@ -456,6 +456,9 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               setTimeout(() => setIsPaused(false), 100);
             }}
             style={{ margin: '0 auto', background: 'none' }}
+            durationMs={TABLET_AUTOPLAY_MS}
+            paused={isPaused}
+            animationKey={barKey}
           />
         </div>
         </div>
@@ -618,7 +621,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           className="header-frame-tablet"
           style={{
             position: 'relative',
-            width: 'min(520px, 90vw)',
+            width: 'min(92vw, clamp(260px, 60vh, 480px))',
             background: 'none',
             zIndex: 20,
             opacity: headerVisible ? 1 : 0,
@@ -626,7 +629,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             transition: shouldTransition ? (headerVisible ? 'opacity 1.2s ease' : 'none') : 'none'
           }}
         >
-          <div style={{ width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+          <div style={{ width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
             <h2 style={{
               fontFamily: 'Inter, sans-serif',
               fontSize: 40,
@@ -642,7 +645,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                 '0 0px 1px rgba(0,0,0,0.18)',
                 '0 0px 8px rgba(82,156,156,0.10)'
               ].join(', '),
-              textAlign: 'center',
+              textAlign: 'left',
               width: '100%'
             }}>
               <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease' : 'none' }}>In the moment,</span>

@@ -8,8 +8,11 @@ import React, { useRef, useEffect, useState } from "react";
  * - current: number (active index)
  * - onSelect: fn(idx)
  * - style: (optional)
+ * - durationMs: number (optional, default 7000) – progress duration
+ * - paused: boolean (optional, default false) – pause animation
+ * - animationKey: any (optional) – force restart animation
  */
-const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
+const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey }) => {
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
   const [bar, setBar] = useState({ top: 0, height: 0 });
@@ -58,6 +61,11 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
         ...style
       }}
     >
+      <style>
+        {`
+          @keyframes tabletTravellingProgress { from { width: 0%; } to { width: 100%; } }
+        `}
+      </style>
       {/* Animated background highlighter box */}
       <div
         style={{
@@ -73,7 +81,22 @@ const TabletTravellingBar = ({ captions, current, onSelect, style }) => {
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
         }}
-      ></div>
+      >
+        {/* Loading bar along bottom edge of the highlighter */}
+        <div
+          key={`${animationKey}-${current}`}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 5,
+            background: 'rgba(82,156,156,1)',
+            animation: `tabletTravellingProgress ${durationMs}ms linear forwards`,
+            animationPlayState: paused ? 'paused' : 'running',
+          }}
+        />
+      </div>
       {captions.map((caption, idx) => (
         <button
           key={idx}
