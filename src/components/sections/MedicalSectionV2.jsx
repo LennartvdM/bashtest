@@ -158,6 +158,24 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // When this section is fully active on tablet, gently ask the next section to preload its first videos
+  useEffect(() => {
+    if (!isTabletLayout) return;
+    if (sectionState === 'active') {
+      const payload = {
+        type: 'tablet-preload-next',
+        detail: {
+          blur: blurVideos[BASE_INDEX]?.video,
+          first: mainVideos[0]?.video
+        }
+      };
+      const timer = setTimeout(() => {
+        try { window.dispatchEvent(new CustomEvent(payload.type, { detail: payload.detail })); } catch {}
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [sectionState, isTabletLayout]);
+
   // Track fixed navbar height for correct vertical offset across transitions
   useEffect(() => {
     const readNav = () => {
@@ -415,7 +433,16 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
 
   // Tablet Portrait: simplified render path
   if (isTabletLayout) {
-    const renderActive = sectionState === 'entering' || sectionState === 'active' || sectionState === 'preserving';
+    const isActive = sectionState === 'active';
+    const [mountHeavy, setMountHeavy] = useState(false);
+    useEffect(() => {
+      if (isActive) {
+        const t = setTimeout(() => setMountHeavy(true), 150);
+        return () => clearTimeout(t);
+      } else {
+        setMountHeavy(false);
+      }
+    }, [isActive]);
     return (
       <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424' }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
@@ -470,7 +497,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
             transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
           }}>
-            {renderActive && (
+            {mountHeavy && (
             <TabletMedicalCarousel
               videos={mainVideos}
               current={currentVideo}
@@ -496,7 +523,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
           transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
         }}>
-          {renderActive && (
+          {mountHeavy && (
           <TabletTravellingBar
             captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
             current={currentVideo}
