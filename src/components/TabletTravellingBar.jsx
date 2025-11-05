@@ -16,6 +16,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
   const [bar, setBar] = useState({ top: 0, height: 0 });
+  const [motionKey, setMotionKey] = useState(0);
 
   // Effect: Update bar position when caption or size changes
   useEffect(() => {
@@ -49,6 +50,11 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
     return () => window.removeEventListener('resize', update);
   }, [current, captions.length]);
 
+  // Bump a key to retrigger a tiny spring animation on each move
+  useEffect(() => {
+    setMotionKey((k) => k + 1);
+  }, [bar.top, current]);
+
   return (
     <div
       ref={containerRef}
@@ -64,10 +70,16 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
       <style>
         {`
           @keyframes tabletTravellingProgress { from { width: 0%; } to { width: 100%; } }
+          @keyframes tabletBarSpring {
+            0%   { transform: translateY(0); }
+            65%  { transform: translateY(-3px); }
+            100% { transform: translateY(0); }
+          }
         `}
       </style>
       {/* Animated background highlighter box */}
       <div
+        key={motionKey}
         style={{
           position: 'absolute',
           top: bar.top,
@@ -78,9 +90,10 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
           borderRadius: '12px', // Rounded corners
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
           overflow: 'hidden', // Clip inner loading bar to rounded corners
-          transition: 'top 0.6s cubic-bezier(0.4,0,0.2,1), height 0.6s cubic-bezier(0.4,0,0.2,1)',
+          transition: 'top 480ms cubic-bezier(0.18, 0.88, 0.18, 1), height 480ms cubic-bezier(0.18, 0.88, 0.18, 1)',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
+          animation: 'tabletBarSpring 420ms ease-out'
         }}
       >
         {/* Loading bar along bottom edge of the highlighter */}
