@@ -122,6 +122,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const videoOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(-200px)';
   const captionOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(200px)';
   const TABLET_AUTOPLAY_MS = 7000;
+  const layoutKey = isTabletLayout ? 'tablet' : 'desktop';
 
   // Calculate the left offset so the cutout aligns with the video container
   const bandLeft = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
@@ -438,7 +439,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   if (isTabletLayout) {
     const isActive = sectionState === 'active';
     return (
-      <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424' }}>
+      <div key={layoutKey} ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424' }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
         {/* Foreground content wrapper applies navbar padding, keeping background full-bleed */}
@@ -539,6 +540,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
 
   return (
     <div 
+      key={layoutKey}
       ref={sectionRef} 
       className="h-screen w-full relative overflow-hidden"
       style={{
