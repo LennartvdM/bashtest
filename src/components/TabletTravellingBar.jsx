@@ -72,7 +72,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
           @keyframes tabletTravellingProgress { from { width: 0%; } to { width: 100%; } }
           @keyframes tabletBarSpring {
             0%   { transform: translateY(0); }
-            65%  { transform: translateY(-3px); }
+            70%  { transform: translateY(-2px); }
             100% { transform: translateY(0); }
           }
         `}
@@ -90,10 +90,10 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
           borderRadius: '12px', // Rounded corners
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
           overflow: 'hidden', // Clip inner loading bar to rounded corners
-          transition: 'top 480ms cubic-bezier(0.18, 0.88, 0.18, 1), height 480ms cubic-bezier(0.18, 0.88, 0.18, 1)',
+          transition: 'top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1)',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
-          animation: 'tabletBarSpring 420ms ease-out'
+          animation: 'tabletBarSpring 600ms ease-out'
         }}
       >
         {/* Loading bar along bottom edge of the highlighter */}
