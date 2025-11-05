@@ -25,6 +25,8 @@ export default function Navbar() {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [traveling, setTraveling] = useState(false);
   const [blobHeight, setBlobHeight] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 768 : false));
+  const [menuOpen, setMenuOpen] = useState(false);
   const settleTimeout = useRef(null);
   const prevIdx = useRef(null);
   const height = useMotionValue(0);
@@ -67,6 +69,18 @@ export default function Navbar() {
     if (settleTimeout.current) clearTimeout(settleTimeout.current);
   };
   useEffect(() => () => { if (hoverTimer) clearInterval(hoverTimer); if (settleTimeout.current) clearTimeout(settleTimeout.current); }, [hoverTimer]);
+
+  // Responsive detection
+  useEffect(() => {
+    const onResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) setMenuOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Traveling logic for shrink/expand
   useEffect(() => {
@@ -125,7 +139,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav ref={containerRef} className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
+    <nav ref={containerRef} className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center justify-between shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
       onLoadCapture={() => {
         try {
           const h = containerRef.current?.getBoundingClientRect()?.height || 60;
@@ -138,8 +152,8 @@ export default function Navbar() {
         <span className="sr-only">Home</span>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
       </div>
-      {/* Nav links moved closer to right edge */}
-      <div className="flex-1 flex justify-end items-center h-full pr-16">
+      {/* Desktop links */}
+      <div className="hidden md:flex flex-1 justify-end items-center h-full pr-16">
         <div
           ref={containerRef}
           className="relative flex items-center gap-[3.75rem]"
@@ -231,6 +245,43 @@ export default function Navbar() {
           })}
         </div>
       </div>
+      {/* Mobile hamburger */}
+      <button
+        aria-label="Menu"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((o) => !o)}
+        className="md:hidden mr-4 px-3 py-2 rounded-md border border-[#e7dfd7] bg-white/60"
+        style={{ display: isMobile ? 'inline-flex' : 'none', alignItems: 'center', gap: 6 }}
+      >
+        <span style={{ width: 18, height: 2, background: '#232324', display: 'block', borderRadius: 1 }} />
+        <span style={{ width: 18, height: 2, background: '#232324', display: 'block', borderRadius: 1 }} />
+        <span style={{ width: 18, height: 2, background: '#232324', display: 'block', borderRadius: 1 }} />
+      </button>
+
+      {/* Mobile dropdown */}
+      {isMobile && menuOpen && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 md:hidden"
+          style={{ background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid #e7dfd7', backdropFilter: 'blur(6px)' }}
+        >
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link.to);
+            return (
+              <div key={`m-${link.to}`} className="flex items-center justify-between px-6 py-4 border-t border-[#eee]">
+                <Link
+                  to={link.to}
+                  onClick={() => setMenuOpen(false)}
+                  className={`${active ? 'text-[#0a6c6c] font-bold' : 'text-[#232324] font-medium'}`}
+                  style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 18 }}
+                >
+                  {link.label}
+                </Link>
+                {active && <span style={{ width: 8, height: 8, borderRadius: 999, background: '#4fa6a6' }} />}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </nav>
   );
 }
