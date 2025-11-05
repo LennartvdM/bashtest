@@ -16,7 +16,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
   const [bar, setBar] = useState({ top: 0, height: 0 });
-  const [motionKey, setMotionKey] = useState(0);
+  const [animateTick, setAnimateTick] = useState(0);
 
   // Effect: Update bar position when caption or size changes
   useEffect(() => {
@@ -50,9 +50,10 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
     return () => window.removeEventListener('resize', update);
   }, [current, captions.length]);
 
-  // Bump a key to retrigger a tiny spring animation on each move
+  // Retrigger a tiny spring animation on each move without remounting
   useEffect(() => {
-    setMotionKey((k) => k + 1);
+    // toggle value so animation-name changes
+    setAnimateTick((t) => (t + 1) % 2);
   }, [bar.top, current]);
 
   return (
@@ -79,7 +80,6 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
       </style>
       {/* Animated background highlighter box */}
       <div
-        key={motionKey}
         style={{
           position: 'absolute',
           top: bar.top,
@@ -93,7 +93,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
           transition: 'top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1)',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
-          animation: 'tabletBarSpring 600ms ease-out'
+          animation: animateTick ? 'tabletBarSpring 600ms ease-out' : 'none'
         }}
       >
         {/* Loading bar along bottom edge of the highlighter */}
