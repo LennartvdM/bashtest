@@ -20,8 +20,10 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
   const getOpacity = idx => (idx >= current ? 1 : 0);
   const getZ = idx => 10 - idx;
 
+  // Use a slight bleed (112vh) to avoid hard edges while keeping the parent clipped to 100vh.
+  // Parent sections use overflow hidden, so this extra size will not affect layout.
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', zIndex: 0 }}>
+    <div style={{ position: 'absolute', top: '-6vh', left: 0, width: '100%', height: '112vh', zIndex: 0, pointerEvents: 'none' }}>
       {[2, 1, 0].map(i => (
         <div
           key={bg[i].id || i}
