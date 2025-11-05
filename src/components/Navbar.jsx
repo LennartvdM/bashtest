@@ -31,6 +31,7 @@ export default function Navbar() {
   const prevIdx = useRef(null);
   const height = useMotionValue(0);
   const prevBlob = useRef({ left: null, width: null });
+  const navCellHeight = isMobile ? 26 : NAV_CELL_HEIGHT;
 
   // Section-based active logic
   const isActive = (to) => {
@@ -152,13 +153,13 @@ export default function Navbar() {
         <span className="sr-only">Home</span>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
       </div>
-      {/* Desktop links */}
-      <div className="hidden md:flex flex-1 justify-end items-center h-full pr-16">
+      {/* Inline links (snug on tablet) */}
+      <div className="flex flex-1 justify-end items-center h-full" style={{ paddingRight: isMobile ? 12 : 64 }}>
         <div
           ref={containerRef}
-          className="relative flex items-center gap-[3.75rem]"
+          className="relative flex items-center"
           onMouseLeave={handleMouseLeave}
-          style={{ alignItems: 'center', height: '60px', position: 'relative' }}
+          style={{ alignItems: 'center', height: '60px', position: 'relative', gap: isMobile ? '1.5rem' : '3.75rem' }}
         >
           {/* Animated blob */}
           <AnimatePresence>
@@ -170,7 +171,7 @@ export default function Navbar() {
                   opacity: blobOpacity,
                   left: blob.left,
                   width: blob.width,
-                  height: traveling ? NAV_CELL_HEIGHT * 0.75 : NAV_CELL_HEIGHT,
+                  height: traveling ? navCellHeight * 0.75 : navCellHeight,
                   transition: {
                     opacity: { duration: 0.18 },
                     left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
@@ -188,7 +189,7 @@ export default function Navbar() {
                   margin: 'auto 0',
                   left: blob.left,
                   width: blob.width,
-                  height: traveling ? NAV_CELL_HEIGHT * 0.75 : NAV_CELL_HEIGHT,
+                  height: traveling ? navCellHeight * 0.75 : navCellHeight,
                 }}
               />
             )}
@@ -205,7 +206,7 @@ export default function Navbar() {
                 onMouseEnter={() => handleMouseEnter(idx)}
                 onFocus={() => handleMouseEnter(idx)}
                 tabIndex={-1}
-                style={{ minHeight: NAV_CELL_HEIGHT, height: NAV_CELL_HEIGHT, zIndex: isToolbox ? 2 : 2 }}
+                style={{ minHeight: navCellHeight, height: navCellHeight, zIndex: isToolbox ? 2 : 2 }}
               >
                 {/* Active pill (always on top) */}
                 {active && (
@@ -214,15 +215,15 @@ export default function Navbar() {
                     style={{
                       boxShadow: '0 2px 8px 0 rgba(79,166,166,0.10)',
                       pointerEvents: 'none',
-                      height: NAV_CELL_HEIGHT,
-                      minHeight: NAV_CELL_HEIGHT,
-                      maxHeight: NAV_CELL_HEIGHT,
+                      height: navCellHeight,
+                      minHeight: navCellHeight,
+                      maxHeight: navCellHeight,
                     }}
                   />
                 )}
                 <Link
                   to={link.to}
-                  className={`relative z-30 flex items-center justify-center px-6 py-2 rounded-full transition-colors duration-150 transform-gpu
+                  className={`relative z-30 flex items-center justify-center rounded-full transition-colors duration-150 transform-gpu
                     hover:scale-105 focus:scale-105 transition-transform duration-240
                     ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-semibold' : 'text-[#232324] font-semibold'}
                     ${isToolbox && !active ? 'bg-[#232324]' : ''}
@@ -231,9 +232,10 @@ export default function Navbar() {
                     pointerEvents: 'auto',
                     fontFamily: 'Montserrat, sans-serif',
                     fontWeight: 500,
-                    fontSize: 18,
-                    height: NAV_CELL_HEIGHT,
-                    lineHeight: NAV_CELL_HEIGHT + 'px',
+                    fontSize: isMobile ? 16 : 18,
+                    padding: isMobile ? '6px 10px' : '8px 24px',
+                    height: navCellHeight,
+                    lineHeight: navCellHeight + 'px',
                     userSelect: 'none',
                     WebkitUserSelect: 'none'
                   }}
@@ -245,43 +247,6 @@ export default function Navbar() {
           })}
         </div>
       </div>
-      {/* Mobile hamburger */}
-      <button
-        aria-label="Menu"
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen((o) => !o)}
-        className="md:hidden mr-4 px-3 py-2 rounded-md border border-[#e7dfd7] bg-white/60"
-        style={{ display: isMobile ? 'inline-flex' : 'none', alignItems: 'center', gap: 6 }}
-      >
-        <span style={{ width: 18, height: 2, background: '#232324', display: 'block', borderRadius: 1 }} />
-        <span style={{ width: 18, height: 2, background: '#232324', display: 'block', borderRadius: 1 }} />
-        <span style={{ width: 18, height: 2, background: '#232324', display: 'block', borderRadius: 1 }} />
-      </button>
-
-      {/* Mobile dropdown */}
-      {isMobile && menuOpen && (
-        <div
-          className="absolute left-0 right-0 top-full z-50 md:hidden"
-          style={{ background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid #e7dfd7', backdropFilter: 'blur(6px)' }}
-        >
-          {NAV_LINKS.map((link) => {
-            const active = isActive(link.to);
-            return (
-              <div key={`m-${link.to}`} className="flex items-center justify-between px-6 py-4 border-t border-[#eee]">
-                <Link
-                  to={link.to}
-                  onClick={() => setMenuOpen(false)}
-                  className={`${active ? 'text-[#0a6c6c] font-bold' : 'text-[#232324] font-medium'}`}
-                  style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 18 }}
-                >
-                  {link.label}
-                </Link>
-                {active && <span style={{ width: 8, height: 8, borderRadius: 999, background: '#4fa6a6' }} />}
-              </div>
-            );
-          })}
-        </div>
-      )}
     </nav>
   );
 }
