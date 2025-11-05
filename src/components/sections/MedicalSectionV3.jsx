@@ -73,6 +73,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
   const [tabletHeaderStyle, setTabletHeaderStyle] = useState({});
   const [navbarHeight, setNavbarHeight] = useState(60);
+  const [mountHeavy, setMountHeavy] = useState(false);
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -172,6 +173,16 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     window.addEventListener('tablet-preload-next', handler);
     return () => window.removeEventListener('tablet-preload-next', handler);
   }, [isTabletLayout]);
+
+  // Mount heavy UI only when section is active on tablet (with small delay)
+  useEffect(() => {
+    if (!isTabletLayout) { setMountHeavy(true); return; }
+    if (sectionState === 'active') {
+      const t = setTimeout(() => setMountHeavy(true), 150);
+      return () => clearTimeout(t);
+    }
+    setMountHeavy(false);
+  }, [sectionState, isTabletLayout]);
 
   // Track fixed navbar height for correct vertical offset across transitions
   useEffect(() => {
@@ -418,15 +429,6 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // Tablet Portrait: simplified render path
   if (isTabletLayout) {
     const isActive = sectionState === 'active';
-    const [mountHeavy, setMountHeavy] = useState(false);
-    useEffect(() => {
-      if (isActive) {
-        const t = setTimeout(() => setMountHeavy(true), 150);
-        return () => clearTimeout(t);
-      } else {
-        setMountHeavy(false);
-      }
-    }, [isActive]);
     return (
       <div ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424' }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
