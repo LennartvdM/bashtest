@@ -177,7 +177,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // Mount heavy UI only when section is active on tablet (with small delay)
   useEffect(() => {
     if (!isTabletLayout) { setMountHeavy(true); return; }
-    if (sectionState === 'active') {
+    if (sectionState === 'entering' || sectionState === 'active' || sectionState === 'preserving') {
       const t = setTimeout(() => setMountHeavy(true), 150);
       return () => clearTimeout(t);
     }
