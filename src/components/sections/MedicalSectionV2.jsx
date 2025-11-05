@@ -73,7 +73,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
   const [tabletHeaderStyle, setTabletHeaderStyle] = useState({});
   const [navbarHeight, setNavbarHeight] = useState(60);
-  const [mountHeavy, setMountHeavy] = useState(false);
+  // Always mount heavy UI on tablet to ensure visibility and avoid hook-order issues
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -177,15 +177,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     }
   }, [sectionState, isTabletLayout]);
 
-  // Mount heavy UI only when section is active on tablet (with small delay)
-  useEffect(() => {
-    if (!isTabletLayout) { setMountHeavy(true); return; }
-    if (sectionState === 'entering' || sectionState === 'active' || sectionState === 'preserving') {
-      const t = setTimeout(() => setMountHeavy(true), 150);
-      return () => clearTimeout(t);
-    }
-    setMountHeavy(false);
-  }, [sectionState, isTabletLayout]);
+  // Previously we staged mounting for performance; revert to always-on for reliability
 
   // Track fixed navbar height for correct vertical offset across transitions
   useEffect(() => {
@@ -499,7 +491,6 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
             transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
           }}>
-            {mountHeavy && (
             <TabletMedicalCarousel
               videos={mainVideos}
               current={currentVideo}
@@ -512,7 +503,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
               onPauseChange={(p) => setIsPaused(!!p)}
               style={{ width: '100%', height: '100%' }}
             />
-            )}
+            
             {/* Progress moved to active caption highlight */}
           </div>
         </div>
@@ -525,7 +516,6 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
           transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
         }}>
-          {mountHeavy && (
           <TabletTravellingBar
             captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
             current={currentVideo}
@@ -540,7 +530,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             paused={isPaused}
             animationKey={barKey}
           />
-          )}
+          
         </div>
         </div>
       </div>
