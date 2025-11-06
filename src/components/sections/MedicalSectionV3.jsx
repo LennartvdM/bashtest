@@ -100,7 +100,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const shouldTransition = sectionState === 'entering' || sectionState === 'active';
   
   // Debug logging
-  console.log('MedicalSectionV3 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Video visible:', videoVisible);
+  
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -224,7 +224,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   // Tablet autoplay loop and progress sync
   useEffect(() => {
     if (!isTabletLayout) return;
-    console.log('[Tablet V3] autoplay init');
+    
     const id = setInterval(() => {
       if (!isPaused) {
         setBarKey((k) => k + 1);

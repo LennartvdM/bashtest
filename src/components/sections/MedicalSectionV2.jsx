@@ -100,7 +100,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const shouldTransition = sectionState === 'entering' || sectionState === 'active';
   
   // Debug logging
-  console.log('MedicalSectionV2 - Section state:', sectionState, 'Should transition:', shouldTransition, 'Video visible:', videoVisible);
+  
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -227,7 +227,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Tablet autoplay loop and progress sync
   useEffect(() => {
     if (!isTabletLayout) return;
-    console.log('[Tablet V2] autoplay init');
+    
     const id = setInterval(() => {
       if (!isPaused) {
         setBarKey((k) => k + 1);
@@ -273,12 +273,12 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Force remove transitions when section becomes idle
   useEffect(() => {
     if (sectionState === 'idle') {
-      console.log('🔴 Section becoming idle - forcing immediate reset');
+      
       
       // Force remove all transitions on media elements
       const mediaElements = document.querySelectorAll('.video-gantry-frame, .video-frame');
       mediaElements.forEach(el => {
-        console.log('🔴 Removing transition from:', el);
+        
         el.style.transition = 'none';
         el.style.animation = 'none';
         el.style.transform = 'translateX(-200px)';
