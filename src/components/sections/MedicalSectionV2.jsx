@@ -73,6 +73,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
   const [tabletHeaderStyle, setTabletHeaderStyle] = useState({});
   const [navbarHeight, setNavbarHeight] = useState(60);
+  const [disableTransitions, setDisableTransitions] = useState(false);
   // Always mount heavy UI on tablet to ensure visibility and avoid hook-order issues
 
   // All useRef hooks next
@@ -199,6 +200,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Modified entrance animation effect
   useEffect(() => {
     if (shouldAnimate) {
+      setDisableTransitions(false);
       // Reset to initial state for fresh entrance
       setCurrentVideo(0);
       setIsPaused(true);
@@ -244,6 +246,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Gentle cleanup when preserved
   useEffect(() => {
     if (isPreserved) {
+      setDisableTransitions(true);
       setIsPaused(true);
       setInteractionsEnabled(false);
       setVideoHover(false);
@@ -254,6 +257,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   // Full cleanup when section becomes inactive
   useEffect(() => {
     if (sectionState === 'preserving' || sectionState === 'cleaned' || sectionState === 'idle') {
+      setDisableTransitions(true);
       setHeaderVisible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
@@ -474,7 +478,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           margin: '0 auto',
           textAlign: 'left',
           opacity: headerVisible ? 1 : 0,
-          transition: shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none'
+          transition: disableTransitions ? 'none' : (shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none')
         }}>
           <div style={{ width: '70%', margin: 0 }}>
           <AutoFitHeading
@@ -502,7 +506,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             overflow: 'hidden',
             position: 'relative',
             opacity: videoVisible ? 1 : 0,
-            transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
+            transition: disableTransitions ? 'none' : (shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
             transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
           }}>
             <TabletMedicalCarousel
@@ -527,7 +531,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           textAlign: 'center',
           position: 'relative',
           opacity: captionsVisible ? 1 : 0,
-          transition: shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none',
+          transition: disableTransitions ? 'none' : (shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
           transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
         }}>
           <TabletTravellingBar
