@@ -506,7 +506,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
             overflow: 'hidden',
             position: 'relative',
             opacity: videoVisible ? 1 : 0,
-            transition: disableTransitions ? 'none' : (shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
+            transition: disableTransitions ? 'none' : (videoVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
             transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
           }}>
             <TabletMedicalCarousel
@@ -531,7 +531,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           textAlign: 'center',
           position: 'relative',
           opacity: captionsVisible ? 1 : 0,
-          transition: disableTransitions ? 'none' : (shouldTransition ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
+          transition: disableTransitions ? 'none' : (captionsVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
           transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
         }}>
           <TabletTravellingBar
