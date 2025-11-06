@@ -163,7 +163,7 @@ export default function Navbar() {
         >
           {/* Animated blob */}
           <AnimatePresence>
-            {blob && (
+            {!isMobile && blob && (
               <motion.div
                 key="blob"
                 initial={{ opacity: 0, left: blob.left, width: blob.width, height: NAV_CELL_HEIGHT }}
@@ -203,8 +203,8 @@ export default function Navbar() {
                 key={link.to}
                 ref={el => linkRefs.current[idx] = el}
                 className="relative flex items-center justify-center"
-                onMouseEnter={() => handleMouseEnter(idx)}
-                onFocus={() => handleMouseEnter(idx)}
+                onMouseEnter={!isMobile ? () => handleMouseEnter(idx) : undefined}
+                onFocus={!isMobile ? () => handleMouseEnter(idx) : undefined}
                 tabIndex={-1}
                 style={{ minHeight: navCellHeight, height: navCellHeight, zIndex: isToolbox ? 2 : 2 }}
               >
