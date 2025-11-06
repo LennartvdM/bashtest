@@ -329,6 +329,19 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     }
   }, []);
 
+  // Re-measure and stabilize when crossing tablet/desktop breakpoint
+  useLayoutEffect(() => {
+    if (headerRef.current) {
+      const headerRect = headerRef.current.getBoundingClientRect();
+      setHeaderHeight(headerRect.height);
+      setVideoTop(`${headerRect.height + gap}px`);
+    }
+    // Ensure all parts are visible after layout switch
+    setHeaderVisible(true);
+    setVideoVisible(true);
+    setCaptionsVisible(true);
+  }, [isTabletLayout]);
+
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
     const viewportHeight = window.innerHeight;
