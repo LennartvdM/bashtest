@@ -19,7 +19,7 @@ const SECTIONS = [
 //   blurcoordination, blurfocus, blurperspectives, blursskills, blurteam, blururgency
 // Apply in reverse for the 6 sections after preface, and use blurperspectives for preface as well
 const SECTION_TO_VIDEO = {
-  preface: '/videos/blurperspectives.mp4',
+  preface: '/videos/blurteam.mp4',
   narrative: '/videos/blururgency.mp4',
   provider: '/videos/blurteam.mp4',
   reflect: '/videos/blursskills.mp4',
@@ -236,6 +236,7 @@ export default function SidebarScrollSpyDemo() {
           loop
           playsInline
           preload="metadata"
+          style={{ transform: 'scale(1.06)' }}
         />
         {/* Deck layers (bottom -> top as in DECK_SOURCES) */}
         {DECK_SOURCES.map((src, idx) => {
@@ -256,6 +257,7 @@ export default function SidebarScrollSpyDemo() {
               initial={{ opacity: isAboveTarget ? 0 : 1 }}
               animate={{ opacity: isAboveTarget ? 0 : 1 }}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
+              style={{ transform: 'scale(1.06)' }}
             />
           );
         })}
