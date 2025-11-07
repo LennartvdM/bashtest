@@ -231,9 +231,9 @@ export default function SidebarScrollSpyDemo() {
         </AnimatePresence>
       </div>
 
-      {/* Foreground content container with subtle padding gradient */}
-      <div className="bg-gradient-to-br from-slate-900/20 to-slate-800/20">
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
+      {/* Foreground content without page-level background so video is visible around cards */}
+      <div>
+        <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
         {isMobile && (
           <MobileNav
             isOpen={isMobileNavOpen}
@@ -262,7 +262,7 @@ export default function SidebarScrollSpyDemo() {
               <motion.section
                 key={s.id}
                 id={s.id}
-                   className="scroll-mt-24 mb-8 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md p-6 md:p-8"
+                   className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-stone-50 to-fuchsia-50 border border-[#e7dfd7] shadow-md p-6 md:p-8"
                 variants={sectionVariants}
                 initial="hidden"
                 animate="visible"
