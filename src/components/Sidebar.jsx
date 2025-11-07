@@ -245,17 +245,7 @@ export default function SidebarScrollSpyDemo() {
       <div ref={backdropRef} className="pointer-events-none fixed inset-0 -z-10">
         {/* Fail-safe solid base color */}
         <div className="absolute inset-0" style={{ backgroundColor: '#394e49' }} />
-        {/* Static base backdrop (never fades) */}
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          src={'/videos/blurfocus.mp4'}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          style={{ transform: 'scale(1.06)' }}
-        />
+        {/* Removed static base video to avoid showing it before target is ready */}
         {/* Deck container hidden until target video is ready */}
         <motion.div
           initial={{ opacity: 0 }}
