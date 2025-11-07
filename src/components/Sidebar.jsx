@@ -226,7 +226,7 @@ export default function SidebarScrollSpyDemo() {
               playsInline
             />
             {/* Readability gradient overlay */}
-            <div className="absolute inset-0 bg-slate-900/50" />
+            <div className="absolute inset-0 bg-slate-900/40" />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -257,12 +257,12 @@ export default function SidebarScrollSpyDemo() {
               </motion.aside>
             )}
           </AnimatePresence>
-          <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
+             <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
             {SECTIONS.map((s, idx) => (
               <motion.section
                 key={s.id}
                 id={s.id}
-                className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-stone-50 to-fuchsia-50 border border-[#e7dfd7] shadow-md p-6 md:p-8"
+                   className="scroll-mt-24 mb-8 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md p-6 md:p-8"
                 variants={sectionVariants}
                 initial="hidden"
                 animate="visible"
