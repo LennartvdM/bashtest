@@ -135,6 +135,7 @@ export default function SidebarScrollSpyDemo() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [backdropKey, setBackdropKey] = useState(0);
   const [loadedSources, setLoadedSources] = useState(() => new Set());
+  const backdropRef = React.useRef(null);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -158,6 +159,20 @@ export default function SidebarScrollSpyDemo() {
     }, 700);
     return () => clearTimeout(timer);
   }, [active]);
+
+  // Enforce half-speed playback on all backdrop videos
+  React.useEffect(() => {
+    const root = backdropRef.current;
+    if (!root) return;
+    const videos = root.querySelectorAll('video');
+    videos.forEach((vid) => {
+      try {
+        // Some browsers respect defaultPlaybackRate; set both to be safe
+        vid.defaultPlaybackRate = 0.5;
+        vid.playbackRate = 0.5;
+      } catch (_) {}
+    });
+  }, [active, loadedSources]);
 
   React.useEffect(() => {
     if (!window.location.hash && window.innerWidth >= 768) {
@@ -224,7 +239,7 @@ export default function SidebarScrollSpyDemo() {
   return (
     <div className="relative min-h-screen">
       {/* Dynamic video backdrop */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
+      <div ref={backdropRef} className="pointer-events-none fixed inset-0 -z-10">
         {/* Fail-safe solid base color */}
         <div className="absolute inset-0" style={{ backgroundColor: '#394e49' }} />
         {/* Static base backdrop (never fades) */}
