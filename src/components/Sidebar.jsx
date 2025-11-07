@@ -293,10 +293,14 @@ export default function SidebarScrollSpyDemo() {
           </AnimatePresence>
              <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
             {SECTIONS.map((s, idx) => (
-              <motion.section
+                <motion.section
                 key={s.id}
                 id={s.id}
-                   className="scroll-mt-24 mb-8 rounded-xl bg-gradient-to-br from-stone-50 to-fuchsia-50 border border-[#e7dfd7] shadow-md p-6 md:p-8"
+                  className="scroll-mt-24 mb-8 rounded-xl border border-[#e7dfd7] shadow-md p-6 md:p-8 mix-blend-screen"
+                  style={{
+                    // 90% fill using semi-transparent gradient with screen blend
+                    background: 'linear-gradient(135deg, rgba(250,250,249,0.9), rgba(253,244,255,0.9))',
+                  }}
                 variants={sectionVariants}
                 initial="hidden"
                 animate="visible"
