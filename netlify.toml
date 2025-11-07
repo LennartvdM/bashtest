@@ -4,6 +4,24 @@
 
 [build.environment]
   NODE_VERSION = "18"
+
+# Ensure SPA routing works with react-router on refresh/deep links
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Optional: basic headers for static assets
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
   NODE_ENV = "development"
 
 [build.processing]

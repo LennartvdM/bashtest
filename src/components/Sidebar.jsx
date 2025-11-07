@@ -14,6 +14,20 @@ const SECTIONS = [
   { id: 'collab', raw: 'International Collaboration' },
 ];
 
+// Backdrop video mapping:
+// Folder order (by name):
+//   blurcoordination, blurfocus, blurperspectives, blursskills, blurteam, blururgency
+// Apply in reverse for the 6 sections after preface, and use blurperspectives for preface as well
+const SECTION_TO_VIDEO = {
+  preface: '/videos/blurperspectives.mp4',
+  narrative: '/videos/blururgency.mp4',
+  provider: '/videos/blurteam.mp4',
+  reflect: '/videos/blursskills.mp4',
+  guidance: '/videos/blurperspectives.mp4', // duplicated per requirement
+  research: '/videos/blurfocus.mp4',
+  collab: '/videos/blurcoordination.mp4',
+};
+
 function useScrollSpy(ids) {
   const [active, setActive] = useState(ids[0]);
   useLayoutEffect(() => {
@@ -109,6 +123,7 @@ export default function SidebarScrollSpyDemo() {
   const active = useScrollSpy(SECTIONS.map((s) => s.id));
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [backdropKey, setBackdropKey] = useState(0);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -120,6 +135,11 @@ export default function SidebarScrollSpyDemo() {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Bump a key to retrigger video fade when active section changes
+  React.useEffect(() => {
+    setBackdropKey((k) => k + 1);
+  }, [active]);
 
   React.useEffect(() => {
     if (!window.location.hash && window.innerWidth >= 768) {
@@ -184,7 +204,35 @@ export default function SidebarScrollSpyDemo() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/40 to-slate-800/40">
+    <div className="relative min-h-screen">
+      {/* Dynamic video backdrop */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={backdropKey}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            className="absolute inset-0"
+          >
+            <video
+              key={SECTION_TO_VIDEO[active]}
+              className="h-full w-full object-cover"
+              src={SECTION_TO_VIDEO[active]}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+            {/* Readability gradient overlay */}
+            <div className="absolute inset-0 bg-slate-900/50" />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Foreground content container with subtle padding gradient */}
+      <div className="bg-gradient-to-br from-slate-900/20 to-slate-800/20">
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
         {isMobile && (
           <MobileNav
@@ -256,6 +304,7 @@ export default function SidebarScrollSpyDemo() {
           </article>
         </div>
       </main>
+      </div>
     </div>
   );
 }
