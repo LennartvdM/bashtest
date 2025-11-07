@@ -192,6 +192,7 @@ export default function SidebarScrollSpyDemo() {
       const targetId = window.location.hash.replace('#', '');
       const targetEl = () => document.getElementById(targetId);
       window.scrollTo({ top: 0, behavior: 'auto' });
+      // Defer until after intro animations (align with sidebar/sections timing)
       setTimeout(() => {
         const el = targetEl();
         if (el) {
@@ -202,7 +203,7 @@ export default function SidebarScrollSpyDemo() {
           // Nudge scroll handlers
           setTimeout(() => window.dispatchEvent(new Event('scroll')), 50);
         }
-      }, 500);
+      }, 1600);
     }
   }, []);
 
