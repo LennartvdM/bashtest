@@ -174,6 +174,20 @@ export default function SidebarScrollSpyDemo() {
     });
   }, [active, loadedSources]);
 
+  // Force base background while on Neoflix to avoid any legacy shell colors
+  React.useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlBg = html.style.backgroundColor;
+    const prevBodyBg = body.style.backgroundColor;
+    html.style.backgroundColor = '#394e49';
+    body.style.backgroundColor = '#394e49';
+    return () => {
+      html.style.backgroundColor = prevHtmlBg;
+      body.style.backgroundColor = prevBodyBg;
+    };
+  }, []);
+
   React.useEffect(() => {
     const hasHash = !!window.location.hash;
     const prefersDesktop = window.innerWidth >= 768;
