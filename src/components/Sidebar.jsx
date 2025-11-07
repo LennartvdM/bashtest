@@ -202,7 +202,7 @@ export default function SidebarScrollSpyDemo() {
           // Nudge scroll handlers
           setTimeout(() => window.dispatchEvent(new Event('scroll')), 50);
         }
-      }, 900);
+      }, 500);
     }
   }, []);
 
