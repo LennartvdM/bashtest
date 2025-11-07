@@ -136,7 +136,6 @@ export default function SidebarScrollSpyDemo() {
   const [backdropKey, setBackdropKey] = useState(0);
   const [loadedSources, setLoadedSources] = useState(() => new Set());
   const backdropRef = React.useRef(null);
-  const [isTargetReady, setIsTargetReady] = useState(false);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -151,8 +150,6 @@ export default function SidebarScrollSpyDemo() {
 
   // Ensure target deck layer is loaded quickly; then gently load remaining layers
   React.useEffect(() => {
-    // On section change, mark target as not ready yet
-    setIsTargetReady(false);
     const targetSrc = SECTION_TO_VIDEO[active];
     if (targetSrc && !loadedSources.has(targetSrc)) {
       setLoadedSources(new Set([...Array.from(loadedSources), targetSrc]));
@@ -265,38 +262,28 @@ export default function SidebarScrollSpyDemo() {
         {/* Fail-safe solid base color */}
         <div className="absolute inset-0" style={{ backgroundColor: '#394e49' }} />
         {/* Removed static base video to avoid showing it before target is ready */}
-        {/* Deck container hidden until target video is ready */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isTargetReady ? 1 : 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="absolute inset-0"
-        >
-          {DECK_SOURCES.map((src, idx) => {
-            const targetSrc = SECTION_TO_VIDEO[active];
-            const targetIdx = DECK_SOURCES.indexOf(targetSrc);
-            const isAboveTarget = targetIdx >= 0 ? idx > targetIdx : false;
-            const shouldLoad = loadedSources.has(src);
-            const isTarget = src === targetSrc;
-            return (
-              <motion.video
-                key={src}
-                className="absolute inset-0 h-full w-full object-cover"
-                src={src}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload={shouldLoad ? 'auto' : 'metadata'}
-                onCanPlayThrough={isTarget ? () => setIsTargetReady(true) : undefined}
-                initial={{ opacity: isAboveTarget ? 0 : 1 }}
-                animate={{ opacity: isAboveTarget ? 0 : 1 }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-                style={{ transform: 'scale(1.06)' }}
-              />
-            );
-          })}
-        </motion.div>
+        {DECK_SOURCES.map((src, idx) => {
+          const targetSrc = SECTION_TO_VIDEO[active];
+          const targetIdx = DECK_SOURCES.indexOf(targetSrc);
+          const isAboveTarget = targetIdx >= 0 ? idx > targetIdx : false;
+          const shouldLoad = loadedSources.has(src);
+          return (
+            <motion.video
+              key={src}
+              className="absolute inset-0 h-full w-full object-cover"
+              src={src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload={shouldLoad ? 'auto' : 'metadata'}
+              initial={{ opacity: isAboveTarget ? 0 : 1 }}
+              animate={{ opacity: isAboveTarget ? 0 : 1 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              style={{ transform: 'scale(1.06)' }}
+            />
+          );
+        })}
         {/* Readability gradient overlay */}
         <div className="absolute inset-0 bg-slate-900/40" />
       </div>
