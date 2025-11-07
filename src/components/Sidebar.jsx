@@ -298,8 +298,8 @@ export default function SidebarScrollSpyDemo() {
                 id={s.id}
                   className="scroll-mt-24 mb-8 rounded-xl border border-[#e7dfd7] shadow-md p-6 md:p-8"
                   style={{
-                    // 70% fill using semi-transparent gradient (content remains fully opaque)
-                    background: 'linear-gradient(135deg, rgba(250,250,249,0.7), rgba(253,244,255,0.7))',
+                    // 85% fill using semi-transparent gradient (content remains fully opaque)
+                    background: 'linear-gradient(135deg, rgba(250,250,249,0.85), rgba(253,244,255,0.85))',
                   }}
                 variants={sectionVariants}
                 initial="hidden"
