@@ -28,6 +28,16 @@ const SECTION_TO_VIDEO = {
   collab: '/videos/blurcoordination.mp4',
 };
 
+// Deck order from bottom -> top (not including the static base layer)
+const DECK_SOURCES = [
+  '/videos/blurcoordination.mp4',
+  '/videos/blurfocus.mp4',
+  '/videos/blurperspectives.mp4',
+  '/videos/blursskills.mp4',
+  '/videos/blurteam.mp4',
+  '/videos/blururgency.mp4',
+];
+
 function useScrollSpy(ids) {
   const [active, setActive] = useState(ids[0]);
   useLayoutEffect(() => {
@@ -124,6 +134,7 @@ export default function SidebarScrollSpyDemo() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [backdropKey, setBackdropKey] = useState(0);
+  const [loadedSources, setLoadedSources] = useState(() => new Set());
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -136,9 +147,16 @@ export default function SidebarScrollSpyDemo() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Bump a key to retrigger video fade when active section changes
+  // Ensure target deck layer is loaded quickly; then gently load remaining layers
   React.useEffect(() => {
-    setBackdropKey((k) => k + 1);
+    const targetSrc = SECTION_TO_VIDEO[active];
+    if (targetSrc && !loadedSources.has(targetSrc)) {
+      setLoadedSources(new Set([...Array.from(loadedSources), targetSrc]));
+    }
+    const timer = setTimeout(() => {
+      setLoadedSources(new Set(DECK_SOURCES));
+    }, 700);
+    return () => clearTimeout(timer);
   }, [active]);
 
   React.useEffect(() => {
@@ -207,30 +225,42 @@ export default function SidebarScrollSpyDemo() {
     <div className="relative min-h-screen">
       {/* Dynamic video backdrop */}
       <div className="pointer-events-none fixed inset-0 -z-10">
-        {/* Solid base color to prevent white flash during cross-fades */}
-        <div className="absolute inset-0" style={{ backgroundColor: '#2596be' }} />
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={backdropKey}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-            className="absolute inset-0"
-          >
-            <video
-              key={SECTION_TO_VIDEO[active]}
-              className="h-full w-full object-cover"
-              src={SECTION_TO_VIDEO[active]}
+        {/* Fail-safe solid base color */}
+        <div className="absolute inset-0" style={{ backgroundColor: '#394e49' }} />
+        {/* Static base backdrop (never fades) */}
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src={'/videos/blurfocus.mp4'}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+        {/* Deck layers (bottom -> top as in DECK_SOURCES) */}
+        {DECK_SOURCES.map((src, idx) => {
+          const targetSrc = SECTION_TO_VIDEO[active];
+          const targetIdx = DECK_SOURCES.indexOf(targetSrc);
+          const isAboveTarget = targetIdx >= 0 ? idx > targetIdx : false;
+          const shouldLoad = loadedSources.has(src);
+          return (
+            <motion.video
+              key={src}
+              className="absolute inset-0 h-full w-full object-cover"
+              src={src}
               autoPlay
               muted
               loop
               playsInline
+              preload={shouldLoad ? 'auto' : 'metadata'}
+              initial={{ opacity: isAboveTarget ? 0 : 1 }}
+              animate={{ opacity: isAboveTarget ? 0 : 1 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
             />
-            {/* Readability gradient overlay */}
-            <div className="absolute inset-0 bg-slate-900/40" />
-          </motion.div>
-        </AnimatePresence>
+          );
+        })}
+        {/* Readability gradient overlay */}
+        <div className="absolute inset-0 bg-slate-900/40" />
       </div>
 
       {/* Foreground content without page-level background so video is visible around cards */}
