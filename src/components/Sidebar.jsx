@@ -296,10 +296,10 @@ export default function SidebarScrollSpyDemo() {
                 <motion.section
                 key={s.id}
                 id={s.id}
-                  className="scroll-mt-24 mb-8 rounded-xl border border-[#e7dfd7] shadow-md p-6 md:p-8 mix-blend-screen"
+                  className="scroll-mt-24 mb-8 rounded-xl border border-[#e7dfd7] shadow-md p-6 md:p-8"
                   style={{
-                    // 90% fill using semi-transparent gradient with screen blend
-                    background: 'linear-gradient(135deg, rgba(250,250,249,0.9), rgba(253,244,255,0.9))',
+                    // 70% fill using semi-transparent gradient (content remains fully opaque)
+                    background: 'linear-gradient(135deg, rgba(250,250,249,0.7), rgba(253,244,255,0.7))',
                   }}
                 variants={sectionVariants}
                 initial="hidden"
