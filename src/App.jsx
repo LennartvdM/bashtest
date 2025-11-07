@@ -10,7 +10,7 @@ import WorldMapEditor from './components/WorldMapEditor';
 
 function AppShell() {
   const location = useLocation();
-  const isNeoflix = location.pathname === '/neoflix';
+  const isNeoflix = location.pathname === '/neoflix' || location.pathname.startsWith('/neoflix/');
   const showMapEditor = new URLSearchParams(window.location.search).get('editor') === 'true';
 
   return (
