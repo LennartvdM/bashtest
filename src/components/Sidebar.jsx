@@ -178,13 +178,42 @@ export default function SidebarScrollSpyDemo() {
   }, [active, loadedSources]);
 
   React.useEffect(() => {
-    if (!window.location.hash && window.innerWidth >= 768) {
+    const hasHash = !!window.location.hash;
+    const prefersDesktop = window.innerWidth >= 768;
+    if (!hasHash && prefersDesktop) {
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('nav-activate', { detail: SECTIONS[0].id }));
         document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
         history.replaceState(null, '', `#${SECTIONS[0].id}`);
         window.dispatchEvent(new Event('scroll'));
       }, 1500);
+    } else if (hasHash) {
+      // Land at top first for context, then smoothly scroll to hashed section after a short delay
+      const targetId = window.location.hash.replace('#', '');
+      const targetEl = () => document.getElementById(targetId);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      setTimeout(() => {
+        const el = targetEl();
+        if (el) {
+          window.dispatchEvent(new CustomEvent('nav-activate', { detail: targetId }));
+          const rect = el.getBoundingClientRect();
+          const targetY = rect.top + window.scrollY;
+          // Reuse smooth scroll for consistent easing
+          const startY = window.scrollY;
+          const diff = targetY - startY;
+          let start;
+          function easeInOut(t) { return 0.5 * (1 - Math.cos(Math.PI * t)); }
+          function step(ts) {
+            if (!start) start = ts;
+            const elapsed = ts - start;
+            const t = Math.min(elapsed / 1350, 1);
+            const eased = easeInOut(t);
+            window.scrollTo(0, startY + diff * eased);
+            if (t < 1) window.requestAnimationFrame(step);
+          }
+          window.requestAnimationFrame(step);
+        }
+      }, 900);
     }
   }, []);
 
