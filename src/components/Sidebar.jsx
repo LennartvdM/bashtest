@@ -207,6 +207,8 @@ export default function SidebarScrollSpyDemo() {
     <div className="relative min-h-screen">
       {/* Dynamic video backdrop */}
       <div className="pointer-events-none fixed inset-0 -z-10">
+        {/* Solid base color to prevent white flash during cross-fades */}
+        <div className="absolute inset-0" style={{ backgroundColor: '#2596be' }} />
         <AnimatePresence mode="wait">
           <motion.div
             key={backdropKey}
