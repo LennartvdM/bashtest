@@ -14,7 +14,7 @@ export default function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-[#F5F9FC]">
+      <div className={`min-h-screen ${typeof window !== 'undefined' && window.location.pathname === '/neoflix' ? '' : 'bg-[#F5F9FC]'}`}>
         {!showMapEditor && <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
