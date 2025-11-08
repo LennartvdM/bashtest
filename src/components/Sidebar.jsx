@@ -148,7 +148,9 @@ export default function SidebarScrollSpyDemo() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [backdropKey, setBackdropKey] = useState(0);
-  const [loadedSources, setLoadedSources] = useState(() => new Set());
+  // Initialize with the first section's video loaded
+  const initialVideo = SECTION_TO_VIDEO[SECTIONS[0].id];
+  const [loadedSources, setLoadedSources] = useState(() => new Set(initialVideo ? [initialVideo] : []));
   const backdropRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -165,12 +167,14 @@ export default function SidebarScrollSpyDemo() {
   // Ensure target deck layer is loaded quickly; then gently load remaining layers
   React.useEffect(() => {
     const targetSrc = SECTION_TO_VIDEO[active];
-    if (targetSrc && !loadedSources.has(targetSrc)) {
-      setLoadedSources(new Set([...Array.from(loadedSources), targetSrc]));
+    // Immediately load the target video
+    if (targetSrc) {
+      setLoadedSources(prev => new Set([...Array.from(prev), targetSrc]));
     }
+    // Load all videos after a brief delay
     const timer = setTimeout(() => {
       setLoadedSources(new Set(DECK_SOURCES));
-    }, 700);
+    }, 300);
     return () => clearTimeout(timer);
   }, [active]);
 
@@ -295,6 +299,7 @@ export default function SidebarScrollSpyDemo() {
           const targetIdx = DECK_SOURCES.indexOf(targetSrc);
           const isAboveTarget = targetIdx >= 0 ? idx > targetIdx : false;
           const shouldLoad = loadedSources.has(src);
+          const isTarget = src === targetSrc;
           return (
             <motion.video
               key={src}
@@ -304,7 +309,7 @@ export default function SidebarScrollSpyDemo() {
               muted
               loop
               playsInline
-              preload={shouldLoad ? 'auto' : 'metadata'}
+              preload={isTarget ? 'auto' : shouldLoad ? 'auto' : 'metadata'}
               initial={{ opacity: isAboveTarget ? 0 : 1 }}
               animate={{ opacity: isAboveTarget ? 0 : 1 }}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
