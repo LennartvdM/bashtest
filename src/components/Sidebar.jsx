@@ -270,7 +270,8 @@ export default function SidebarScrollSpyDemo() {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="fixed inset-0 overflow-y-auto" style={{ backgroundColor: '#394e49', zIndex: 0 }}>
+      <div className="relative min-h-screen">
       {/* Dynamic video backdrop */}
       <div ref={backdropRef} className="pointer-events-none fixed inset-0 -z-10">
         {/* Fail-safe solid base color */}
@@ -379,6 +380,7 @@ export default function SidebarScrollSpyDemo() {
           </article>
         </div>
       </main>
+      </div>
       </div>
     </div>
   );
