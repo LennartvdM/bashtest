@@ -18,7 +18,7 @@ function AppShell() {
       {!showMapEditor && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/neoflix" element={<SidebarScrollSpyDemo key="neoflix" />} />
+        <Route path="/neoflix" element={<SidebarScrollSpyDemo />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/toolbox" element={<Toolbox />} />
         <Route path="/map-editor" element={<WorldMapEditor />} />

@@ -130,6 +130,20 @@ function SidebarItem({ id, title, active }) {
 const LONG_LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer in mi quis risus vehicula pretium. Sed luctus nibh et libero aliquet, quis maximus arcu pellentesque. Suspendisse potenti. Mauris sed sagittis purus. Curabitur ullamcorper, tortor sed cursus dictum, libero nisi interdum nulla, vel ultrices quam erat quis leo.`;
 
 export default function SidebarScrollSpyDemo() {
+  // Force remount detection - if this component version is old, reload
+  React.useEffect(() => {
+    const expectedVersion = '2025-01-06-neoflix-v2';
+    const stored = sessionStorage.getItem('neoflix-version');
+    if (stored && stored !== expectedVersion) {
+      sessionStorage.setItem('neoflix-version', expectedVersion);
+      window.location.reload();
+      return;
+    }
+    if (!stored) {
+      sessionStorage.setItem('neoflix-version', expectedVersion);
+    }
+  }, []);
+
   const active = useScrollSpy(SECTIONS.map((s) => s.id));
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -270,8 +284,7 @@ export default function SidebarScrollSpyDemo() {
   };
 
   return (
-    <div className="fixed inset-0 overflow-y-auto" style={{ backgroundColor: '#394e49', zIndex: 0 }}>
-      <div className="relative min-h-screen">
+    <div className="relative min-h-screen" style={{ backgroundColor: '#394e49' }}>
       {/* Dynamic video backdrop */}
       <div ref={backdropRef} className="pointer-events-none fixed inset-0 -z-10">
         {/* Fail-safe solid base color */}
@@ -380,7 +393,6 @@ export default function SidebarScrollSpyDemo() {
           </article>
         </div>
       </main>
-      </div>
       </div>
     </div>
   );
