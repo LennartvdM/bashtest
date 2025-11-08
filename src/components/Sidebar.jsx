@@ -288,12 +288,11 @@ export default function SidebarScrollSpyDemo() {
   };
 
   return (
-    <div className="relative min-h-screen" style={{ backgroundColor: '#394e49' }}>
-      {/* Dynamic video backdrop */}
-      <div ref={backdropRef} className="pointer-events-none fixed inset-0 -z-10">
+    <>
+      {/* Dynamic video backdrop - outside relative container to avoid stacking context issues */}
+      <div ref={backdropRef} className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
         {/* Fail-safe solid base color */}
         <div className="absolute inset-0" style={{ backgroundColor: '#394e49' }} />
-        {/* Removed static base video to avoid showing it before target is ready */}
         {DECK_SOURCES.map((src, idx) => {
           const targetSrc = SECTION_TO_VIDEO[active];
           const targetIdx = DECK_SOURCES.indexOf(targetSrc);
@@ -322,7 +321,7 @@ export default function SidebarScrollSpyDemo() {
       </div>
 
       {/* Foreground content without page-level background so video is visible around cards */}
-      <div>
+      <div className="relative min-h-screen" style={{ backgroundColor: '#394e49', position: 'relative', zIndex: 1 }}>
         <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
         {isMobile && (
           <MobileNav
@@ -399,6 +398,6 @@ export default function SidebarScrollSpyDemo() {
         </div>
       </main>
       </div>
-    </div>
+    </>
   );
 }
