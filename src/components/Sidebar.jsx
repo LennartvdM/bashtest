@@ -164,20 +164,33 @@ export default function SidebarScrollSpyDemo() {
   // Load all videos immediately for deck carousel
   React.useEffect(() => {
     setLoadedSources(new Set(DECK_SOURCES));
+    console.log('Deck carousel: Loading videos', DECK_SOURCES);
   }, []);
 
   // Enforce half-speed playback on all backdrop videos
   React.useEffect(() => {
     const root = backdropRef.current;
-    if (!root) return;
+    if (!root) {
+      console.log('Deck carousel: backdropRef not available');
+      return;
+    }
     const videos = root.querySelectorAll('video');
-    videos.forEach((vid) => {
+    console.log(`Deck carousel: Found ${videos.length} videos, active section: ${active}`);
+    videos.forEach((vid, idx) => {
       try {
         vid.defaultPlaybackRate = 0.5;
         vid.playbackRate = 0.5;
-      } catch (_) {}
+        // Ensure video plays
+        if (vid.paused) {
+          vid.play().catch((err) => console.log(`Video ${idx} play error:`, err));
+        } else {
+          console.log(`Video ${idx} (${vid.src}) is playing`);
+        }
+      } catch (err) {
+        console.log(`Video ${idx} error:`, err);
+      }
     });
-  }, [active]);
+  }, [active, loadedSources]);
 
   // Force base background while on Neoflix to avoid any legacy shell colors
   React.useEffect(() => {
@@ -277,6 +290,7 @@ export default function SidebarScrollSpyDemo() {
   // Get target video for current active section
   const targetVideo = SECTION_TO_VIDEO[active];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
+  console.log(`Deck carousel render: active=${active}, targetVideo=${targetVideo}, targetIndex=${targetIndex}`);
 
   return (
     <>
@@ -310,6 +324,18 @@ export default function SidebarScrollSpyDemo() {
               style={{ 
                 transform: 'scale(1.06)', // Slight bleed to avoid edge crop
                 zIndex: idx // Stack order
+              }}
+              onLoadedData={(e) => {
+                const vid = e.target;
+                vid.playbackRate = 0.5;
+                vid.defaultPlaybackRate = 0.5;
+                vid.play().catch(() => {});
+              }}
+              onCanPlay={(e) => {
+                const vid = e.target;
+                vid.playbackRate = 0.5;
+                vid.defaultPlaybackRate = 0.5;
+                vid.play().catch(() => {});
               }}
             />
           );
