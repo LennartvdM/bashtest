@@ -147,10 +147,7 @@ export default function SidebarScrollSpyDemo() {
   const active = useScrollSpy(SECTIONS.map((s) => s.id));
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [backdropKey, setBackdropKey] = useState(0);
-  // Initialize with the first section's video loaded
-  const initialVideo = SECTION_TO_VIDEO[SECTIONS[0].id];
-  const [loadedSources, setLoadedSources] = useState(() => new Set(initialVideo ? [initialVideo] : []));
+  const [loadedSources, setLoadedSources] = useState(() => new Set());
   const backdropRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -164,19 +161,10 @@ export default function SidebarScrollSpyDemo() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Ensure target deck layer is loaded quickly; then gently load remaining layers
+  // Load all videos immediately for deck carousel
   React.useEffect(() => {
-    const targetSrc = SECTION_TO_VIDEO[active];
-    // Immediately load the target video
-    if (targetSrc) {
-      setLoadedSources(prev => new Set([...Array.from(prev), targetSrc]));
-    }
-    // Load all videos after a brief delay
-    const timer = setTimeout(() => {
-      setLoadedSources(new Set(DECK_SOURCES));
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [active]);
+    setLoadedSources(new Set(DECK_SOURCES));
+  }, []);
 
   // Enforce half-speed playback on all backdrop videos
   React.useEffect(() => {
@@ -185,12 +173,11 @@ export default function SidebarScrollSpyDemo() {
     const videos = root.querySelectorAll('video');
     videos.forEach((vid) => {
       try {
-        // Some browsers respect defaultPlaybackRate; set both to be safe
         vid.defaultPlaybackRate = 0.5;
         vid.playbackRate = 0.5;
       } catch (_) {}
     });
-  }, [active, loadedSources]);
+  }, [active]);
 
   // Force base background while on Neoflix to avoid any legacy shell colors
   React.useEffect(() => {
@@ -287,36 +274,47 @@ export default function SidebarScrollSpyDemo() {
     }),
   };
 
+  // Get target video for current active section
+  const targetVideo = SECTION_TO_VIDEO[active];
+  const targetIndex = DECK_SOURCES.indexOf(targetVideo);
+
   return (
     <>
-      {/* Dynamic video backdrop - outside relative container to avoid stacking context issues */}
-      <div ref={backdropRef} className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
-        {/* Fail-safe solid base color */}
-        <div className="absolute inset-0" style={{ backgroundColor: '#394e49' }} />
+      {/* Video deck carousel backdrop */}
+      <div 
+        ref={backdropRef} 
+        className="fixed inset-0 pointer-events-none"
+        style={{ 
+          zIndex: 0,
+          backgroundColor: '#394e49' // Fail-safe base color
+        }}
+      >
+        {/* Deck: all videos stacked, fade out cards above target */}
         {DECK_SOURCES.map((src, idx) => {
-          const targetSrc = SECTION_TO_VIDEO[active];
-          const targetIdx = DECK_SOURCES.indexOf(targetSrc);
-          const isAboveTarget = targetIdx >= 0 ? idx > targetIdx : false;
-          const shouldLoad = loadedSources.has(src);
-          const isTarget = src === targetSrc;
+          // Cards above target fade out (opacity 0), target and below stay visible (opacity 1)
+          const isVisible = targetIndex >= 0 ? idx <= targetIndex : true;
+          
           return (
             <motion.video
               key={src}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
               src={src}
               autoPlay
               muted
               loop
               playsInline
-              preload={isTarget ? 'auto' : shouldLoad ? 'auto' : 'metadata'}
-              initial={{ opacity: isAboveTarget ? 0 : 1 }}
-              animate={{ opacity: isAboveTarget ? 0 : 1 }}
+              preload="auto"
+              initial={{ opacity: isVisible ? 1 : 0 }}
+              animate={{ opacity: isVisible ? 1 : 0 }}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
-              style={{ transform: 'scale(1.06)' }}
+              style={{ 
+                transform: 'scale(1.06)', // Slight bleed to avoid edge crop
+                zIndex: idx // Stack order
+              }}
             />
           );
         })}
-        {/* Readability gradient overlay */}
+        {/* Readability overlay */}
         <div className="absolute inset-0 bg-slate-900/40" />
       </div>
 
