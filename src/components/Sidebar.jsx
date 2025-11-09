@@ -225,12 +225,19 @@ export default function SidebarScrollSpyDemo() {
       setTimeout(() => {
         const el = targetEl();
         if (el) {
-          // Use same path as index clicks: activate and scrollIntoView (respects scroll-margin/scroll-padding)
+          // Force layout recalculation to ensure scroll-margin-top is applied
+          void el.offsetHeight;
+          // Use exact same path as index clicks: activate and scrollIntoView (respects scroll-margin/scroll-padding)
           window.dispatchEvent(new CustomEvent('nav-activate', { detail: targetId }));
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          history.replaceState(null, '', `#${targetId}`);
-          // Nudge scroll handlers
-          setTimeout(() => window.dispatchEvent(new Event('scroll')), 50);
+          // Small delay to ensure layout is settled before scrolling
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              history.replaceState(null, '', `#${targetId}`);
+              // Nudge scroll handlers after scroll completes
+              setTimeout(() => window.dispatchEvent(new Event('scroll')), 100);
+            });
+          });
         }
       }, 1600);
     }
