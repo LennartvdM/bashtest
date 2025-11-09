@@ -228,11 +228,21 @@ export default function SidebarScrollSpyDemo() {
       // Land at top first for context, then use unified scroll function (same as index buttons)
       const targetId = window.location.hash.replace('#', '');
       window.scrollTo({ top: 0, behavior: 'auto' });
-      // Defer until after intro animations (align with sidebar/sections timing)
+      // Defer until after intro animations complete, then scroll exactly like index buttons
       setTimeout(() => {
-        // Use the exact same scroll function as index buttons
-        scrollToSection(targetId);
-      }, 1600);
+        const el = document.getElementById(targetId);
+        if (el) {
+          // Force a layout recalculation to ensure scroll-margin-top is applied
+          void el.offsetHeight;
+          // Use multiple RAF to ensure layout is fully settled
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              // Use the exact same scroll function as index buttons
+              scrollToSection(targetId);
+            });
+          });
+        }
+      }, 2500); // Wait for animations to mostly complete, then scroll
     }
   }, [scrollToSection]);
 
