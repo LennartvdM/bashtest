@@ -198,8 +198,8 @@ export default function SidebarScrollSpyDemo() {
     const body = document.body;
     const prevHtmlBg = html.style.backgroundColor;
     const prevBodyBg = body.style.backgroundColor;
-    html.style.backgroundColor = '#2596be';
-    body.style.backgroundColor = '#2596be';
+    html.style.backgroundColor = '#483226';
+    body.style.backgroundColor = '#483226';
     return () => {
       html.style.backgroundColor = prevHtmlBg;
       body.style.backgroundColor = prevBodyBg;
@@ -300,7 +300,7 @@ export default function SidebarScrollSpyDemo() {
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 0,
-          backgroundColor: '#2596be' // Fail-safe base color (only visible if videos fail to load)
+          backgroundColor: '#483226' // Fail-safe base color (only visible if videos fail to load)
         }}
       >
         {/* Deck: all videos stacked, fade out cards above target */}
