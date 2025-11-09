@@ -223,7 +223,7 @@ export default function SidebarScrollSpyDemo() {
         document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
         history.replaceState(null, '', `#${SECTIONS[0].id}`);
         window.dispatchEvent(new Event('scroll'));
-      }, 1500);
+      }, 4500); // Wait for all animations to complete before auto-scrolling to first section
     } else if (hasHash) {
       // Land at top first for context, then use unified scroll function (same as index buttons)
       const targetId = window.location.hash.replace('#', '');
@@ -242,7 +242,7 @@ export default function SidebarScrollSpyDemo() {
             });
           });
         }
-      }, 2500); // Wait for animations to mostly complete, then scroll
+      }, 4500); // Wait for all animations to complete (sections ~4.1s, sidebar ~4.3s)
     }
   }, [scrollToSection]);
 
@@ -271,9 +271,15 @@ export default function SidebarScrollSpyDemo() {
     setIsMobileNavOpen(false);
   };
 
+  // Calculate when last section finishes animating
+  const lastSectionIndex = SECTIONS.length - 1;
+  const lastSectionDelay = 0.5 + lastSectionIndex * 0.3;
+  const sectionDuration = 1.8;
+  const sidebarDelay = lastSectionDelay + sectionDuration + 0.2; // Show sidebar after sections complete
+
   const sidebarMotion = {
     initial: { x: -300, opacity: 0 },
-    animate: { x: 0, opacity: 1, transition: { delay: 1.2, duration: 1.1, type: 'spring', stiffness: 120, damping: 30 } },
+    animate: { x: 0, opacity: 1, transition: { delay: sidebarDelay, duration: 1.1, type: 'spring', stiffness: 120, damping: 30 } },
     exit: { x: -300, opacity: 0, transition: { duration: 0.7 } },
   };
 
@@ -283,8 +289,8 @@ export default function SidebarScrollSpyDemo() {
       opacity: 1,
       y: 0,
       transition: {
-        delay: i === 0 ? 0 : 0.25 + i * 0.27,
-        duration: 1.05,
+        delay: 0.5 + i * 0.3, // Start at 0.5s, then 0.8s, 1.1s, etc.
+        duration: sectionDuration, // Slower transition
         ease: 'easeOut',
       },
     }),
