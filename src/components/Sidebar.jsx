@@ -300,7 +300,7 @@ export default function SidebarScrollSpyDemo() {
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 0,
-          backgroundColor: '#394e49' // Fail-safe base color
+          backgroundColor: '#394e49' // Fail-safe base color (only visible if videos fail to load)
         }}
       >
         {/* Deck: all videos stacked, fade out cards above target */}
@@ -340,12 +340,12 @@ export default function SidebarScrollSpyDemo() {
             />
           );
         })}
-        {/* Readability overlay */}
-        <div className="absolute inset-0 bg-slate-900/40" />
+        {/* Readability overlay - reduced opacity so videos are more visible */}
+        <div className="absolute inset-0 bg-slate-900/20" />
       </div>
 
-      {/* Foreground content without page-level background so video is visible around cards */}
-      <div className="relative min-h-screen" style={{ backgroundColor: '#394e49', position: 'relative', zIndex: 1 }}>
+      {/* Foreground content - transparent so videos show through */}
+      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1 }}>
         <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
         {isMobile && (
           <MobileNav
