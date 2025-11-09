@@ -84,14 +84,12 @@ const INDICATOR = {
   active: { width: 22, height: 2, borderRadius: 1, backgroundColor: '#ffffff' },
 };
 
-function SidebarItem({ id, title, active }) {
+function SidebarItem({ id, title, active, onSectionClick }) {
   const [hovered, setHovered] = useState(false);
   const state = active ? 'active' : hovered ? 'hover' : 'rest';
   const handleClick = (e) => {
     e.preventDefault();
-    window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    history.replaceState(null, '', `#${id}`);
+    onSectionClick(id);
   };
   return (
     <li
@@ -192,6 +190,16 @@ export default function SidebarScrollSpyDemo() {
     });
   }, [active, loadedSources]);
 
+  // Unified scroll function used by both index buttons and hash redirects
+  const scrollToSection = React.useCallback((id) => {
+    window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', `#${id}`);
+    }
+  }, []);
+
   // Force base background while on Neoflix to avoid any legacy shell colors
   React.useEffect(() => {
     const html = document.documentElement;
@@ -217,31 +225,16 @@ export default function SidebarScrollSpyDemo() {
         window.dispatchEvent(new Event('scroll'));
       }, 1500);
     } else if (hasHash) {
-      // Land at top first for context, then route scroll via the index behavior (respects navbar offset)
+      // Land at top first for context, then use unified scroll function (same as index buttons)
       const targetId = window.location.hash.replace('#', '');
-      const targetEl = () => document.getElementById(targetId);
       window.scrollTo({ top: 0, behavior: 'auto' });
       // Defer until after intro animations (align with sidebar/sections timing)
       setTimeout(() => {
-        const el = targetEl();
-        if (el) {
-          // Force layout recalculation to ensure scroll-margin-top is applied
-          void el.offsetHeight;
-          // Use exact same path as index clicks: activate and scrollIntoView (respects scroll-margin/scroll-padding)
-          window.dispatchEvent(new CustomEvent('nav-activate', { detail: targetId }));
-          // Small delay to ensure layout is settled before scrolling
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              history.replaceState(null, '', `#${targetId}`);
-              // Nudge scroll handlers after scroll completes
-              setTimeout(() => window.dispatchEvent(new Event('scroll')), 100);
-            });
-          });
-        }
+        // Use the exact same scroll function as index buttons
+        scrollToSection(targetId);
       }, 1600);
     }
-  }, []);
+  }, [scrollToSection]);
 
   function smoothScrollTo(targetY, duration = 1350) {
     const startY = window.scrollY;
@@ -264,14 +257,7 @@ export default function SidebarScrollSpyDemo() {
   }
 
   const handleSectionClick = (id) => {
-    window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
-    const el = document.getElementById(id);
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      const targetY = rect.top + window.scrollY;
-      smoothScrollTo(targetY, 1350);
-    }
-    history.replaceState(null, '', `#${id}`);
+    scrollToSection(id);
     setIsMobileNavOpen(false);
   };
 
@@ -371,7 +357,7 @@ export default function SidebarScrollSpyDemo() {
               >
                 <ul role="list" className="space-y-1">
                   {SECTIONS.map((s, idx) => (
-                    <SidebarItem key={s.id} id={s.id} title={idx === 0 ? s.raw : `${idx}. ${s.raw}`} active={active === s.id} />
+                    <SidebarItem key={s.id} id={s.id} title={idx === 0 ? s.raw : `${idx}. ${s.raw}`} active={active === s.id} onSectionClick={scrollToSection} />
                   ))}
                 </ul>
               </motion.aside>
