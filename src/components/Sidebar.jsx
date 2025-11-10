@@ -223,7 +223,7 @@ export default function SidebarScrollSpyDemo() {
         document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
         history.replaceState(null, '', `#${SECTIONS[0].id}`);
         window.dispatchEvent(new Event('scroll'));
-      }, 4500); // Wait for all animations to complete before auto-scrolling to first section
+      }, 3500); // Wait for animations to complete before auto-scrolling to first section
     } else if (hasHash) {
       // Land at top first for context, then use unified scroll function (same as index buttons)
       const targetId = window.location.hash.replace('#', '');
@@ -242,7 +242,7 @@ export default function SidebarScrollSpyDemo() {
             });
           });
         }
-      }, 4500); // Wait for all animations to complete (sections ~4.1s, sidebar ~4.3s)
+      }, 3500); // Wait for animations to complete (sections ~3.1s, sidebar ~3.3s)
     }
   }, [scrollToSection]);
 
@@ -275,7 +275,7 @@ export default function SidebarScrollSpyDemo() {
   const lastSectionIndex = SECTIONS.length - 1;
   const lastSectionDelay = 0.5 + lastSectionIndex * 0.3;
   const sectionDuration = 1.8;
-  const sidebarDelay = lastSectionDelay + sectionDuration + 0.2; // Show sidebar after sections complete
+  const sidebarDelay = Math.max(0, lastSectionDelay + sectionDuration - 0.8); // Show sidebar ~1s sooner
 
   const sidebarMotion = {
     initial: { x: -300, opacity: 0 },
