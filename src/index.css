@@ -85,7 +85,7 @@ body::-webkit-scrollbar {
   /* Root transition for page changes - Material Design 3 easing */
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 0.35s;
+    animation-duration: 0.6s;
     animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
   }
 
@@ -135,22 +135,22 @@ body::-webkit-scrollbar {
 
 @keyframes slide-out {
   from {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
   }
   to {
-    transform: translateX(-20px);
+    transform: translateX(-60px) scale(0.96);
     opacity: 0;
   }
 }
 
 @keyframes slide-in {
   from {
-    transform: translateX(20px);
+    transform: translateX(60px) scale(0.96);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
   }
 }
