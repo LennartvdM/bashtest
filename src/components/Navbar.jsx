@@ -239,13 +239,6 @@ export default function Navbar() {
                     userSelect: 'none',
                     WebkitUserSelect: 'none'
                   }}
-                  onClick={(e) => {
-                    if (link.to.startsWith('/neoflix')) {
-                      e.preventDefault();
-                      // Force a full document navigation to avoid any stale runtime
-                      window.location.href = link.to;
-                    }
-                  }}
                 >
                   {link.label}
                 </Link>
