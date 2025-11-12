@@ -305,52 +305,59 @@ export default function SidebarScrollSpyDemo() {
     <>
       {/* Video deck carousel backdrop */}
       <div 
-        ref={backdropRef} 
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 0,
           backgroundColor: '#483226' // Fail-safe base color (only visible if videos fail to load)
         }}
       >
-        {/* Deck: all videos stacked, fade out cards above target */}
-        {DECK_SOURCES.map((src, idx) => {
-          // Cards above target fade out (opacity 0), target and below stay visible (opacity 1)
-          const isVisible = targetIndex >= 0 ? idx <= targetIndex : true;
-          
-          return (
-            <motion.video
-              key={src}
-              className="absolute inset-0 w-full h-full object-cover"
-              src={src}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              initial={{ opacity: isVisible ? 1 : 0 }}
-              animate={{ opacity: isVisible ? 1 : 0 }}
-              transition={{ duration: 0.6, ease: 'easeInOut' }}
-              style={{ 
-                transform: 'scale(1.06)', // Slight bleed to avoid edge crop
-                zIndex: idx // Stack order
-              }}
-              onLoadedData={(e) => {
-                const vid = e.target;
-                vid.playbackRate = 0.5;
-                vid.defaultPlaybackRate = 0.5;
-                vid.play().catch(() => {});
-              }}
-              onCanPlay={(e) => {
-                const vid = e.target;
-                vid.playbackRate = 0.5;
-                vid.defaultPlaybackRate = 0.5;
-                vid.play().catch(() => {});
-              }}
-            />
-          );
-        })}
-        {/* Readability overlay - reduced opacity so videos are more visible */}
-        <div className="absolute inset-0 bg-slate-900/20" />
+        <motion.div
+          ref={backdropRef}
+          className="absolute inset-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1.0, ease: 'easeOut' }}
+        >
+          {/* Deck: all videos stacked, fade out cards above target */}
+          {DECK_SOURCES.map((src, idx) => {
+            // Cards above target fade out (opacity 0), target and below stay visible (opacity 1)
+            const isVisible = targetIndex >= 0 ? idx <= targetIndex : true;
+            
+            return (
+              <motion.video
+                key={src}
+                className="absolute inset-0 w-full h-full object-cover"
+                src={src}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                initial={{ opacity: isVisible ? 1 : 0 }}
+                animate={{ opacity: isVisible ? 1 : 0 }}
+                transition={{ duration: 0.6, ease: 'easeInOut' }}
+                style={{ 
+                  transform: 'scale(1.06)', // Slight bleed to avoid edge crop
+                  zIndex: idx // Stack order
+                }}
+                onLoadedData={(e) => {
+                  const vid = e.target;
+                  vid.playbackRate = 0.5;
+                  vid.defaultPlaybackRate = 0.5;
+                  vid.play().catch(() => {});
+                }}
+                onCanPlay={(e) => {
+                  const vid = e.target;
+                  vid.playbackRate = 0.5;
+                  vid.defaultPlaybackRate = 0.5;
+                  vid.play().catch(() => {});
+                }}
+              />
+            );
+          })}
+          {/* Readability overlay - reduced opacity so videos are more visible */}
+          <div className="absolute inset-0 bg-slate-900/20" />
+        </motion.div>
       </div>
 
       {/* Foreground content - transparent so videos show through */}
