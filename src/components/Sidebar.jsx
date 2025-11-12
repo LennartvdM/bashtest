@@ -308,7 +308,7 @@ export default function SidebarScrollSpyDemo() {
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 0,
-          backgroundColor: '#483226' // Fail-safe base color (only visible if videos fail to load)
+          backgroundColor: '#2596be' // Fail-safe base color (only visible if videos fail to load)
         }}
       >
         <motion.div
@@ -316,7 +316,7 @@ export default function SidebarScrollSpyDemo() {
           className="absolute inset-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1.0, ease: 'easeOut' }}
+          transition={{ duration: 1.0, ease: 'easeOut' }}
         >
           {/* Deck: all videos stacked, fade out cards above target */}
           {DECK_SOURCES.map((src, idx) => {
