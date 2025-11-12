@@ -7,6 +7,7 @@ import Toolbox from './pages/Toolbox';
 import SidebarScrollSpyDemo from './components/Sidebar';
 import Home from './pages/Home';
 import WorldMapEditor from './components/WorldMapEditor';
+import ViewTransition from './components/ViewTransition';
 
 function AppShell() {
   const location = useLocation();
@@ -14,16 +15,18 @@ function AppShell() {
   const showMapEditor = new URLSearchParams(window.location.search).get('editor') === 'true';
 
   return (
-    <div className={`min-h-screen ${isNeoflix ? '' : 'bg-[#F5F9FC]'}`}>
-      {!showMapEditor && <Navbar />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/neoflix" element={<SidebarScrollSpyDemo />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/toolbox" element={<Toolbox />} />
-        <Route path="/map-editor" element={<WorldMapEditor />} />
-      </Routes>
-    </div>
+    <ViewTransition>
+      <div className={`min-h-screen ${isNeoflix ? '' : 'bg-[#F5F9FC]'}`}>
+        {!showMapEditor && <Navbar />}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/neoflix" element={<SidebarScrollSpyDemo />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/toolbox" element={<Toolbox />} />
+          <Route path="/map-editor" element={<WorldMapEditor />} />
+        </Routes>
+      </div>
+    </ViewTransition>
   );
 }
 

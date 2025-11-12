@@ -79,3 +79,78 @@ body::-webkit-scrollbar {
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: cover;
 }
+
+/* Material Design 3 View Transitions */
+@supports (view-transition-name: none) {
+  /* Root transition for page changes - Material Design 3 easing */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.35s;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* Fade and subtle scale transition (Material Design 3 style) */
+  ::view-transition-old(root) {
+    animation-name: fade-out, slide-out;
+  }
+
+  ::view-transition-new(root) {
+    animation-name: fade-in, slide-in;
+  }
+
+  /* Keep navbar persistent during transitions */
+  nav {
+    view-transition-name: navbar;
+  }
+
+  ::view-transition-old(navbar),
+  ::view-transition-new(navbar) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  /* Main content area transitions smoothly */
+  main {
+    view-transition-name: main-content;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
