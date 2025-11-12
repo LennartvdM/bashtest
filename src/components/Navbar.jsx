@@ -17,7 +17,8 @@ const NAV_CELL_HEIGHT = 28;
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const containerRef = useRef(null);
+  const navRef = useRef(null);
+  const blobContainerRef = useRef(null);
   const linkRefs = useRef([]);
   const [blob, setBlob] = useState(null); // { left, width, height }
   const [blobOpacity, setBlobOpacity] = useState(0.5);
@@ -47,8 +48,8 @@ export default function Navbar() {
   // On hover/focus, update blob position/size and animate opacity
   const handleMouseEnter = (idx) => {
     const el = linkRefs.current[idx];
-    if (el && containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
+    if (el && blobContainerRef.current) {
+      const containerRect = blobContainerRef.current.getBoundingClientRect();
       const rect = el.getBoundingClientRect();
       setBlob({
         left: rect.left - containerRect.left,
@@ -125,7 +126,7 @@ export default function Navbar() {
   useEffect(() => {
     const updateVar = () => {
       try {
-        const navEl = containerRef.current?.closest('nav') || containerRef.current;
+        const navEl = navRef.current;
         const h = navEl?.getBoundingClientRect()?.height || 60;
         document.documentElement.style.setProperty('--nav-h', `${Math.round(h)}px`);
       } catch {}
@@ -139,11 +140,34 @@ export default function Navbar() {
     };
   }, []);
 
+  // Ensure blob aligns with active route on mount / route change
+  useEffect(() => {
+    if (isMobile) return;
+    const activeIdx = NAV_LINKS.findIndex(link => isActive(link.to));
+    if (activeIdx === -1) {
+      setBlob(null);
+      return;
+    }
+    const el = linkRefs.current[activeIdx];
+    const container = blobContainerRef.current;
+    if (el && container) {
+      const containerRect = container.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      setBlob({
+        left: rect.left - containerRect.left,
+        width: rect.width,
+        height: rect.height,
+      });
+      setBlobOpacity(0.5);
+      setHoveredIdx(null);
+    }
+  }, [location.pathname, location.hash, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <nav ref={containerRef} className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center justify-between shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
+    <nav ref={navRef} className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur border-b border-[#e7dfd7] flex items-center justify-between shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
       onLoadCapture={() => {
         try {
-          const h = containerRef.current?.getBoundingClientRect()?.height || 60;
+          const h = navRef.current?.getBoundingClientRect()?.height || 60;
           document.documentElement.style.setProperty('--nav-h', `${Math.round(h)}px`);
         } catch {}
       }}
@@ -156,7 +180,7 @@ export default function Navbar() {
       {/* Inline links (snug on tablet) */}
       <div className="flex flex-1 justify-end items-center h-full" style={{ paddingRight: isMobile ? 12 : 64 }}>
         <div
-          ref={containerRef}
+          ref={blobContainerRef}
           className="relative flex items-center"
           onMouseLeave={handleMouseLeave}
           style={{ alignItems: 'center', height: '60px', position: 'relative', gap: isMobile ? '1.5rem' : '3.75rem' }}
