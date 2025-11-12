@@ -3,6 +3,7 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MobileNav from './MobileNav';
+import { useLocation } from 'react-router-dom';
 
 const SECTIONS = [
   { id: 'preface', raw: 'Preface' },
@@ -143,6 +144,7 @@ export default function SidebarScrollSpyDemo() {
   }, []);
 
   const active = useScrollSpy(SECTIONS.map((s) => s.id));
+  const location = useLocation();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [loadedSources, setLoadedSources] = useState(() => new Set());
@@ -245,6 +247,30 @@ export default function SidebarScrollSpyDemo() {
       }, 3500); // Wait for animations to complete (sections ~3.1s, sidebar ~3.3s)
     }
   }, [scrollToSection]);
+
+  // Handle hash changes while staying on the same page (SPA navigation)
+  const hashEffectRef = React.useRef(true);
+  React.useEffect(() => {
+    if (location.pathname !== '/neoflix') return;
+    if (hashEffectRef.current) {
+      hashEffectRef.current = false;
+      return;
+    }
+
+    const targetId = location.hash ? location.hash.replace('#', '') : SECTIONS[0].id;
+    const scrollAfterLayout = () => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        scrollToSection(targetId);
+      } else {
+        requestAnimationFrame(scrollAfterLayout);
+      }
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(scrollAfterLayout);
+    });
+  }, [location.pathname, location.hash, scrollToSection]);
 
   function smoothScrollTo(targetY, duration = 1350) {
     const startY = window.scrollY;
