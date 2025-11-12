@@ -308,7 +308,7 @@ export default function SidebarScrollSpyDemo() {
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 0,
-          backgroundColor: '#2596be' // Fail-safe base color (only visible if videos fail to load)
+          backgroundColor: '#6d625d' // Fail-safe base color (only visible if videos fail to load)
         }}
       >
         <motion.div
