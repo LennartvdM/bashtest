@@ -89,13 +89,13 @@ body::-webkit-scrollbar {
     animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
   }
 
-  /* Fade and subtle scale transition (Material Design 3 style) */
+  /* Zoom transition (Material Design 3 style) */
   ::view-transition-old(root) {
-    animation-name: fade-out, slide-out;
+    animation-name: zoom-out;
   }
 
   ::view-transition-new(root) {
-    animation-name: fade-in, slide-in;
+    animation-name: zoom-in;
   }
 
   /* Keep navbar persistent during transitions */
@@ -133,24 +133,24 @@ body::-webkit-scrollbar {
   }
 }
 
-@keyframes slide-out {
+@keyframes zoom-out {
   from {
-    transform: translateX(0) scale(1);
+    transform: scale(1);
     opacity: 1;
   }
   to {
-    transform: translateX(-60px) scale(0.96);
+    transform: scale(0.85);
     opacity: 0;
   }
 }
 
-@keyframes slide-in {
+@keyframes zoom-in {
   from {
-    transform: translateX(60px) scale(0.96);
+    transform: scale(1.1);
     opacity: 0;
   }
   to {
-    transform: translateX(0) scale(1);
+    transform: scale(1);
     opacity: 1;
   }
 }
