@@ -121,19 +121,44 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     navigator.msMaxTouchPoints > 0
   );
 
-  const [isTabletLayout, setIsTabletLayout] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < 1200;
-  });
-  
-  const [isLandscapeTablet, setIsLandscapeTablet] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth >= 1200 && isTouchDevice;
-  });
+  // Helper function to detect layout based on dimensions and orientation
+  const detectLayout = (touchDevice) => {
+    if (typeof window === 'undefined') return { isTablet: false, isLandscapeTablet: false };
+    
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isPortrait = height > width;
+    
+    // Use orientation API if available, otherwise use aspect ratio
+    let isPortraitOrientation = isPortrait;
+    if (window.matchMedia) {
+      const portraitQuery = window.matchMedia('(orientation: portrait)');
+      isPortraitOrientation = portraitQuery.matches;
+    }
+    
+    // Tablet detection: touch device with reasonable tablet dimensions
+    // iPads range from 768px to 1366px in various orientations
+    const isTabletDevice = touchDevice && width >= 600 && width <= 1400;
+    
+    if (!isTabletDevice) {
+      return { isTablet: false, isLandscapeTablet: false };
+    }
+    
+    // Portrait tablet: touch device in portrait orientation
+    // Landscape tablet: touch device in landscape orientation
+    return {
+      isTablet: isPortraitOrientation,
+      isLandscapeTablet: !isPortraitOrientation
+    };
+  };
 
-  // Portrait tablet: width < 1200
-  // Landscape tablet: width >= 1200 && touch device
-  // Desktop: width >= 1200 && not touch device
+  const initialLayout = detectLayout(isTouchDevice);
+  const [isTabletLayout, setIsTabletLayout] = useState(initialLayout.isTablet);
+  const [isLandscapeTablet, setIsLandscapeTablet] = useState(initialLayout.isLandscapeTablet);
+
+  // Portrait tablet: touch device in portrait orientation
+  // Landscape tablet: touch device in landscape orientation  
+  // Desktop: not a touch device or outside tablet dimensions
   const isPortraitTablet = isTabletLayout;
   const isDesktopLayout = !isTabletLayout && !isLandscapeTablet;
 
@@ -174,14 +199,47 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   };
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setIsTabletLayout(width < 1200);
-      setIsLandscapeTablet(width >= 1200 && isTouchDevice);
+    
+    const updateLayout = () => {
+      const layout = detectLayout(isTouchDevice);
+      setIsTabletLayout(layout.isTablet);
+      setIsLandscapeTablet(layout.isLandscapeTablet);
     };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    // Initial check
+    updateLayout();
+    
+    // Listen to resize events
+    window.addEventListener('resize', updateLayout);
+    
+    // Listen to orientation change events (for immediate updates on rotation)
+    window.addEventListener('orientationchange', updateLayout);
+    
+    // Use matchMedia for orientation changes (more reliable)
+    let portraitQuery = null;
+    if (window.matchMedia) {
+      portraitQuery = window.matchMedia('(orientation: portrait)');
+      // Modern browsers
+      if (portraitQuery.addEventListener) {
+        portraitQuery.addEventListener('change', updateLayout);
+      } 
+      // Legacy browsers
+      else if (portraitQuery.addListener) {
+        portraitQuery.addListener(updateLayout);
+      }
+    }
+    
+    return () => {
+      window.removeEventListener('resize', updateLayout);
+      window.removeEventListener('orientationchange', updateLayout);
+      if (portraitQuery) {
+        if (portraitQuery.removeEventListener) {
+          portraitQuery.removeEventListener('change', updateLayout);
+        } else if (portraitQuery.removeListener) {
+          portraitQuery.removeListener(updateLayout);
+        }
+      }
+    };
   }, [isTouchDevice]);
 
   // When this section is fully active on tablet, gently ask the next section to preload its first videos
