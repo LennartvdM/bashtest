@@ -35,12 +35,11 @@ export default function ScrollSection({ name, children, background }) {
       ref={ref}
       id={name}
       style={{
-        minHeight: '100vh',
+        height: '100vh', // Fixed height to match wrapper
         width: '100%',
-        scrollSnapAlign: 'start',
-        scrollSnapStop: 'normal', // Allows easier scrolling - can skip snap points with fast scroll
         position: 'relative',
         backgroundColor: background || 'transparent',
+        overflow: 'auto', // Allow content to scroll if needed
       }}
     >
       {children({ inView, ref })}

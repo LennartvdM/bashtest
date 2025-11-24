@@ -18,8 +18,9 @@ const ScrollSnap = ({ children }) => {
           style={{
             scrollSnapAlign: 'start',
             scrollSnapStop: 'normal', // Changed from 'always' - allows easier scrolling
-            minHeight: '100vh',
+            height: '100vh', // Fixed height for reliable scroll snap
             width: '100%',
+            position: 'relative',
           }}
         >
           {child}
