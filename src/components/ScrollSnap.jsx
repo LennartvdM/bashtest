@@ -11,6 +11,7 @@ const ScrollSnap = ({ children }) => {
   const currentIndexRef = useRef(0);
   const resizeTimeoutRef = useRef(null);
   const isResizingRef = useRef(false);
+  const preservedSectionIndexRef = useRef(null); // Preserve discrete section index during rotation
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sectionCount, setSectionCount] = useState(0);
   const { isTablet } = useViewport();
@@ -73,12 +74,11 @@ const ScrollSnap = ({ children }) => {
     [navHeight]
   );
 
-  // Disable scroll snap during orientation changes to prevent layout thrashing
+  // Disable scroll snap during orientation changes and preserve discrete section state
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let resizeEndTimeout = null;
-    let currentSectionIndex = null;
 
     const handleResizeStart = () => {
       isResizingRef.current = true;
@@ -88,34 +88,14 @@ const ScrollSnap = ({ children }) => {
         document.documentElement.classList.add('is-resizing');
       }
       
-      // Remember which section is currently most visible
-      if (containerRef.current) {
-        const container = containerRef.current;
-        const scrollTop = container.scrollTop;
-        const viewportHeight = container.clientHeight;
-        const sections = Array.from(container.children);
-        
-        let closestIndex = 0;
-        let closestDistance = Infinity;
-        
-        sections.forEach((section, idx) => {
-          const sectionTop = section.offsetTop;
-          const sectionCenter = sectionTop + section.offsetHeight / 2;
-          const viewportCenter = scrollTop + viewportHeight / 2;
-          const distance = Math.abs(viewportCenter - sectionCenter);
-          
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestIndex = idx;
-          }
-        });
-        
-        currentSectionIndex = closestIndex;
-      }
+      // Preserve the current discrete section index (0, 1, 2, 3, or 4)
+      // This is robust because section indices don't change during rotation
+      // No pixel calculations needed - just preserve the state!
+      preservedSectionIndexRef.current = currentIndexRef.current;
     };
 
     const handleResizeEnd = () => {
-      // Wait for layout to stabilize after resize, then restore scroll position
+      // Wait for layout to stabilize after resize, then restore to preserved section
       if (resizeEndTimeout) clearTimeout(resizeEndTimeout);
       resizeEndTimeout = setTimeout(() => {
         isResizingRef.current = false;
@@ -125,23 +105,24 @@ const ScrollSnap = ({ children }) => {
           document.documentElement.classList.remove('is-resizing');
         }
         
-        // Restore scroll to the same section after layout stabilizes
-        if (containerRef.current && currentSectionIndex !== null) {
+        // Restore to the preserved section index (discrete state, not pixel position)
+        if (preservedSectionIndexRef.current !== null) {
+          // Use requestAnimationFrame to ensure DOM is ready
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              if (!containerRef.current) return;
-              const sections = Array.from(containerRef.current.children);
-              if (sections[currentSectionIndex]) {
-                sections[currentSectionIndex].scrollIntoView({ 
-                  behavior: 'auto', 
-                  block: 'start' 
-                });
-              }
-              currentSectionIndex = null;
+              // Clamp to valid range and snap directly to that section
+              const targetIndex = Math.max(0, Math.min(
+                preservedSectionIndexRef.current,
+                sectionsRef.current.length - 1
+              ));
+              
+              // Use our existing scrollToIndex function which handles section snapping
+              scrollToIndex(targetIndex);
+              preservedSectionIndexRef.current = null;
             });
           });
         }
-      }, 300); // Wait 300ms after resize ends
+      }, 300); // Wait 300ms after resize ends for layout to stabilize
     };
 
     const handleResize = () => {
@@ -182,7 +163,7 @@ const ScrollSnap = ({ children }) => {
         }
       }
     };
-  }, []);
+  }, [scrollToIndex]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -194,16 +175,31 @@ const ScrollSnap = ({ children }) => {
       // Don't update during resize/orientation changes
       if (isResizingRef.current) return;
       
+      // Determine which discrete section (0-4) is most visible
+      // Use viewport center to determine the active section
       const offset = container.scrollTop + navHeight();
-      const closestIndex = sectionsRef.current.reduce((closest, el, idx) => {
-        const distance = Math.abs(el.offsetTop - offset);
-        const closestDistance = Math.abs(
-          sectionsRef.current[closest]?.offsetTop - offset || Infinity
-        );
-        return distance < closestDistance ? idx : closest;
-      }, 0);
-      setCurrentIndex(closestIndex);
-      currentIndexRef.current = closestIndex;
+      const viewportCenter = container.scrollTop + (container.clientHeight / 2);
+      
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+      
+      sectionsRef.current.forEach((section, idx) => {
+        if (!section) return;
+        const sectionTop = section.offsetTop;
+        const sectionCenter = sectionTop + (section.offsetHeight / 2);
+        const distance = Math.abs(viewportCenter - sectionCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = idx;
+        }
+      });
+      
+      // Only update if we've actually changed sections (discrete state change)
+      if (closestIndex !== currentIndexRef.current) {
+        setCurrentIndex(closestIndex);
+        currentIndexRef.current = closestIndex;
+      }
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
