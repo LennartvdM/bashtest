@@ -30,26 +30,19 @@ export default function ScrollSection({ name, children, background }) {
     return () => observer.disconnect();
   }, []);
 
-  // Use dynamic viewport height for tablets to match content that uses dvh
-  const isTablet = typeof window !== 'undefined' && window.innerWidth < 1400 && (
-    'ontouchstart' in window ||
-    navigator.maxTouchPoints > 0 ||
-    navigator.msMaxTouchPoints > 0
-  );
-
   return (
     <section
       ref={ref}
       id={name}
       style={{
-        height: isTablet ? '100dvh' : '100vh', // Use dvh for tablets to match content
+        minHeight: 'calc(100svh - var(--nav-h, 60px))',
         width: '100%',
         position: 'relative',
         backgroundColor: background || 'transparent',
-        overflow: 'auto', // Allow content to scroll if needed
+        overflow: 'hidden',
       }}
     >
       {children({ inView, ref })}
     </section>
   );
-} 
+}
