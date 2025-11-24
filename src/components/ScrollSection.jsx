@@ -40,6 +40,9 @@ export default function ScrollSection({ name, children, background }) {
         position: 'relative',
         backgroundColor: background || 'transparent',
         overflow: 'hidden',
+        scrollSnapAlign: 'start',
+        scrollSnapStop: 'always',
+        scrollMarginTop: 'var(--nav-h, 60px)',
       }}
     >
       {children({ inView, ref })}

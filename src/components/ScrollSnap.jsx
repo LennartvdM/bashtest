@@ -1,15 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const NAV_FALLBACK = 60;
 const WHEEL_THRESHOLD = 20; // ignore micro-scrolls from touchpads
 const TOUCH_DISTANCE_THRESHOLD = 50; // pixels
 const TOUCH_TIME_THRESHOLD = 450; // ms to be considered a flick
-const ANIMATION_DURATION = 700; // ms lock while scrolling to target
 
 const ScrollSnap = ({ children }) => {
   const containerRef = useRef(null);
   const sectionsRef = useRef([]);
-  const lockRef = useRef(false);
+  const wheelCooldownRef = useRef(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [snapMode, setSnapMode] = useState('y mandatory');
 
@@ -29,11 +28,6 @@ const ScrollSnap = ({ children }) => {
     return () => window.removeEventListener('resize', updateSnapMode);
   }, []);
 
-  const baseSectionHeight = useMemo(
-    () => 'calc(100svh - var(--nav-h, 60px))',
-    []
-  );
-
   const navHeight = useCallback(() => {
     if (typeof window === 'undefined') return NAV_FALLBACK;
     const raw = getComputedStyle(document.documentElement).getPropertyValue('--nav-h');
@@ -41,47 +35,59 @@ const ScrollSnap = ({ children }) => {
     return Number.isFinite(parsed) ? parsed : NAV_FALLBACK;
   }, []);
 
+  const getClosestIndex = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return 0;
+    const offset = container.scrollTop + navHeight();
+    return sectionsRef.current.reduce((closest, el, idx) => {
+      const distance = Math.abs(el.offsetTop - offset);
+      const closestDistance = Math.abs(
+        sectionsRef.current[closest]?.offsetTop - offset || Infinity
+      );
+      return distance < closestDistance ? idx : closest;
+    }, 0);
+  }, [navHeight]);
+
   const scrollToIndex = useCallback(
     (nextIndex) => {
       const container = containerRef.current;
-      if (!container || lockRef.current) return;
+      if (!container) return;
 
       const clamped = Math.max(0, Math.min(nextIndex, sectionsRef.current.length - 1));
-      if (clamped === currentIndex) return;
+      const activeIndex = getClosestIndex();
+      if (clamped === activeIndex) return;
 
       const target = sectionsRef.current[clamped];
       if (!target) return;
 
-      lockRef.current = true;
       setCurrentIndex(clamped);
-      container.scrollTo({
-        top: target.offsetTop - navHeight(),
-        behavior: 'smooth',
-      });
-
-      window.setTimeout(() => {
-        lockRef.current = false;
-      }, ANIMATION_DURATION);
+      const destination = target.offsetTop - navHeight();
+      const delta = destination - container.scrollTop;
+      if (Math.abs(delta) < 1) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
-    [currentIndex, navHeight]
+    [getClosestIndex, navHeight]
   );
 
   // Wheel ratchet for desktop scrolls
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return undefined;
-
     const onWheel = (event) => {
-      if (lockRef.current) return;
+      const container = containerRef.current;
+      if (!container) return;
+      const path = event.composedPath?.() || [];
+      if (!path.includes(container)) return;
+      const now = Date.now();
+      if (now - wheelCooldownRef.current < 700) return;
       if (Math.abs(event.deltaY) < WHEEL_THRESHOLD) return;
       event.preventDefault();
+      wheelCooldownRef.current = now;
       const direction = event.deltaY > 0 ? 1 : -1;
-      scrollToIndex(currentIndex + direction);
+      scrollToIndex(getClosestIndex() + direction);
     };
 
-    container.addEventListener('wheel', onWheel, { passive: false });
-    return () => container.removeEventListener('wheel', onWheel, { passive: false });
-  }, [currentIndex, scrollToIndex]);
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => window.removeEventListener('wheel', onWheel, { passive: false });
+  }, [scrollToIndex]);
 
   // Flick detection for tablets / touch devices
   useEffect(() => {
@@ -98,7 +104,6 @@ const ScrollSnap = ({ children }) => {
     };
 
     const onTouchEnd = (event) => {
-      if (lockRef.current) return;
       const touch = event.changedTouches[0];
       const deltaY = touch.clientY - startY;
       const elapsed = Date.now() - startTime;
@@ -117,7 +122,16 @@ const ScrollSnap = ({ children }) => {
       container.removeEventListener('touchstart', onTouchStart, { passive: true });
       container.removeEventListener('touchend', onTouchEnd, { passive: true });
     };
-  }, [currentIndex, scrollToIndex]);
+  }, [scrollToIndex]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    sectionsRef.current = Array.from(
+      container.querySelectorAll('section[id]')
+    );
+  }, [children]);
 
   // Keep the reported index in sync when users scroll via keyboard or scrollbars
   useEffect(() => {
@@ -139,7 +153,7 @@ const ScrollSnap = ({ children }) => {
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll, { passive: true });
-  }, [navHeight]);
+  }, [getClosestIndex, navHeight]);
 
   // Recompute index on resize to keep the active section accurate
   useEffect(() => {
@@ -159,12 +173,14 @@ const ScrollSnap = ({ children }) => {
 
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [navHeight]);
+  }, [getClosestIndex, navHeight]);
 
   return (
     <div
       ref={containerRef}
       className="w-full overflow-y-auto"
+      data-current-index={currentIndex}
+      data-section-count={sectionsRef.current.length}
       style={{
         scrollSnapType: snapMode,
         height: '100svh',
@@ -176,23 +192,7 @@ const ScrollSnap = ({ children }) => {
         scrollBehavior: 'smooth',
       }}
     >
-      {React.Children.map(children, (child, idx) => (
-        <div
-          key={`scroll-section-${idx}`}
-          ref={(el) => {
-            sectionsRef.current[idx] = el;
-          }}
-          style={{
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            minHeight: baseSectionHeight,
-            width: '100%',
-            position: 'relative',
-          }}
-        >
-          {child}
-        </div>
-      ))}
+      {children}
     </div>
   );
 };
