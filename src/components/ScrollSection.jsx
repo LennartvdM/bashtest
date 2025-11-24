@@ -38,6 +38,7 @@ export default function ScrollSection({ name, children, background }) {
         minHeight: '100vh',
         width: '100%',
         scrollSnapAlign: 'start',
+        scrollSnapStop: 'normal', // Allows easier scrolling - can skip snap points with fast scroll
         position: 'relative',
         backgroundColor: background || 'transparent',
       }}
