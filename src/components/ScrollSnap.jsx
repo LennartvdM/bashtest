@@ -25,7 +25,7 @@ const ScrollSnap = ({ children }) => {
           style={{
             scrollSnapAlign: 'start',
             scrollSnapStop: 'normal', // Changed from 'always' - allows easier scrolling
-            height: '100vh', // Fixed height for reliable scroll snap
+            height: isTablet ? '100dvh' : '100vh', // Use dvh for tablets to match section content
             width: '100%',
             position: 'relative',
           }}
