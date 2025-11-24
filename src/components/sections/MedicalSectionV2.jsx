@@ -306,8 +306,11 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   }, [shouldAnimate]);
 
   // Tablet autoplay loop and progress sync (portrait and landscape)
+  // Start autoplay when section is entering or active (not just active)
   useEffect(() => {
     if (!isTabletLayout && !isLandscapeTablet) return;
+    // For tablets, start autoplay as soon as section is entering or active
+    if (sectionState !== 'entering' && sectionState !== 'active') return;
     
     const id = setInterval(() => {
       if (!isPaused) {
@@ -316,13 +319,17 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
       }
     }, TABLET_AUTOPLAY_MS);
     return () => clearInterval(id);
-  }, [isTabletLayout, isLandscapeTablet, isPaused]);
+  }, [isTabletLayout, isLandscapeTablet, isPaused, sectionState]);
 
   useEffect(() => {
     if (isTabletLayout || isLandscapeTablet) {
       setBarKey((k) => k + 1);
+      // For tablets, ensure autoplay can start even if section is just entering
+      if (sectionState === 'entering' || sectionState === 'active') {
+        setIsPaused(false);
+      }
     }
-  }, [isTabletLayout, isLandscapeTablet]);
+  }, [isTabletLayout, isLandscapeTablet, sectionState]);
 
   // Gentle cleanup when preserved
   useEffect(() => {
@@ -1041,7 +1048,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
           }}
         >
           <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
-            {rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height) && (
+            {((rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height)) || (isLandscapeTablet && sectionState !== 'idle')) && (
               <>
                 {/* Targeting outline container */}
                 <div
