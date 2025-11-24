@@ -2,11 +2,19 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const NAV_FALLBACK = 60;
 
+const BREAKPOINT_WIDTH = 1024; // Align with desktop breakpoint for Tailwind (lg)
+
 const ScrollSnap = ({ children }) => {
   const containerRef = useRef(null);
   const sectionsRef = useRef([]);
+  const currentIndexRef = useRef(0);
+  const reloadingRef = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sectionCount, setSectionCount] = useState(0);
+  const [currentBreakpoint, setCurrentBreakpoint] = useState(() => {
+    if (typeof window === 'undefined') return 'desktop';
+    return window.innerWidth >= BREAKPOINT_WIDTH ? 'desktop' : 'tablet';
+  });
 
   const navHeight = useCallback(() => {
     if (typeof window === 'undefined') return NAV_FALLBACK;
@@ -38,6 +46,7 @@ const ScrollSnap = ({ children }) => {
       if (!target) return;
 
       setCurrentIndex(clamped);
+      currentIndexRef.current = clamped;
       const destination = target.offsetTop - navHeight();
       container.scrollTo({ top: destination, behavior: 'auto' });
     },
@@ -52,6 +61,7 @@ const ScrollSnap = ({ children }) => {
     const count = sectionsRef.current.length;
     setSectionCount(count);
     setCurrentIndex((prev) => (count ? Math.min(prev, count - 1) : 0));
+    currentIndexRef.current = Math.min(currentIndexRef.current, Math.max(0, count - 1));
 
     const onScroll = () => {
       const offset = container.scrollTop + navHeight();
@@ -63,11 +73,65 @@ const ScrollSnap = ({ children }) => {
         return distance < closestDistance ? idx : closest;
       }, 0);
       setCurrentIndex(closestIndex);
+      currentIndexRef.current = closestIndex;
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll, { passive: true });
   }, [children, navHeight]);
+
+  useEffect(() => {
+    const restoreSection = () => {
+      const savedId = sessionStorage.getItem('scrollsnap:return-section');
+      if (!savedId) return;
+
+      const target = document.getElementById(savedId);
+      const container = containerRef.current;
+      if (target && container) {
+        const destination = target.offsetTop - navHeight();
+        container.scrollTo({ top: destination, behavior: 'auto' });
+        const idx = sectionsRef.current.findIndex((section) => section?.id === savedId);
+        if (idx >= 0) {
+          setCurrentIndex(idx);
+          currentIndexRef.current = idx;
+        }
+      }
+
+      sessionStorage.removeItem('scrollsnap:return-section');
+    };
+
+    // Delay restoration to ensure layout has stabilized
+    const id = window.setTimeout(restoreSection, 0);
+    return () => window.clearTimeout(id);
+  }, [navHeight]);
+
+  useEffect(() => {
+    const detectBreakpoint = () => {
+      const width = window.innerWidth;
+      return width >= BREAKPOINT_WIDTH ? 'desktop' : 'tablet';
+    };
+
+    const handleBreakpointChange = () => {
+      const next = detectBreakpoint();
+      if (next === currentBreakpoint || reloadingRef.current) return;
+
+      const activeSection = sectionsRef.current[currentIndexRef.current];
+      if (activeSection?.id) {
+        sessionStorage.setItem('scrollsnap:return-section', activeSection.id);
+      }
+
+      reloadingRef.current = true;
+      setCurrentBreakpoint(next);
+      window.location.reload();
+    };
+
+    window.addEventListener('resize', handleBreakpointChange);
+    window.addEventListener('orientationchange', handleBreakpointChange);
+    return () => {
+      window.removeEventListener('resize', handleBreakpointChange);
+      window.removeEventListener('orientationchange', handleBreakpointChange);
+    };
+  }, [currentBreakpoint]);
 
   return (
     <div className="relative w-full">
