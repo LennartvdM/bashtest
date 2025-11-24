@@ -44,12 +44,16 @@ const ScrollSnap = ({ children }) => {
       isScrolling.current = true;
       const targetSection = sections[index];
       
+      // Stop any ongoing scroll momentum
+      container.scrollTop = container.scrollTop;
+      
+      // Immediately scroll to target - scroll snap will handle the final positioning
       targetSection.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       });
 
-      // Reset scrolling flag after animation
+      // Reset scrolling flag after animation completes
       setTimeout(() => {
         isScrolling.current = false;
       }, 500);
@@ -75,36 +79,32 @@ const ScrollSnap = ({ children }) => {
       const deltaTime = Math.max(touchEndTime - touchStartTime.current, 1); // Prevent division by zero
       const velocity = Math.abs(deltaY / deltaTime);
 
-      // Very lenient thresholds for easy one-flick navigation
-      // Minimum distance: 30px - just a quick flick
-      // Minimum velocity: 0.15px/ms - very low threshold
-      const minDistance = 30;
-      const minVelocity = 0.15;
-      const maxDistance = 500; // Allow larger swipes
+      // More lenient thresholds for easier one-flick navigation
+      // Minimum distance: 40px - a quick flick
+      // Minimum velocity: 0.2px/ms - moderate speed
+      const minDistance = 40;
+      const minVelocity = 0.2;
+      const maxDistance = 400;
 
       // Check if this was a deliberate swipe gesture
-      // For a swipe to trigger, we need:
-      // 1. Sufficient distance and velocity (very low thresholds)
-      // 2. The user didn't scroll too much during the gesture (indicating a swipe, not a scroll)
+      // The key is: user swiped quickly without much actual scrolling
       const actualScrollDelta = Math.abs(container.scrollTop - lastScrollTop.current);
       const isDeliberateSwipe = Math.abs(deltaY) > minDistance && 
                                  velocity > minVelocity && 
                                  Math.abs(deltaY) < maxDistance &&
-                                 actualScrollDelta < 150; // Allow more scroll during swipe (user might scroll while swiping)
+                                 actualScrollDelta < 100; // User swiped, didn't scroll much
 
       if (isDeliberateSwipe && !isScrolling.current) {
         const currentIndex = findCurrentSection();
         
-        // Small delay to let any natural scroll complete, then snap to next section
-        setTimeout(() => {
-          if (deltaY > 0) {
-            // Swiped up - go to next section
-            scrollToSection(currentIndex + 1, 'down');
-          } else {
-            // Swiped down - go to previous section
-            scrollToSection(currentIndex - 1, 'up');
-          }
-        }, 50);
+        // Immediately snap to next section - don't wait
+        if (deltaY > 0) {
+          // Swiped up - go to next section
+          scrollToSection(currentIndex + 1, 'down');
+        } else {
+          // Swiped down - go to previous section
+          scrollToSection(currentIndex - 1, 'up');
+        }
       }
 
       touchStartY.current = 0;
@@ -127,7 +127,7 @@ const ScrollSnap = ({ children }) => {
       ref={containerRef}
       className="w-full h-screen overflow-y-auto"
       style={{
-        scrollSnapType: isTablet ? 'none' : 'y mandatory', // No scroll snap for tablets - swipe detection handles navigation
+        scrollSnapType: isTablet ? 'y proximity' : 'y mandatory', // Proximity for tablets (less sticky), mandatory for desktop
         height: '100vh',
         width: '100%',
         WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
@@ -137,8 +137,8 @@ const ScrollSnap = ({ children }) => {
       {React.Children.map(children, (child) => (
         <div
           style={{
-            scrollSnapAlign: isTablet ? 'none' : 'start',
-            scrollSnapStop: isTablet ? 'normal' : 'always',
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
             minHeight: '100vh',
             width: '100%',
           }}
