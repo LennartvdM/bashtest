@@ -34,7 +34,7 @@ DO NOT "fix" this to crossfade between A and B.
 The stacking is intentional to avoid ugly transitions.
 */
 
-function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos }) {
+function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange }) {
   const videoContainerRef = useRef(null);
 
   // Use videos prop if provided, otherwise fallback to default slides
@@ -157,6 +157,21 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
           </div>
         );
       })}
+      {/* Touch navigation overlay for landscape tablets */}
+      {enableTouchNavigation && (
+        <>
+          <button
+            aria-label="Previous"
+            onClick={() => onTouchChange?.((current - 1 + videoSlides.length) % videoSlides.length)}
+            style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '15%', background: 'transparent', border: 'none', zIndex: 99, cursor: 'pointer' }}
+          />
+          <button
+            aria-label="Next"
+            onClick={() => onTouchChange?.((current + 1) % videoSlides.length)}
+            style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '15%', background: 'transparent', border: 'none', zIndex: 99, cursor: 'pointer' }}
+          />
+        </>
+      )}
     </div>
   );
 }

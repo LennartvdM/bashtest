@@ -114,16 +114,35 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const cornerRadius = 16;
   const gap = 32;
   const videoHeight = 320;
+  // Detect touch device
+  const isTouchDevice = typeof window !== 'undefined' && (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0
+  );
+
   const [isTabletLayout, setIsTabletLayout] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.innerWidth < 1200;
   });
+  
+  const [isLandscapeTablet, setIsLandscapeTablet] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth >= 1200 && isTouchDevice;
+  });
+
+  // Portrait tablet: width < 1200
+  // Landscape tablet: width >= 1200 && touch device
+  // Desktop: width >= 1200 && not touch device
+  const isPortraitTablet = isTabletLayout;
+  const isDesktopLayout = !isTabletLayout && !isLandscapeTablet;
+
   const videoContainerWidth = isTabletLayout ? 'min(480px, 90vw)' : 480;
   const captionContainerWidth = isTabletLayout ? 'min(520px, 90vw)' : 444;
   const videoOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(200px)';
   const captionOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(-200px)';
   const TABLET_AUTOPLAY_MS = 7000;
-  const layoutKey = isTabletLayout ? 'tablet' : 'desktop';
+  const layoutKey = isTabletLayout ? 'tablet' : (isLandscapeTablet ? 'landscape-tablet' : 'desktop');
 
   // Calculate the right offset so the cutout aligns with the video container
   const bandRight = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
@@ -155,11 +174,15 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   };
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const handleResize = () => setIsTabletLayout(window.innerWidth < 1200);
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsTabletLayout(width < 1200);
+      setIsLandscapeTablet(width >= 1200 && isTouchDevice);
+    };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isTouchDevice]);
 
   // Listen for gentle preload request from previous section
   useEffect(() => {
@@ -864,6 +887,12 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                 setVideoHover={setVideoHover}
                 interactionsEnabled={interactionsEnabled}
                 videos={mainVideos}
+                enableTouchNavigation={isLandscapeTablet}
+                onTouchChange={(idx) => {
+                  setCurrentVideo(idx);
+                  setIsPaused(true);
+                  setBarKey((k) => k + 1);
+                }}
               />
             </div>
           </div>
