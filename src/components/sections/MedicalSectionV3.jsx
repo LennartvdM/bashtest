@@ -244,7 +244,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
 
   // Listen for gentle preload request from previous section
   useEffect(() => {
-    if (!isTabletLayout) return;
+    if (!isTabletLayout && !isLandscapeTablet) return;
     const handler = (e) => {
       const { blur, first } = e.detail || {};
       try {
@@ -302,9 +302,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   }, [shouldAnimate]);
 
-  // Tablet autoplay loop and progress sync
+  // Tablet autoplay loop and progress sync (portrait and landscape)
   useEffect(() => {
-    if (!isTabletLayout) return;
+    if (!isTabletLayout && !isLandscapeTablet) return;
     
     const id = setInterval(() => {
       if (!isPaused) {
@@ -313,13 +313,13 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       }
     }, TABLET_AUTOPLAY_MS);
     return () => clearInterval(id);
-  }, [isTabletLayout, isPaused]);
+  }, [isTabletLayout, isLandscapeTablet, isPaused]);
 
   useEffect(() => {
-    if (isTabletLayout) {
+    if (isTabletLayout || isLandscapeTablet) {
       setBarKey((k) => k + 1);
     }
-  }, [isTabletLayout]);
+  }, [isTabletLayout, isLandscapeTablet]);
 
   // Gentle cleanup when preserved
   useEffect(() => {
@@ -1006,7 +1006,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                       transform: 'translateY(-50%)',
                       transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), right 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       opacity: 0.2,
-                      display: isTabletLayout ? 'none' : undefined,
+                      display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
                     }}
                   />
                   {/* Targeting outline container */}
@@ -1021,7 +1021,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                       zIndex: 5,
                       pointerEvents: 'none',
                       transition: shouldTransition ? 'all 700ms ease' : 'none',
-                      display: isTabletLayout ? 'none' : undefined,
+                      display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
                     }}
                   >
                     {/* Targeting outline */}
@@ -1042,7 +1042,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                             ? 'opacity 0.2s cubic-bezier(.4,0,.2,1) 0.2s'
                             : 'opacity 0.13s'
                         ].join(', ') : 'none',
-                        opacity: safeHoveredIndex === currentVideo ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
+                        opacity: (safeHoveredIndex === currentVideo || (isLandscapeTablet && hoveredIndex === null)) ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
                       }}
                     />
                     {/* Duplicated Highlighter rectangle for left section */}
@@ -1056,9 +1056,9 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                         transform: 'translateX(-50%)',
                         paddingLeft: 24,
                         paddingRight: 24,
-                        background: safeHoveredIndex === currentVideo ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
+                        background: (safeHoveredIndex === currentVideo || (isLandscapeTablet && hoveredIndex === null)) ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
                         borderRadius: 10,
-                        boxShadow: safeHoveredIndex === currentVideo ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
+                        boxShadow: (safeHoveredIndex === currentVideo || (isLandscapeTablet && hoveredIndex === null)) ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
                         transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), /* hover effects */ color 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1), background 100ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                         zIndex: 30
                       }}
@@ -1086,8 +1086,30 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                 <button
                   key={i}
                   ref={(el) => (leftRowRefs.current[i] = el)}
-                  onMouseEnter={interactionsEnabled ? () => handleHover(i) : undefined}
-                  onMouseLeave={interactionsEnabled ? handleHoverEnd : undefined}
+                  onMouseEnter={interactionsEnabled && !isLandscapeTablet ? () => handleHover(i) : undefined}
+                  onMouseLeave={interactionsEnabled && !isLandscapeTablet ? handleHoverEnd : undefined}
+                  onClick={interactionsEnabled && isLandscapeTablet ? () => {
+                    setCurrentVideo(i);
+                    setIsPaused(true);
+                    setBarKey((k) => k + 1);
+                    setHoveredIndex(i);
+                    setTimeout(() => {
+                      setIsPaused(false);
+                      setHoveredIndex(null);
+                    }, 100);
+                  } : undefined}
+                  onTouchStart={interactionsEnabled && isLandscapeTablet ? () => {
+                    setCurrentVideo(i);
+                    setIsPaused(true);
+                    setBarKey((k) => k + 1);
+                    setHoveredIndex(i);
+                  } : undefined}
+                  onTouchEnd={interactionsEnabled && isLandscapeTablet ? () => {
+                    setTimeout(() => {
+                      setIsPaused(false);
+                      setHoveredIndex(null);
+                    }, 100);
+                  } : undefined}
                   className="relative text-left py-3 rounded-xl transition-all duration-700 ease"
                   style={{
                     display: 'block',
