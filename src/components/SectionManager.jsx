@@ -30,8 +30,7 @@ export default function SectionManager({ sections }) {
   return (
     <>
       {sections.map((section, idx) => {
-        // Always render all sections for scroll-snap
-        // Let the section itself handle visibility
+        // Always render all sections so the manual navigation buttons can jump reliably
         // Set dark background for medical sections to prevent white flash
         const isMedicalSection = section.name === 'two' || section.name === 'three';
         const background = isMedicalSection ? '#1c3424' : undefined;
