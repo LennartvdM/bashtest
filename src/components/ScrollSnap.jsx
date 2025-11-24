@@ -8,7 +8,7 @@ const ScrollSnap = ({ children }) => {
   const containerRef = useRef(null);
   const sectionsRef = useRef([]);
   const currentIndexRef = useRef(0);
-  const reloadingRef = useRef(false);
+  const resizeTimeoutRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sectionCount, setSectionCount] = useState(0);
   const [currentBreakpoint, setCurrentBreakpoint] = useState(() => {
@@ -23,18 +23,35 @@ const ScrollSnap = ({ children }) => {
     return Number.isFinite(parsed) ? parsed : NAV_FALLBACK;
   }, []);
 
-  const getClosestIndex = useCallback(() => {
+  const snapToActiveSection = useCallback(() => {
     const container = containerRef.current;
-    if (!container) return 0;
-    const offset = container.scrollTop + navHeight();
-    return sectionsRef.current.reduce((closest, el, idx) => {
-      const distance = Math.abs(el.offsetTop - offset);
-      const closestDistance = Math.abs(
-        sectionsRef.current[closest]?.offsetTop - offset || Infinity
-      );
-      return distance < closestDistance ? idx : closest;
-    }, 0);
+    const activeSection = sectionsRef.current[currentIndexRef.current];
+    if (!container || !activeSection) return;
+
+    const destination = activeSection.offsetTop - navHeight();
+    container.scrollTo({ top: destination, behavior: 'auto' });
   }, [navHeight]);
+
+  const refreshSections = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    sectionsRef.current = Array.from(container.querySelectorAll('section[id]'));
+    const count = sectionsRef.current.length;
+    setSectionCount(count);
+
+    const clamped = Math.max(0, Math.min(currentIndexRef.current, count - 1));
+    currentIndexRef.current = clamped;
+    setCurrentIndex(clamped);
+  }, []);
+
+  const scheduleResnap = useCallback(() => {
+    window.clearTimeout(resizeTimeoutRef.current);
+    resizeTimeoutRef.current = window.setTimeout(() => {
+      refreshSections();
+      snapToActiveSection();
+    }, 150);
+  }, [refreshSections, snapToActiveSection]);
 
   const scrollToIndex = useCallback(
     (nextIndex) => {
@@ -57,11 +74,7 @@ const ScrollSnap = ({ children }) => {
     const container = containerRef.current;
     if (!container) return undefined;
 
-    sectionsRef.current = Array.from(container.querySelectorAll('section[id]'));
-    const count = sectionsRef.current.length;
-    setSectionCount(count);
-    setCurrentIndex((prev) => (count ? Math.min(prev, count - 1) : 0));
-    currentIndexRef.current = Math.min(currentIndexRef.current, Math.max(0, count - 1));
+    refreshSections();
 
     const onScroll = () => {
       const offset = container.scrollTop + navHeight();
@@ -78,7 +91,7 @@ const ScrollSnap = ({ children }) => {
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll, { passive: true });
-  }, [children, navHeight]);
+  }, [children, navHeight, refreshSections]);
 
   useEffect(() => {
     const restoreSection = () => {
@@ -106,6 +119,13 @@ const ScrollSnap = ({ children }) => {
   }, [navHeight]);
 
   useEffect(() => {
+    const setViewportHeight = () => {
+      document.documentElement.style.setProperty(
+        '--app-viewport-height',
+        `${window.innerHeight}px`
+      );
+    };
+
     const detectBreakpoint = () => {
       const width = window.innerWidth;
       return width >= BREAKPOINT_WIDTH ? 'desktop' : 'tablet';
@@ -113,25 +133,24 @@ const ScrollSnap = ({ children }) => {
 
     const handleBreakpointChange = () => {
       const next = detectBreakpoint();
-      if (next === currentBreakpoint || reloadingRef.current) return;
-
-      const activeSection = sectionsRef.current[currentIndexRef.current];
-      if (activeSection?.id) {
-        sessionStorage.setItem('scrollsnap:return-section', activeSection.id);
+      if (next !== currentBreakpoint) {
+        setCurrentBreakpoint(next);
       }
 
-      reloadingRef.current = true;
-      setCurrentBreakpoint(next);
-      window.location.reload();
+      setViewportHeight();
+      scheduleResnap();
     };
 
+    setViewportHeight();
+    scheduleResnap();
     window.addEventListener('resize', handleBreakpointChange);
     window.addEventListener('orientationchange', handleBreakpointChange);
     return () => {
+      window.clearTimeout(resizeTimeoutRef.current);
       window.removeEventListener('resize', handleBreakpointChange);
       window.removeEventListener('orientationchange', handleBreakpointChange);
     };
-  }, [currentBreakpoint]);
+  }, [currentBreakpoint, scheduleResnap]);
 
   return (
     <div className="relative w-full">
@@ -141,7 +160,7 @@ const ScrollSnap = ({ children }) => {
         data-current-index={currentIndex}
         data-section-count={sectionCount}
         style={{
-          height: '100svh',
+          height: 'var(--app-viewport-height, 100svh)',
           width: '100%',
           WebkitOverflowScrolling: 'touch',
           overscrollBehaviorY: 'none',
@@ -157,7 +176,7 @@ const ScrollSnap = ({ children }) => {
         <button
           type="button"
           onClick={() => scrollToIndex(currentIndex - 1)}
-        className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={currentIndex <= 0}
         >
           Up
