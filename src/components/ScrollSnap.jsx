@@ -1,5 +1,3 @@
-import React from 'react';
-
 import React, { useRef, useEffect } from 'react';
 
 const ScrollSnap = ({ children }) => {
