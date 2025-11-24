@@ -6,6 +6,7 @@ const ScrollSnap = ({ children }) => {
   const containerRef = useRef(null);
   const sectionsRef = useRef([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [sectionCount, setSectionCount] = useState(0);
 
   const navHeight = useCallback(() => {
     if (typeof window === 'undefined') return NAV_FALLBACK;
@@ -48,6 +49,9 @@ const ScrollSnap = ({ children }) => {
     if (!container) return undefined;
 
     sectionsRef.current = Array.from(container.querySelectorAll('section[id]'));
+    const count = sectionsRef.current.length;
+    setSectionCount(count);
+    setCurrentIndex((prev) => (count ? Math.min(prev, count - 1) : 0));
 
     const onScroll = () => {
       const offset = container.scrollTop + navHeight();
@@ -71,7 +75,7 @@ const ScrollSnap = ({ children }) => {
         ref={containerRef}
         className="w-full overflow-y-auto"
         data-current-index={currentIndex}
-        data-section-count={sectionsRef.current.length}
+        data-section-count={sectionCount}
         style={{
           height: '100svh',
           width: '100%',
@@ -89,7 +93,7 @@ const ScrollSnap = ({ children }) => {
         <button
           type="button"
           onClick={() => scrollToIndex(currentIndex - 1)}
-          className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={currentIndex <= 0}
         >
           Up
@@ -98,7 +102,7 @@ const ScrollSnap = ({ children }) => {
           type="button"
           onClick={() => scrollToIndex(currentIndex + 1)}
           className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={currentIndex >= sectionsRef.current.length - 1}
+          disabled={currentIndex >= sectionCount - 1}
         >
           Down
         </button>
