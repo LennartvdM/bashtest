@@ -154,3 +154,9 @@ body::-webkit-scrollbar {
     opacity: 1;
   }
 }
+
+/* Tablet rotation handling: disable scroll snap during resize */
+html.is-resizing [style*="scroll-snap-type"] {
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+}

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useViewport } from '../hooks/useViewport';
 
 const NAV_FALLBACK = 60;
 
@@ -9,8 +10,10 @@ const ScrollSnap = ({ children }) => {
   const sectionsRef = useRef([]);
   const currentIndexRef = useRef(0);
   const resizeTimeoutRef = useRef(null);
+  const isResizingRef = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sectionCount, setSectionCount] = useState(0);
+  const { isTablet } = useViewport();
   const [currentBreakpoint, setCurrentBreakpoint] = useState(() => {
     if (typeof window === 'undefined') return 'desktop';
     return window.innerWidth >= BREAKPOINT_WIDTH ? 'desktop' : 'tablet';
@@ -70,6 +73,117 @@ const ScrollSnap = ({ children }) => {
     [navHeight]
   );
 
+  // Disable scroll snap during orientation changes to prevent layout thrashing
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let resizeEndTimeout = null;
+    let currentSectionIndex = null;
+
+    const handleResizeStart = () => {
+      isResizingRef.current = true;
+      
+      // Disable scroll snap via CSS class (prevents snap oscillation)
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.add('is-resizing');
+      }
+      
+      // Remember which section is currently most visible
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const scrollTop = container.scrollTop;
+        const viewportHeight = container.clientHeight;
+        const sections = Array.from(container.children);
+        
+        let closestIndex = 0;
+        let closestDistance = Infinity;
+        
+        sections.forEach((section, idx) => {
+          const sectionTop = section.offsetTop;
+          const sectionCenter = sectionTop + section.offsetHeight / 2;
+          const viewportCenter = scrollTop + viewportHeight / 2;
+          const distance = Math.abs(viewportCenter - sectionCenter);
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = idx;
+          }
+        });
+        
+        currentSectionIndex = closestIndex;
+      }
+    };
+
+    const handleResizeEnd = () => {
+      // Wait for layout to stabilize after resize, then restore scroll position
+      if (resizeEndTimeout) clearTimeout(resizeEndTimeout);
+      resizeEndTimeout = setTimeout(() => {
+        isResizingRef.current = false;
+        
+        // Re-enable scroll snap
+        if (typeof document !== 'undefined') {
+          document.documentElement.classList.remove('is-resizing');
+        }
+        
+        // Restore scroll to the same section after layout stabilizes
+        if (containerRef.current && currentSectionIndex !== null) {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (!containerRef.current) return;
+              const sections = Array.from(containerRef.current.children);
+              if (sections[currentSectionIndex]) {
+                sections[currentSectionIndex].scrollIntoView({ 
+                  behavior: 'auto', 
+                  block: 'start' 
+                });
+              }
+              currentSectionIndex = null;
+            });
+          });
+        }
+      }, 300); // Wait 300ms after resize ends
+    };
+
+    const handleResize = () => {
+      handleResizeStart();
+      if (resizeEndTimeout) clearTimeout(resizeEndTimeout);
+      resizeEndTimeout = setTimeout(handleResizeEnd, 100);
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResizeStart, { passive: true });
+    
+    // Use matchMedia for orientation (fires after orientation change completes)
+    let orientationQuery = null;
+    if (window.matchMedia) {
+      orientationQuery = window.matchMedia('(orientation: portrait)');
+      if (orientationQuery.addEventListener) {
+        orientationQuery.addEventListener('change', () => {
+          handleResizeStart();
+          setTimeout(handleResizeEnd, 100);
+        });
+      } else if (orientationQuery.addListener) {
+        orientationQuery.addListener(() => {
+          handleResizeStart();
+          setTimeout(handleResizeEnd, 100);
+        });
+      }
+    }
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResizeStart);
+      if (resizeEndTimeout) clearTimeout(resizeEndTimeout);
+      if (orientationQuery) {
+        if (orientationQuery.removeEventListener) {
+          orientationQuery.removeEventListener('change', handleResizeStart);
+        } else if (orientationQuery.removeListener) {
+          orientationQuery.removeListener(handleResizeStart);
+        }
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
@@ -77,6 +191,9 @@ const ScrollSnap = ({ children }) => {
     refreshSections();
 
     const onScroll = () => {
+      // Don't update during resize/orientation changes
+      if (isResizingRef.current) return;
+      
       const offset = container.scrollTop + navHeight();
       const closestIndex = sectionsRef.current.reduce((closest, el, idx) => {
         const distance = Math.abs(el.offsetTop - offset);
@@ -120,9 +237,11 @@ const ScrollSnap = ({ children }) => {
 
   useEffect(() => {
     const setViewportHeight = () => {
+      // Use visualViewport API for accurate height (critical for mobile Safari)
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
       document.documentElement.style.setProperty(
         '--app-viewport-height',
-        `${window.innerHeight}px`
+        `${viewportHeight}px`
       );
     };
 
@@ -145,10 +264,19 @@ const ScrollSnap = ({ children }) => {
     scheduleResnap();
     window.addEventListener('resize', handleBreakpointChange);
     window.addEventListener('orientationchange', handleBreakpointChange);
+    
+    // Listen to visualViewport changes (more accurate for mobile Safari)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleBreakpointChange);
+    }
+    
     return () => {
       window.clearTimeout(resizeTimeoutRef.current);
       window.removeEventListener('resize', handleBreakpointChange);
       window.removeEventListener('orientationchange', handleBreakpointChange);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleBreakpointChange);
+      }
     };
   }, [currentBreakpoint, scheduleResnap]);
 
@@ -167,6 +295,8 @@ const ScrollSnap = ({ children }) => {
           scrollPaddingTop: 'var(--nav-h, 60px)',
           paddingTop: 'var(--nav-h, 60px)',
           scrollBehavior: 'auto',
+          // Prevent layout shifts during orientation changes
+          willChange: 'scroll-position',
         }}
       >
         {children}
