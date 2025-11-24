@@ -35,7 +35,7 @@ export default function ScrollSection({ name, children, background }) {
       ref={ref}
       id={name}
       style={{
-        minHeight: 'calc(100svh - var(--nav-h, 60px))',
+        minHeight: 'calc(var(--app-viewport-height, 100svh) - var(--nav-h, 60px))',
         width: '100%',
         position: 'relative',
         backgroundColor: background || 'transparent',
