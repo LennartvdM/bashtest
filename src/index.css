@@ -160,3 +160,31 @@ html.is-resizing [style*="scroll-snap-type"] {
   scroll-snap-type: none !important;
   scroll-behavior: auto !important;
 }
+
+/* CRITICAL: Freeze all section dimensions during rotation to prevent layout thrashing */
+/* This "defends" the segments of the vertical stack */
+html.is-resizing section[id] {
+  /* Lock dimensions - prevent any flex/resize during rotation */
+  min-height: var(--app-viewport-height, 100dvh) !important;
+  height: var(--app-viewport-height, 100dvh) !important;
+  max-height: var(--app-viewport-height, 100dvh) !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+
+  /* Disable all transitions during rotation to prevent animation conflicts */
+  transition: none !important;
+  animation: none !important;
+
+  /* Force containment to prevent layout from affecting other sections */
+  contain: layout paint style !important;
+
+  /* Prevent any overflow changes that might trigger reflow */
+  overflow: hidden !important;
+}
+
+/* Also freeze child elements to prevent cascading layout changes */
+html.is-resizing section[id] * {
+  /* Disable transitions on all descendants during rotation */
+  transition: none !important;
+  animation: none !important;
+}
