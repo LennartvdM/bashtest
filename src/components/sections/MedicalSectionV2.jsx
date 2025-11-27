@@ -199,44 +199,65 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   };
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
+    let layoutTimeout = null;
+
     const updateLayout = () => {
+      // CRITICAL: Don't update layout during rotation to prevent thrashing
+      // Wait for ScrollSnap to complete its rotation handling first
+      if (document.documentElement.classList.contains('is-resizing')) {
+        return;
+      }
+
       const layout = detectLayout(isTouchDevice);
       setIsTabletLayout(layout.isTablet);
       setIsLandscapeTablet(layout.isLandscapeTablet);
     };
-    
+
+    // Debounced version to prevent rapid-fire updates
+    const debouncedUpdateLayout = () => {
+      if (layoutTimeout) clearTimeout(layoutTimeout);
+      layoutTimeout = setTimeout(updateLayout, 150);
+    };
+
     // Initial check
     updateLayout();
-    
-    // Listen to resize events
-    window.addEventListener('resize', updateLayout);
-    
-    // Listen to orientation change events (for immediate updates on rotation)
-    window.addEventListener('orientationchange', updateLayout);
-    
+
+    // Use debounced handler for resize events to reduce thrashing
+    window.addEventListener('resize', debouncedUpdateLayout, { passive: true });
+
+    // For orientation changes, wait for the transition to complete
+    const handleOrientationChange = () => {
+      // Delay layout update until after rotation animation completes
+      if (layoutTimeout) clearTimeout(layoutTimeout);
+      layoutTimeout = setTimeout(updateLayout, 400); // After ScrollSnap's 300ms + buffer
+    };
+
+    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
+
     // Use matchMedia for orientation changes (more reliable)
     let portraitQuery = null;
     if (window.matchMedia) {
       portraitQuery = window.matchMedia('(orientation: portrait)');
       // Modern browsers
       if (portraitQuery.addEventListener) {
-        portraitQuery.addEventListener('change', updateLayout);
-      } 
+        portraitQuery.addEventListener('change', handleOrientationChange);
+      }
       // Legacy browsers
       else if (portraitQuery.addListener) {
-        portraitQuery.addListener(updateLayout);
+        portraitQuery.addListener(handleOrientationChange);
       }
     }
-    
+
     return () => {
-      window.removeEventListener('resize', updateLayout);
-      window.removeEventListener('orientationchange', updateLayout);
+      if (layoutTimeout) clearTimeout(layoutTimeout);
+      window.removeEventListener('resize', debouncedUpdateLayout);
+      window.removeEventListener('orientationchange', handleOrientationChange);
       if (portraitQuery) {
         if (portraitQuery.removeEventListener) {
-          portraitQuery.removeEventListener('change', updateLayout);
+          portraitQuery.removeEventListener('change', handleOrientationChange);
         } else if (portraitQuery.removeListener) {
-          portraitQuery.removeListener(updateLayout);
+          portraitQuery.removeListener(handleOrientationChange);
         }
       }
     };
