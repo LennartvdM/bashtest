@@ -548,7 +548,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   if (isTabletLayout) {
     const isActive = sectionState === 'active';
     return (
-      <div key={layoutKey} ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424' }}>
+      <div key={layoutKey} ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424', contain: 'layout style paint' }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         {/* Local blurred background for this section */}
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
@@ -655,7 +655,8 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       style={{
         opacity: sectionState === 'idle' || sectionState === 'cleaned' ? 0 : 1,
         transition: 'opacity 0.3s ease',
-        paddingTop: isTabletLayout ? 16 : 0
+        paddingTop: isTabletLayout ? 16 : 0,
+        contain: 'layout style paint'
       }}
     >
       <style>
@@ -761,7 +762,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             }}>
               <VideoManager
                 src={video.video}
-                isPlaying={isActive || shouldAnimate}
+                isPlaying={(isActive || shouldAnimate) && index === currentVideo}
                 className="w-full h-full object-cover"
                 controls={false}
                 preload="auto"
