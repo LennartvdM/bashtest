@@ -316,8 +316,10 @@ const ScrollSnap = ({ children }) => {
           width: '100%',
           WebkitOverflowScrolling: 'touch',
           overscrollBehaviorY: 'none',
+          // scrollPaddingTop tells CSS scroll-snap where to position snapped content
+          // (accounting for fixed navbar). NO paddingTop - sections start at y=0
+          // and extend behind the navbar.
           scrollPaddingTop: 'var(--nav-h, 60px)',
-          paddingTop: 'var(--nav-h, 60px)',
           // CRITICAL: Disable scroll-snap-type during rotation to prevent oscillation
           // This is the CSS-level fix that allows smooth rotation handling
           scrollSnapType: isRotating ? 'none' : 'y mandatory',

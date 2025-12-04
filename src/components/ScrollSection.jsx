@@ -73,7 +73,8 @@ export default function ScrollSection({ name, children, background }) {
         position: 'relative',
         backgroundColor: background || 'transparent',
         overflow: 'hidden',
-        scrollMarginTop: 'var(--nav-h, 60px)',
+        // NO scrollMarginTop - the container's scrollPaddingTop handles navbar offset
+        // Having both would cause double offset
         scrollSnapAlign: 'start', // Enable scroll snapping for this section
         // Performance containment for big sections - prevents layout from affecting siblings
         contain: 'layout paint style',
