@@ -575,15 +575,16 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         {/* Local blurred background for this section */}
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
+        {/* Foreground content wrapper - centered in visible area below navbar */}
         <div style={{
-          paddingTop: 'calc(var(--nav-h, 60px) + 24px)',
+          paddingTop: 'var(--nav-h, 60px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           minHeight: '100dvh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           gap: 24,
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
           position: 'relative',
           zIndex: 1
         }}>
