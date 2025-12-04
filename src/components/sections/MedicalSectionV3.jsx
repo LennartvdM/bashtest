@@ -579,7 +579,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
         <div style={{
           paddingTop: 'var(--nav-h, 60px)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          minHeight: '100dvh',
+          minHeight: 'calc(100dvh - var(--nav-h, 60px))',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
