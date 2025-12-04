@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 
+// Match the timing constant from ScrollSnap.jsx
+const ROTATION_SETTLE_MS = 400;
+
 /**
  * Shared viewport hook that provides consistent viewport state across all components.
  * Prevents layout thrashing by debouncing resize events and providing stable state.
+ * CRITICAL: Respects is-resizing state to prevent state updates during rotation.
  */
 export function useViewport() {
   const [viewportState, setViewportState] = useState(() => {
@@ -15,10 +19,11 @@ export function useViewport() {
         isPortrait: true,
         isLandscape: false,
         aspectRatio: 1,
+        isRotating: false,
       };
     }
 
-    const isTouchDevice = 
+    const isTouchDevice =
       'ontouchstart' in window ||
       navigator.maxTouchPoints > 0 ||
       navigator.msMaxTouchPoints > 0;
@@ -40,6 +45,7 @@ export function useViewport() {
       isPortrait,
       isLandscape: !isPortrait,
       aspectRatio: width > 0 ? width / height : 1,
+      isRotating: false,
     };
   });
 
@@ -49,12 +55,25 @@ export function useViewport() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Helper to check if rotation is in progress
+    const isCurrentlyRotating = () => {
+      return document.documentElement.classList.contains('is-resizing');
+    };
+
     const updateViewport = () => {
+      // CRITICAL: Skip updates during rotation to prevent layout thrashing
+      // The ScrollSnap component manages state during rotation
+      if (isCurrentlyRotating()) {
+        // Just update the isRotating flag
+        setViewportState(prev => prev.isRotating ? prev : { ...prev, isRotating: true });
+        return;
+      }
+
       // Prevent multiple simultaneous updates
       if (isUpdatingRef.current) return;
       isUpdatingRef.current = true;
 
-      const isTouchDevice = 
+      const isTouchDevice =
         'ontouchstart' in window ||
         navigator.maxTouchPoints > 0 ||
         navigator.msMaxTouchPoints > 0;
@@ -76,6 +95,7 @@ export function useViewport() {
         isPortrait,
         isLandscape: !isPortrait,
         aspectRatio: width > 0 ? width / height : 1,
+        isRotating: false,
       });
 
       // Allow next update after a brief delay
@@ -85,19 +105,29 @@ export function useViewport() {
     };
 
     const debouncedUpdate = () => {
+      // Skip if currently rotating - wait for rotation to settle
+      if (isCurrentlyRotating()) {
+        if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+        // Update isRotating state
+        setViewportState(prev => prev.isRotating ? prev : { ...prev, isRotating: true });
+        return;
+      }
+
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
       }
       resizeTimeoutRef.current = setTimeout(updateViewport, 100);
     };
 
-    // Immediate update for orientation changes (critical for stability)
+    // For orientation changes, wait for ScrollSnap's rotation handling to complete
     const handleOrientationChange = () => {
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
       }
-      // Small delay to let browser finish orientation change
-      setTimeout(updateViewport, 50);
+      // Mark as rotating immediately
+      setViewportState(prev => prev.isRotating ? prev : { ...prev, isRotating: true });
+      // Wait for rotation to settle (match ScrollSnap's timing + buffer)
+      resizeTimeoutRef.current = setTimeout(updateViewport, ROTATION_SETTLE_MS + 100);
     };
 
     // Use matchMedia for orientation (more reliable)
