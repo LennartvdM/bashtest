@@ -477,11 +477,12 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
     // Sections now start at y=0 and extend behind the navbar
-    // Center the ENTIRE CONTENT COLLECTION (header + gap + video) in the visible viewport
+    // Center the ENTIRE CONTENT COLLECTION in the visible viewport (below navbar)
     const sectionHeight = window.innerHeight;
     const navH = navbarHeight;
-    // Place content center at section center, offset down by navbar
-    const top = (sectionHeight / 2) - (totalHeight / 2) + navH;
+    // Content center should be at: navH + (sectionHeight - navH) / 2
+    // Simplified: sectionHeight/2 + navH/2
+    const top = (sectionHeight / 2) - (totalHeight / 2) + (navH / 2);
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight, navbarHeight]);
