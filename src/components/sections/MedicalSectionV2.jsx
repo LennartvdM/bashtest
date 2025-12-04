@@ -483,7 +483,8 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     const viewportHeight = window.innerHeight;
     const nav = document.querySelector('nav');
     const navbarHeight = nav ? (nav.getBoundingClientRect().height || 60) : 60;
-    const top = navbarHeight + (viewportHeight - navbarHeight - totalHeight) / 2;
+    // Center the video content (not the entire collection) in the viewport below navbar
+    const top = navbarHeight + (viewportHeight - navbarHeight) / 2 - headerHeight - gap - videoHeight / 2;
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
   }, [headerHeight, gap, videoHeight]);
