@@ -480,14 +480,15 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
 
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
-    const viewportHeight = window.innerHeight;
-    const nav = document.querySelector('nav');
-    const navbarHeight = nav ? (nav.getBoundingClientRect().height || 60) : 60;
-    // Center the video content (not the entire collection) in the viewport below navbar
-    const top = navbarHeight + (viewportHeight - navbarHeight) / 2 - headerHeight - gap - videoHeight / 2;
+    // Get section height (accounts for safe-area insets and actual rendered height)
+    const sectionHeight = sectionRef?.current?.clientHeight || window.innerHeight;
+    // Center the video/content (not the entire collection) within the section
+    // This positions content independently of scroll direction or viewport offset
+    // Formula: place video center at section center
+    const top = (sectionHeight / 2) - (videoHeight / 2) - headerHeight - gap;
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
-  }, [headerHeight, gap, videoHeight]);
+  }, [headerHeight, gap, videoHeight, sectionRef]);
 
   // Measure video container position and size for SVG
   useLayoutEffect(() => {
