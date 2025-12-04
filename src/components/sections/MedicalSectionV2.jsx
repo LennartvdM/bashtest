@@ -197,40 +197,63 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     borderRadius: '16px',
     boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
   };
+  // Match the timing constant from ScrollSnap.jsx
+  const ROTATION_SETTLE_MS = 400;
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let layoutTimeout = null;
+    let isWaitingForRotation = false;
 
     const updateLayout = () => {
       // CRITICAL: Don't update layout during rotation to prevent thrashing
       // Wait for ScrollSnap to complete its rotation handling first
       if (document.documentElement.classList.contains('is-resizing')) {
+        // Schedule a retry after rotation settles
+        if (!isWaitingForRotation) {
+          isWaitingForRotation = true;
+          if (layoutTimeout) clearTimeout(layoutTimeout);
+          layoutTimeout = setTimeout(() => {
+            isWaitingForRotation = false;
+            updateLayout();
+          }, ROTATION_SETTLE_MS + 150); // After ScrollSnap's settle + buffer
+        }
         return;
       }
 
+      isWaitingForRotation = false;
       const layout = detectLayout(isTouchDevice);
-      setIsTabletLayout(layout.isTablet);
-      setIsLandscapeTablet(layout.isLandscapeTablet);
+
+      // Only update state if values actually changed (prevents unnecessary re-renders)
+      setIsTabletLayout(prev => prev === layout.isTablet ? prev : layout.isTablet);
+      setIsLandscapeTablet(prev => prev === layout.isLandscapeTablet ? prev : layout.isLandscapeTablet);
     };
 
     // Debounced version to prevent rapid-fire updates
     const debouncedUpdateLayout = () => {
+      // Skip entirely if rotating - the orientation handler will catch it
+      if (document.documentElement.classList.contains('is-resizing')) {
+        return;
+      }
       if (layoutTimeout) clearTimeout(layoutTimeout);
       layoutTimeout = setTimeout(updateLayout, 150);
     };
 
-    // Initial check
-    updateLayout();
+    // Initial check (skip if already rotating)
+    if (!document.documentElement.classList.contains('is-resizing')) {
+      updateLayout();
+    }
 
     // Use debounced handler for resize events to reduce thrashing
     window.addEventListener('resize', debouncedUpdateLayout, { passive: true });
 
-    // For orientation changes, wait for the transition to complete
+    // For orientation changes, wait for ScrollSnap's rotation to fully complete
     const handleOrientationChange = () => {
-      // Delay layout update until after rotation animation completes
+      // Cancel any pending updates
       if (layoutTimeout) clearTimeout(layoutTimeout);
-      layoutTimeout = setTimeout(updateLayout, 400); // After ScrollSnap's 300ms + buffer
+      // Wait for ScrollSnap's rotation handling to complete + extra buffer
+      layoutTimeout = setTimeout(updateLayout, ROTATION_SETTLE_MS + 150);
     };
 
     window.addEventListener('orientationchange', handleOrientationChange, { passive: true });

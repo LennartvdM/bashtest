@@ -156,18 +156,29 @@ body::-webkit-scrollbar {
 }
 
 /* Tablet rotation handling: disable scroll snap during resize */
+/* Note: scroll-snap-type is now controlled via React state in ScrollSnap.jsx */
+/* This selector catches any remaining inline scroll-snap-type declarations */
 html.is-resizing [style*="scroll-snap-type"] {
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* Also target the scroll container by data attribute during rotation */
+html.is-resizing [data-rotating="true"] {
   scroll-snap-type: none !important;
   scroll-behavior: auto !important;
 }
 
 /* CRITICAL: Freeze all section dimensions during rotation to prevent layout thrashing */
 /* This "defends" the segments of the vertical stack */
+/* KEY FIX: Use --frozen-viewport-height which stores the PRE-rotation height,
+   not --app-viewport-height which changes during rotation */
 html.is-resizing section[id] {
-  /* Lock dimensions - prevent any flex/resize during rotation */
-  min-height: var(--app-viewport-height, 100dvh) !important;
-  height: var(--app-viewport-height, 100dvh) !important;
-  max-height: var(--app-viewport-height, 100dvh) !important;
+  /* Lock dimensions to FROZEN height - this is the key fix!
+     --frozen-viewport-height is set at rotation START and doesn't change until rotation ENDS */
+  min-height: var(--frozen-viewport-height, var(--app-viewport-height, 100dvh)) !important;
+  height: var(--frozen-viewport-height, var(--app-viewport-height, 100dvh)) !important;
+  max-height: var(--frozen-viewport-height, var(--app-viewport-height, 100dvh)) !important;
   flex-shrink: 0 !important;
   flex-grow: 0 !important;
 
@@ -176,10 +187,14 @@ html.is-resizing section[id] {
   animation: none !important;
 
   /* Force containment to prevent layout from affecting other sections */
-  contain: layout paint style !important;
+  contain: strict !important;
 
   /* Prevent any overflow changes that might trigger reflow */
   overflow: hidden !important;
+
+  /* Force GPU layer to prevent paint thrashing */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Also freeze child elements to prevent cascading layout changes */
@@ -187,4 +202,9 @@ html.is-resizing section[id] * {
   /* Disable transitions on all descendants during rotation */
   transition: none !important;
   animation: none !important;
+}
+
+/* Prevent any scroll container height changes during rotation */
+html.is-resizing .overflow-y-auto {
+  height: var(--frozen-viewport-height, var(--app-viewport-height, 100svh)) !important;
 }
