@@ -476,15 +476,14 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
 
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
-    // Get section height (accounts for safe-area insets and actual rendered height)
-    const sectionHeight = sectionRef?.current?.clientHeight || window.innerHeight;
-    // Center the video/content (not the entire collection) within the section
-    // This positions content independently of scroll direction or viewport offset
-    // Formula: place video center at section center
+    // Desktop sections are 100vh tall (h-screen class)
+    // Center video within that fixed height - no viewport or navbar offset needed
+    // since scroll-snap handles section positioning relative to viewport
+    const sectionHeight = window.innerHeight;
     const top = (sectionHeight / 2) - (videoHeight / 2) - headerHeight - gap;
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
-  }, [headerHeight, gap, videoHeight, sectionRef]);
+  }, [headerHeight, gap, videoHeight]);
 
   // Measure video container position and size for SVG
   useLayoutEffect(() => {
