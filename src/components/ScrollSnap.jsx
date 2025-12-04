@@ -37,9 +37,10 @@ const ScrollSnap = ({ children }) => {
     const activeSection = sectionsRef.current[currentIndexRef.current];
     if (!container || !activeSection) return;
 
-    const destination = activeSection.offsetTop - navHeight();
+    // Sections now start at y=0, no navbar offset needed
+    const destination = activeSection.offsetTop;
     container.scrollTo({ top: destination, behavior: 'auto' });
-  }, [navHeight]);
+  }, []);
 
   const refreshSections = useCallback(() => {
     const container = containerRef.current;
@@ -68,10 +69,11 @@ const ScrollSnap = ({ children }) => {
 
       setCurrentIndex(clamped);
       currentIndexRef.current = clamped;
-      const destination = target.offsetTop - navHeight();
+      // Sections now start at y=0, no navbar offset needed
+      const destination = target.offsetTop;
       container.scrollTo({ top: destination, behavior: 'auto' });
     },
-    [navHeight]
+    []
   );
 
   // UNIFIED rotation/resize handler - single source of truth for scroll preservation
@@ -205,27 +207,26 @@ const ScrollSnap = ({ children }) => {
     const onScroll = () => {
       // Don't update during resize/orientation changes
       if (isResizingRef.current) return;
-      
+
       // Determine which discrete section (0-4) is most visible
       // Use viewport center to determine the active section
-      const offset = container.scrollTop + navHeight();
       const viewportCenter = container.scrollTop + (container.clientHeight / 2);
-      
+
       let closestIndex = 0;
       let closestDistance = Infinity;
-      
+
       sectionsRef.current.forEach((section, idx) => {
         if (!section) return;
         const sectionTop = section.offsetTop;
         const sectionCenter = sectionTop + (section.offsetHeight / 2);
         const distance = Math.abs(viewportCenter - sectionCenter);
-        
+
         if (distance < closestDistance) {
           closestDistance = distance;
           closestIndex = idx;
         }
       });
-      
+
       // Only update if we've actually changed sections (discrete state change)
       if (closestIndex !== currentIndexRef.current) {
         setCurrentIndex(closestIndex);
@@ -235,7 +236,7 @@ const ScrollSnap = ({ children }) => {
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll, { passive: true });
-  }, [children, navHeight, refreshSections]);
+  }, [children, refreshSections]);
 
   useEffect(() => {
     const restoreSection = () => {
@@ -245,7 +246,8 @@ const ScrollSnap = ({ children }) => {
       const target = document.getElementById(savedId);
       const container = containerRef.current;
       if (target && container) {
-        const destination = target.offsetTop - navHeight();
+        // Sections now start at y=0, no navbar offset needed
+        const destination = target.offsetTop;
         container.scrollTo({ top: destination, behavior: 'auto' });
         const idx = sectionsRef.current.findIndex((section) => section?.id === savedId);
         if (idx >= 0) {
@@ -260,7 +262,7 @@ const ScrollSnap = ({ children }) => {
     // Delay restoration to ensure layout has stabilized
     const id = window.setTimeout(restoreSection, 0);
     return () => window.clearTimeout(id);
-  }, [navHeight]);
+  }, []);
 
   // Initial viewport height setup only - resize is handled by unified rotation handler
   useEffect(() => {
@@ -316,10 +318,8 @@ const ScrollSnap = ({ children }) => {
           width: '100%',
           WebkitOverflowScrolling: 'touch',
           overscrollBehaviorY: 'none',
-          // scrollPaddingTop tells CSS scroll-snap where to position snapped content
-          // (accounting for fixed navbar). NO paddingTop - sections start at y=0
-          // and extend behind the navbar.
-          scrollPaddingTop: 'var(--nav-h, 60px)',
+          // NO scrollPaddingTop - sections start at y=0 consistently
+          // Content within sections must account for navbar offset
           // CRITICAL: Disable scroll-snap-type during rotation to prevent oscillation
           // This is the CSS-level fix that allows smooth rotation handling
           scrollSnapType: isRotating ? 'none' : 'y mandatory',
