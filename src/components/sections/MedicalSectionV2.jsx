@@ -127,9 +127,12 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
     isTouchDevice,
   } = useTabletLayout();
 
-  // Map to legacy variable names for compatibility
-  const isTabletLayout = isTabletPortrait || isTabletLandscape; // Unified tablet (both orientations)
-  const isLandscapeTablet = isTabletLandscape; // For touch-specific handlers
+  // Layout modes:
+  // - Portrait tablet: vertical stack layout (simplified)
+  // - Landscape tablet: horizontal desktop-like layout with touch handlers
+  // - Desktop: horizontal layout with hover handlers
+  const isTabletLayout = isTabletPortrait; // Only portrait uses vertical tablet layout
+  const isLandscapeTablet = isTabletLandscape; // Landscape uses desktop layout with touch
 
   // Portrait tablet: touch device in portrait orientation
   // Landscape tablet: touch device in landscape orientation  
