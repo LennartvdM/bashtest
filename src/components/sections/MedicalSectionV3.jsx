@@ -197,40 +197,63 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     borderRadius: '16px',
     boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
   };
+  // Match the timing constant from ScrollSnap.jsx
+  const ROTATION_SETTLE_MS = 400;
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let layoutTimeout = null;
+    let isWaitingForRotation = false;
 
     const updateLayout = () => {
       // CRITICAL: Don't update layout during rotation to prevent thrashing
       // Wait for ScrollSnap to complete its rotation handling first
       if (document.documentElement.classList.contains('is-resizing')) {
+        // Schedule a retry after rotation settles
+        if (!isWaitingForRotation) {
+          isWaitingForRotation = true;
+          if (layoutTimeout) clearTimeout(layoutTimeout);
+          layoutTimeout = setTimeout(() => {
+            isWaitingForRotation = false;
+            updateLayout();
+          }, ROTATION_SETTLE_MS + 150); // After ScrollSnap's settle + buffer
+        }
         return;
       }
 
+      isWaitingForRotation = false;
       const layout = detectLayout(isTouchDevice);
-      setIsTabletLayout(layout.isTablet);
-      setIsLandscapeTablet(layout.isLandscapeTablet);
+
+      // Only update state if values actually changed (prevents unnecessary re-renders)
+      setIsTabletLayout(prev => prev === layout.isTablet ? prev : layout.isTablet);
+      setIsLandscapeTablet(prev => prev === layout.isLandscapeTablet ? prev : layout.isLandscapeTablet);
     };
 
     // Debounced version to prevent rapid-fire updates
     const debouncedUpdateLayout = () => {
+      // Skip entirely if rotating - the orientation handler will catch it
+      if (document.documentElement.classList.contains('is-resizing')) {
+        return;
+      }
       if (layoutTimeout) clearTimeout(layoutTimeout);
       layoutTimeout = setTimeout(updateLayout, 150);
     };
 
-    // Initial check
-    updateLayout();
+    // Initial check (skip if already rotating)
+    if (!document.documentElement.classList.contains('is-resizing')) {
+      updateLayout();
+    }
 
     // Use debounced handler for resize events to reduce thrashing
     window.addEventListener('resize', debouncedUpdateLayout, { passive: true });
 
-    // For orientation changes, wait for the transition to complete
+    // For orientation changes, wait for ScrollSnap's rotation to fully complete
     const handleOrientationChange = () => {
-      // Delay layout update until after rotation animation completes
+      // Cancel any pending updates
       if (layoutTimeout) clearTimeout(layoutTimeout);
-      layoutTimeout = setTimeout(updateLayout, 400); // After ScrollSnap's 300ms + buffer
+      // Wait for ScrollSnap's rotation handling to complete + extra buffer
+      layoutTimeout = setTimeout(updateLayout, ROTATION_SETTLE_MS + 150);
     };
 
     window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
@@ -453,13 +476,16 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
 
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
-    const viewportHeight = window.innerHeight;
-    const nav = document.querySelector('nav');
-    const navbarHeight = nav ? (nav.getBoundingClientRect().height || 60) : 60;
-    const top = navbarHeight + (viewportHeight - navbarHeight - totalHeight) / 2;
+    // Sections now start at y=0 and extend behind the navbar
+    // Center the ENTIRE CONTENT COLLECTION in the visible viewport (below navbar)
+    const sectionHeight = window.innerHeight;
+    const navH = navbarHeight;
+    // Content center should be at: navH + (sectionHeight - navH) / 2
+    // Simplified: sectionHeight/2 + navH/2
+    const top = (sectionHeight / 2) - (totalHeight / 2) + (navH / 2);
     setCollectionTop(`${top}px`);
     setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
-  }, [headerHeight, gap, videoHeight]);
+  }, [headerHeight, gap, videoHeight, navbarHeight]);
 
   // Measure video container position and size for SVG
   useLayoutEffect(() => {
@@ -548,19 +574,20 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   if (isTabletLayout) {
     const isActive = sectionState === 'active';
     return (
-      <div key={layoutKey} ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424' }}>
+      <div key={layoutKey} ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424', contain: 'layout style paint' }}>
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         {/* Local blurred background for this section */}
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
+        {/* Foreground content wrapper - centered in visible area below navbar */}
         <div style={{
-          paddingTop: 'calc(var(--nav-h, 60px) + 24px)',
-          minHeight: '100dvh',
+          paddingTop: 'var(--nav-h, 60px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          minHeight: 'calc(100dvh - var(--nav-h, 60px))',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           gap: 24,
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
           position: 'relative',
           zIndex: 1
         }}>
@@ -655,7 +682,8 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       style={{
         opacity: sectionState === 'idle' || sectionState === 'cleaned' ? 0 : 1,
         transition: 'opacity 0.3s ease',
-        paddingTop: isTabletLayout ? 16 : 0
+        paddingTop: isTabletLayout ? 16 : 0,
+        contain: 'layout style paint'
       }}
     >
       <style>
@@ -761,7 +789,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
             }}>
               <VideoManager
                 src={video.video}
-                isPlaying={isActive || shouldAnimate}
+                isPlaying={(isActive || shouldAnimate) && index === currentVideo}
                 className="w-full h-full object-cover"
                 controls={false}
                 preload="auto"

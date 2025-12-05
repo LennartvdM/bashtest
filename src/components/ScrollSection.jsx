@@ -57,8 +57,9 @@ export default function ScrollSection({ name, children, background }) {
 
   // CRITICAL: Lock all three height properties to identical values to "defend" section dimensions
   // This prevents layout thrashing during rotation by eliminating conflicting constraints
-  // Use app-viewport-height (set by ScrollSnap) which is stable during rotation
-  const lockedHeight = 'var(--app-viewport-height, 100dvh)';
+  // During rotation, use --frozen-viewport-height (set at rotation START, doesn't change)
+  // After rotation, use --app-viewport-height (updated to new post-rotation value)
+  const lockedHeight = 'var(--frozen-viewport-height, var(--app-viewport-height, 100dvh))';
 
   return (
     <section
@@ -72,7 +73,9 @@ export default function ScrollSection({ name, children, background }) {
         position: 'relative',
         backgroundColor: background || 'transparent',
         overflow: 'hidden',
-        scrollMarginTop: 'var(--nav-h, 60px)',
+        // NO scrollMarginTop - the container's scrollPaddingTop handles navbar offset
+        // Having both would cause double offset
+        scrollSnapAlign: 'start', // Enable scroll snapping for this section
         // Performance containment for big sections - prevents layout from affecting siblings
         contain: 'layout paint style',
         // Safe area insets for notched devices

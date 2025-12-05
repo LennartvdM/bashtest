@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 
 /**
  * TabletBlurBackground
@@ -8,8 +8,24 @@ import React from "react";
  *   - current: number (active idx),
  *   - fadeDuration (optional): seconds, default 1.2
  * Usage: placed as absolute full-background for each MedicalSection.
+ *
+ * Performance: Only current video plays; adjacent videos stay paused but buffered
+ * for instant transitions. This reduces decode workload by ~66% on low-power devices.
  */
 const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2 }) => {
+  const videoRefs = useRef([null, null, null]);
+
+  // Pause/play videos based on visibility - keeps them buffered but saves decode cycles
+  useEffect(() => {
+    videoRefs.current.forEach((video, idx) => {
+      if (!video) return;
+      if (idx === current) {
+        video.play().catch(() => {}); // Catch autoplay policy errors silently
+      } else {
+        video.pause();
+      }
+    });
+  }, [current]);
   // Guarantee 3 videos
   const bg = [
     blurVideos[0] || {},
@@ -24,7 +40,7 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
   // Parent sections use overflow hidden, so this extra size will not affect layout.
   // Use calc(100dvh + 12vh) to maintain 6vh bleed on top and bottom
   return (
-    <div style={{ position: 'absolute', top: '-6vh', left: 0, width: '100%', height: 'calc(100dvh + 12vh)', zIndex: 0, pointerEvents: 'none' }}>
+    <div style={{ position: 'absolute', top: '-6vh', left: 0, width: '100%', height: 'calc(100dvh + 12vh)', zIndex: 0, pointerEvents: 'none', contain: 'layout style paint' }}>
       {[2, 1, 0].map(i => (
         <div
           key={bg[i].id || i}
@@ -35,11 +51,13 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
             opacity: getOpacity(i),
             pointerEvents: 'none',
             transition: `opacity ${fadeDuration}s cubic-bezier(0.4,0,0.2,1)`,
+            willChange: 'opacity',
             filter: 'none',
             overflow: 'hidden',
           }}
         >
           <video
+            ref={el => { videoRefs.current[i] = el; }}
             src={bg[i].video}
             style={{ width: '100%', minHeight: '100%', minWidth: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
             autoPlay
