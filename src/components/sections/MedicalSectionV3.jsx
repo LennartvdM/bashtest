@@ -484,7 +484,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
       <div
         key={layoutKey}
         ref={sectionRef}
-        className="w-full relative overflow-hidden"
+        className="w-full h-screen relative overflow-hidden"
         style={{
           background: '#1c3424',
           contain: 'layout style paint',
@@ -990,7 +990,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                       transform: 'translateY(-50%)',
                       transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), right 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       opacity: 0.2,
-                      display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
+                      display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                     }}
                   />
                   {/* Targeting outline container */}
@@ -1005,7 +1005,7 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
                       zIndex: 5,
                       pointerEvents: 'none',
                       transition: shouldTransition ? 'all 700ms ease' : 'none',
-                      display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
+                      display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                     }}
                   >
                     {/* Targeting outline */}
