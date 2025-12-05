@@ -107,15 +107,6 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
   const SLIDE_TRANSITION = 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease, outline 0.2s ease';
 
-  // Band and cutout dimensions
-  const bandWidth = 900;
-  const bandHeight = 320;
-  const cutoutWidth = 480;
-  const cutoutHeight = 320;
-  const cornerRadius = 16;
-  const gap = 32;
-  const videoHeight = 320;
-
   // Use unified tablet layout hook for stable layout detection during rotation
   const {
     mode: layoutMode,
@@ -134,6 +125,16 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const isTabletLayout = isTabletPortrait; // Only portrait uses vertical tablet layout
   const isLandscapeTablet = isTabletLandscape; // Landscape uses desktop layout with touch
 
+  // Band and cutout dimensions - scale down for landscape tablet
+  const landscapeScale = isLandscapeTablet ? 0.7 : 1;
+  const bandWidth = 900 * landscapeScale;
+  const bandHeight = 320 * landscapeScale;
+  const cutoutWidth = 480 * landscapeScale;
+  const cutoutHeight = 320 * landscapeScale;
+  const cornerRadius = 16;
+  const gap = 32 * landscapeScale;
+  const videoHeight = 320 * landscapeScale;
+
   // Portrait tablet: touch device in portrait orientation
   // Landscape tablet: touch device in landscape orientation  
   // Desktop: not a touch device or outside tablet dimensions
@@ -141,7 +142,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
   const isDesktopLayout = !isTabletLayout && !isLandscapeTablet;
 
   const videoContainerWidth = isTabletLayout ? 'min(480px, 90vw)' : 480;
-  const captionContainerWidth = isTabletLayout ? 'min(520px, 90vw)' : 444;
+  const captionContainerWidth = isTabletLayout ? 'min(520px, 90vw)' : (isLandscapeTablet ? 320 : 444);
   const videoOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(-200px)';
   const captionOffscreenTransform = isTabletLayout ? 'translateY(200px)' : 'translateX(200px)';
   const TABLET_AUTOPLAY_MS = 7000;
@@ -1192,19 +1193,19 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
         className="header-frame"
         style={{
           position: 'absolute',
-          right: 'calc(50% + 20px)',
+          right: `calc(50% + ${gap / 2}px)`,
           top: collectionTop,
-          width: 480,
+          width: cutoutWidth,
           background: 'none',
           zIndex: 20,
           transition: shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none',
           opacity: headerVisible ? 1 : 0,
         }}
       >
-        <div style={{ width: 480, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
+        <div style={{ width: cutoutWidth, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
           <h2 style={{
             fontFamily: 'Inter, sans-serif',
-            fontSize: 48,
+            fontSize: isLandscapeTablet ? 32 : 48,
             fontWeight: 700,
             letterSpacing: -2,
             lineHeight: 1.2,
