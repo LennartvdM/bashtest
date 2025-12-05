@@ -9,6 +9,7 @@ import VideoManager from '../VideoManager';
 import TabletTravellingBar from '../TabletTravellingBar';
 import TabletBlurBackground from '../TabletBlurBackground';
 import AutoFitHeading from '../AutoFitHeading';
+import { useTabletLayout } from '../../hooks/useTabletLayout';
 
 const blurVideos = [
   { id: "0", video: "/videos/blursskills.mp4", alt: "Blurred skills demonstration" },
@@ -114,47 +115,21 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
   const cornerRadius = 16;
   const gap = 32;
   const videoHeight = 320;
-  // Detect touch device
-  const isTouchDevice = typeof window !== 'undefined' && (
-    'ontouchstart' in window ||
-    navigator.maxTouchPoints > 0 ||
-    navigator.msMaxTouchPoints > 0
-  );
 
-  // Helper function to detect layout based on dimensions and orientation
-  const detectLayout = (touchDevice) => {
-    if (typeof window === 'undefined') return { isTablet: false, isLandscapeTablet: false };
-    
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const isPortrait = height > width;
-    
-    // Use orientation API if available, otherwise use aspect ratio
-    let isPortraitOrientation = isPortrait;
-    if (window.matchMedia) {
-      const portraitQuery = window.matchMedia('(orientation: portrait)');
-      isPortraitOrientation = portraitQuery.matches;
-    }
-    
-    // Tablet detection: touch device with reasonable tablet dimensions
-    // iPads range from 768px to 1366px in various orientations
-    const isTabletDevice = touchDevice && width >= 600 && width <= 1400;
-    
-    if (!isTabletDevice) {
-      return { isTablet: false, isLandscapeTablet: false };
-    }
-    
-    // Portrait tablet: touch device in portrait orientation
-    // Landscape tablet: touch device in landscape orientation
-    return {
-      isTablet: isPortraitOrientation,
-      isLandscapeTablet: !isPortraitOrientation
-    };
-  };
+  // Use unified tablet layout hook for stable layout detection during rotation
+  const {
+    mode: layoutMode,
+    isDesktop,
+    isTabletPortrait,
+    isTabletLandscape,
+    isTablet,
+    isRotating,
+    isTouchDevice,
+  } = useTabletLayout();
 
-  const initialLayout = detectLayout(isTouchDevice);
-  const [isTabletLayout, setIsTabletLayout] = useState(initialLayout.isTablet);
-  const [isLandscapeTablet, setIsLandscapeTablet] = useState(initialLayout.isLandscapeTablet);
+  // Map to legacy variable names for compatibility
+  const isTabletLayout = isTabletPortrait || isTabletLandscape; // Unified tablet (both orientations)
+  const isLandscapeTablet = isTabletLandscape; // For touch-specific handlers
 
   // Portrait tablet: touch device in portrait orientation
   // Landscape tablet: touch device in landscape orientation  
@@ -197,94 +172,8 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     borderRadius: '16px',
     boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
   };
-  // Match the timing constant from ScrollSnap.jsx
-  const ROTATION_SETTLE_MS = 400;
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    let layoutTimeout = null;
-    let isWaitingForRotation = false;
-
-    const updateLayout = () => {
-      // CRITICAL: Don't update layout during rotation to prevent thrashing
-      // Wait for ScrollSnap to complete its rotation handling first
-      if (document.documentElement.classList.contains('is-resizing')) {
-        // Schedule a retry after rotation settles
-        if (!isWaitingForRotation) {
-          isWaitingForRotation = true;
-          if (layoutTimeout) clearTimeout(layoutTimeout);
-          layoutTimeout = setTimeout(() => {
-            isWaitingForRotation = false;
-            updateLayout();
-          }, ROTATION_SETTLE_MS + 150); // After ScrollSnap's settle + buffer
-        }
-        return;
-      }
-
-      isWaitingForRotation = false;
-      const layout = detectLayout(isTouchDevice);
-
-      // Only update state if values actually changed (prevents unnecessary re-renders)
-      setIsTabletLayout(prev => prev === layout.isTablet ? prev : layout.isTablet);
-      setIsLandscapeTablet(prev => prev === layout.isLandscapeTablet ? prev : layout.isLandscapeTablet);
-    };
-
-    // Debounced version to prevent rapid-fire updates
-    const debouncedUpdateLayout = () => {
-      // Skip entirely if rotating - the orientation handler will catch it
-      if (document.documentElement.classList.contains('is-resizing')) {
-        return;
-      }
-      if (layoutTimeout) clearTimeout(layoutTimeout);
-      layoutTimeout = setTimeout(updateLayout, 150);
-    };
-
-    // Initial check (skip if already rotating)
-    if (!document.documentElement.classList.contains('is-resizing')) {
-      updateLayout();
-    }
-
-    // Use debounced handler for resize events to reduce thrashing
-    window.addEventListener('resize', debouncedUpdateLayout, { passive: true });
-
-    // For orientation changes, wait for ScrollSnap's rotation to fully complete
-    const handleOrientationChange = () => {
-      // Cancel any pending updates
-      if (layoutTimeout) clearTimeout(layoutTimeout);
-      // Wait for ScrollSnap's rotation handling to complete + extra buffer
-      layoutTimeout = setTimeout(updateLayout, ROTATION_SETTLE_MS + 150);
-    };
-
-    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
-
-    // Use matchMedia for orientation changes (more reliable)
-    let portraitQuery = null;
-    if (window.matchMedia) {
-      portraitQuery = window.matchMedia('(orientation: portrait)');
-      // Modern browsers
-      if (portraitQuery.addEventListener) {
-        portraitQuery.addEventListener('change', handleOrientationChange);
-      }
-      // Legacy browsers
-      else if (portraitQuery.addListener) {
-        portraitQuery.addListener(handleOrientationChange);
-      }
-    }
-
-    return () => {
-      if (layoutTimeout) clearTimeout(layoutTimeout);
-      window.removeEventListener('resize', debouncedUpdateLayout);
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      if (portraitQuery) {
-        if (portraitQuery.removeEventListener) {
-          portraitQuery.removeEventListener('change', handleOrientationChange);
-        } else if (portraitQuery.removeListener) {
-          portraitQuery.removeListener(handleOrientationChange);
-        }
-      }
-    };
-  }, [isTouchDevice]);
+  // Layout detection is now handled by useTabletLayout hook
+  // The hook provides stable values during rotation to prevent thrashing
 
   // Listen for gentle preload request from previous section
   useEffect(() => {
@@ -570,15 +459,40 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
     }
   };
 
-  // Tablet Portrait: simplified render path
+  // Unified Tablet Layout (Portrait & Landscape)
+  // Uses CSS Grid that adapts smoothly during rotation
   if (isTabletLayout) {
     const isActive = sectionState === 'active';
+    // During rotation, disable all transitions for smooth experience
+    const transitionsDisabled = disableTransitions || isRotating;
+
+    // Responsive sizing based on orientation
+    // Portrait: taller viewport, use height-based sizing
+    // Landscape: wider viewport, constrain width more
+    const contentWidth = isTabletLandscape
+      ? 'min(75vw, 520px)' // Landscape: narrower to leave room
+      : 'min(92vw, clamp(260px, 60vh, 480px))'; // Portrait: use more width
+    const captionWidth = isTabletLandscape
+      ? 'min(75vw, 520px)'
+      : 'min(520px, 90vw)';
+    const contentGap = isTabletLandscape ? 16 : 24;
+
     return (
-      <div key={layoutKey} ref={sectionRef} className="w-full relative overflow-hidden" style={{ background: '#1c3424', contain: 'layout style paint' }}>
+      <div
+        key={layoutKey}
+        ref={sectionRef}
+        className="w-full relative overflow-hidden"
+        style={{
+          background: '#1c3424',
+          contain: 'layout style paint',
+          // Smooth transition when NOT rotating
+          transition: isRotating ? 'none' : 'all 0.3s ease-out',
+        }}
+      >
         <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
-        {/* Local blurred background for this section */}
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
-        {/* Foreground content wrapper - centered in visible area below navbar */}
+
+        {/* Foreground content wrapper - CSS Grid for smooth orientation adaptation */}
         <div style={{
           paddingTop: 'var(--nav-h, 60px)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -587,88 +501,99 @@ const MedicalSectionV3 = ({ inView, sectionRef }) => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 24,
+          gap: contentGap,
           position: 'relative',
-          zIndex: 1
+          zIndex: 1,
+          // Smooth gap/sizing transition (disabled during rotation)
+          transition: isRotating ? 'none' : 'gap 0.3s ease-out',
         }}>
-        <div style={{
-          width: 'min(92vw, clamp(260px, 60vh, 480px))',
-          margin: '0 auto',
-          textAlign: 'left',
-          opacity: headerVisible ? 1 : 0,
-          transition: disableTransitions ? 'none' : (shouldTransition ? (headerVisible ? 'opacity 2.25s ease' : 'none') : 'none')
-        }}>
-          <div style={{ width: '70%', margin: 0 }}>
-            <AutoFitHeading
-              lines={[
-              'Yet, reflection',
-                'strengthens',
-                'the next'
-              ]}
-              minPx={26}
-              maxPx={44}
-              lineHeight={1.2}
-            lineAligns={['left','left','left','left']}
-            visible={headerVisible}
-            commaStagger
-            staggerDelayMs={1125}
-            postGroupStartIndex={0}
-            afterCommaStyle={{ color: '#3fd1c7' }}
-            />
-          </div>
-        </div>
-        <div style={{ width: 'min(92vw, clamp(260px, 60vh, 480px))' }}>
+
+          {/* Header */}
           <div style={{
-            width: '100%',
-            aspectRatio: '3 / 2',
-            borderRadius: 16,
-            overflow: 'hidden',
-            position: 'relative',
-            opacity: videoVisible ? 1 : 0,
-            transition: disableTransitions ? 'none' : (videoVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
-            transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform
+            width: contentWidth,
+            margin: '0 auto',
+            textAlign: 'left',
+            opacity: headerVisible ? 1 : 0,
+            transition: transitionsDisabled ? 'none' : (shouldTransition ? 'opacity 2.25s ease, width 0.3s ease-out' : 'width 0.3s ease-out'),
           }}>
-            <TabletMedicalCarousel
-              videos={mainVideos}
-              current={currentVideo}
-              onChange={(idx) => {
-                console.log('[Tablet V3] onChange to', idx);
-                setCurrentVideo(idx);
-                setIsPaused(true);
-                setBarKey((k) => k + 1);
-              }}
-              onPauseChange={(p) => setIsPaused(!!p)}
-              style={{ width: '100%', height: '100%' }}
-            />
-            
-            {/* Progress moved to active caption highlight */}
+            <div style={{ width: '70%', margin: 0 }}>
+              <AutoFitHeading
+                lines={[
+                  'Yet, reflection',
+                  'strengthens',
+                  'the next'
+                ]}
+                minPx={isTabletLandscape ? 22 : 26}
+                maxPx={isTabletLandscape ? 36 : 44}
+                lineHeight={1.2}
+                lineAligns={['left','left','left','left']}
+                visible={headerVisible}
+                commaStagger
+                staggerDelayMs={1125}
+                postGroupStartIndex={0}
+                afterCommaStyle={{ color: '#3fd1c7' }}
+              />
+            </div>
           </div>
-        </div>
-        <div style={{
-          width: 'min(520px, 90vw)',
-          margin: '0 auto',
-          textAlign: 'center',
-          position: 'relative',
-          opacity: captionsVisible ? 1 : 0,
-          transition: disableTransitions ? 'none' : (captionsVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
-          transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform
-        }}>
-          <TabletTravellingBar
-            captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
-            current={currentVideo}
-            onSelect={i => {
-              setCurrentVideo(i);
-              setIsPaused(true);
-              setBarKey(k => k + 1);
-              setTimeout(() => setIsPaused(false), 100);
-            }}
-            style={{ margin: '0 auto', background: 'none' }}
-            durationMs={TABLET_AUTOPLAY_MS}
-            paused={isPaused}
-            animationKey={barKey}
-          />
-          
-        </div>
+
+          {/* Video Container */}
+          <div style={{
+            width: contentWidth,
+            transition: isRotating ? 'none' : 'width 0.3s ease-out',
+          }}>
+            <div style={{
+              width: '100%',
+              aspectRatio: '3 / 2',
+              borderRadius: 16,
+              overflow: 'hidden',
+              position: 'relative',
+              opacity: videoVisible ? 1 : 0,
+              transition: transitionsDisabled
+                ? 'none'
+                : (videoVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1)' : 'none'),
+              transform: videoVisible ? 'translate3d(0,0,0)' : videoOffscreenTransform,
+            }}>
+              <TabletMedicalCarousel
+                videos={mainVideos}
+                current={currentVideo}
+                onChange={(idx) => {
+                  setCurrentVideo(idx);
+                  setIsPaused(true);
+                  setBarKey((k) => k + 1);
+                }}
+                onPauseChange={(p) => setIsPaused(!!p)}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </div>
+          </div>
+
+          {/* Captions */}
+          <div style={{
+            width: captionWidth,
+            margin: '0 auto',
+            textAlign: 'center',
+            position: 'relative',
+            opacity: captionsVisible ? 1 : 0,
+            transition: transitionsDisabled
+              ? 'none'
+              : (captionsVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1), width 0.3s ease-out' : 'width 0.3s ease-out'),
+            transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
+          }}>
+            <TabletTravellingBar
+              captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
+              current={currentVideo}
+              onSelect={i => {
+                setCurrentVideo(i);
+                setIsPaused(true);
+                setBarKey(k => k + 1);
+                setTimeout(() => setIsPaused(false), 100);
+              }}
+              style={{ margin: '0 auto', background: 'none' }}
+              durationMs={TABLET_AUTOPLAY_MS}
+              paused={isPaused}
+              animationKey={barKey}
+            />
+          </div>
         </div>
       </div>
     );

@@ -208,3 +208,29 @@ html.is-resizing section[id] * {
 html.is-resizing .overflow-y-auto {
   height: var(--frozen-viewport-height, var(--app-viewport-height, 100svh)) !important;
 }
+
+/* Tablet rotation: smooth content transitions AFTER rotation settles */
+/* When rotation ends, these elements get smooth transitions applied */
+.tablet-content-transition {
+  transition: width 0.3s ease-out, gap 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* During rotation, disable ALL transitions for instant layout */
+html.is-resizing .tablet-content-transition {
+  transition: none !important;
+}
+
+/* Tablet-specific: ensure content doesn't overflow during rotation */
+html.is-resizing [data-tablet-layout="true"] {
+  overflow: hidden !important;
+}
+
+/* Smooth orientation change for tablet videos */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices: ensure no jarring transitions during rotation */
+  html.is-resizing video,
+  html.is-resizing .video-frame {
+    transition: none !important;
+    animation: none !important;
+  }
+}
