@@ -501,7 +501,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
       <div
         key={layoutKey}
         ref={sectionRef}
-        className="w-full relative overflow-hidden"
+        className="w-full h-screen relative overflow-hidden"
         style={{
           background: '#1c3424',
           // Smooth transition when NOT rotating
@@ -1030,13 +1030,13 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                   style={{
                     top: rightRect.top,
                     left: '50%',
-                    width: (isTabletLayout || isLandscapeTablet) ? '100%' : 444,
+                    width: isTabletLayout ? '100%' : 444,
                     height: rightRect.height,
                     transform: 'translateX(-50%)',
                     zIndex: 5,
                     pointerEvents: 'none',
                     transition: shouldTransition ? 'all 700ms ease' : 'none',
-                    display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
+                    display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                   }}
                 >
                   {/* Targeting outline */}
@@ -1066,7 +1066,7 @@ const MedicalSectionV2 = ({ inView, sectionRef }) => {
                     style={{
                       top: 0,
                       height: rightRect.height,
-                      width: (isTabletLayout || isLandscapeTablet) ? '100%' : 444,
+                      width: isTabletLayout ? '100%' : 444,
                       left: 0,
                       paddingLeft: 24,
                       paddingRight: 24,
