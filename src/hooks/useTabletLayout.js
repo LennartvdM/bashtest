@@ -13,24 +13,29 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 const ROTATION_SETTLE_MS = 400;
 const ROTATION_BUFFER_MS = 100;
 
-// Touch device detection (cached)
+// Touch device detection - check fresh each time
 const detectTouchDevice = () => {
   if (typeof window === 'undefined') return false;
   return (
     'ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
-    navigator.msMaxTouchPoints > 0
+    navigator.msMaxTouchPoints > 0 ||
+    // Also check for coarse pointer (helps with devtools simulation)
+    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
   );
 };
 
 // Layout detection (called only when safe to update)
-const detectLayoutMode = (isTouchDevice) => {
+const detectLayoutMode = () => {
   if (typeof window === 'undefined') {
-    return { mode: 'desktop', isPortrait: true, width: 1024, height: 768 };
+    return { mode: 'desktop', isPortrait: true, width: 1024, height: 768, isTouchDevice: false };
   }
 
   const width = window.visualViewport?.width ?? window.innerWidth;
   const height = window.visualViewport?.height ?? window.innerHeight;
+
+  // Detect touch device fresh each time
+  const isTouchDevice = detectTouchDevice();
 
   // Use matchMedia for orientation (most reliable)
   let isPortrait = height > width;
@@ -39,22 +44,22 @@ const detectLayoutMode = (isTouchDevice) => {
     isPortrait = portraitQuery.matches;
   }
 
-  // Tablet detection: touch device with width in tablet range
-  const isTabletDevice = isTouchDevice && width >= 600 && width <= 1400;
+  // Tablet detection: touch device OR reasonable tablet dimensions with coarse pointer
+  // Width range 600-1400px covers most tablets in both orientations
+  const isTabletSize = width >= 600 && width <= 1400;
+  const isTabletDevice = isTouchDevice && isTabletSize;
 
   let mode = 'desktop';
   if (isTabletDevice) {
     mode = isPortrait ? 'tablet-portrait' : 'tablet-landscape';
   }
 
-  return { mode, isPortrait, width, height };
+  return { mode, isPortrait, width, height, isTouchDevice };
 };
 
 export function useTabletLayout() {
-  const isTouchDevice = useRef(detectTouchDevice()).current;
-
   const [layoutState, setLayoutState] = useState(() => {
-    const initial = detectLayoutMode(isTouchDevice);
+    const initial = detectLayoutMode();
     return {
       ...initial,
       isRotating: false,
@@ -81,14 +86,14 @@ export function useTabletLayout() {
     }
 
     isRotatingRef.current = false;
-    const newLayout = detectLayoutMode(isTouchDevice);
+    const newLayout = detectLayoutMode();
 
     setLayoutState(prev => ({
       ...newLayout,
       isRotating: false,
       frozenMode: null,
     }));
-  }, [isTouchDevice, isCurrentlyRotating]);
+  }, [isCurrentlyRotating]);
 
   // Start rotation - freeze current state
   const startRotation = useCallback(() => {
@@ -191,7 +196,7 @@ export function useTabletLayout() {
     isRotating: layoutState.isRotating,
 
     // Touch device detection
-    isTouchDevice,
+    isTouchDevice: layoutState.isTouchDevice,
   };
 }
 
