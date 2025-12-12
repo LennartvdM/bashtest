@@ -1148,7 +1148,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                       background: '#e0e0e0',
                       mixBlendMode: 'screen',
                       pointerEvents: 'none',
-                      transform: 'translateY(-50%)',
+                      transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
                       transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       opacity: 0.2,
                       display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
