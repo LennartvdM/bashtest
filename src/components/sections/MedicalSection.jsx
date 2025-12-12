@@ -338,7 +338,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
         
         el.style.transition = 'none';
         el.style.animation = 'none';
-        el.style.transform = 'translateX(-200px)';
+        el.style.transform = videoOffscreenTransform;
         el.style.opacity = '0';
       });
       
@@ -908,9 +908,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
               transform: safeVideoHover 
                 ? 'translateY(-12px)' 
-                : videoVisible 
-                  ? 'translateX(0)' 
-                  : 'translateX(-200px)',
+                : videoVisible
+                  ? 'translateX(0)'
+                  : videoOffscreenTransform,
               opacity: videoVisible ? 0.4 : 0,
               mixBlendMode: 'screen'
             }}>
