@@ -188,7 +188,6 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   const isNudging = safeVideoHover;
   const gantryFrameStyle = {
     position: isTabletLayout ? 'relative' : 'absolute',
-    right: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
     top: isTabletLayout ? 'auto' : videoAndCaptionTop,
     width: '100%',
     height: '100%',
@@ -878,7 +877,11 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           data-testid="video-anchor"
           style={{
             position: isTabletLayout ? 'relative' : 'absolute',
-            right: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
+            ...(isTabletLayout
+              ? {}
+              : isVideoLeft
+                ? { left: 'calc(50% + 20px)' }
+                : { right: 'calc(50% + 20px)' }),
             top: isTabletLayout ? 'auto' : videoAndCaptionTop,
             width: videoContainerWidth,
             maxWidth: isTabletLayout ? '90vw' : 480,
@@ -897,7 +900,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           {shouldTransition && (
             <div style={{
               position: 'absolute',
-              right: 0,
+              ...(isVideoLeft ? { left: 0 } : { right: 0 }),
               top: 0,
               width: bandWidth,
               height: bandHeight,
@@ -906,8 +909,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               transition: isNudging
                 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s'
                 : 'transform 1.5s cubic-bezier(0.4,0,0.2,1), opacity 1.5s ease',
-              transform: safeVideoHover 
-                ? 'translateY(-12px)' 
+              transform: safeVideoHover
+                ? 'translateY(-12px)'
                 : videoVisible
                   ? 'translateX(0)'
                   : videoOffscreenTransform,
@@ -923,14 +926,17 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           )}
           {/* Gantry Frame: contains only the video container now */}
           {shouldTransition && (
-            <div 
-              className="video-gantry-frame" 
+            <div
+              className="video-gantry-frame"
               data-section-inactive={!shouldTransition}
               style={{
                 ...gantryFrameStyle,
                 position: isTabletLayout ? 'relative' : 'absolute',
-                right: isTabletLayout ? 'auto' : 0,
-                left: isTabletLayout ? 'auto' : undefined,
+                ...(isTabletLayout
+                  ? {}
+                  : isVideoLeft
+                    ? { left: 0 }
+                    : { right: 0 }),
                 top: isTabletLayout ? 'auto' : 0,
                 zIndex: 3,
                 pointerEvents: 'auto'
@@ -1007,17 +1013,18 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           )}
         </div>
       </div>
-      {/* Video Anchor (left of spacer) */}
+      {/* Video Anchor (positioning reference) */}
       <div
-        ref={videoAnchorRef}
-        data-testid="video-anchor"
+        data-testid="video-anchor-ref"
         style={{
           position: 'absolute',
-          right: 'calc(50% + 20px)', // 20px is half the spacer width
+          ...(isVideoLeft
+            ? { left: 'calc(50% + 20px)' }
+            : { right: 'calc(50% + 20px)' }),
           top: videoAndCaptionTop,
           width: 480,
           height: videoHeight,
-          opacity: 0.5,
+          opacity: 0,
           pointerEvents: 'none',
           zIndex: 1,
         }}
@@ -1027,7 +1034,11 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
         className="caption-anchor"
         style={{
           position: isTabletLayout ? 'relative' : 'absolute',
-          left: isTabletLayout ? 'auto' : 'calc(50% + 20px)',
+          ...(isTabletLayout
+            ? {}
+            : isVideoLeft
+              ? { right: 'calc(50% + 20px)' }
+              : { left: 'calc(50% + 20px)' }),
           top: isTabletLayout ? 'auto' : videoAndCaptionTop,
           width: captionContainerWidth,
           maxWidth: isTabletLayout ? '90vw' : 444,
@@ -1174,7 +1185,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                     setHoveredIndex(null);
                   }, 100);
                 } : undefined}
-                className="relative text-right py-3 rounded-xl transition-all duration-700 ease"
+                className={`relative ${isVideoLeft ? 'text-left' : 'text-right'} py-3 rounded-xl transition-all duration-700 ease`}
                 style={{
                   display: 'block',
                   maxWidth: isTabletLayout ? '100%' : 480,
@@ -1188,7 +1199,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   transition: shouldTransition ? 'all 700ms ease' : 'none'
                 }}
               >
-                <p className="m-0 text-right text-2xl leading-tight" style={{
+                <p className={`m-0 ${isVideoLeft ? 'text-left' : 'text-right'} text-2xl leading-tight`} style={{
                   fontFamily: 'Inter, sans-serif',
                   fontWeight: 500,
                   letterSpacing: '-0.5px',
@@ -1225,7 +1236,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
         className="header-frame"
         style={{
           position: 'absolute',
-          right: `calc(50% + ${gap / 2}px)`,
+          ...(isVideoLeft
+            ? { left: `calc(50% + ${gap / 2}px)` }
+            : { right: `calc(50% + ${gap / 2}px)` }),
           top: collectionTop,
           width: cutoutWidth,
           background: 'none',
@@ -1234,7 +1247,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           opacity: headerVisible ? 1 : 0,
         }}
       >
-        <div style={{ width: cutoutWidth, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 0 }}>
+        <div style={{ width: cutoutWidth, display: 'flex', alignItems: isVideoLeft ? 'flex-end' : 'flex-start', justifyContent: isVideoLeft ? 'flex-end' : 'flex-start', marginRight: 0 }}>
           <h2 style={{
             fontFamily: 'Inter, sans-serif',
             fontSize: isLandscapeTablet ? 32 : 48,
@@ -1251,9 +1264,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               '0 0px 1px rgba(0,0,0,0.18)',
               '0 0px 8px rgba(82,156,156,0.10)'
             ].join(', '),
-            alignSelf: 'flex-start',
+            alignSelf: isVideoLeft ? 'flex-end' : 'flex-start',
             paddingLeft: 0,
-            textAlign: 'left',
+            textAlign: isVideoLeft ? 'right' : 'left',
             width: '100%',
             userSelect: 'none',
             WebkitUserSelect: 'none'
