@@ -59,7 +59,7 @@ const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [
           <video
             ref={el => { videoRefs.current[i] = el; }}
             src={bg[i].video}
-            style={{ width: '100%', minHeight: '100%', minWidth: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+            style={{ width: '100%', minHeight: '100%', minWidth: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', filter: 'blur(1px)' }}
             autoPlay
             muted
             loop

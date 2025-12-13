@@ -19,7 +19,7 @@ import { useThrottleWithTrailing } from '../../hooks/useDebounce';
 const BLUR_VIDEO_BASE_STYLE = {
   left: '-2vw',
   width: '104vw',
-  filter: 'brightness(0.7) saturate(1)',
+  filter: 'brightness(0.7) saturate(1) blur(1px)',
   willChange: 'opacity',
   pointerEvents: 'none',
   transform: 'translateZ(0)',
