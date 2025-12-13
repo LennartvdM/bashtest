@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, memo } from 'react';
 
-export default function TabletMedicalCarousel({ videos = [], current = 0, onChange, onPauseChange, className, style }) {
+const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [], current = 0, onChange, onPauseChange, className, style }) {
   const containerRef = useRef(null);
 
   // Ensure there are 3 valid slides
@@ -63,6 +63,6 @@ export default function TabletMedicalCarousel({ videos = [], current = 0, onChan
       />
     </div>
   );
-}
+});
 
-
+export default TabletMedicalCarousel;

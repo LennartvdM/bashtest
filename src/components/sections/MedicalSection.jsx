@@ -1,5 +1,5 @@
 // redeploy marker: 2025-10-31T00:00:00Z
-import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback, useReducer } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import TabletMedicalCarousel from '../TabletMedicalCarousel';
 import ReactDOM from 'react-dom';
@@ -11,6 +11,143 @@ import TabletTravellingBar from '../TabletTravellingBar';
 import TabletBlurBackground from '../TabletBlurBackground';
 import AutoFitHeading from '../AutoFitHeading';
 import { useTabletLayout } from '../../hooks/useTabletLayout';
+import { useThrottleWithTrailing } from '../../hooks/useDebounce';
+
+// ============================================================================
+// STYLE CONSTANTS - Extracted for stable references and reduced object creation
+// ============================================================================
+const BLUR_VIDEO_BASE_STYLE = {
+  left: '-2vw',
+  width: '104vw',
+  filter: 'brightness(0.7) saturate(1)',
+  willChange: 'opacity',
+  pointerEvents: 'none',
+  transform: 'translateZ(0)',
+  WebkitTransform: 'translateZ(0)',
+  backfaceVisibility: 'hidden',
+  WebkitBackfaceVisibility: 'hidden',
+  perspective: '1000px',
+  WebkitPerspective: '1000px',
+};
+
+const VIDEO_OVERLAY_STYLE = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  zIndex: 1,
+  pointerEvents: 'none',
+};
+
+const VIDEO_INNER_CONTAINER_STYLE = {
+  width: '100%',
+  height: '100%',
+  position: 'relative',
+  display: 'inline-block',
+};
+
+const VIDEO_CONTROLS_HIDDEN_CSS = `
+  video {
+    pointer-events: none !important;
+    outline: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-touch-callout: none !important;
+  }
+
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-panel,
+  video::-webkit-media-controls-start-playbook-button,
+  video::-webkit-media-controls-play-button,
+  video::-webkit-media-controls-timeline,
+  video::-webkit-media-controls-current-time-display,
+  video::-webkit-media-controls-time-remaining-display,
+  video::-webkit-media-controls-mute-button,
+  video::-webkit-media-controls-volume-slider,
+  video::-webkit-media-controls-fullscreen-button,
+  video::-webkit-media-controls-overlay-enclosure,
+  video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  video::-ms-media-controls {
+    display: none !important;
+  }
+`;
+
+// ============================================================================
+// STATE REDUCERS - Grouped related state for fewer re-renders
+// ============================================================================
+
+// Visibility state reducer
+const visibilityReducer = (state, action) => {
+  switch (action.type) {
+    case 'SHOW_HEADER':
+      return { ...state, header: true };
+    case 'SHOW_VIDEO':
+      return { ...state, video: true };
+    case 'SHOW_CAPTIONS':
+      return { ...state, captions: true };
+    case 'RESET':
+      return { header: false, video: false, captions: false };
+    case 'SHOW_ALL':
+      return { header: true, video: true, captions: true };
+    default:
+      return state;
+  }
+};
+
+// Measurements state reducer
+const measurementsReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_RECT':
+      return { ...state, rect: action.payload };
+    case 'SET_RIGHT_RECT':
+      return { ...state, rightRect: action.payload, rightReady: true };
+    case 'SET_CAPTION_TOP':
+      return { ...state, captionTop: action.payload };
+    case 'SET_HEADER_HEIGHT':
+      return { ...state, headerHeight: action.payload };
+    case 'SET_VIDEO_TOP':
+      return { ...state, videoTop: action.payload };
+    case 'SET_COLLECTION_TOP':
+      return { ...state, collectionTop: action.payload };
+    case 'SET_VIDEO_AND_CAPTION_TOP':
+      return { ...state, videoAndCaptionTop: action.payload };
+    case 'SET_BITE_RECT':
+      return { ...state, biteRect: action.payload };
+    case 'SET_NAVBAR_HEIGHT':
+      return { ...state, navbarHeight: action.payload };
+    case 'SET_HIGHLIGHTER':
+      return { ...state, highlighterLeftPx: action.payload.left, highlighterWidthPx: action.payload.width };
+    default:
+      return state;
+  }
+};
+
+// Interaction state reducer
+const interactionReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_PAUSED':
+      return { ...state, isPaused: action.payload };
+    case 'SET_HOVERED_INDEX':
+      return { ...state, hoveredIndex: action.payload };
+    case 'SET_VIDEO_HOVER':
+      return { ...state, videoHover: action.payload };
+    case 'ENABLE_INTERACTIONS':
+      return { ...state, interactionsEnabled: true };
+    case 'DISABLE_INTERACTIONS':
+      return { ...state, interactionsEnabled: false, videoHover: false, hoveredIndex: null };
+    case 'RESET':
+      return { isPaused: true, hoveredIndex: null, videoHover: false, interactionsEnabled: false };
+    default:
+      return state;
+  }
+};
 
 const VARIANTS = {
   v2: {
@@ -75,34 +212,48 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     isPreserved 
   } = useSectionLifecycle(sectionId, inView);
 
-  // All useState hooks first
+  // ============================================================================
+  // STATE - Using reducers for grouped state to minimize re-renders
+  // ============================================================================
+
+  // Visibility state (header, video, captions visibility)
+  const [visibility, dispatchVisibility] = useReducer(visibilityReducer, {
+    header: false,
+    video: false,
+    captions: false,
+  });
+
+  // Measurements state (positions and dimensions)
+  const [measurements, dispatchMeasurements] = useReducer(measurementsReducer, {
+    rect: { top: 0, height: 0 },
+    rightRect: { top: 0, height: 0 },
+    rightReady: false,
+    captionTop: 0,
+    headerHeight: 0,
+    videoTop: '0px',
+    collectionTop: '60px',
+    videoAndCaptionTop: '0px',
+    biteRect: { x: 0, y: 0, width: 0, height: 0, rx: 0 },
+    navbarHeight: 60,
+    highlighterLeftPx: 0,
+    highlighterWidthPx: 0,
+  });
+
+  // Interaction state (paused, hover states)
+  const [interaction, dispatchInteraction] = useReducer(interactionReducer, {
+    isPaused: false,
+    hoveredIndex: null,
+    videoHover: false,
+    interactionsEnabled: false,
+  });
+
+  // Remaining individual state (frequently updated or independent)
   const [currentVideo, setCurrentVideo] = useState(0);
   const [videoCenter, setVideoCenter] = useState({ x: 0, y: 0 });
-  const [highlighterRight, setHighlighterRight] = useState({ x: 0, y: 0 });
-  const [ready, setReady] = useState(false);
   const [barKey, setBarKey] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [rect, setRect] = useState({ top: 0, height: 0 });
-  const [interactionsEnabled, setInteractionsEnabled] = useState(false);
-  const [videoHover, setVideoHover] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(false);
-  const [videoVisible, setVideoVisible] = useState(false);
-  const [captionsVisible, setCaptionsVisible] = useState(false);
-  const [rightRect, setRightRect] = useState({ top: 0, height: 0 });
-  const [rightReady, setRightReady] = useState(false);
-  const [captionTop, setCaptionTop] = useState(0);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const [videoTop, setVideoTop] = useState('0px');
-  const [collectionTop, setCollectionTop] = useState('60px');
-  const [videoAndCaptionTop, setVideoAndCaptionTop] = useState('0px');
-  const [biteRect, setBiteRect] = useState({ x: 0, y: 0, width: 0, height: 0, rx: 0 });
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
-  const [tabletHeaderStyle, setTabletHeaderStyle] = useState({});
-  const [navbarHeight, setNavbarHeight] = useState(60);
   const [disableTransitions, setDisableTransitions] = useState(false);
-  // Always mount heavy UI on tablet to ensure visibility and avoid hook-order issues
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -117,8 +268,15 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   const contentAnchorRef = useRef();
   const shadedFrameRef = useRef();
   const captionButtonRefs = useRef([]);
-  const [highlighterLeftPx, setHighlighterLeftPx] = useState(0);
-  const [highlighterWidthPx, setHighlighterWidthPx] = useState(0);
+
+  // Destructure for easier access
+  const { header: headerVisible, video: videoVisible, captions: captionsVisible } = visibility;
+  const {
+    rightRect, rightReady, captionTop, headerHeight, videoTop,
+    collectionTop, videoAndCaptionTop, biteRect, navbarHeight,
+    highlighterLeftPx, highlighterWidthPx
+  } = measurements;
+  const { isPaused, hoveredIndex, videoHover, interactionsEnabled } = interaction;
 
   // Derived/computed values after all state declarations
   const safeVideoHover = interactionsEnabled && videoHover;
@@ -248,21 +406,25 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
 
   // Previously we staged mounting for performance; revert to always-on for reliability
 
+  // Throttled navbar height reader - reduces resize/scroll handler frequency
+  const readNavbarHeight = useCallback(() => {
+    const nav = document.querySelector('nav');
+    const h = nav ? (nav.getBoundingClientRect().height || 60) : 60;
+    dispatchMeasurements({ type: 'SET_NAVBAR_HEIGHT', payload: h });
+  }, []);
+
+  const throttledReadNavbarHeight = useThrottleWithTrailing(readNavbarHeight, 100);
+
   // Track fixed navbar height for correct vertical offset across transitions
   useEffect(() => {
-    const readNav = () => {
-      const nav = document.querySelector('nav');
-      const h = nav ? (nav.getBoundingClientRect().height || 60) : 60;
-      setNavbarHeight(h);
-    };
-    readNav();
-    window.addEventListener('resize', readNav);
-    window.addEventListener('scroll', readNav, { passive: true });
+    readNavbarHeight();
+    window.addEventListener('resize', throttledReadNavbarHeight);
+    window.addEventListener('scroll', throttledReadNavbarHeight, { passive: true });
     return () => {
-      window.removeEventListener('resize', readNav);
-      window.removeEventListener('scroll', readNav);
+      window.removeEventListener('resize', throttledReadNavbarHeight);
+      window.removeEventListener('scroll', throttledReadNavbarHeight);
     };
-  }, [sectionState]);
+  }, [sectionState, readNavbarHeight, throttledReadNavbarHeight]);
 
   // Modified entrance animation effect
   useEffect(() => {
@@ -270,23 +432,21 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
       setDisableTransitions(false);
       // Reset to initial state for fresh entrance
       setCurrentVideo(0);
-      setIsPaused(true);
-      setHeaderVisible(false);
-      setVideoVisible(false);
-      setCaptionsVisible(false);
-      setInteractionsEnabled(false);
-      
+      dispatchInteraction({ type: 'SET_PAUSED', payload: true });
+      dispatchVisibility({ type: 'RESET' });
+      dispatchInteraction({ type: 'DISABLE_INTERACTIONS' });
+
       // Start entrance ceremony
       const timers = [];
-      
-      timers.push(setTimeout(() => setHeaderVisible(true), 450));
-      timers.push(setTimeout(() => setVideoVisible(true), 2925));
-      timers.push(setTimeout(() => setCaptionsVisible(true), 3225));
+
+      timers.push(setTimeout(() => dispatchVisibility({ type: 'SHOW_HEADER' }), 450));
+      timers.push(setTimeout(() => dispatchVisibility({ type: 'SHOW_VIDEO' }), 2925));
+      timers.push(setTimeout(() => dispatchVisibility({ type: 'SHOW_CAPTIONS' }), 3225));
       timers.push(setTimeout(() => {
-        setInteractionsEnabled(true);
-        setIsPaused(false);
+        dispatchInteraction({ type: 'ENABLE_INTERACTIONS' });
+        dispatchInteraction({ type: 'SET_PAUSED', payload: false });
       }, 6000));
-      
+
       return () => timers.forEach(timer => clearTimeout(timer));
     }
   }, [shouldAnimate]);
@@ -312,7 +472,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
       setBarKey((k) => k + 1);
       // For tablets, ensure autoplay can start even if section is just entering
       if (sectionState === 'entering' || sectionState === 'active') {
-        setIsPaused(false);
+        dispatchInteraction({ type: 'SET_PAUSED', payload: false });
       }
     }
   }, [isTabletLayout, isLandscapeTablet, sectionState]);
@@ -321,10 +481,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   useEffect(() => {
     if (isPreserved) {
       setDisableTransitions(true);
-      setIsPaused(true);
-      setInteractionsEnabled(false);
-      setVideoHover(false);
-      setHoveredIndex(null);
+      dispatchInteraction({ type: 'SET_PAUSED', payload: true });
+      dispatchInteraction({ type: 'DISABLE_INTERACTIONS' });
     }
   }, [isPreserved]);
 
@@ -332,14 +490,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   useEffect(() => {
     if (sectionState === 'preserving' || sectionState === 'cleaned' || sectionState === 'idle') {
       setDisableTransitions(true);
-      setHeaderVisible(false);
-      setVideoVisible(false);
-      setCaptionsVisible(false);
+      dispatchVisibility({ type: 'RESET' });
       setCurrentVideo(0);
-      setIsPaused(true);
-      setInteractionsEnabled(false);
-      setVideoHover(false);
-      setHoveredIndex(null);
+      dispatchInteraction({ type: 'RESET' });
       setBarKey(0);
     }
   }, [sectionState]);
@@ -378,8 +531,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     const node = rightRowRefs.current[currentVideo];
     if (node) {
       const { offsetTop, offsetHeight } = node;
-      setRightRect({ top: offsetTop, height: offsetHeight });
-      setRightReady(true);
+      dispatchMeasurements({ type: 'SET_RIGHT_RECT', payload: { top: offsetTop, height: offsetHeight } });
     }
   }, [currentVideo, hoveredIndex]);
 
@@ -395,30 +547,28 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
       const captionHeight = captionRect.height;
 
       const top = videoAnchorTop + (videoAnchorHeight / 2) - (captionHeight / 2);
-      setCaptionTop(top);
+      dispatchMeasurements({ type: 'SET_CAPTION_TOP', payload: top });
     }
   }, [headerHeight, gap, videoHeight]);
 
   useLayoutEffect(() => {
     if (headerRef.current) {
       const headerRect = headerRef.current.getBoundingClientRect();
-      setHeaderHeight(headerRect.height);
-      setVideoTop(`${headerRect.height + gap}px`);
+      dispatchMeasurements({ type: 'SET_HEADER_HEIGHT', payload: headerRect.height });
+      dispatchMeasurements({ type: 'SET_VIDEO_TOP', payload: `${headerRect.height + gap}px` });
     }
-  }, []);
+  }, [gap]);
 
   // Re-measure and stabilize when crossing tablet/desktop breakpoint
   useLayoutEffect(() => {
     if (headerRef.current) {
       const headerRect = headerRef.current.getBoundingClientRect();
-      setHeaderHeight(headerRect.height);
-      setVideoTop(`${headerRect.height + gap}px`);
+      dispatchMeasurements({ type: 'SET_HEADER_HEIGHT', payload: headerRect.height });
+      dispatchMeasurements({ type: 'SET_VIDEO_TOP', payload: `${headerRect.height + gap}px` });
     }
     // Ensure all parts are visible after layout switch
-    setHeaderVisible(true);
-    setVideoVisible(true);
-    setCaptionsVisible(true);
-  }, [isTabletLayout]);
+    dispatchVisibility({ type: 'SHOW_ALL' });
+  }, [isTabletLayout, gap]);
 
   useLayoutEffect(() => {
     const totalHeight = headerHeight + gap + videoHeight;
@@ -429,32 +579,39 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     // Content center should be at: navH + (sectionHeight - navH) / 2
     // Simplified: sectionHeight/2 + navH/2
     const top = (sectionHeight / 2) - (totalHeight / 2) + (navH / 2);
-    setCollectionTop(`${top}px`);
-    setVideoAndCaptionTop(`${top + headerHeight + gap}px`);
+    dispatchMeasurements({ type: 'SET_COLLECTION_TOP', payload: `${top}px` });
+    dispatchMeasurements({ type: 'SET_VIDEO_AND_CAPTION_TOP', payload: `${top + headerHeight + gap}px` });
   }, [headerHeight, gap, videoHeight, navbarHeight]);
 
-  // Measure video container position and size for SVG
-  useLayoutEffect(() => {
-    function updateVideoRect() {
-      if (videoContainerRef.current) {
-        const rect = videoContainerRef.current.getBoundingClientRect();
-        setBiteRect({
+  // Throttled video rect measurement
+  const updateVideoRect = useCallback(() => {
+    if (videoContainerRef.current) {
+      const rect = videoContainerRef.current.getBoundingClientRect();
+      dispatchMeasurements({
+        type: 'SET_BITE_RECT',
+        payload: {
           x: rect.left + window.scrollX,
           y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
           rx: 16
-        });
-      }
+        }
+      });
     }
-    updateVideoRect();
-    window.addEventListener('resize', updateVideoRect);
-    window.addEventListener('scroll', updateVideoRect);
-    return () => {
-      window.removeEventListener('resize', updateVideoRect);
-      window.removeEventListener('scroll', updateVideoRect);
-    };
   }, []);
+
+  const throttledUpdateVideoRect = useThrottleWithTrailing(updateVideoRect, 100);
+
+  // Measure video container position and size for SVG
+  useLayoutEffect(() => {
+    updateVideoRect();
+    window.addEventListener('resize', throttledUpdateVideoRect);
+    window.addEventListener('scroll', throttledUpdateVideoRect, { passive: true });
+    return () => {
+      window.removeEventListener('resize', throttledUpdateVideoRect);
+      window.removeEventListener('scroll', throttledUpdateVideoRect);
+    };
+  }, [updateVideoRect, throttledUpdateVideoRect]);
 
   // Animate outline opacity
   useEffect(() => {
@@ -505,8 +662,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     if (typeof index === 'number' && index >= 0 && index < headlines.length) {
       if (index !== currentVideo) setBarKey((k) => k + 1);
       setCurrentVideo(index);
-      setIsPaused(true);
-      setHoveredIndex(index);
+      dispatchInteraction({ type: 'SET_PAUSED', payload: true });
+      dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: index });
     }
   }, [interactionsEnabled, headlines.length, currentVideo]);
 
@@ -518,8 +675,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     }
 
     hoverTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-      setHoveredIndex(null);
+      dispatchInteraction({ type: 'SET_PAUSED', payload: false });
+      dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: null });
     }, 50);
   }, [interactionsEnabled]);
 
@@ -533,19 +690,19 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   // Memoized handlers for tablet carousel
   const handleTabletCarouselChange = useCallback((idx) => {
     setCurrentVideo(idx);
-    setIsPaused(true);
+    dispatchInteraction({ type: 'SET_PAUSED', payload: true });
     setBarKey((k) => k + 1);
   }, []);
 
   const handleTabletPauseChange = useCallback((p) => {
-    setIsPaused(!!p);
+    dispatchInteraction({ type: 'SET_PAUSED', payload: !!p });
   }, []);
 
   const handleTabletBarSelect = useCallback((i) => {
     setCurrentVideo(i);
-    setIsPaused(true);
+    dispatchInteraction({ type: 'SET_PAUSED', payload: true });
     setBarKey((k) => k + 1);
-    setTimeout(() => setIsPaused(false), 100);
+    setTimeout(() => dispatchInteraction({ type: 'SET_PAUSED', payload: false }), 100);
   }, []);
 
   // Memoize tablet captions to prevent array recreation
@@ -556,28 +713,33 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   // Memoized handler for landscape tablet caption clicks
   const handleLandscapeTabletCaptionClick = useCallback((i) => {
     setCurrentVideo(i);
-    setIsPaused(true);
+    dispatchInteraction({ type: 'SET_PAUSED', payload: true });
     setBarKey((k) => k + 1);
-    setHoveredIndex(i);
+    dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: i });
     setTimeout(() => {
-      setIsPaused(false);
-      setHoveredIndex(null);
+      dispatchInteraction({ type: 'SET_PAUSED', payload: false });
+      dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: null });
     }, 100);
   }, []);
 
   // Memoized touch handlers for landscape tablet
   const handleLandscapeTabletTouchStart = useCallback((i) => {
     setCurrentVideo(i);
-    setIsPaused(true);
+    dispatchInteraction({ type: 'SET_PAUSED', payload: true });
     setBarKey((k) => k + 1);
-    setHoveredIndex(i);
+    dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: i });
   }, []);
 
   const handleLandscapeTabletTouchEnd = useCallback(() => {
     setTimeout(() => {
-      setIsPaused(false);
-      setHoveredIndex(null);
+      dispatchInteraction({ type: 'SET_PAUSED', payload: false });
+      dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: null });
     }, 100);
+  }, []);
+
+  // Memoized handler for video hover state (used by MedicalCarousel)
+  const handleVideoHover = useCallback((hover) => {
+    dispatchInteraction({ type: 'SET_VIDEO_HOVER', payload: hover });
   }, []);
 
   // Unified Tablet Layout (Portrait & Landscape)
@@ -720,62 +882,13 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
         paddingTop: isTabletLayout ? 16 : 0
       }}
     >
-      <style>
-        {`
-          video {
-            pointer-events: none !important;
-            outline: none !important;
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            -webkit-touch-callout: none !important;
-          }
-          
-          video::-webkit-media-controls,
-          video::-webkit-media-controls-panel,
-          video::-webkit-media-controls-start-playbook-button,
-          video::-webkit-media-controls-play-button,
-          video::-webkit-media-controls-timeline,
-          video::-webkit-media-controls-current-time-display,
-          video::-webkit-media-controls-time-remaining-display,
-          video::-webkit-media-controls-mute-button,
-          video::-webkit-media-controls-volume-slider,
-          video::-webkit-media-controls-fullscreen-button,
-          video::-webkit-media-controls-overlay-enclosure,
-          video::-webkit-media-controls-overlay-play-button {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          }
-          
-          video::-ms-media-controls {
-            display: none !important;
-          }
-        `}
-      </style>
+      <style>{VIDEO_CONTROLS_HIDDEN_CSS}</style>
       {/* Always-visible base blur video */}
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100 z-0"
-        style={{
-          left: '-2vw',
-          width: '104vw',
-          filter: 'brightness(0.7) saturate(1)',
-          willChange: 'opacity',
-          pointerEvents: 'none',
-          transform: 'translateZ(0)',
-          WebkitTransform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          perspective: '1000px',
-          WebkitPerspective: '1000px'
-        }}
+        style={BLUR_VIDEO_BASE_STYLE}
       >
-        <div style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          display: 'inline-block'
-        }}>
+        <div style={VIDEO_INNER_CONTAINER_STYLE}>
           <VideoManager
             src={blurVideos[BASE_INDEX].video}
             isPlaying={isActive || shouldAnimate}
@@ -790,15 +903,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             controlsList="nodownload nofullscreen noremoteplayback"
             onContextMenu={(e) => e.preventDefault()}
           />
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 1,
-            pointerEvents: 'none'
-          }} />
+          <div style={VIDEO_OVERLAY_STYLE} />
         </div>
       </div>
       {/* Other blur videos fade in/out on top */}
@@ -810,26 +915,11 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               index === currentVideo ? 'opacity-100' : 'opacity-0'
             }`}
             style={{
-              left: '-2vw',
-              width: '104vw',
-              filter: 'brightness(0.7) saturate(1)',
-              willChange: 'opacity',
-              pointerEvents: 'none',
-              transform: 'translateZ(0)',
-              WebkitTransform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-              perspective: '1000px',
-              WebkitPerspective: '1000px',
+              ...BLUR_VIDEO_BASE_STYLE,
               transition: shouldTransition ? 'opacity 700ms ease' : 'none'
             }}
           >
-            <div style={{
-              width: '100%',
-              height: '100%',
-              position: 'relative',
-              display: 'inline-block'
-            }}>
+            <div style={VIDEO_INNER_CONTAINER_STYLE}>
               <VideoManager
                 src={video.video}
                 isPlaying={isActive || shouldAnimate}
@@ -844,15 +934,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 controlsList="nodownload nofullscreen noremoteplayback"
                 onContextMenu={(e) => e.preventDefault()}
               />
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 1,
-                pointerEvents: 'none'
-              }} />
+              <div style={VIDEO_OVERLAY_STYLE} />
             </div>
           </div>
         )
@@ -1058,7 +1140,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 hoveredIndex={safeHoveredIndex}
                 isActive={safeHoveredIndex === currentVideo || isPaused}
                 videoHover={safeVideoHover}
-                setVideoHover={setVideoHover}
+                setVideoHover={handleVideoHover}
                 interactionsEnabled={interactionsEnabled}
                 videos={mainVideos}
                 enableTouchNavigation={isLandscapeTablet}
