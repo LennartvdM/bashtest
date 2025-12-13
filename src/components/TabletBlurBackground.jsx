@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, memo } from "react";
 
 /**
  * TabletBlurBackground
@@ -12,7 +12,7 @@ import React, { useRef, useEffect } from "react";
  * Performance: Only current video plays; adjacent videos stay paused but buffered
  * for instant transitions. This reduces decode workload by ~66% on low-power devices.
  */
-const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2 }) => {
+const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [], current = 0, fadeDuration = 1.2 }) {
   const videoRefs = useRef([null, null, null]);
 
   // Pause/play videos based on visibility - keeps them buffered but saves decode cycles
@@ -73,6 +73,6 @@ const TabletBlurBackground = ({ blurVideos = [], current = 0, fadeDuration = 1.2
       ))}
     </div>
   );
-};
+});
 
 export default TabletBlurBackground;

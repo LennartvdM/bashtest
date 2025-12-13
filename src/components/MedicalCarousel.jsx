@@ -1,4 +1,5 @@
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect, useCallback, memo } from "react";
+import { useThrottleWithTrailing } from "../hooks/useDebounce";
 
 const AUTOPLAY_MS = 6600; // 6.6 seconds
 
@@ -24,41 +25,45 @@ const headlines = [
   }
 ];
 
-/* 
+/*
 IMPORTANT: This is NOT a crossfade - it's a sequential card removal system.
 State 0: A=100%, B=100% (stacked on top of each other)
-State 1: A=0%, B=100% (remove top card A)  
+State 1: A=0%, B=100% (remove top card A)
 State 2: A=0%, B=0% (remove card B, reveal base C)
 
 DO NOT "fix" this to crossfade between A and B.
 The stacking is intentional to avoid ugly transitions.
 */
 
-function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange }) {
+const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange }) {
   const videoContainerRef = useRef(null);
 
   // Use videos prop if provided, otherwise fallback to default slides
   const videoSlides = videos || defaultSlides;
 
-  useEffect(() => {
-    function updateCenter() {
-      if (videoContainerRef.current) {
-        const rect = videoContainerRef.current.getBoundingClientRect();
-        const newCenter = {
-          x: rect.left + rect.width / 2 + window.scrollX,
-          y: rect.top + rect.height / 2 + window.scrollY,
-        };
-        setVideoCenter && setVideoCenter(newCenter);
-      }
+  // Throttled center update to reduce resize/scroll handler frequency
+  const updateCenter = useCallback(() => {
+    if (videoContainerRef.current) {
+      const rect = videoContainerRef.current.getBoundingClientRect();
+      const newCenter = {
+        x: rect.left + rect.width / 2 + window.scrollX,
+        y: rect.top + rect.height / 2 + window.scrollY,
+      };
+      setVideoCenter && setVideoCenter(newCenter);
     }
-    updateCenter();
-    window.addEventListener("resize", updateCenter);
-    window.addEventListener("scroll", updateCenter);
-    return () => {
-      window.removeEventListener("resize", updateCenter);
-      window.removeEventListener("scroll", updateCenter);
-    };
   }, [setVideoCenter]);
+
+  const throttledUpdateCenter = useThrottleWithTrailing(updateCenter, 100);
+
+  useEffect(() => {
+    updateCenter();
+    window.addEventListener("resize", throttledUpdateCenter);
+    window.addEventListener("scroll", throttledUpdateCenter, { passive: true });
+    return () => {
+      window.removeEventListener("resize", throttledUpdateCenter);
+      window.removeEventListener("scroll", throttledUpdateCenter);
+    };
+  }, [updateCenter, throttledUpdateCenter]);
 
   return (
     <div 
@@ -174,6 +179,6 @@ function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, vide
       )}
     </div>
   );
-}
+});
 
 export default MedicalCarousel;

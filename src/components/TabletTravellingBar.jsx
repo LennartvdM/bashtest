@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback, memo } from "react";
+import { useThrottleWithTrailing } from "../hooks/useDebounce";
 
 /**
  * TabletTravellingBar
@@ -12,14 +13,14 @@ import React, { useRef, useEffect, useState } from "react";
  * - paused: boolean (optional, default false) – pause animation
  * - animationKey: any (optional) – force restart animation
  */
-const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey }) => {
+const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey }) {
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
   const [bar, setBar] = useState({ top: 0, height: 0 });
   const [animateTick, setAnimateTick] = useState(0);
 
-  // Effect: Update bar position when caption or size changes
-  useEffect(() => {
+  // Throttled bar position update
+  const updateBarPosition = useCallback(() => {
     const btn = buttonRefs.current[current];
     const container = containerRef.current;
     if (btn && container) {
@@ -30,25 +31,20 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
         height: btnRect.height,
       });
     }
-  }, [current, captions.length]);
+  }, [current]);
 
-  // Recalculate if container or font resizes
+  const throttledUpdateBar = useThrottleWithTrailing(updateBarPosition, 100);
+
+  // Effect: Update bar position when caption or size changes
   useEffect(() => {
-    const update = () => {
-      const btn = buttonRefs.current[current];
-      const container = containerRef.current;
-      if (btn && container) {
-        const btnRect = btn.getBoundingClientRect();
-        const contRect = container.getBoundingClientRect();
-        setBar({
-          top: btnRect.top - contRect.top,
-          height: btnRect.height,
-        });
-      }
-    };
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, [current, captions.length]);
+    updateBarPosition();
+  }, [current, captions.length, updateBarPosition]);
+
+  // Recalculate if container or font resizes - throttled
+  useEffect(() => {
+    window.addEventListener('resize', throttledUpdateBar);
+    return () => window.removeEventListener('resize', throttledUpdateBar);
+  }, [throttledUpdateBar]);
 
   // Retrigger a tiny spring animation on each move without remounting
   useEffect(() => {
@@ -138,7 +134,7 @@ const TabletTravellingBar = ({ captions, current, onSelect, style, durationMs = 
       ))}
     </div>
   );
-};
+});
 
 export default TabletTravellingBar;
 

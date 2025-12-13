@@ -1,7 +1,7 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, memo, useCallback } from 'react';
 
 // Auto-scaling multi-line heading: preserves explicit breaks, scales block via transform
-const AutoFitHeading = ({
+const AutoFitHeading = memo(function AutoFitHeading({
   lines = [],
   basePx = 44,
   lineHeight = 1.1,
@@ -14,14 +14,14 @@ const AutoFitHeading = ({
   // Starting index (inclusive) whose lines appear with the delayed group (post-comma)
   postGroupStartIndex = null,
   afterCommaStyle
-}) => {
+}) {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
   const [scale, setScale] = useState(1);
 
   const resolveAlign = (i) => lineAligns[i] || 'center';
 
-  const fit = () => {
+  const fit = useCallback(() => {
     const container = containerRef.current;
     const content = contentRef.current;
     if (!container || !content) return;
@@ -40,9 +40,9 @@ const AutoFitHeading = ({
     const scaleY = ch > 0 ? (ch / bh) : Number.POSITIVE_INFINITY;
     const newScale = Math.max(0.01, Math.min(scaleX, scaleY) * 0.9);
     setScale(newScale);
-  };
+  }, []);
 
-  useLayoutEffect(() => { fit(); }, []);
+  useLayoutEffect(() => { fit(); }, [fit]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -136,7 +136,7 @@ const AutoFitHeading = ({
       </div>
     </div>
   );
-};
+});
 
 export default AutoFitHeading;
 
