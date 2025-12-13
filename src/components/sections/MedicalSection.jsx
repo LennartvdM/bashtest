@@ -1,5 +1,5 @@
 // redeploy marker: 2025-10-31T00:00:00Z
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from 'react';
 import MedicalCarousel from '../MedicalCarousel';
 import TabletMedicalCarousel from '../TabletMedicalCarousel';
 import ReactDOM from 'react-dom';
@@ -58,7 +58,8 @@ const VARIANTS = {
 const BASE_INDEX = 2; // index of the always-visible base video
 
 const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
-  const config = VARIANTS[variant] || VARIANTS.v2;
+  // Memoize config to prevent unnecessary recalculations
+  const config = useMemo(() => VARIANTS[variant] || VARIANTS.v2, [variant]);
   const {
     blurVideos,
     headlines,
@@ -153,15 +154,22 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
 
   const isVideoLeft = orientation === 'video-left';
 
-  // Band and cutout dimensions - scale down for landscape tablet
-  const landscapeScale = isLandscapeTablet ? 0.7 : 1;
-  const bandWidth = 900 * landscapeScale;
-  const bandHeight = 320 * landscapeScale;
-  const cutoutWidth = 480 * landscapeScale;
-  const cutoutHeight = 320 * landscapeScale;
-  const cornerRadius = 16;
-  const gap = 32 * landscapeScale;
-  const videoHeight = 320 * landscapeScale;
+  // Memoize layout dimensions - scale down for landscape tablet
+  const layoutDimensions = useMemo(() => {
+    const landscapeScale = isLandscapeTablet ? 0.7 : 1;
+    return {
+      landscapeScale,
+      bandWidth: 900 * landscapeScale,
+      bandHeight: 320 * landscapeScale,
+      cutoutWidth: 480 * landscapeScale,
+      cutoutHeight: 320 * landscapeScale,
+      cornerRadius: 16,
+      gap: 32 * landscapeScale,
+      videoHeight: 320 * landscapeScale,
+    };
+  }, [isLandscapeTablet]);
+
+  const { bandWidth, bandHeight, cutoutWidth, cutoutHeight, cornerRadius, gap, videoHeight } = layoutDimensions;
 
   // Portrait tablet: touch device in portrait orientation
   // Landscape tablet: touch device in landscape orientation  
@@ -169,24 +177,34 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   const isPortraitTablet = isTabletLayout;
   const isDesktopLayout = !isTabletLayout && !isLandscapeTablet;
 
-  const videoContainerWidth = isTabletLayout ? 'min(480px, 90vw)' : 480;
-  const captionContainerWidth = isTabletLayout ? 'min(520px, 90vw)' : (isLandscapeTablet ? 320 : 444);
-  const videoOffscreenTransform = isTabletLayout
-    ? 'translateY(200px)'
-    : (isVideoLeft ? 'translateX(200px)' : 'translateX(-200px)');
-  const captionOffscreenTransform = isTabletLayout
-    ? 'translateY(200px)'
-    : (isVideoLeft ? 'translateX(-200px)' : 'translateX(200px)');
-  const TABLET_AUTOPLAY_MS = 7000;
-  const layoutKey = isTabletLayout ? 'tablet' : (isLandscapeTablet ? 'landscape-tablet' : 'desktop');
+  // Memoize layout-dependent computed values
+  const layoutValues = useMemo(() => ({
+    videoContainerWidth: isTabletLayout ? 'min(480px, 90vw)' : 480,
+    captionContainerWidth: isTabletLayout ? 'min(520px, 90vw)' : (isLandscapeTablet ? 320 : 444),
+    videoOffscreenTransform: isTabletLayout
+      ? 'translateY(200px)'
+      : (isVideoLeft ? 'translateX(200px)' : 'translateX(-200px)'),
+    captionOffscreenTransform: isTabletLayout
+      ? 'translateY(200px)'
+      : (isVideoLeft ? 'translateX(-200px)' : 'translateX(200px)'),
+    layoutKey: isTabletLayout ? 'tablet' : (isLandscapeTablet ? 'landscape-tablet' : 'desktop'),
+  }), [isTabletLayout, isLandscapeTablet, isVideoLeft]);
 
-  // Calculate the left offset so the cutout aligns with the video container
-  const bandLeft = `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`;
-  const bandTop = '50%';
+  const { videoContainerWidth, captionContainerWidth, videoOffscreenTransform, captionOffscreenTransform, layoutKey } = layoutValues;
+  const TABLET_AUTOPLAY_MS = 7000;
+
+  // Memoize band position calculations
+  const bandPositions = useMemo(() => ({
+    bandLeft: `calc(50% - ${(bandWidth + cutoutWidth) / 2}px + 20px)`,
+    bandTop: '50%',
+  }), [bandWidth, cutoutWidth]);
+  const { bandLeft, bandTop } = bandPositions;
 
   // --- Gantry Frame dimensions and animation ---
   const isNudging = safeVideoHover;
-  const gantryFrameStyle = {
+
+  // Memoize gantry frame style to prevent object recreation
+  const gantryFrameStyle = useMemo(() => ({
     position: isTabletLayout ? 'relative' : 'absolute',
     top: isTabletLayout ? 'auto' : videoAndCaptionTop,
     width: '100%',
@@ -202,11 +220,11 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             ? 'translate3d(0,0,0)'
             : videoOffscreenTransform)
       : videoOffscreenTransform,
-    opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0, // Always hide when not transitioning
+    opacity: shouldTransition ? (videoVisible ? 1 : 0) : 0,
     overflow: 'visible',
     borderRadius: '16px',
     boxShadow: safeVideoHover ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)' : 'none'
-  };
+  }), [isTabletLayout, videoAndCaptionTop, shouldTransition, isNudging, safeVideoHover, videoVisible, videoOffscreenTransform]);
   // Layout detection is now handled by useTabletLayout hook
   // The hook provides stable values during rotation to prevent thrashing
 
@@ -471,45 +489,96 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     };
   }, []);
 
-  const handleSlideChange = (index) => {
+  // Memoize event handlers to prevent unnecessary re-renders
+  const handleSlideChange = useCallback((index) => {
     setCurrentVideo(index);
-  };
+  }, []);
 
-  const handleHover = (index) => {
+  const handleHover = useCallback((index) => {
     if (!interactionsEnabled) return;
-    
+
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
     }
-    
+
     if (typeof index === 'number' && index >= 0 && index < headlines.length) {
       if (index !== currentVideo) setBarKey((k) => k + 1);
       setCurrentVideo(index);
       setIsPaused(true);
       setHoveredIndex(index);
     }
-  };
+  }, [interactionsEnabled, headlines.length, currentVideo]);
 
-  const handleHoverEnd = () => {
+  const handleHoverEnd = useCallback(() => {
     if (!interactionsEnabled) return;
-    
+
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-    
+
     hoverTimeoutRef.current = setTimeout(() => {
       setIsPaused(false);
       setHoveredIndex(null);
     }, 50);
-  };
+  }, [interactionsEnabled]);
 
-  const handleBarEnd = () => {
+  const handleBarEnd = useCallback(() => {
     if (!isPaused) {
       setBarKey((k) => k + 1);
       setCurrentVideo((c) => (c + 1) % 3);
     }
-  };
+  }, [isPaused]);
+
+  // Memoized handlers for tablet carousel
+  const handleTabletCarouselChange = useCallback((idx) => {
+    setCurrentVideo(idx);
+    setIsPaused(true);
+    setBarKey((k) => k + 1);
+  }, []);
+
+  const handleTabletPauseChange = useCallback((p) => {
+    setIsPaused(!!p);
+  }, []);
+
+  const handleTabletBarSelect = useCallback((i) => {
+    setCurrentVideo(i);
+    setIsPaused(true);
+    setBarKey((k) => k + 1);
+    setTimeout(() => setIsPaused(false), 100);
+  }, []);
+
+  // Memoize tablet captions to prevent array recreation
+  const tabletCaptions = useMemo(() =>
+    headlines.map(h => <span key={h.firstLine}>{h.firstLine}<br />{h.secondLine}</span>),
+  [headlines]);
+
+  // Memoized handler for landscape tablet caption clicks
+  const handleLandscapeTabletCaptionClick = useCallback((i) => {
+    setCurrentVideo(i);
+    setIsPaused(true);
+    setBarKey((k) => k + 1);
+    setHoveredIndex(i);
+    setTimeout(() => {
+      setIsPaused(false);
+      setHoveredIndex(null);
+    }, 100);
+  }, []);
+
+  // Memoized touch handlers for landscape tablet
+  const handleLandscapeTabletTouchStart = useCallback((i) => {
+    setCurrentVideo(i);
+    setIsPaused(true);
+    setBarKey((k) => k + 1);
+    setHoveredIndex(i);
+  }, []);
+
+  const handleLandscapeTabletTouchEnd = useCallback(() => {
+    setTimeout(() => {
+      setIsPaused(false);
+      setHoveredIndex(null);
+    }, 100);
+  }, []);
 
   // Unified Tablet Layout (Portrait & Landscape)
   // Uses CSS Grid that adapts smoothly during rotation
@@ -606,12 +675,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               <TabletMedicalCarousel
                 videos={mainVideos}
                 current={currentVideo}
-                onChange={(idx) => {
-                  setCurrentVideo(idx);
-                  setIsPaused(true);
-                  setBarKey((k) => k + 1);
-                }}
-                onPauseChange={(p) => setIsPaused(!!p)}
+                onChange={handleTabletCarouselChange}
+                onPauseChange={handleTabletPauseChange}
                 style={{ width: '100%', height: '100%' }}
               />
             </div>
@@ -630,14 +695,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
           }}>
             <TabletTravellingBar
-              captions={headlines.map(h => <span>{h.firstLine}<br />{h.secondLine}</span>)}
+              captions={tabletCaptions}
               current={currentVideo}
-              onSelect={i => {
-                setCurrentVideo(i);
-                setIsPaused(true);
-                setBarKey(k => k + 1);
-                setTimeout(() => setIsPaused(false), 100);
-              }}
+              onSelect={handleTabletBarSelect}
               style={{ margin: '0 auto', background: 'none' }}
               durationMs={TABLET_AUTOPLAY_MS}
               paused={isPaused}
@@ -1002,11 +1062,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 interactionsEnabled={interactionsEnabled}
                 videos={mainVideos}
                 enableTouchNavigation={isLandscapeTablet}
-                onTouchChange={(idx) => {
-                  setCurrentVideo(idx);
-                  setIsPaused(true);
-                  setBarKey((k) => k + 1);
-                }}
+                onTouchChange={handleTabletCarouselChange}
               />
             </div>
           </div>
@@ -1163,28 +1219,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 ref={(el) => (rightRowRefs.current[i] = el)}
                 onMouseEnter={interactionsEnabled && !isLandscapeTablet ? () => handleHover(i) : undefined}
                 onMouseLeave={interactionsEnabled && !isLandscapeTablet ? handleHoverEnd : undefined}
-                onClick={interactionsEnabled && isLandscapeTablet ? () => {
-                  setCurrentVideo(i);
-                  setIsPaused(true);
-                  setBarKey((k) => k + 1);
-                  setHoveredIndex(i);
-                  setTimeout(() => {
-                    setIsPaused(false);
-                    setHoveredIndex(null);
-                  }, 100);
-                } : undefined}
-                onTouchStart={interactionsEnabled && isLandscapeTablet ? () => {
-                  setCurrentVideo(i);
-                  setIsPaused(true);
-                  setBarKey((k) => k + 1);
-                  setHoveredIndex(i);
-                } : undefined}
-                onTouchEnd={interactionsEnabled && isLandscapeTablet ? () => {
-                  setTimeout(() => {
-                    setIsPaused(false);
-                    setHoveredIndex(null);
-                  }, 100);
-                } : undefined}
+                onClick={interactionsEnabled && isLandscapeTablet ? () => handleLandscapeTabletCaptionClick(i) : undefined}
+                onTouchStart={interactionsEnabled && isLandscapeTablet ? () => handleLandscapeTabletTouchStart(i) : undefined}
+                onTouchEnd={interactionsEnabled && isLandscapeTablet ? handleLandscapeTabletTouchEnd : undefined}
                 className={`relative ${isVideoLeft ? 'text-left' : 'text-right'} py-3 rounded-xl transition-all duration-700 ease`}
                 style={{
                   display: 'block',
