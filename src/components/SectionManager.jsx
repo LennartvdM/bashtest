@@ -6,25 +6,26 @@ export default function SectionManager({ sections }) {
   const sectionRefs = useRef([]);
 
   useEffect(() => {
-    const observers = sectionRefs.current.map((ref, idx) => {
-      if (!ref || !(ref instanceof Element)) return null;
-      return new window.IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setCurrentIdx(idx);
-        },
-        { threshold: 0.5 }
-      );
-    });
-    
-    sectionRefs.current.forEach((ref, idx) => {
-      if (ref && observers[idx] && ref instanceof Element) {
-        observers[idx].observe(ref);
+    // Single shared IntersectionObserver for all sections
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = sectionRefs.current.indexOf(entry.target);
+            if (idx !== -1) setCurrentIdx(idx);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    sectionRefs.current.forEach((ref) => {
+      if (ref instanceof Element) {
+        observer.observe(ref);
       }
     });
-    
-    return () => {
-      observers.forEach(observer => observer?.disconnect());
-    };
+
+    return () => observer.disconnect();
   }, [sections.length]);
 
   return (

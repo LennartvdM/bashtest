@@ -406,25 +406,41 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
 
   // Previously we staged mounting for performance; revert to always-on for reliability
 
-  // Throttled navbar height reader - reduces resize/scroll handler frequency
-  const readNavbarHeight = useCallback(() => {
+  // Consolidated layout measurements - single throttled handler for all resize/scroll updates
+  const updateLayoutMeasurements = useCallback(() => {
+    // Navbar height
     const nav = document.querySelector('nav');
     const h = nav ? (nav.getBoundingClientRect().height || 60) : 60;
     dispatchMeasurements({ type: 'SET_NAVBAR_HEIGHT', payload: h });
+
+    // Video container rect
+    if (videoContainerRef.current) {
+      const rect = videoContainerRef.current.getBoundingClientRect();
+      dispatchMeasurements({
+        type: 'SET_BITE_RECT',
+        payload: {
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
+          width: rect.width,
+          height: rect.height,
+          rx: 16
+        }
+      });
+    }
   }, []);
 
-  const throttledReadNavbarHeight = useThrottleWithTrailing(readNavbarHeight, 100);
+  const throttledLayoutUpdate = useThrottleWithTrailing(updateLayoutMeasurements, 100);
 
-  // Track fixed navbar height for correct vertical offset across transitions
+  // Single event listener for all layout-dependent measurements
   useEffect(() => {
-    readNavbarHeight();
-    window.addEventListener('resize', throttledReadNavbarHeight);
-    window.addEventListener('scroll', throttledReadNavbarHeight, { passive: true });
+    updateLayoutMeasurements();
+    window.addEventListener('resize', throttledLayoutUpdate);
+    window.addEventListener('scroll', throttledLayoutUpdate, { passive: true });
     return () => {
-      window.removeEventListener('resize', throttledReadNavbarHeight);
-      window.removeEventListener('scroll', throttledReadNavbarHeight);
+      window.removeEventListener('resize', throttledLayoutUpdate);
+      window.removeEventListener('scroll', throttledLayoutUpdate);
     };
-  }, [sectionState, readNavbarHeight, throttledReadNavbarHeight]);
+  }, [sectionState, updateLayoutMeasurements, throttledLayoutUpdate]);
 
   // Modified entrance animation effect
   useEffect(() => {
@@ -500,27 +516,22 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   // Force remove transitions when section becomes idle
   useEffect(() => {
     if (sectionState === 'idle') {
-      
-      
       // Force remove all transitions on media elements
       const mediaElements = document.querySelectorAll('.video-gantry-frame, .video-frame');
       mediaElements.forEach(el => {
-        
         el.style.transition = 'none';
         el.style.animation = 'none';
         el.style.transform = videoOffscreenTransform;
         el.style.opacity = '0';
       });
-      
 
-      
-      // Force a reflow to ensure styles are applied
-      document.body.offsetHeight;
-      
-      // Re-enable transitions on next frame if needed
+      // Double-RAF pattern: first frame applies styles, second frame re-enables transitions
+      // This avoids synchronous forced reflow (layout thrashing)
       requestAnimationFrame(() => {
-        mediaElements.forEach(el => {
-          el.style.transition = '';
+        requestAnimationFrame(() => {
+          mediaElements.forEach(el => {
+            el.style.transition = '';
+          });
         });
       });
     }
@@ -583,35 +594,6 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     dispatchMeasurements({ type: 'SET_VIDEO_AND_CAPTION_TOP', payload: `${top + headerHeight + gap}px` });
   }, [headerHeight, gap, videoHeight, navbarHeight]);
 
-  // Throttled video rect measurement
-  const updateVideoRect = useCallback(() => {
-    if (videoContainerRef.current) {
-      const rect = videoContainerRef.current.getBoundingClientRect();
-      dispatchMeasurements({
-        type: 'SET_BITE_RECT',
-        payload: {
-          x: rect.left + window.scrollX,
-          y: rect.top + window.scrollY,
-          width: rect.width,
-          height: rect.height,
-          rx: 16
-        }
-      });
-    }
-  }, []);
-
-  const throttledUpdateVideoRect = useThrottleWithTrailing(updateVideoRect, 100);
-
-  // Measure video container position and size for SVG
-  useLayoutEffect(() => {
-    updateVideoRect();
-    window.addEventListener('resize', throttledUpdateVideoRect);
-    window.addEventListener('scroll', throttledUpdateVideoRect, { passive: true });
-    return () => {
-      window.removeEventListener('resize', throttledUpdateVideoRect);
-      window.removeEventListener('scroll', throttledUpdateVideoRect);
-    };
-  }, [updateVideoRect, throttledUpdateVideoRect]);
 
   // Animate outline opacity
   useEffect(() => {
@@ -771,7 +753,6 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           transition: isRotating ? 'none' : 'all 0.3s ease-out',
         }}
       >
-        <style>{`@keyframes tablet-progress { from { width: 0%; } to { width: 100%; } }`}</style>
         <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
 
         {/* Foreground content wrapper - CSS Grid for smooth orientation adaptation */}
@@ -922,7 +903,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             <div style={VIDEO_INNER_CONTAINER_STYLE}>
               <VideoManager
                 src={video.video}
-                isPlaying={isActive || shouldAnimate}
+                isPlaying={(isActive || shouldAnimate) && (index === 0 ? currentVideo === 0 : currentVideo <= 1)}
                 className="w-full h-full object-cover"
                 controls={false}
                 preload="auto"
