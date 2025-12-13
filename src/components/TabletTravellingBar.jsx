@@ -64,16 +64,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
         ...style
       }}
     >
-      <style>
-        {`
-          @keyframes tabletTravellingProgress { from { width: 0%; } to { width: 100%; } }
-          @keyframes tabletBarSpring {
-            0%   { transform: translateY(0); }
-            70%  { transform: translateY(-2px); }
-            100% { transform: translateY(0); }
-          }
-        `}
-      </style>
       {/* Animated background highlighter box */}
       <div
         style={{
