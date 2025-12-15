@@ -1,302 +1,150 @@
-# Medical Sections V2 & V3 Interactivity Guide
+# Medical Sections V2 & V3 - User Experience Guide
 
-This document explains the interactive features and behavior of the Medical Sections V2 and V3 components.
-
-## Overview
-
-Medical Sections V2 and V3 are interactive video carousel components that showcase medical-related content. Both variants share the same underlying architecture (`MedicalSection.jsx`) but differ in content and visual orientation.
-
-**Component Files:**
-- `src/components/sections/MedicalSection.jsx` - Main implementation
-- `src/components/sections/MedicalSectionV2.jsx` - Wrapper with `variant="v2"`
-- `src/components/sections/MedicalSectionV3.jsx` - Wrapper with `variant="v3"`
+This document describes what users see and how they interact with the Medical Sections on the website.
 
 ---
 
-## Key Differences Between V2 and V3
+## What Are These Sections?
 
-| Feature | V2 | V3 |
-|---------|-----|-----|
-| **Section ID** | `medical-v2` | `medical-v3` |
-| **Video Orientation** | Video on right | Video on left |
-| **Cookie Band Style** | `SimpleCookieCutterBand` | `MirroredCookieCutterBand` |
-| **Theme** | Urgency, coordination, focus | Skills, team, perspectives |
+Medical Sections V2 and V3 are two video showcases that appear on the homepage. Each section displays a video alongside three clickable captions that let users explore different themes.
 
-### Content Comparison
+**Section V2** focuses on the challenges of medical work:
+- The urgency of medical interventions
+- The importance of team coordination
+- How intense focus can cause tunnel vision
 
-**V2 Headlines:**
-1. "Medical interventions demand precision and urgency."
-2. "Which makes coordination within teams vital for success."
-3. "Task-driven focus can lead to tunnel vision and misalignment."
+**Section V3** focuses on learning and improvement:
+- Developing skills through reflection
+- Building team cohesion through video debriefs
+- How shared understanding improves decision-making
 
-**V3 Headlines:**
-1. "Quiet reflection allows for sharpening skills."
-2. "Further video debriefs foster cohesion amongst peers."
-3. "Shared understanding enhances decisiveness."
+The two sections are visually mirrored - V2 shows the video on the right side, while V3 shows it on the left.
 
 ---
 
-## Interaction Modes
+## What Users See When Scrolling to a Section
 
-The components adapt to three layout modes, each with distinct interaction patterns:
+When a user scrolls down and the section comes into view, elements appear in a choreographed sequence:
 
-### 1. Desktop Mode
+1. **First** - The headline text fades in at the top
+2. **Then** - The video smoothly slides into view
+3. **Finally** - The three caption options appear below/beside the video
+4. **After about 6 seconds** - The section becomes fully interactive and videos start auto-playing
 
-**Detection:** Screen width > 1400px or non-touch device
-
-**Interactions:**
-- **Hover Captions** - Hovering over a caption pauses autoplay and switches to that video
-- **Hover Video** - Creates a subtle "nudge" animation (12px upward lift with shadow)
-- **Outline Animations** - Visual feedback scales from 1.08 to 1.0 on hover
-
-**Behavior Flow:**
-```
-Mouse enters caption → Video pauses → Index updates → Outline animates
-Mouse leaves caption → 50ms delay → Autoplay resumes → Outline fades
-```
-
-### 2. Tablet Portrait Mode
-
-**Detection:** Width 600-1400px AND portrait orientation (height > width)
-
-**Interactions:**
-- **Travelling Bar** - Tap captions in the bottom bar to select videos
-- **Progress Animation** - 7-second animated progress bar shows autoplay timing
-- **Carousel Swipe** - Touch swipe navigation between videos
-- **Pause on Interaction** - Autoplay pauses when user interacts
-
-**Behaviour Flow:**
-```
-Autoplay runs (7000ms per slide) → Progress bar fills
-User taps caption → Video changes → Progress bar resets
-User pauses → Animation freezes → Resumes on unpause
-```
-
-### 3. Landscape Tablet Mode
-
-**Detection:** Width 600-1400px AND landscape orientation (width > height)
-
-**Interactions:**
-- **Touch Captions** - Tap captions to switch videos (similar to desktop hover)
-- **Touch Video** - Tap left/right edges (15% zones) to navigate
-- **Touch Start/End** - Mimics hover states for visual feedback
-
-**Behavior Flow:**
-```
-Touch starts on caption → Video pauses → Index updates
-Touch ends → Autoplay resumes after delay
-Tap video edge → Navigate prev/next
-```
+This entrance animation creates a polished, professional feel as users discover each section.
 
 ---
 
-## State Management
+## How Users Interact
 
-The component uses three specialized reducers for optimal performance:
+The sections behave differently depending on what device you're using:
 
-### Visibility State
-Controls the entrance animation sequence:
-- `SHOW_HEADER` - Display header text
-- `SHOW_VIDEO` - Display video container
-- `SHOW_CAPTIONS` - Display caption section
-- `RESET` / `SHOW_ALL` - Batch visibility changes
+### On a Desktop Computer
 
-### Measurements State
-Tracks layout dimensions for positioning:
-- Navbar height
-- Video container position and dimensions
-- Caption positions
-- Highlighter position and width
+**Hovering over captions:**
+- When you move your mouse over one of the three caption texts, the video instantly switches to match that topic
+- A subtle highlight outline appears around the caption you're hovering on
+- The video pauses while you're hovering, giving you time to read
 
-### Interaction State
-Manages user interaction:
-- `SET_PAUSED` - Video pause state
-- `SET_HOVERED_INDEX` - Currently hovered/selected caption
-- `SET_VIDEO_HOVER` - Video hover state
-- `ENABLE_INTERACTIONS` / `DISABLE_INTERACTIONS` - Toggle interactivity
+**Hovering over the video:**
+- The video gently lifts up slightly (a "nudge" effect)
+- A soft shadow appears underneath, making it feel elevated
 
----
+**Automatic playback:**
+- When you're not hovering, the videos cycle through automatically
+- Each video plays for about 7 seconds before moving to the next
 
-## Animation System
+### On a Tablet (Held Vertically)
 
-### Entrance Ceremony
+**The layout changes:**
+- The video appears stacked above the captions
+- A progress bar appears showing how long until the next video
 
-When a section enters the viewport, animations play in sequence:
+**Tapping captions:**
+- Tap any of the three captions at the bottom to jump to that video
+- The progress bar resets when you make a selection
 
-| Timing | Event |
-|--------|-------|
-| 0ms | Section enters viewport |
-| 450ms | Header fades in |
-| 2925ms | Video fades in with transform |
-| 3225ms | Captions fade in with transform |
-| 6000ms | Interactions enabled, autoplay begins |
+**Swiping the video:**
+- You can swipe left or right on the video to navigate between clips
 
-### Video Transitions
+**The progress bar:**
+- Shows a filling animation (7 seconds) indicating when the next video will play
+- Pauses if you interact with the section
 
-- **Standard transition:** 2.25s with `cubic-bezier(0.4, 0, 0.2, 1)`
-- **Nudge animation:** 0.3s with spring easing `cubic-bezier(0.34, 1.56, 0.64, 1)`
-- **Off-screen position:** `translateX(±200px)` (desktop) or `translateY(200px)` (tablet)
+### On a Tablet (Held Horizontally)
 
-### Progress Bar Animations
+**Similar to desktop:**
+- The video and captions appear side-by-side like on desktop
+- But instead of hovering, you tap the captions to switch videos
 
-- **Desktop:** No visible progress bar
-- **Tablet:** 7000ms linear fill animation (`grow-overflow` keyframes)
-- **Spring effect:** Subtle Y-axis bounce on caption selection
+**Tap zones on the video:**
+- Tapping the left edge of the video goes to the previous clip
+- Tapping the right edge goes to the next clip
 
 ---
 
-## Event Handlers Reference
+## Visual Feedback Users Receive
 
-### Desktop Handlers
-
-```javascript
-handleHover(index)      // Caption mouse enter - pause and switch video
-handleHoverEnd()        // Caption mouse leave - resume autoplay
-handleVideoHover(bool)  // Video mouse enter/leave - nudge animation
-```
-
-### Tablet Handlers
-
-```javascript
-handleTabletCarouselChange(idx)      // Carousel slide changed
-handleTabletPauseChange(paused)      // Pause state toggled
-handleTabletBarSelect(index)         // Caption selected via travelling bar
-handleLandscapeTabletCaptionClick(i) // Caption tapped (landscape)
-handleLandscapeTabletTouchStart(i)   // Touch start on caption
-handleLandscapeTabletTouchEnd()      // Touch end on caption
-```
+| What You Do | What You See |
+|-------------|--------------|
+| Hover/tap a caption | A rounded outline smoothly appears around it |
+| Hover over the video | Video lifts up slightly with a shadow |
+| Switch between videos | Smooth crossfade transition (~2 seconds) |
+| Wait without interacting | Videos auto-advance every 7 seconds |
+| On tablet: current caption | Progress bar fills up beneath it |
 
 ---
 
-## Component Props
+## The Two Section Themes
 
-### MedicalSectionV2 / MedicalSectionV3
+### Section V2 - "The Challenge"
 
-```typescript
-{
-  inView: boolean;      // Whether section is in viewport
-  sectionRef: Ref;      // Reference to section container
-  variant?: 'v2' | 'v3'; // Variant selection (internal)
-}
-```
+This section uses more intense, action-oriented videos showing:
+- **Video 1:** The pressure and urgency of medical situations
+- **Video 2:** Teams working together under pressure
+- **Video 3:** The risk of losing sight of the bigger picture
 
-### MedicalCarousel (Desktop)
+The messaging emphasizes problems that need solving.
 
-```typescript
-{
-  current: number;              // Active video index (0-2)
-  setVideoCenter: Function;     // Callback for center position updates
-  hoveredIndex: number | null;  // Currently hovered caption
-  isActive: boolean;            // Whether video should play
-  videoHover: boolean;          // Mouse is over video
-  setVideoHover: Function;      // Update video hover state
-  interactionsEnabled: boolean; // Enable/disable interactions
-  videos: VideoConfig[];        // Array of video configurations
-  enableTouchNavigation: boolean; // Show touch navigation zones
-  onTouchChange: Function;      // Handle touch navigation
-}
-```
+### Section V3 - "The Solution"
 
-### TabletMedicalCarousel
+This section uses calmer, reflective videos showing:
+- **Video 1:** Practitioners developing their skills
+- **Video 2:** Teams reviewing footage together
+- **Video 3:** Groups building shared understanding
 
-```typescript
-{
-  videos: VideoConfig[];  // Array of video configurations
-  current: number;        // Active video index
-  onChange: Function;     // Index change callback
-  onPauseChange: Function; // Pause state callback
-  className?: string;
-  style?: object;
-}
-```
+The messaging emphasizes how these challenges can be addressed.
 
-### TabletTravellingBar
-
-```typescript
-{
-  captions: (string | JSX.Element)[]; // Caption content
-  current: number;       // Currently selected index
-  onSelect: Function;    // Selection callback
-  style?: object;
-  durationMs?: number;   // Autoplay duration (default: 7000)
-  paused?: boolean;      // Animation pause state
-  animationKey?: any;    // Force animation restart
-}
-```
+Together, the two sections tell a story: V2 presents the problem, V3 presents the path forward.
 
 ---
 
-## Section Lifecycle
+## Responsive Behavior Summary
 
-The medical sections follow a defined lifecycle managed by `useSectionLifecycle`:
-
-```
-idle → entering → active → preserving → cleaned → idle
-```
-
-| State | Duration | Description |
-|-------|----------|-------------|
-| **idle** | - | Section not visible |
-| **entering** | 0-4000ms | Entrance animations, interactions disabled |
-| **active** | - | Full interactivity, autoplay enabled |
-| **preserving** | 4000ms | Section leaving, maintaining state |
-| **cleaned** | - | DOM preserved but invisible |
+| Device | Video Position | How to Switch Videos | Auto-advance |
+|--------|---------------|---------------------|--------------|
+| Desktop (wide screen) | Side by side with captions | Hover over captions | Yes, 7 seconds |
+| Tablet - Portrait | Stacked above captions | Tap captions or swipe | Yes, with progress bar |
+| Tablet - Landscape | Side by side | Tap captions or tap video edges | Yes, 7 seconds |
 
 ---
 
-## Performance Optimizations
+## Accessibility Notes
 
-The components employ several performance strategies:
-
-1. **State Grouping** - Three separate reducers minimize re-renders
-2. **Memoization** - `useCallback`, `useMemo`, and `React.memo` prevent unnecessary updates
-3. **Throttling** - Resize/scroll handlers throttled to 100ms
-4. **GPU Acceleration** - `translateZ(0)`, `willChange`, `backfaceVisibility` for smooth animations
-5. **Efficient Measurements** - Single consolidated measurement function with RAF batching
+- Videos play automatically but without sound
+- All videos have alternative text descriptions
+- Caption text is readable and provides context even without videos
+- The sections work with both mouse and touch input
+- Animations are smooth and not jarring
 
 ---
 
-## Responsive Breakpoints
+## Technical Reference
 
-| Layout | Width Range | Additional Criteria |
-|--------|-------------|---------------------|
-| Desktop | > 1400px | Non-touch device |
-| Tablet Portrait | 600-1400px | Portrait orientation (height > width) |
-| Tablet Landscape | 600-1400px | Landscape orientation (width > height) |
-| Mobile | < 600px | Touch device |
-
-The `useTabletLayout` hook handles detection with 150ms debounce to prevent thrashing during orientation changes.
-
----
-
-## Visual Feedback Summary
-
-| Interaction | Visual Feedback |
-|-------------|-----------------|
-| Caption hover/tap | Highlight outline scales in |
-| Video hover | 12px upward nudge + shadow |
-| Active caption | Progress bar fills (tablet) |
-| Video transition | 2.25s fade with transform |
-| Entrance | Staggered fade-in sequence |
-
----
-
-## Usage Example
-
-```jsx
-import MedicalSectionV2 from './components/sections/MedicalSectionV2';
-import MedicalSectionV3 from './components/sections/MedicalSectionV3';
-
-// In your page component
-<MedicalSectionV2
-  inView={isSection2Visible}
-  sectionRef={section2Ref}
-/>
-
-<MedicalSectionV3
-  inView={isSection3Visible}
-  sectionRef={section3Ref}
-/>
-```
-
-Both components are registered in `src/pages/Home.jsx` as sections "two" and "three" respectively.
+For developers who need implementation details, see the component files:
+- `src/components/sections/MedicalSection.jsx` - Main logic
+- `src/components/sections/MedicalSectionV2.jsx` - V2 wrapper
+- `src/components/sections/MedicalSectionV3.jsx` - V3 wrapper
+- `src/components/MedicalCarousel.jsx` - Desktop video carousel
+- `src/components/TabletMedicalCarousel.jsx` - Tablet video carousel
+- `src/components/TabletTravellingBar.jsx` - Tablet caption selector with progress bar
