@@ -33,7 +33,7 @@ export default function SectionManager({ sections }) {
       {sections.map((section, idx) => {
         // Always render all sections so the manual navigation buttons can jump reliably
         // Set dark background for medical sections to prevent white flash
-        const isMedicalSection = section.name === 'two' || section.name === 'three';
+        const isMedicalSection = section.name === 'two' || section.name === 'three' || section.name === 'four' || section.name === 'five';
         const background = isMedicalSection ? '#1c3424' : undefined;
         
         return (
