@@ -5,18 +5,14 @@ import HeroSection from '../components/sections/HeroSection';
 import ContactSection from '../components/sections/ContactSection';
 import MedicalSectionV2 from '../components/sections/MedicalSectionV2';
 import MedicalSectionV3 from '../components/sections/MedicalSectionV3';
-import MedicalSectionV4 from '../components/sections/MedicalSectionV4';
-import MedicalSectionV5 from '../components/sections/MedicalSectionV5';
 import WorldMapSection from '../components/sections/WorldMapSection';
 
 const sections = [
   { name: 'one', component: HeroSection },
   { name: 'two', component: MedicalSectionV2 },
   { name: 'three', component: MedicalSectionV3 },
-  { name: 'four', component: MedicalSectionV4 },
-  { name: 'five', component: MedicalSectionV5 },
-  { name: 'six', component: WorldMapSection },
-  { name: 'seven', component: ContactSection },
+  { name: 'four', component: WorldMapSection },
+  { name: 'five', component: ContactSection },
 ];
 
 const Home = () => {
