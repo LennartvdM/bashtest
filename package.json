@@ -15,9 +15,11 @@
   },
   "dependencies": {
     "framer-motion": "^10.12.16",
+    "konva": "^10.0.12",
     "lucide-react": "^0.536.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-konva": "^19.2.1",
     "react-router-dom": "^6.30.0"
   },
   "devDependencies": {
