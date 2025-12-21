@@ -96,29 +96,14 @@ const FPSCounter = ({
     };
   }, [measureFrame]);
 
-  // Only render in development
-  if (process.env.NODE_ENV !== 'development') return null;
+  // Only render in development (Vite uses import.meta.env)
+  if (!import.meta.env.DEV) return null;
 
   // Get color based on FPS value
   const getFpsColor = (value) => {
     if (value >= 55) return '#22c55e'; // green
     if (value >= 30) return '#eab308'; // yellow
     return '#ef4444'; // red
-  };
-
-  // Get position styles
-  const getPositionStyles = () => {
-    switch (position) {
-      case 'top-left':
-        return 'top-20 left-4';
-      case 'top-right':
-        return 'top-20 right-4';
-      case 'bottom-right':
-        return 'bottom-4 right-4';
-      case 'bottom-left':
-      default:
-        return 'bottom-4 left-4';
-    }
   };
 
   // Graph dimensions
@@ -152,11 +137,24 @@ const FPSCounter = ({
     return `M 0,${graphHeight} L ${points.join(' L ')} L ${graphWidth},${graphHeight} Z`;
   };
 
+  // Get position inline styles for maximum specificity
+  const getPositionInlineStyles = () => {
+    const base = { position: 'fixed', zIndex: 2147483647, userSelect: 'none', fontFamily: 'ui-monospace, monospace' };
+    switch (position) {
+      case 'top-left':
+        return { ...base, top: '80px', left: '16px' };
+      case 'top-right':
+        return { ...base, top: '80px', right: '16px' };
+      case 'bottom-right':
+        return { ...base, bottom: '16px', right: '16px' };
+      case 'bottom-left':
+      default:
+        return { ...base, bottom: '16px', left: '16px' };
+    }
+  };
+
   return (
-    <div
-      className={`fixed ${getPositionStyles()} z-[9999] select-none`}
-      style={{ fontFamily: 'ui-monospace, monospace' }}
-    >
+    <div style={getPositionInlineStyles()}>
       <div
         className="bg-black/85 backdrop-blur-sm text-white rounded-lg shadow-lg overflow-hidden"
         style={{ minWidth: isMinimized ? 'auto' : '200px' }}
