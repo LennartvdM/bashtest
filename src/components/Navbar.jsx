@@ -1,7 +1,105 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
 import version from '../version';
+
+// Inline FPS Counter for Navbar
+function NavbarFPSCounter() {
+  const [fps, setFps] = useState(0);
+  const [history, setHistory] = useState([]);
+  const lastTimeRef = useRef(performance.now());
+  const fpsHistoryRef = useRef([]);
+  const animationFrameRef = useRef(null);
+  const lastUpdateRef = useRef(performance.now());
+
+  const measureFrame = useCallback((currentTime) => {
+    const deltaTime = currentTime - lastTimeRef.current;
+    if (deltaTime > 0) {
+      const instantFps = 1000 / deltaTime;
+      fpsHistoryRef.current.push(instantFps);
+      if (fpsHistoryRef.current.length > 60) fpsHistoryRef.current.shift();
+    }
+    lastTimeRef.current = currentTime;
+
+    if (currentTime - lastUpdateRef.current >= 100) {
+      const recentFps = fpsHistoryRef.current.slice(-10);
+      const currentFps = recentFps.length > 0
+        ? recentFps.reduce((a, b) => a + b, 0) / recentFps.length
+        : 0;
+      setFps(Math.round(currentFps));
+      setHistory(prev => {
+        const newHistory = [...prev, Math.round(currentFps)];
+        if (newHistory.length > 30) newHistory.shift();
+        return newHistory;
+      });
+      lastUpdateRef.current = currentTime;
+    }
+    animationFrameRef.current = requestAnimationFrame(measureFrame);
+  }, []);
+
+  useEffect(() => {
+    animationFrameRef.current = requestAnimationFrame(measureFrame);
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    };
+  }, [measureFrame]);
+
+  // Only show in dev
+  if (!import.meta.env.DEV) return null;
+
+  const getFpsColor = (value) => {
+    if (value >= 55) return '#22c55e';
+    if (value >= 30) return '#eab308';
+    return '#ef4444';
+  };
+
+  const graphWidth = 60;
+  const graphHeight = 20;
+  const maxFps = 120;
+
+  const generatePath = () => {
+    if (history.length < 2) return '';
+    const points = history.map((value, index) => {
+      const x = (index / 29) * graphWidth;
+      const y = graphHeight - (Math.min(value, maxFps) / maxFps) * graphHeight;
+      return `${x},${y}`;
+    });
+    return `M ${points.join(' L ')}`;
+  };
+
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '4px 8px',
+      background: 'rgba(0,0,0,0.85)',
+      borderRadius: '6px',
+      marginLeft: '8px'
+    }}>
+      <div style={{
+        width: '6px',
+        height: '6px',
+        borderRadius: '50%',
+        backgroundColor: getFpsColor(fps),
+        animation: 'pulse 2s infinite'
+      }} />
+      <span style={{
+        color: getFpsColor(fps),
+        fontSize: '12px',
+        fontWeight: 'bold',
+        fontFamily: 'ui-monospace, monospace',
+        minWidth: '28px'
+      }}>
+        {fps}
+      </span>
+      <svg width={graphWidth} height={graphHeight} style={{ display: 'block' }}>
+        <line x1="0" y1={graphHeight - (60/maxFps)*graphHeight} x2={graphWidth} y2={graphHeight - (60/maxFps)*graphHeight} stroke="#22c55e" strokeWidth="1" strokeDasharray="2,2" opacity="0.4" />
+        <path d={generatePath()} fill="none" stroke={getFpsColor(fps)} strokeWidth="1.5" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+}
 
 const NAV_LINKS = [
   { label: 'Neoflix', to: '/neoflix' },
@@ -172,10 +270,13 @@ export default function Navbar() {
         } catch {}
       }}
     >
-      {/* Logo */}
-      <div className="flex items-center h-full pl-6 pr-4 cursor-pointer" onClick={() => navigate('/')}> 
-        <span className="sr-only">Home</span>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
+      {/* Logo + FPS Counter */}
+      <div className="flex items-center h-full pl-6 pr-4">
+        <div className="cursor-pointer" onClick={() => navigate('/')}>
+          <span className="sr-only">Home</span>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
+        </div>
+        <NavbarFPSCounter />
       </div>
       {/* Inline links (snug on tablet) */}
       <div className="flex flex-1 justify-end items-center h-full" style={{ paddingRight: isMobile ? 12 : 64 }}>
