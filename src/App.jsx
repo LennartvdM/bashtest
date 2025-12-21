@@ -8,6 +8,7 @@ import SidebarScrollSpyDemo from './components/Sidebar';
 import Home from './pages/Home';
 import WorldMapEditor from './components/WorldMapEditor';
 import ViewTransition from './components/ViewTransition';
+import FPSCounter from './components/FPSCounter';
 
 function AppShell() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function AppShell() {
   return (
     <ViewTransition>
       <div className={`min-h-screen ${isNeoflix ? '' : 'bg-[#F5F9FC]'}`}>
+        <FPSCounter position="top-right" />
         {!showMapEditor && <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
