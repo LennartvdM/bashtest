@@ -8,6 +8,7 @@ import SidebarScrollSpyDemo from './components/Sidebar';
 import Home from './pages/Home';
 import WorldMapEditor from './components/WorldMapEditor';
 import ViewTransition from './components/ViewTransition';
+import FPSCounter from './components/FPSCounter';
 
 function AppShell() {
   const location = useLocation();
@@ -25,6 +26,8 @@ function AppShell() {
           <Route path="/toolbox" element={<Toolbox />} />
           <Route path="/map-editor" element={<WorldMapEditor />} />
         </Routes>
+        {/* FPS Counter - only visible in development */}
+        <FPSCounter position="bottom-left" />
       </div>
     </ViewTransition>
   );
