@@ -1,7 +1,52 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Stage, Layer, Rect, Text, Image as KonvaImage, Group } from 'react-konva';
+import { Stage, Layer, Rect, Text, Image as KonvaImage, Group, Line, Shape } from 'react-konva';
 import { useSectionLifecycle } from '../../hooks/useSectionLifecycle';
 import { useTabletLayout } from '../../hooks/useTabletLayout';
+
+// Easing functions matching CSS cubic-bezier
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOutBack = (t) => {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+};
+
+// Custom hook for animated values
+const useAnimatedValue = (targetValue, duration = 300, easing = easeOutCubic) => {
+  const [value, setValue] = useState(targetValue);
+  const animationRef = useRef(null);
+  const startValueRef = useRef(targetValue);
+  const startTimeRef = useRef(null);
+
+  useEffect(() => {
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+    startValueRef.current = value;
+    startTimeRef.current = null;
+
+    const animate = (timestamp) => {
+      if (!startTimeRef.current) startTimeRef.current = timestamp;
+      const elapsed = timestamp - startTimeRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easing(progress);
+
+      const newValue = startValueRef.current + (targetValue - startValueRef.current) * easedProgress;
+      setValue(newValue);
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [targetValue, duration, easing]);
+
+  return value;
+};
 
 // Variant configurations matching V2 and V3
 const VARIANTS = {
@@ -92,24 +137,29 @@ const useVideoElement = (src, shouldPlay) => {
 };
 
 // Video component that renders on Konva canvas
-const KonvaVideo = ({ src, x, y, width, height, opacity = 1, cornerRadius = 0, shouldPlay, onFrame }) => {
+const KonvaVideo = ({ src, x, y, width, height, opacity = 1, cornerRadius = 0, shouldPlay, brightness = 1 }) => {
   const { imageNode } = useVideoElement(src, shouldPlay);
   const imageRef = useRef(null);
+  const layerRef = useRef(null);
 
   useEffect(() => {
     if (!imageNode) return;
 
+    let frameId;
     const anim = () => {
       if (imageRef.current) {
-        imageRef.current.getLayer()?.batchDraw();
+        const layer = imageRef.current.getLayer();
+        if (layer && layer !== layerRef.current) {
+          layerRef.current = layer;
+        }
+        layerRef.current?.batchDraw();
       }
-      onFrame?.();
-      requestAnimationFrame(anim);
+      frameId = requestAnimationFrame(anim);
     };
 
-    const frameId = requestAnimationFrame(anim);
+    frameId = requestAnimationFrame(anim);
     return () => cancelAnimationFrame(frameId);
-  }, [imageNode, onFrame]);
+  }, [imageNode]);
 
   if (!imageNode) return null;
 
@@ -137,35 +187,101 @@ const KonvaVideo = ({ src, x, y, width, height, opacity = 1, cornerRadius = 0, s
         width={width}
         height={height}
         opacity={opacity}
+        filters={brightness !== 1 ? [Konva.Filters.Brighten] : undefined}
+        brightness={brightness - 1}
       />
     </Group>
   );
 };
 
-// Animated progress bar component
-const ProgressBar = ({ x, y, width, height, progress, color = 'rgba(82, 156, 156, 1)' }) => {
+// Cookie Cutter Band component rendered on canvas
+const CookieCutterBand = ({ x, y, bandWidth, bandHeight, cutoutX, cutoutY, cutoutWidth, cutoutHeight, cornerRadius, opacity, isVideoLeft }) => {
   return (
-    <Rect
+    <Shape
       x={x}
       y={y}
-      width={width * progress}
-      height={height}
-      fill={color}
-      cornerRadius={2}
+      opacity={opacity * 0.4}
+      sceneFunc={(context, shape) => {
+        context.beginPath();
+
+        if (isVideoLeft) {
+          // Mirrored: rounded left corners, straight right corners
+          context.moveTo(cornerRadius, 0);
+          context.lineTo(bandWidth, 0);
+          context.lineTo(bandWidth, bandHeight);
+          context.lineTo(cornerRadius, bandHeight);
+          context.quadraticCurveTo(0, bandHeight, 0, bandHeight - cornerRadius);
+          context.lineTo(0, cornerRadius);
+          context.quadraticCurveTo(0, 0, cornerRadius, 0);
+        } else {
+          // Original: straight left corners, rounded right corners
+          context.moveTo(0, 0);
+          context.lineTo(bandWidth - cornerRadius, 0);
+          context.quadraticCurveTo(bandWidth, 0, bandWidth, cornerRadius);
+          context.lineTo(bandWidth, bandHeight - cornerRadius);
+          context.quadraticCurveTo(bandWidth, bandHeight, bandWidth - cornerRadius, bandHeight);
+          context.lineTo(0, bandHeight);
+        }
+        context.closePath();
+
+        // Create cutout
+        context.moveTo(cutoutX + cornerRadius, cutoutY);
+        context.lineTo(cutoutX + cutoutWidth - cornerRadius, cutoutY);
+        context.quadraticCurveTo(cutoutX + cutoutWidth, cutoutY, cutoutX + cutoutWidth, cutoutY + cornerRadius);
+        context.lineTo(cutoutX + cutoutWidth, cutoutY + cutoutHeight - cornerRadius);
+        context.quadraticCurveTo(cutoutX + cutoutWidth, cutoutY + cutoutHeight, cutoutX + cutoutWidth - cornerRadius, cutoutY + cutoutHeight);
+        context.lineTo(cutoutX + cornerRadius, cutoutY + cutoutHeight);
+        context.quadraticCurveTo(cutoutX, cutoutY + cutoutHeight, cutoutX, cutoutY + cutoutHeight - cornerRadius);
+        context.lineTo(cutoutX, cutoutY + cornerRadius);
+        context.quadraticCurveTo(cutoutX, cutoutY, cutoutX + cornerRadius, cutoutY);
+        context.closePath();
+
+        context.fillStrokeShape(shape);
+      }}
+      fill="#f0f4f6"
+      globalCompositeOperation="screen"
     />
   );
 };
 
-// Caption button component
+// Targeting outline component with scale animation
+const TargetingOutline = ({ x, y, width, height, cornerRadius, isActive, scale, opacity }) => {
+  const actualWidth = width * scale;
+  const actualHeight = height * scale;
+  const offsetX = (actualWidth - width) / 2;
+  const offsetY = (actualHeight - height) / 2;
+
+  return (
+    <Rect
+      x={x - offsetX}
+      y={y - offsetY}
+      width={actualWidth}
+      height={actualHeight}
+      stroke="white"
+      strokeWidth={3}
+      cornerRadius={cornerRadius}
+      opacity={opacity}
+    />
+  );
+};
+
+// Caption button component with enhanced animations
 const CaptionButton = ({
   x, y, width, height,
   firstLine, secondLine,
   isActive, isHovered,
   onMouseEnter, onMouseLeave, onClick,
-  textAlign = 'right'
+  textAlign = 'right',
+  highlighterY,
+  progress,
+  showProgress
 }) => {
-  const textColor = isHovered ? '#2D6A6A' : isActive ? '#2a2323' : '#bdbdbd';
-  const bgOpacity = isActive ? 1 : 0;
+  // Animated color transitions
+  const getTextColor = () => {
+    if (isHovered) return '#2D6A6A';
+    if (isActive) return '#2a2323';
+    return '#bdbdbd';
+  };
 
   return (
     <Group
@@ -176,28 +292,16 @@ const CaptionButton = ({
       onClick={onClick}
       onTap={onClick}
     >
-      {/* Background highlight for active item */}
-      <Rect
-        width={width}
-        height={height}
-        fill="rgba(228, 228, 228, 1)"
-        cornerRadius={10}
-        opacity={bgOpacity}
-        shadowColor="rgba(0,0,0,0.25)"
-        shadowBlur={2}
-        shadowOffset={{ x: 1, y: 1 }}
-      />
-
       {/* First line */}
       <Text
         x={24}
-        y={12}
+        y={16}
         width={width - 48}
         text={firstLine}
         fontSize={24}
         fontFamily="Inter, sans-serif"
         fontStyle="500"
-        fill={textColor}
+        fill={getTextColor()}
         align={textAlign}
         letterSpacing={-0.5}
       />
@@ -205,13 +309,13 @@ const CaptionButton = ({
       {/* Second line */}
       <Text
         x={24}
-        y={42}
+        y={46}
         width={width - 48}
         text={secondLine}
         fontSize={24}
         fontFamily="Inter, sans-serif"
         fontStyle="500"
-        fill={textColor}
+        fill={getTextColor()}
         align={textAlign}
         letterSpacing={-0.5}
       />
@@ -224,17 +328,63 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
   const { blurVideos, headlines, mainVideos, orientation, id: sectionId, headerTitle, accentWord } = config;
 
   const { sectionState, shouldAnimate, isActive } = useSectionLifecycle(sectionId, inView);
-  const { isDesktop, isTablet, isTabletPortrait } = useTabletLayout();
+  const { isTabletPortrait } = useTabletLayout();
 
-  // State
+  // Core state
   const [currentVideo, setCurrentVideo] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [videoHover, setVideoHover] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [headerVisible, setHeaderVisible] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  // Animation states for entrance
+  const [headerLine1Visible, setHeaderLine1Visible] = useState(false);
+  const [headerLine2Visible, setHeaderLine2Visible] = useState(false);
+  const [headerLine3Visible, setHeaderLine3Visible] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
   const [captionsVisible, setCaptionsVisible] = useState(false);
-  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [interactionsEnabled, setInteractionsEnabled] = useState(false);
+
+  // Animated values
+  const videoNudgeY = useAnimatedValue(videoHover && interactionsEnabled ? -12 : 0, 300, easeOutBack);
+  const videoOutlineScale = useAnimatedValue(videoHover && interactionsEnabled ? 1 : 1.08, 900, easeOutCubic);
+  const videoOutlineOpacity = useAnimatedValue(videoHover && interactionsEnabled ? 0.5 : 0, 200, easeOutCubic);
+
+  const captionOutlineScale = useAnimatedValue(
+    hoveredIndex === currentVideo && interactionsEnabled ? 1 : 1.08,
+    900,
+    easeOutCubic
+  );
+  const captionOutlineOpacity = useAnimatedValue(
+    (hoveredIndex === currentVideo || hoveredIndex === null) && interactionsEnabled ? 0.4 : 0,
+    200,
+    easeOutCubic
+  );
+
+  // Video entrance animation
+  const videoSlideX = useAnimatedValue(
+    videoVisible ? 0 : (orientation === 'video-left' ? 200 : -200),
+    2250,
+    easeInOutCubic
+  );
+  const videoOpacity = useAnimatedValue(videoVisible ? 1 : 0, 2250, easeInOutCubic);
+
+  // Caption entrance animation
+  const captionSlideX = useAnimatedValue(
+    captionsVisible ? 0 : (orientation === 'video-left' ? -200 : 200),
+    2250,
+    easeInOutCubic
+  );
+  const captionOpacity = useAnimatedValue(captionsVisible ? 1 : 0, 2250, easeInOutCubic);
+
+  // Header line opacities
+  const headerLine1Opacity = useAnimatedValue(headerLine1Visible ? 1 : 0, 2250, easeOutCubic);
+  const headerLine2Opacity = useAnimatedValue(headerLine2Visible ? 1 : 0, 2250, easeOutCubic);
+  const headerLine3Opacity = useAnimatedValue(headerLine3Visible ? 1 : 0, 2250, easeOutCubic);
+
+  // Highlighter position animation
+  const highlighterY = useAnimatedValue(currentVideo * 88, 600, easeOutCubic);
 
   const progressRef = useRef(0);
   const lastTimeRef = useRef(null);
@@ -251,22 +401,37 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Entrance animations
+  // Entrance animations with staggered timing
   useEffect(() => {
     if (shouldAnimate) {
+      // Reset all states
       setCurrentVideo(0);
       setIsPaused(true);
-      setHeaderVisible(false);
+      setHeaderLine1Visible(false);
+      setHeaderLine2Visible(false);
+      setHeaderLine3Visible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
+      setInteractionsEnabled(false);
       setProgress(0);
       progressRef.current = 0;
 
       const timers = [];
-      timers.push(setTimeout(() => setHeaderVisible(true), 450));
+
+      // Staggered header lines
+      timers.push(setTimeout(() => setHeaderLine1Visible(true), 450));
+      timers.push(setTimeout(() => setHeaderLine2Visible(true), 1575)); // 450 + 1125
+      timers.push(setTimeout(() => setHeaderLine3Visible(true), 1575)); // Same as line 2
+
+      // Video and captions
       timers.push(setTimeout(() => setVideoVisible(true), 2925));
       timers.push(setTimeout(() => setCaptionsVisible(true), 3225));
-      timers.push(setTimeout(() => setIsPaused(false), 6000));
+
+      // Enable interactions after entrance
+      timers.push(setTimeout(() => {
+        setInteractionsEnabled(true);
+        setIsPaused(false);
+      }, 6000));
 
       return () => timers.forEach(clearTimeout);
     }
@@ -279,6 +444,7 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
       return;
     }
 
+    let frameId;
     const animate = (timestamp) => {
       if (!lastTimeRef.current) {
         lastTimeRef.current = timestamp;
@@ -295,14 +461,14 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
       }
 
       setProgress(progressRef.current);
-      requestAnimationFrame(animate);
+      frameId = requestAnimationFrame(animate);
     };
 
-    const frameId = requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
   }, [isPaused, sectionState]);
 
-  // Reset on video change
+  // Reset progress on video change
   useEffect(() => {
     progressRef.current = 0;
     setProgress(0);
@@ -312,9 +478,12 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
   // Cleanup when section becomes inactive
   useEffect(() => {
     if (sectionState === 'preserving' || sectionState === 'cleaned' || sectionState === 'idle') {
-      setHeaderVisible(false);
+      setHeaderLine1Visible(false);
+      setHeaderLine2Visible(false);
+      setHeaderLine3Visible(false);
       setVideoVisible(false);
       setCaptionsVisible(false);
+      setInteractionsEnabled(false);
       setCurrentVideo(0);
       setIsPaused(true);
       setProgress(0);
@@ -323,23 +492,34 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
 
   // Handlers
   const handleCaptionHover = useCallback((index) => {
+    if (!interactionsEnabled) return;
     if (typeof index === 'number') {
       setHoveredIndex(index);
       setCurrentVideo(index);
       setIsPaused(true);
     }
-  }, []);
+  }, [interactionsEnabled]);
 
   const handleCaptionLeave = useCallback(() => {
+    if (!interactionsEnabled) return;
     setHoveredIndex(null);
     setIsPaused(false);
-  }, []);
+  }, [interactionsEnabled]);
 
   const handleCaptionClick = useCallback((index) => {
+    if (!interactionsEnabled) return;
     setCurrentVideo(index);
     setIsPaused(true);
     setTimeout(() => setIsPaused(false), 100);
-  }, []);
+  }, [interactionsEnabled]);
+
+  const handleVideoMouseEnter = useCallback(() => {
+    if (interactionsEnabled) setVideoHover(true);
+  }, [interactionsEnabled]);
+
+  const handleVideoMouseLeave = useCallback(() => {
+    if (interactionsEnabled) setVideoHover(false);
+  }, [interactionsEnabled]);
 
   // Layout calculations
   const navbarHeight = 60;
@@ -351,6 +531,11 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
   const captionItemHeight = 80;
   const headerHeight = 180;
   const gap = 32;
+  const cornerRadius = 16;
+
+  // Cookie cutter band dimensions
+  const bandWidth = stageWidth * 0.55;
+  const bandHeight = videoHeight;
 
   // Center calculations
   const totalContentHeight = headerHeight + gap + videoHeight;
@@ -359,12 +544,12 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
   const centerX = stageWidth / 2;
 
   // Position calculations based on orientation
-  const videoX = isVideoLeft
+  const videoBaseX = isVideoLeft
     ? centerX + 20
     : centerX - 20 - videoWidth;
   const videoY = contentTop + headerHeight + gap;
 
-  const captionX = isVideoLeft
+  const captionBaseX = isVideoLeft
     ? centerX - 20 - captionWidth
     : centerX + 20;
   const captionY = videoY;
@@ -374,10 +559,29 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
     : centerX - gap / 2 - videoWidth;
   const headerY = contentTop;
 
-  // Animation interpolation
-  const videoOpacity = videoVisible ? 1 : 0;
-  const captionOpacity = captionsVisible ? 1 : 0;
-  const headerOpacity = headerVisible ? 1 : 0;
+  // Apply slide animations
+  const videoX = videoBaseX + videoSlideX;
+  const captionX = captionBaseX + captionSlideX;
+
+  // Cookie cutter band position
+  const bandX = isVideoLeft ? 0 : stageWidth - bandWidth;
+  const bandY = videoY;
+  const cutoutX = isVideoLeft ? 0 : bandWidth - videoWidth;
+
+  // Blur video opacities with smooth transitions
+  const getBlurOpacity = (index) => {
+    if (index === BASE_INDEX) return 0.7; // Base always visible
+    if (index === currentVideo) return 0.7;
+    return 0;
+  };
+
+  // Main video opacities (sequential card removal, not crossfade)
+  const getVideoOpacity = (index) => {
+    if (index === BASE_INDEX) return 1; // Base always visible
+    if (currentVideo === 0) return 1; // State 0: all visible
+    if (currentVideo === 1) return index === 0 ? 0 : 1; // State 1: remove first
+    return 0; // State 2: remove all overlays
+  };
 
   if (sectionState === 'idle' || sectionState === 'cleaned') {
     return (
@@ -414,10 +618,11 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
             width={stageWidth * 1.04}
             height={stageHeight}
             opacity={0.7}
+            brightness={0.7}
             shouldPlay={isActive || shouldAnimate}
           />
 
-          {/* Overlay blur videos */}
+          {/* Overlay blur videos with crossfade */}
           {blurVideos.map((video, index) => (
             index !== BASE_INDEX && (
               <KonvaVideo
@@ -427,39 +632,47 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
                 y={0}
                 width={stageWidth * 1.04}
                 height={stageHeight}
-                opacity={index === currentVideo ? 0.7 : 0}
+                opacity={getBlurOpacity(index)}
+                brightness={0.7}
                 shouldPlay={(isActive || shouldAnimate) && (index === 0 ? currentVideo === 0 : currentVideo <= 1)}
               />
             )
           ))}
-
-          {/* Darkening overlay */}
-          <Rect
-            x={0}
-            y={0}
-            width={stageWidth}
-            height={stageHeight}
-            fill="rgba(0, 0, 0, 0.3)"
-          />
         </Layer>
 
         {/* Content Layer */}
         <Layer>
-          {/* Header */}
-          <Group x={headerX} y={headerY} opacity={headerOpacity}>
+          {/* Cookie Cutter Band */}
+          <CookieCutterBand
+            x={bandX}
+            y={bandY + videoNudgeY}
+            bandWidth={bandWidth}
+            bandHeight={bandHeight}
+            cutoutX={cutoutX}
+            cutoutY={0}
+            cutoutWidth={videoWidth}
+            cutoutHeight={videoHeight}
+            cornerRadius={20}
+            opacity={videoOpacity}
+            isVideoLeft={isVideoLeft}
+          />
+
+          {/* Header with staggered line animations */}
+          <Group x={headerX} y={headerY}>
             {headerTitle.map((line, i) => {
-              const isAccentLine = line.includes(accentWord);
-              let textContent = line;
+              const lineOpacity = i === 0 ? headerLine1Opacity : i === 1 ? headerLine2Opacity : headerLine3Opacity;
+              const isAccentLine = i === 1;
 
               return (
                 <Text
                   key={i}
                   y={i * 58}
-                  text={textContent}
+                  text={line}
                   fontSize={48}
                   fontFamily="Inter, sans-serif"
                   fontStyle="bold"
-                  fill={isAccentLine && i === 1 ? '#3fd1c7' : '#ffffff'}
+                  fill={isAccentLine ? '#3fd1c7' : '#ffffff'}
+                  opacity={lineOpacity}
                   letterSpacing={-2}
                   align={isVideoLeft ? 'right' : 'left'}
                   width={videoWidth}
@@ -471,48 +684,129 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
             })}
           </Group>
 
-          {/* Main Video Container */}
-          <Group x={videoX} y={videoY} opacity={videoOpacity}>
+          {/* Main Video Container with hover effects */}
+          <Group
+            x={videoX}
+            y={videoY + videoNudgeY}
+            opacity={videoOpacity}
+            onMouseEnter={handleVideoMouseEnter}
+            onMouseLeave={handleVideoMouseLeave}
+          >
+            {/* Targeting outline */}
+            <TargetingOutline
+              x={0}
+              y={0}
+              width={videoWidth}
+              height={videoHeight}
+              cornerRadius={cornerRadius}
+              isActive={videoHover && interactionsEnabled}
+              scale={videoOutlineScale}
+              opacity={videoOutlineOpacity}
+            />
+
             {/* Video frame background */}
             <Rect
               width={videoWidth}
               height={videoHeight}
               fill="#000"
-              cornerRadius={16}
+              cornerRadius={cornerRadius}
             />
 
-            {/* Main videos - stacked with opacity */}
+            {/* Base video (always visible) */}
+            <KonvaVideo
+              src={mainVideos[BASE_INDEX].video}
+              x={0}
+              y={0}
+              width={videoWidth}
+              height={videoHeight}
+              opacity={1}
+              cornerRadius={cornerRadius}
+              shouldPlay={isActive || shouldAnimate}
+            />
+
+            {/* Overlay videos - sequential removal */}
             {mainVideos.map((video, index) => (
-              <KonvaVideo
-                key={video.id}
-                src={video.video}
-                x={0}
-                y={0}
-                width={videoWidth}
-                height={videoHeight}
-                opacity={index === currentVideo ? 1 : index === BASE_INDEX ? 1 : 0}
-                cornerRadius={16}
-                shouldPlay={(isActive || shouldAnimate) && (index === currentVideo || index === BASE_INDEX)}
-              />
+              index !== BASE_INDEX && (
+                <KonvaVideo
+                  key={video.id}
+                  src={video.video}
+                  x={0}
+                  y={0}
+                  width={videoWidth}
+                  height={videoHeight}
+                  opacity={getVideoOpacity(index)}
+                  cornerRadius={cornerRadius}
+                  shouldPlay={(isActive || shouldAnimate) && getVideoOpacity(index) > 0}
+                />
+              )
             ))}
 
             {/* Frame border */}
             <Rect
               width={videoWidth}
               height={videoHeight}
-              stroke="rgba(255, 255, 255, 0.2)"
-              strokeWidth={2}
-              cornerRadius={16}
+              stroke={videoHover && interactionsEnabled ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.2)"}
+              strokeWidth={videoHover && interactionsEnabled ? 3 : 2}
+              cornerRadius={cornerRadius}
             />
           </Group>
 
-          {/* Captions */}
+          {/* Horizontal connecting line */}
+          {!isTabletPortrait && (
+            <Line
+              points={isVideoLeft
+                ? [videoX, videoY + videoHeight / 2, captionX + captionWidth, videoY + videoHeight / 2]
+                : [captionX, videoY + videoHeight / 2, videoX + videoWidth, videoY + videoHeight / 2]
+              }
+              stroke="#e0e0e0"
+              strokeWidth={5}
+              opacity={captionOpacity * 0.2}
+            />
+          )}
+
+          {/* Captions with highlighter */}
           <Group x={captionX} y={captionY} opacity={captionOpacity}>
+            {/* Sliding highlighter background */}
+            <Group y={highlighterY}>
+              {/* Targeting outline for caption */}
+              <TargetingOutline
+                x={0}
+                y={0}
+                width={captionWidth}
+                height={captionItemHeight}
+                cornerRadius={10}
+                isActive={hoveredIndex === currentVideo}
+                scale={captionOutlineScale}
+                opacity={captionOutlineOpacity}
+              />
+
+              {/* Highlighter background */}
+              <Rect
+                width={captionWidth}
+                height={captionItemHeight}
+                fill="rgba(228, 228, 228, 1)"
+                cornerRadius={10}
+                shadowColor="rgba(0,0,0,0.25)"
+                shadowBlur={2}
+                shadowOffset={{ x: 1, y: 1 }}
+              />
+
+              {/* Progress bar */}
+              <Rect
+                x={0}
+                y={captionItemHeight - 5}
+                width={captionWidth * progress}
+                height={5}
+                fill="rgba(82, 156, 156, 1)"
+              />
+            </Group>
+
+            {/* Caption buttons */}
             {headlines.map((headline, i) => (
               <CaptionButton
                 key={i}
                 x={0}
-                y={i * (captionItemHeight + 8)}
+                y={i * 88}
                 width={captionWidth}
                 height={captionItemHeight}
                 firstLine={headline.firstLine}
@@ -525,15 +819,6 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
                 textAlign={isVideoLeft ? 'left' : 'right'}
               />
             ))}
-
-            {/* Progress bar for active caption */}
-            <ProgressBar
-              x={0}
-              y={currentVideo * (captionItemHeight + 8) + captionItemHeight - 5}
-              width={captionWidth}
-              height={5}
-              progress={progress}
-            />
           </Group>
         </Layer>
       </Stage>
@@ -544,7 +829,7 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
           position: 'absolute',
           bottom: 20,
           right: 20,
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'rgba(0, 0, 0, 0.6)',
           color: '#3fd1c7',
           padding: '8px 16px',
           borderRadius: 8,
@@ -553,10 +838,12 @@ const KonvaMedicalSection = ({ inView, sectionRef, variant = 'v4' }) => {
           fontWeight: 600,
           letterSpacing: 1,
           pointerEvents: 'none',
-          zIndex: 100
+          zIndex: 100,
+          backdropFilter: 'blur(4px)',
+          border: '1px solid rgba(63, 209, 199, 0.3)'
         }}
       >
-        KONVA {variant.toUpperCase()}
+        ▲ KONVA {variant.toUpperCase()}
       </div>
     </div>
   );
