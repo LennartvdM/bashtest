@@ -44,9 +44,6 @@ function NavbarFPSCounter() {
     };
   }, [measureFrame]);
 
-  // Only show in dev
-  if (!import.meta.env.DEV) return null;
-
   const getFpsColor = (value) => {
     if (value >= 55) return '#22c55e';
     if (value >= 30) return '#eab308';

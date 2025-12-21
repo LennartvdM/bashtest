@@ -96,9 +96,6 @@ const FPSCounter = ({
     };
   }, [measureFrame]);
 
-  // Only render in development (Vite uses import.meta.env)
-  if (!import.meta.env.DEV) return null;
-
   // Get color based on FPS value
   const getFpsColor = (value) => {
     if (value >= 55) return '#22c55e'; // green
