@@ -168,7 +168,14 @@ const VARIANTS = {
       { id: "2", video: "/videos/focus.mp4", alt: "Medical focus and precision" },
     ],
     cookieComponent: SimpleCookieCutterBand,
-    orientation: 'video-right'
+    orientation: 'video-right',
+    header: {
+      line1: 'In the moment,',
+      line2prefix: '',
+      line2highlight: 'only',
+      line2suffix: ' the patient',
+      line3: 'matters'
+    }
   },
   v3: {
     id: 'medical-v3',
@@ -188,7 +195,14 @@ const VARIANTS = {
       { id: "2", video: "/videos/perspectives.mp4", alt: "Shared perspectives" },
     ],
     cookieComponent: MirroredCookieCutterBand,
-    orientation: 'video-left'
+    orientation: 'video-left',
+    header: {
+      line1: 'Yet,',
+      line2prefix: '',
+      line2highlight: 'reflection',
+      line2suffix: '',
+      line3: 'strengthens the next'
+    }
   }
 };
 
@@ -204,6 +218,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
     cookieComponent: CookieCutterBand,
     orientation,
     id: sectionId,
+    header,
   } = config;
   const { 
     sectionState, 
@@ -782,9 +797,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             <div style={{ width: '70%', margin: 0 }}>
               <AutoFitHeading
                 lines={[
-                  'In the moment,',
-                  <span key="only-line"><span style={{ color: '#3fd1c7' }}>only</span> the patient</span>,
-                  'Matters'
+                  header.line1,
+                  <span key="highlight-line">{header.line2prefix}<span style={{ color: '#3fd1c7' }}>{header.line2highlight}</span>{header.line2suffix}</span>,
+                  header.line3
                 ]}
                 minPx={isTabletLandscape ? 22 : 26}
                 maxPx={isTabletLandscape ? 36 : 44}
@@ -955,12 +970,12 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               textAlign: 'left',
               width: '100%'
             }}>
-              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease' : 'none' }}>In the moment,</span>
+              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease' : 'none' }}>{header.line1}</span>
               <br />
-              <span style={{ opacity: headerVisible ? 1 : 0, color: '#3fd1c7', transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>only</span>
-              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}> {' '}the patient</span>
+              <span style={{ opacity: headerVisible ? 1 : 0, color: '#3fd1c7', transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line2highlight}</span>
+              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line2suffix}</span>
               <br />
-              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>matters</span>
+              <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line3}</span>
             </h2>
           </div>
         </div>
@@ -1371,40 +1386,40 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             userSelect: 'none',
             WebkitUserSelect: 'none'
           }}>
-            <span 
+            <span
               style={{
                 transition: shouldTransition ? 'opacity 2.25s ease' : 'none',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
-              In the moment,
+              {header.line1}
             </span>
             <br />
-            <span 
+            <span
               style={{
                 transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
                 opacity: headerVisible ? 1 : 0,
                 color: '#3fd1c7'
               }}
             >
-              only
+              {header.line2highlight}
             </span>
-            <span 
+            <span
               style={{
                 transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
-              {' '}the patient
+              {header.line2suffix}
             </span>
             <br />
-            <span 
+            <span
               style={{
                 transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
                 opacity: headerVisible ? 1 : 0,
               }}
             >
-              matters
+              {header.line3}
             </span>
           </h2>
         </div>
