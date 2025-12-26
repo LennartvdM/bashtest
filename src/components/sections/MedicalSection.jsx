@@ -198,10 +198,12 @@ const VARIANTS = {
     orientation: 'video-left',
     header: {
       line1: 'Yet,',
+      line1suffix: ' ',
       line2prefix: '',
       line2highlight: 'reflection',
       line2suffix: '',
-      line3: 'strengthens the next'
+      line3: 'strengthens',
+      line4: 'the next'
     }
   }
 };
@@ -797,10 +799,14 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             <div style={{ width: '70%', margin: 0 }}>
               <AutoFitHeading
                 lines={[
-                  header.line1,
-                  <span key="highlight-line">{header.line2prefix}<span style={{ color: '#3fd1c7' }}>{header.line2highlight}</span>{header.line2suffix}</span>,
-                  header.line3
-                ]}
+                  header.line1suffix ? (
+                    <span key="combined-line">{header.line1}{header.line1suffix}<span style={{ color: '#3fd1c7' }}>{header.line2highlight}</span>{header.line2suffix}</span>
+                  ) : header.line1,
+                  header.line1suffix ? header.line3 : (
+                    <span key="highlight-line">{header.line2prefix}<span style={{ color: '#3fd1c7' }}>{header.line2highlight}</span>{header.line2suffix}</span>
+                  ),
+                  header.line1suffix ? header.line4 : header.line3
+                ].filter(Boolean)}
                 minPx={isTabletLandscape ? 22 : 26}
                 maxPx={isTabletLandscape ? 36 : 44}
                 lineHeight={1.2}
@@ -971,11 +977,21 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               width: '100%'
             }}>
               <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease' : 'none' }}>{header.line1}</span>
-              <br />
+              {header.line1suffix ? (
+                <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line1suffix}</span>
+              ) : (
+                <br />
+              )}
               <span style={{ opacity: headerVisible ? 1 : 0, color: '#3fd1c7', transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line2highlight}</span>
               <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line2suffix}</span>
               <br />
               <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line3}</span>
+              {header.line4 && (
+                <>
+                  <br />
+                  <span style={{ opacity: headerVisible ? 1 : 0, transition: shouldTransition ? 'opacity 1.2s ease 0.6s' : 'none' }}>{header.line4}</span>
+                </>
+              )}
             </h2>
           </div>
         </div>
@@ -1394,7 +1410,18 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             >
               {header.line1}
             </span>
-            <br />
+            {header.line1suffix ? (
+              <span
+                style={{
+                  transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
+                  opacity: headerVisible ? 1 : 0,
+                }}
+              >
+                {header.line1suffix}
+              </span>
+            ) : (
+              <br />
+            )}
             <span
               style={{
                 transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
@@ -1421,6 +1448,19 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             >
               {header.line3}
             </span>
+            {header.line4 && (
+              <>
+                <br />
+                <span
+                  style={{
+                    transition: shouldTransition ? 'opacity 2.25s ease 1.125s' : 'none',
+                    opacity: headerVisible ? 1 : 0,
+                  }}
+                >
+                  {header.line4}
+                </span>
+              </>
+            )}
           </h2>
         </div>
       </div>
