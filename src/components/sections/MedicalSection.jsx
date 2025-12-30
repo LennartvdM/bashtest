@@ -1215,7 +1215,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             paddingLeft: 0,
           }}
         >
-          <div className="relative flex flex-col gap-2 items-start" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
+          <div className="relative flex flex-col gap-2 items-stretch" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
             {((rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height)) || (isLandscapeTablet && sectionState !== 'idle')) && (
               <>
                 {/* Targeting outline container */}
