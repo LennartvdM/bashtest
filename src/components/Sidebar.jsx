@@ -354,15 +354,15 @@ export default function SidebarScrollSpyDemo() {
                 key={src}
                 className="absolute inset-0 w-full h-full object-cover"
                 src={src}
-                autoPlay
+                autoPlay={isVisible}
                 muted
                 loop
                 playsInline
-                preload="auto"
+                preload={isVisible ? "auto" : "metadata"}
                 initial={{ opacity: isVisible ? 1 : 0 }}
                 animate={{ opacity: isVisible ? 1 : 0 }}
                 transition={{ duration: 0.6, ease: 'easeInOut' }}
-                style={{ 
+                style={{
                   transform: 'scale(1.06)', // Slight bleed to avoid edge crop
                   zIndex: idx // Stack order
                 }}
@@ -370,13 +370,13 @@ export default function SidebarScrollSpyDemo() {
                   const vid = e.target;
                   vid.playbackRate = 0.5;
                   vid.defaultPlaybackRate = 0.5;
-                  vid.play().catch(() => {});
+                  if (isVisible) vid.play().catch(() => {});
                 }}
                 onCanPlay={(e) => {
                   const vid = e.target;
                   vid.playbackRate = 0.5;
                   vid.defaultPlaybackRate = 0.5;
-                  vid.play().catch(() => {});
+                  if (isVisible) vid.play().catch(() => {});
                 }}
               />
             );

@@ -896,7 +896,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             isPlaying={isActive || shouldAnimate}
             className="w-full h-full object-cover"
             controls={false}
-            preload="auto"
+            preload="metadata"
             tabIndex="-1"
             aria-hidden="true"
             draggable="false"
@@ -927,7 +927,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 isPlaying={(isActive || shouldAnimate) && (index === 0 ? currentVideo === 0 : currentVideo <= 1)}
                 className="w-full h-full object-cover"
                 controls={false}
-                preload="auto"
+                preload="metadata"
                 tabIndex="-1"
                 aria-hidden="true"
                 draggable="false"

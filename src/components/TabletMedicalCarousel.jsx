@@ -1,7 +1,20 @@
-import React, { useRef, memo } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 
 const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [], current = 0, onChange, onPauseChange, className, style }) {
   const containerRef = useRef(null);
+  const videoRefs = useRef([null, null, null]);
+
+  // Pause/play videos based on visibility - keeps them buffered but saves decode cycles
+  useEffect(() => {
+    videoRefs.current.forEach((video, idx) => {
+      if (!video) return;
+      if (idx === current) {
+        video.play().catch(() => {}); // Catch autoplay policy errors silently
+      } else {
+        video.pause();
+      }
+    });
+  }, [current]);
 
   // Ensure there are 3 valid slides
   const videoSlides = [
@@ -36,13 +49,14 @@ const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [],
           }}
         >
           <video
+            ref={el => { videoRefs.current[i] = el; }}
             src={videoSlides[i]?.video}
             className="w-full h-full object-cover"
-            autoPlay
+            autoPlay={i === current}
             muted
             loop
             playsInline
-            preload="auto"
+            preload={i === current ? "auto" : "metadata"}
             tabIndex={-1}
             aria-hidden="true"
             draggable="false"

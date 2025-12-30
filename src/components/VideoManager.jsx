@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 
-const VideoManager = ({ src, isPlaying, style, ...props }) => {
+const VideoManager = ({ src, isPlaying, style, preload = 'metadata', ...props }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -37,6 +37,7 @@ const VideoManager = ({ src, isPlaying, style, ...props }) => {
         WebkitPerspective: '1000px',
       }}
       {...props}
+      preload={preload}
       autoPlay={false} // We control playback
       muted
       loop
