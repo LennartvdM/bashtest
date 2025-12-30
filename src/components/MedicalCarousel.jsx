@@ -42,13 +42,16 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
   // Use videos prop if provided, otherwise fallback to default slides
   const videoSlides = videos || defaultSlides;
 
-  // Pause/play videos based on current slide - reduces decode workload by ~66%
+  // Pause/play videos based on visibility - videos fade OUT as current increases
+  // When current=0: all visible (0,1,2 at 100%), when current=1: 1,2 visible, when current=2: only 2 visible
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      // Play current video and base video (index 2), pause others
-      if (idx === current || idx === 2) {
-        video.play().catch(() => {}); // Catch autoplay policy errors silently
+      // Play videos that are currently visible (idx >= current means faded out)
+      // Base video (2) always plays, overlay videos play when their opacity > 0
+      const isVisible = idx === 2 || idx >= current;
+      if (isVisible) {
+        video.play().catch(() => {});
       } else {
         video.pause();
       }
@@ -158,11 +161,11 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
               ref={el => { videoRefs.current[i] = el; }}
               src={videoSlides[i].video}
               className="w-full h-full object-cover"
-              autoPlay={i === current}
+              autoPlay
               muted
               loop
               playsInline
-              preload={i === current ? "auto" : "metadata"}
+              preload="metadata"
               alt={videoSlides[i].alt}
               tabIndex="-1"
               aria-hidden="true"

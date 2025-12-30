@@ -15,11 +15,13 @@ import React, { useRef, useEffect, memo } from "react";
 const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [], current = 0, fadeDuration = 1.2 }) {
   const videoRefs = useRef([null, null, null]);
 
-  // Pause/play videos based on visibility - keeps them buffered but saves decode cycles
+  // Pause/play videos based on visibility - videos fade OUT as current increases
+  // Opacity logic: idx >= current means visible (stacked cards fade out from top)
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      if (idx === current) {
+      const isVisible = idx >= current;
+      if (isVisible) {
         video.play().catch(() => {}); // Catch autoplay policy errors silently
       } else {
         video.pause();
@@ -60,11 +62,11 @@ const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [
             ref={el => { videoRefs.current[i] = el; }}
             src={bg[i].video}
             style={{ width: '100%', minHeight: '100%', minWidth: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
-            autoPlay={i === current}
+            autoPlay
             muted
             loop
             playsInline
-            preload={i === current ? "auto" : "metadata"}
+            preload="metadata"
             tabIndex={-1}
             aria-hidden="true"
             draggable="false"
