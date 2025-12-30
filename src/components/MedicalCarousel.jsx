@@ -42,15 +42,13 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
   // Use videos prop if provided, otherwise fallback to default slides
   const videoSlides = videos || defaultSlides;
 
-  // Pause/play videos based on visibility - videos fade OUT as current increases
-  // When current=0: all visible (0,1,2 at 100%), when current=1: 1,2 visible, when current=2: only 2 visible
+  // Pause/play videos based on visibility - only play the topmost visible video
+  // Video 0 is on top, covers 1 and 2. Video 1 covers 2. No need to decode hidden videos.
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      // Play videos that are currently visible (idx >= current means faded out)
-      // Base video (2) always plays, overlay videos play when their opacity > 0
-      const isVisible = idx === 2 || idx >= current;
-      if (isVisible) {
+      // Only play the current top video - others are covered and don't need to decode
+      if (idx === current || idx === 2) {
         video.play().catch(() => {});
       } else {
         video.pause();

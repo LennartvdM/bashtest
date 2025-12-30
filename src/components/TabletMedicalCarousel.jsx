@@ -4,14 +4,13 @@ const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [],
   const containerRef = useRef(null);
   const videoRefs = useRef([null, null, null]);
 
-  // Pause/play videos based on visibility - videos fade OUT as current increases
-  // Opacity logic: idx >= current means visible (stacked cards fade out from top)
+  // Pause/play videos - only play the topmost visible video (current) and base (2)
+  // Others are stacked underneath and don't need to decode frames
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      const isVisible = idx >= current;
-      if (isVisible) {
-        video.play().catch(() => {}); // Catch autoplay policy errors silently
+      if (idx === current || idx === 2) {
+        video.play().catch(() => {});
       } else {
         video.pause();
       }
