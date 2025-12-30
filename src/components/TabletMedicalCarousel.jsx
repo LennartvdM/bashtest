@@ -1,7 +1,28 @@
-import React, { useRef, memo } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 
 const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [], current = 0, onChange, onPauseChange, className, style }) {
   const containerRef = useRef(null);
+  const videoRefs = useRef([null, null, null]);
+  const [deckLoaded, setDeckLoaded] = React.useState(false);
+
+  // Defer loading of lower deck videos - load top video first, then rest after grace period
+  useEffect(() => {
+    const timer = setTimeout(() => setDeckLoaded(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Pause/play videos - only play the topmost visible video (current) and base (2)
+  // Others are stacked underneath and don't need to decode frames
+  useEffect(() => {
+    videoRefs.current.forEach((video, idx) => {
+      if (!video) return;
+      if (idx === current || idx === 2) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [current, deckLoaded]);
 
   // Ensure there are 3 valid slides
   const videoSlides = [
@@ -36,13 +57,14 @@ const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [],
           }}
         >
           <video
-            src={videoSlides[i]?.video}
+            ref={el => { videoRefs.current[i] = el; }}
+            src={i === 0 || deckLoaded ? videoSlides[i]?.video : undefined}
             className="w-full h-full object-cover"
             autoPlay
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             tabIndex={-1}
             aria-hidden="true"
             draggable="false"

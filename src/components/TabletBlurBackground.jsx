@@ -14,18 +14,26 @@ import React, { useRef, useEffect, memo } from "react";
  */
 const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [], current = 0, fadeDuration = 1.2 }) {
   const videoRefs = useRef([null, null, null]);
+  const [deckLoaded, setDeckLoaded] = React.useState(false);
 
-  // Pause/play videos based on visibility - keeps them buffered but saves decode cycles
+  // Defer loading of lower deck videos - load top video first, then rest after grace period
+  useEffect(() => {
+    const timer = setTimeout(() => setDeckLoaded(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Pause/play videos - only play the topmost visible video (current) and base (2)
+  // Others are stacked underneath and don't need to decode frames
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      if (idx === current) {
-        video.play().catch(() => {}); // Catch autoplay policy errors silently
+      if (idx === current || idx === 2) {
+        video.play().catch(() => {});
       } else {
         video.pause();
       }
     });
-  }, [current]);
+  }, [current, deckLoaded]);
   // Guarantee 3 videos
   const bg = [
     blurVideos[0] || {},
@@ -58,13 +66,13 @@ const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [
         >
           <video
             ref={el => { videoRefs.current[i] = el; }}
-            src={bg[i].video}
+            src={i === 0 || deckLoaded ? bg[i].video : undefined}
             style={{ width: '100%', minHeight: '100%', minWidth: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
             autoPlay
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             tabIndex={-1}
             aria-hidden="true"
             draggable="false"

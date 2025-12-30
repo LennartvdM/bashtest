@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useEffect, useCallback, memo } from "react";
+import React, { useRef, useEffect, useCallback, memo } from "react";
 import { useThrottleWithTrailing } from "../hooks/useDebounce";
 
 const AUTOPLAY_MS = 6600; // 6.6 seconds
@@ -37,9 +37,31 @@ The stacking is intentional to avoid ugly transitions.
 
 const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange }) {
   const videoContainerRef = useRef(null);
+  const videoRefs = useRef([null, null, null]);
+  const [deckLoaded, setDeckLoaded] = React.useState(false);
 
   // Use videos prop if provided, otherwise fallback to default slides
   const videoSlides = videos || defaultSlides;
+
+  // Defer loading of lower deck videos - load top video first, then rest after a grace period
+  useEffect(() => {
+    const timer = setTimeout(() => setDeckLoaded(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Pause/play videos based on visibility - only play the topmost visible video
+  // Video 0 is on top, covers 1 and 2. Video 1 covers 2. No need to decode hidden videos.
+  useEffect(() => {
+    videoRefs.current.forEach((video, idx) => {
+      if (!video) return;
+      // Only play the current top video - others are covered and don't need to decode
+      if (idx === current || idx === 2) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [current, deckLoaded]);
 
   // Throttled center update to reduce resize/scroll handler frequency
   const updateCenter = useCallback(() => {
@@ -90,20 +112,21 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
         }}
       >
         <video
-          src={videoSlides[2].video}
+          ref={el => { videoRefs.current[2] = el; }}
+          src={deckLoaded ? videoSlides[2].video : undefined}
           className="w-full h-full object-cover"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           alt={videoSlides[2].alt}
           tabIndex="-1"
           aria-hidden="true"
           draggable="false"
-          style={{ 
-            outline: 'none', 
-            transition: 'outline 0.2s', 
+          style={{
+            outline: 'none',
+            transition: 'outline 0.2s',
             background: 'none',
             opacity: 1
           }}
@@ -140,20 +163,21 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
             }}
           >
             <video
-              src={videoSlides[i].video}
+              ref={el => { videoRefs.current[i] = el; }}
+              src={i === 0 || deckLoaded ? videoSlides[i].video : undefined}
               className="w-full h-full object-cover"
               autoPlay
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               alt={videoSlides[i].alt}
               tabIndex="-1"
               aria-hidden="true"
               draggable="false"
-              style={{ 
-                outline: 'none', 
-                transition: 'outline 0.2s', 
+              style={{
+                outline: 'none',
+                transition: 'outline 0.2s',
                 background: 'none',
                 opacity: 1, // Video itself is always at full opacity
                 willChange: 'opacity'
