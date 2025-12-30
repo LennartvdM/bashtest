@@ -1321,10 +1321,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   display: 'block',
                   maxWidth: isTabletLayout ? '100%' : 480,
                   minWidth: isTabletLayout ? '0px' : 320,
-                  width: isTabletLayout ? '100%' : 'auto',
+                  width: '100%',
                   paddingLeft: 24,
                   paddingRight: 24,
-                  margin: '0 auto',
                   zIndex: 40,
                   cursor: interactionsEnabled ? 'pointer' : 'default',
                   transition: shouldTransition ? 'all 700ms ease' : 'none'
