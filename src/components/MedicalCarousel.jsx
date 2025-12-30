@@ -38,9 +38,16 @@ The stacking is intentional to avoid ugly transitions.
 const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange }) {
   const videoContainerRef = useRef(null);
   const videoRefs = useRef([null, null, null]);
+  const [deckLoaded, setDeckLoaded] = React.useState(false);
 
   // Use videos prop if provided, otherwise fallback to default slides
   const videoSlides = videos || defaultSlides;
+
+  // Defer loading of lower deck videos - load top video first, then rest after a grace period
+  useEffect(() => {
+    const timer = setTimeout(() => setDeckLoaded(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Pause/play videos based on visibility - only play the topmost visible video
   // Video 0 is on top, covers 1 and 2. Video 1 covers 2. No need to decode hidden videos.
@@ -54,7 +61,7 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
         video.pause();
       }
     });
-  }, [current]);
+  }, [current, deckLoaded]);
 
   // Throttled center update to reduce resize/scroll handler frequency
   const updateCenter = useCallback(() => {
@@ -106,7 +113,7 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
       >
         <video
           ref={el => { videoRefs.current[2] = el; }}
-          src={videoSlides[2].video}
+          src={deckLoaded ? videoSlides[2].video : undefined}
           className="w-full h-full object-cover"
           autoPlay
           muted
@@ -157,7 +164,7 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
           >
             <video
               ref={el => { videoRefs.current[i] = el; }}
-              src={videoSlides[i].video}
+              src={i === 0 || deckLoaded ? videoSlides[i].video : undefined}
               className="w-full h-full object-cover"
               autoPlay
               muted
