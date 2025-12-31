@@ -126,7 +126,7 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
             transform: captionsVisible ? 'translate3d(0,0,0)' : 'translateY(60px)',
             transition: shouldTransition
               ? (captionsVisible
-                ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${idx * 200}ms, opacity 1.2s ease ${idx * 200}ms, color 0.6s cubic-bezier(0.4,0,0.2,1)`
+                ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${idx * 300}ms, opacity 1.2s ease ${idx * 300}ms, color 0.6s cubic-bezier(0.4,0,0.2,1)`
                 : 'color 0.6s cubic-bezier(0.4,0,0.2,1)')
               : 'none',
           }}

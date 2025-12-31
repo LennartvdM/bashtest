@@ -1304,7 +1304,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                       pointerEvents: 'none',
                       transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
                       transition: shouldTransition
-                        ? `top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease ${captionsVisible ? '1.2s' : '0s'}`
+                        ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease 1.2s'
                         : 'none',
                       opacity: captionsVisible ? 0.2 : 0,
                       display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
@@ -1336,7 +1336,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
                   transition: shouldTransition
                     ? (captionsVisible
-                      ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${i * 200}ms, opacity 1.2s ease ${i * 200}ms`
+                      ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${i * 300}ms, opacity 1.2s ease ${i * 300}ms`
                       : 'none')
                     : 'none'
                 }}
