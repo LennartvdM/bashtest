@@ -1316,7 +1316,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                 onClick={interactionsEnabled && isLandscapeTablet ? () => handleLandscapeTabletCaptionClick(i) : undefined}
                 onTouchStart={interactionsEnabled && isLandscapeTablet ? () => handleLandscapeTabletTouchStart(i) : undefined}
                 onTouchEnd={interactionsEnabled && isLandscapeTablet ? handleLandscapeTabletTouchEnd : undefined}
-                className={`relative ${isVideoLeft ? 'text-left' : 'text-right'} py-3 rounded-xl transition-all duration-700 ease`}
+                className={`relative ${isVideoLeft ? 'text-left' : 'text-right'} py-3 rounded-xl`}
                 style={{
                   display: 'block',
                   maxWidth: isTabletLayout ? '100%' : 480,
