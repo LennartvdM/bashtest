@@ -1340,7 +1340,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
                   transition: shouldTransition
                     ? (captionsVisible
-                      ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${i * 300}ms, opacity 1.2s ease ${i * 300}ms`
+                      ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${i * 600}ms, opacity 1.2s ease ${i * 600}ms`
                       : 'none')
                     : 'none'
                 }}
