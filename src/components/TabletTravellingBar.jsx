@@ -12,8 +12,10 @@ import { useThrottleWithTrailing } from "../hooks/useDebounce";
  * - durationMs: number (optional, default 7000) – progress duration
  * - paused: boolean (optional, default false) – pause animation
  * - animationKey: any (optional) – force restart animation
+ * - captionsVisible: boolean (optional, default true) – controls staggered entrance animation
+ * - shouldTransition: boolean (optional, default true) – enables/disables transitions
  */
-const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey }) {
+const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey, captionsVisible = true, shouldTransition = true }) {
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
   const [bar, setBar] = useState({ top: 0, height: 0 });
@@ -76,10 +78,13 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           borderRadius: '12px', // Rounded corners
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
           overflow: 'hidden', // Clip inner loading bar to rounded corners
-          transition: 'top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1)',
+          transition: shouldTransition
+            ? `top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1), opacity 1.2s ease`
+            : 'none',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
-          animation: animateTick ? 'tabletBarSpring 600ms ease-out' : 'none'
+          animation: animateTick ? 'tabletBarSpring 600ms ease-out' : 'none',
+          opacity: captionsVisible ? 1 : 0,
         }}
       >
         {/* Loading bar along bottom edge of the highlighter */}
@@ -115,8 +120,14 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
             outline: 'none',
             position: 'relative',
             zIndex: 3,
-            transition: 'color 0.6s cubic-bezier(0.4,0,0.2,1)', // Slower color transition
             textAlign: 'left',
+            opacity: captionsVisible ? 1 : 0,
+            transform: captionsVisible ? 'translate3d(0,0,0)' : 'translateY(60px)',
+            transition: shouldTransition
+              ? (captionsVisible
+                ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${idx * 200}ms, opacity 1.2s ease ${idx * 200}ms, color 0.6s cubic-bezier(0.4,0,0.2,1)`
+                : 'color 0.6s cubic-bezier(0.4,0,0.2,1)')
+              : 'none',
           }}
         >
           {caption}
