@@ -1293,7 +1293,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   </div>
                   {/* Horizontal line */}
                   <div
-                    className="absolute transition-all duration-700 ease"
+                    className="absolute"
                     style={{
                       top: '50%',
                       left: '50%',
@@ -1303,8 +1303,10 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                       mixBlendMode: 'screen',
                       pointerEvents: 'none',
                       transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
-                      transition: shouldTransition ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-                      opacity: 0.2,
+                      transition: shouldTransition
+                        ? `top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease ${captionsVisible ? '1.2s' : '0s'}`
+                        : 'none',
+                      opacity: captionsVisible ? 0.2 : 0,
                       display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
                     }}
                   />
