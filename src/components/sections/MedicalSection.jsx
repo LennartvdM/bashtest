@@ -855,8 +855,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
             opacity: captionsVisible ? 1 : 0,
             transition: transitionsDisabled
               ? 'none'
-              : (captionsVisible ? 'opacity 2.25s ease, transform 2.25s cubic-bezier(0.4,0,0.2,1), width 0.3s ease-out' : 'width 0.3s ease-out'),
-            transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
+              : (captionsVisible ? 'opacity 0.5s ease, width 0.3s ease-out' : 'width 0.3s ease-out'),
           }}>
             <TabletTravellingBar
               captions={tabletCaptions}
@@ -866,6 +865,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
               durationMs={TABLET_AUTOPLAY_MS}
               paused={isPaused}
               animationKey={barKey}
+              captionsVisible={captionsVisible}
+              shouldTransition={!transitionsDisabled}
             />
           </div>
         </div>
@@ -1197,9 +1198,8 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
           alignItems: isTabletLayout ? 'stretch' : 'center',
           justifyContent: isTabletLayout ? 'flex-start' : 'center',
           zIndex: 20,
-          transition: shouldTransition ? (captionsVisible ? 'transform 2.25s cubic-bezier(0.4,0,0.2,1), opacity 2.25s ease' : 'none') : 'none',
+          transition: shouldTransition ? (captionsVisible ? 'opacity 0.5s ease' : 'none') : 'none',
           opacity: captionsVisible ? 1 : 0,
-          transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
           margin: isTabletLayout ? '0 auto' : undefined,
         }}
       >
@@ -1326,7 +1326,13 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   paddingRight: 24,
                   zIndex: 40,
                   cursor: interactionsEnabled ? 'pointer' : 'default',
-                  transition: shouldTransition ? 'all 700ms ease' : 'none'
+                  opacity: captionsVisible ? 1 : 0,
+                  transform: captionsVisible ? 'translate3d(0,0,0)' : captionOffscreenTransform,
+                  transition: shouldTransition
+                    ? (captionsVisible
+                      ? `transform 1.2s cubic-bezier(0.4,0,0.2,1) ${i * 200}ms, opacity 1.2s ease ${i * 200}ms`
+                      : 'none')
+                    : 'none'
                 }}
               >
                 <p className={`m-0 ${isVideoLeft ? 'text-left' : 'text-right'} text-2xl leading-tight`} style={{
