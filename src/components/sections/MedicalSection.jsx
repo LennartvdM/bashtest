@@ -1256,7 +1256,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                   />
                   {/* Duplicated Highlighter rectangle for right section */}
                   <div
-                    className="absolute rounded-xl transition-all duration-700 ease pointer-events-none overflow-hidden"
+                    className="absolute rounded-xl pointer-events-none overflow-hidden"
                     style={{
                       top: 0,
                       height: rightRect.height,
@@ -1267,7 +1267,11 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                       background: (safeHoveredIndex === currentVideo || (isLandscapeTablet && hoveredIndex === null)) ? 'rgba(228,228,228,1)' : 'rgba(232,232,232,1)',
                       borderRadius: 10,
                       boxShadow: (safeHoveredIndex === currentVideo || (isLandscapeTablet && hoveredIndex === null)) ? '1px 1px 2px 0px rgba(0,0,0,0.5)' : '1px 1px 2px 0px rgba(0,0,0,0.25)',
-                      transition: 'top 0.6s cubic-bezier(0.4, 0, 0.2, 1), height 0.6s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s, box-shadow 0.25s, background 0.25s',
+                      opacity: captionsVisible ? 1 : 0,
+                      transform: captionsVisible ? 'translate3d(0,0,0)' : (isVideoLeft ? 'translateX(-200px)' : 'translateX(200px)'),
+                      transition: shouldTransition
+                        ? `top 0.6s cubic-bezier(0.4, 0, 0.2, 1), height 0.6s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
+                        : 'none',
                       zIndex: 30
                     }}
                   >
