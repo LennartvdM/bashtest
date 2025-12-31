@@ -1254,9 +1254,9 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                       opacity: (safeHoveredIndex === currentVideo || (isLandscapeTablet && hoveredIndex === null)) ? (highlightOutlineFullOpacity ? 0.9 : 0.4) : 0
                     }}
                   />
-                  {/* Duplicated Highlighter rectangle for right section */}
+                  {/* Highlighter rectangle with horizontal line */}
                   <div
-                    className="absolute rounded-xl pointer-events-none overflow-hidden"
+                    className="absolute rounded-xl pointer-events-none"
                     style={{
                       top: 0,
                       height: rightRect.height,
@@ -1275,7 +1275,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                       zIndex: 30
                     }}
                   >
-                    <div className="w-full h-full rounded-xl relative pointer-events-none">
+                    <div className="w-full h-full rounded-xl relative pointer-events-none overflow-hidden">
                       {/* Loading Bar */}
                       <div
                         key={barKey}
@@ -1290,26 +1290,23 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                         onAnimationEnd={handleBarEnd}
                       />
                     </div>
+                    {/* Horizontal line - flush with highlighter edge */}
+                    <div
+                      className="absolute"
+                      style={{
+                        top: '50%',
+                        left: isVideoLeft ? 0 : '100%',
+                        width: '100vw',
+                        height: 5,
+                        background: '#e0e0e0',
+                        mixBlendMode: 'screen',
+                        pointerEvents: 'none',
+                        transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
+                        opacity: 0.2,
+                        display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
+                      }}
+                    />
                   </div>
-                  {/* Horizontal line */}
-                  <div
-                    className="absolute"
-                    style={{
-                      top: '50%',
-                      left: '50%',
-                      width: '100vw',
-                      height: 5,
-                      background: '#e0e0e0',
-                      mixBlendMode: 'screen',
-                      pointerEvents: 'none',
-                      transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
-                      transition: shouldTransition
-                        ? 'top 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease 1.2s'
-                        : 'none',
-                      opacity: captionsVisible ? 0.2 : 0,
-                      display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
-                    }}
-                  />
                 </div>
               </>
             )}
