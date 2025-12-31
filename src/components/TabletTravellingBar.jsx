@@ -79,12 +79,13 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
           overflow: 'hidden', // Clip inner loading bar to rounded corners
           transition: shouldTransition
-            ? `top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1), opacity 1.2s ease`
+            ? `top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1), opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
             : 'none',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
           animation: animateTick ? 'tabletBarSpring 600ms ease-out' : 'none',
           opacity: captionsVisible ? 1 : 0,
+          transform: captionsVisible ? 'translate3d(0,0,0)' : 'translateY(60px)',
         }}
       >
         {/* Loading bar along bottom edge of the highlighter */}
