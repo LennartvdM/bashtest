@@ -1276,12 +1276,13 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                     }}
                   >
                     <div
-                      className="absolute rounded-xl pointer-events-none overflow-hidden"
+                      className="absolute pointer-events-none overflow-hidden"
                       style={{
                         top: 0,
                         left: 0,
                         right: 0,
                         bottom: 0,
+                        borderRadius: 10,
                       }}
                     >
                       {/* Loading Bar */}
@@ -1292,7 +1293,7 @@ const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
                           background: 'rgba(82,156,156,1)',
                           animation: `grow-overflow 7000ms linear forwards`,
                           animationPlayState: isPaused ? 'paused' : 'running',
-                          width: '115%'
+                          width: '115%',
                         }}
                         onAnimationEnd={handleBarEnd}
                       />
