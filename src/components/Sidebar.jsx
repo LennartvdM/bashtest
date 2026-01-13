@@ -167,7 +167,9 @@ export default function SidebarScrollSpyDemo() {
     const el = document.getElementById(id);
     if (el) {
       const rect = el.getBoundingClientRect();
-      const targetY = rect.top + window.scrollY;
+      // Account for navbar height (6rem = 96px, matching scroll-mt-24 and sticky top-24)
+      const navbarOffset = 96;
+      const targetY = rect.top + window.scrollY - navbarOffset;
       smoothScrollTo(targetY, 1350);
     }
     history.replaceState(null, '', `#${id}`);
