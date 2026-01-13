@@ -9,22 +9,29 @@ import Home from './pages/Home';
 import WorldMapEditor from './components/WorldMapEditor';
 import ViewTransition from './components/ViewTransition';
 import FPSCounter from './components/FPSCounter';
+import CMSAdmin from './pages/CMSAdmin';
+import ToolboxEmbed from './components/ToolboxEmbed';
 
 function AppShell() {
   const location = useLocation();
   const isNeoflix = location.pathname === '/neoflix' || location.pathname.startsWith('/neoflix/');
+  const isAdmin = location.pathname === '/admin';
+  const isToolboxEmbed = location.pathname.startsWith('/Toolbox-');
   const showMapEditor = new URLSearchParams(window.location.search).get('editor') === 'true';
+  const hideNavbar = showMapEditor || isAdmin || isToolboxEmbed;
 
   return (
     <ViewTransition>
-      <div className={`min-h-screen ${isNeoflix ? '' : 'bg-[#F5F9FC]'}`}>
-        {!showMapEditor && <Navbar />}
+      <div className={`min-h-screen ${isNeoflix || isAdmin || isToolboxEmbed ? '' : 'bg-[#F5F9FC]'}`}>
+        {!hideNavbar && <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/neoflix" element={<SidebarScrollSpyDemo />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/toolbox" element={<Toolbox />} />
           <Route path="/map-editor" element={<WorldMapEditor />} />
+          <Route path="/admin" element={<CMSAdmin />} />
+          <Route path="/Toolbox-:slug" element={<ToolboxEmbed />} />
         </Routes>
         {/* FPS Counter - only visible in development */}
         <FPSCounter position="bottom-left" />
