@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, memo } from "react";
-import { useThrottleWithTrailing } from "../hooks/useDebounce";
+import { useThrottleWithTrailing } from "../../../hooks/useDebounce";
 
 const AUTOPLAY_MS = 6600; // 6.6 seconds
 

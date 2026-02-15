@@ -1,5 +1,0 @@
-[33m52dfa7f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix infinite re-render loop by removing unloadTimeout from dependency array and clean up debugging logs
-[33mdf80437[m Add debugging logs to autoplay useEffect to diagnose why it's not advancing
-[33ma93257e[m Fix infinite re-render loop in lazy loading - remove visibleCountries from dependency array and console.log statements
-[33m64b61b6[m Fix infinite re-render loop in lazy loading logic
-[33m059bc9b[m WorldMap: add debugging logs to autoplay logic to identify why cycle doesn't work

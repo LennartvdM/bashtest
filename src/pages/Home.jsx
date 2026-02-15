@@ -8,7 +8,7 @@ import HeroSection from '../components/sections/HeroSection';
 // Lazy load heavy sections to reduce initial bundle and defer loading
 const MedicalSectionV2 = lazy(() => import('../components/sections/MedicalSectionV2'));
 const MedicalSectionV3 = lazy(() => import('../components/sections/MedicalSectionV3'));
-const WorldMapSection = lazy(() => import('../components/sections/WorldMapSection'));
+const WorldMapSection = lazy(() => import('../components/sections/worldmap/WorldMapSection'));
 const ContactSection = lazy(() => import('../components/sections/ContactSection'));
 
 // Wrapper component that provides Suspense boundary for lazy sections

@@ -2,6 +2,24 @@
 
 React SPA (Vite + Tailwind) — tablet-first portfolio site with full-screen scroll-snapping sections, video backgrounds, and animated transitions. Deployed on Netlify.
 
+## GitHub Context Selection Guide
+
+When including this repo in a Claude project, **always uncheck these** (they waste context and provide no value):
+
+- `package-lock.json` (~39% of context — auto-generated, never useful)
+- `docs/` (~4% — reference docs, only needed for tablet layout decisions)
+- `public/` (~1% — binary video assets)
+
+**For a typical task**, include only what you need:
+
+| Task | Include these folders | ~Context |
+|------|-----------------------|----------|
+| Architecture / routing | `CLAUDE.md` + `src/App.jsx` + `src/pages/` + `src/components/ScrollSnap.jsx` | ~5% |
+| Medical section work | Above + `src/components/sections/medical/` + `src/components/sections/MedicalSection*.jsx` | ~20% |
+| World map work | Architecture + `src/components/sections/worldmap/` | ~15% |
+| Tablet layout bugs | Architecture + `src/hooks/` + the relevant section folder | ~12% |
+| Full codebase review | Everything except `package-lock.json`, `docs/`, `public/`, `src/components/dev/` | ~55% |
+
 ## Architecture
 
 ```
@@ -18,18 +36,33 @@ App.jsx                     → Router: /, /neoflix, /blog, /toolbox, /map-edito
             ContactSection      (lazy)
 ```
 
-The MedicalSection is the most complex component — it handles dual desktop/tablet layouts, video carousels, captions, and animated transitions. It has been split into focused files:
+### sections/ folder structure
+
+Each section that has internals gets its own subfolder — one uncheck in the file picker excludes all of it:
 
 ```
 sections/
-  MedicalSection.jsx            → 17-line shell (picks tablet vs desktop)
-  medical/                      → ONE uncheck in Chat Claude = shed all internals
-    ├─ useMedicalSection.jsx    → Orchestration hook (all state, effects, handlers)
-    ├─ MedicalTabletLayout.jsx  → Tablet portrait render path (animation JSX)
-    ├─ MedicalDesktopLayout.jsx → Desktop render path (animation JSX)
-    ├─ MedicalSection.data.js   → VARIANTS config (video URLs, headlines, headers)
-    ├─ MedicalSection.styles.js → Style constants + CSS
-    └─ MedicalSection.reducers.js → State reducers (visibility, measurements, interaction)
+  MedicalSection.jsx              → 17-line shell (picks tablet vs desktop)
+  MedicalSectionV2.jsx            → V2 variant wrapper
+  MedicalSectionV3.jsx            → V3 variant wrapper
+  HeroSection.jsx                 → Hero/landing
+  ContactSection.jsx              → Contact form
+  SkillsSection.jsx               → Skills display
+  ProjectsSection.jsx             → Projects showcase
+  medical/                        → Uncheck = shed ALL medical internals + components
+    ├─ useMedicalSection.jsx      → Orchestration hook (state, effects, handlers)
+    ├─ MedicalTabletLayout.jsx    → Tablet portrait render path
+    ├─ MedicalDesktopLayout.jsx   → Desktop render path
+    ├─ MedicalSection.data.js     → VARIANTS config (video URLs, headlines)
+    ├─ MedicalSection.styles.js   → Style constants + CSS
+    ├─ MedicalSection.reducers.js → State reducers
+    ├─ MedicalCarousel.jsx        → Desktop video carousel
+    ├─ TabletMedicalCarousel.jsx  → Tablet video carousel
+    ├─ TabletBlurBackground.jsx   → Blurred video backgrounds
+    ├─ TabletTravellingBar.jsx    → Tablet progress indicator
+    └─ VideoManager.jsx           → Video playback management
+  worldmap/                       → Uncheck = shed world map section (largest single file)
+    └─ WorldMapSection.jsx        → Interactive world map (~45KB)
 ```
 
 ## File Tiers
@@ -46,18 +79,23 @@ sections/
 - `src/components/sections/MedicalSectionV2.jsx` — V2 variant wrapper
 - `src/components/sections/MedicalSectionV3.jsx` — V3 variant wrapper
 - `src/components/sections/HeroSection.jsx` — Hero/landing section
-- `src/components/sections/WorldMapSection.jsx` — Interactive world map
+- `src/components/sections/worldmap/WorldMapSection.jsx` — Interactive world map
 - `src/components/sections/ContactSection.jsx` — Contact form section
 - `src/components/sections/SkillsSection.jsx` — Skills display
 - `src/components/sections/ProjectsSection.jsx` — Projects showcase
 
-### Tier 2b — MedicalSection internals (`sections/medical/` — read only the piece you need)
+### Tier 2b — MedicalSection internals (`sections/medical/` — one uncheck sheds everything)
 - `src/components/sections/medical/useMedicalSection.jsx` — All state, effects, handlers (the "brain")
 - `src/components/sections/medical/MedicalTabletLayout.jsx` — Tablet portrait animation JSX
 - `src/components/sections/medical/MedicalDesktopLayout.jsx` — Desktop animation JSX
 - `src/components/sections/medical/MedicalSection.data.js` — Video URLs, headlines, header text
 - `src/components/sections/medical/MedicalSection.styles.js` — Style constants + injected CSS
 - `src/components/sections/medical/MedicalSection.reducers.js` — Visibility, measurements, interaction reducers
+- `src/components/sections/medical/MedicalCarousel.jsx` — Desktop video carousel
+- `src/components/sections/medical/TabletMedicalCarousel.jsx` — Tablet video carousel
+- `src/components/sections/medical/TabletBlurBackground.jsx` — Blurred video backgrounds
+- `src/components/sections/medical/TabletTravellingBar.jsx` — Tablet progress indicator
+- `src/components/sections/medical/VideoManager.jsx` — Video playback management
 
 ### Tier 3 — Shared Components & Hooks (read when debugging layout/behavior)
 - `src/hooks/useTabletLayout.js` — Tablet detection + layout state
@@ -67,12 +105,7 @@ sections/
 - `src/hooks/useDebounce.js` — Debounce utility
 - `src/components/Navbar.jsx` — Top navigation bar
 - `src/components/MobileNav.jsx` — Mobile navigation
-- `src/components/MedicalCarousel.jsx` — Desktop video carousel
-- `src/components/TabletMedicalCarousel.jsx` — Tablet video carousel
-- `src/components/TabletBlurBackground.jsx` — Blurred video backgrounds
-- `src/components/TabletTravellingBar.jsx` — Tablet progress indicator
 - `src/components/AutoFitHeading.jsx` — Auto-sizing headings
-- `src/components/VideoManager.jsx` — Video playback management
 - `src/components/shared/` — ContentSection, SidebarLayout, SidebarItem, animations
 
 ### Tier 4 — Secondary Pages & Config (usually skip)
@@ -86,11 +119,12 @@ sections/
 - `src/styles/`, `src/index.css` — Global styles
 - Config files: `vite.config.js`, `tailwind.config.js`, `netlify.toml`, `postcss.config.js`
 
-### Tier 5 — Dev-only (safe to ignore)
-- `src/components/examples/TabletOptimizedSection.example.jsx` — Example code
+### Tier 5 — Dev-only (`src/components/dev/` — safe to ignore)
+- `src/components/dev/FPSCounter.jsx` — Performance overlay (dev tool)
+- `src/components/dev/examples/` — Example code
 - `src/components/Section.jsx` — Generic section shell, only used by Toolbox
 - `src/version.js`, `src/version.txt` — Build-time generated
-- `TABLET_BEST_PRACTICES.md` — Reference docs
+- `docs/TABLET_BEST_PRACTICES.md` — Reference docs
 
 ## Key Patterns
 - **Tablet-first**: Most components branch on `useTabletLayout()` for separate desktop/tablet rendering paths

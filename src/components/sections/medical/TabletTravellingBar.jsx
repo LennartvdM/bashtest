@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback, memo } from "react";
-import { useThrottleWithTrailing } from "../hooks/useDebounce";
+import { useThrottleWithTrailing } from "../../../hooks/useDebounce";
 
 /**
  * TabletTravellingBar
