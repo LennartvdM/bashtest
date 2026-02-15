@@ -94,7 +94,7 @@ export const animationConfig = {
 
 // Page-level styling
 export const pageStyle = {
-  backgroundClassName: 'bg-gradient-to-br from-slate-900/40 to-slate-800/40',
+  backgroundClassName: 'bg-[#F5F9FC]',
   sidebarClassName: 'bg-[#112038]',
   sectionClassName: 'bg-gradient-to-br from-stone-50 to-fuchsia-50',
 };
