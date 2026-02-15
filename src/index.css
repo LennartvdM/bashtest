@@ -99,20 +99,16 @@ body::-webkit-scrollbar {
 
 /* Material Design 3 View Transitions */
 @supports (view-transition-name: none) {
-  /* Root transition for page changes - Material Design 3 easing */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 0.6s;
-    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
-  }
-
-  /* Zoom transition (Material Design 3 style) */
+  /* Old page stays fully opaque, new page crossfades in on top.
+     This prevents the dark-blue flash that appeared when both
+     snapshots were simultaneously semi-transparent. */
   ::view-transition-old(root) {
-    animation-name: zoom-out;
+    animation: 0.35s cubic-bezier(0.2, 0, 0, 1) both fade-out;
   }
 
   ::view-transition-new(root) {
-    animation-name: zoom-in;
+    animation: 0.35s cubic-bezier(0.2, 0, 0, 1) both fade-in;
+    mix-blend-mode: normal;
   }
 
   /* Keep navbar persistent during transitions */
@@ -150,27 +146,6 @@ body::-webkit-scrollbar {
   }
 }
 
-@keyframes zoom-out {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(0.85);
-    opacity: 0;
-  }
-}
-
-@keyframes zoom-in {
-  from {
-    transform: scale(1.1);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
 
 /* Tablet rotation handling: disable scroll snap during resize */
 /* Note: scroll-snap-type is now controlled via React state in ScrollSnap.jsx */
