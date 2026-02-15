@@ -1,8 +1,8 @@
-// src/App.jsx — SPA with Home and Blog routes
+// src/App.jsx — SPA with Home and Publications routes
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Blog from './pages/Blog';
+import Publications from './pages/Publications';
 import Toolbox from './pages/Toolbox';
 import SidebarScrollSpyDemo from './components/Sidebar';
 import Home from './pages/Home';
@@ -27,7 +27,7 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/neoflix" element={<SidebarScrollSpyDemo />} />
-          <Route path="/blog" element={<Blog />} />
+          <Route path="/publications" element={<Publications />} />
           <Route path="/toolbox" element={<Toolbox />} />
           <Route path="/map-editor" element={<WorldMapEditor />} />
           <Route path="/admin" element={<CMSAdmin />} />
