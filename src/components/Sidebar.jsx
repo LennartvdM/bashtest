@@ -22,11 +22,24 @@ import {
   pageStyle,
 } from '../data/neoflix';
 
-// Prepare sections with content
-const sectionsWithContent = SECTIONS.map((s) => ({
-  ...s,
-  rawContent: LONG_LOREM,
-}));
+const CMS_STORAGE_KEY = 'neoflix-cms-sections';
+
+// Load CMS content from localStorage, fall back to default lorem ipsum
+function loadSectionsWithContent() {
+  try {
+    const saved = localStorage.getItem(CMS_STORAGE_KEY);
+    if (saved) {
+      const cmsSections = JSON.parse(saved);
+      return cmsSections.map((s) => ({
+        ...s,
+        rawContent: [s.textBlock1, s.textBlock2].filter(Boolean).join('\n\n') || LONG_LOREM,
+      }));
+    }
+  } catch (e) {
+    console.error('Error loading CMS content:', e);
+  }
+  return SECTIONS.map((s) => ({ ...s, rawContent: LONG_LOREM }));
+}
 
 export default function SidebarScrollSpyDemo() {
   // Force remount detection
@@ -43,7 +56,8 @@ export default function SidebarScrollSpyDemo() {
     }
   }, []);
 
-  const sectionIds = SECTIONS.map((s) => s.id);
+  const [sectionsWithContent] = useState(loadSectionsWithContent);
+  const sectionIds = sectionsWithContent.map((s) => s.id);
   const active = useScrollSpy(sectionIds);
   const location = useLocation();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -116,9 +130,9 @@ export default function SidebarScrollSpyDemo() {
     const prefersDesktop = window.innerWidth >= 768;
     if (!hasHash && prefersDesktop) {
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('nav-activate', { detail: SECTIONS[0].id }));
-        document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        history.replaceState(null, '', `#${SECTIONS[0].id}`);
+        window.dispatchEvent(new CustomEvent('nav-activate', { detail: sectionsWithContent[0].id }));
+        document.getElementById(sectionsWithContent[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        history.replaceState(null, '', `#${sectionsWithContent[0].id}`);
         window.dispatchEvent(new Event('scroll'));
       }, 3500);
     } else if (hasHash) {
@@ -147,7 +161,7 @@ export default function SidebarScrollSpyDemo() {
       return;
     }
 
-    const targetId = location.hash ? location.hash.replace('#', '') : SECTIONS[0].id;
+    const targetId = location.hash ? location.hash.replace('#', '') : sectionsWithContent[0].id;
     const scrollAfterLayout = () => {
       const el = document.getElementById(targetId);
       if (el) {
@@ -261,7 +275,7 @@ export default function SidebarScrollSpyDemo() {
                   className={`sticky top-24 w-72 px-6 pr-10 py-8 rounded-lg shadow-lg select-none ${pageStyle.sidebarClassName}`}
                 >
                   <ul role="list" className="space-y-1">
-                    {SECTIONS.map((s, idx) => (
+                    {sectionsWithContent.map((s, idx) => (
                       <SidebarItem
                         key={s.id}
                         id={s.id}
