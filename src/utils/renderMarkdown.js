@@ -23,18 +23,16 @@ export function renderMarkdown(text) {
       const toolboxRouteMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
       if (toolboxRouteMatch) {
         const slug = toolboxRouteMatch[1].replace(/_/g, '-');
-        const page = toolboxPages.find(
-          (p) => p.slug.toLowerCase() === slug.toLowerCase()
-        );
-        if (page) {
-          return `<a href="${page.url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
-        }
-        // Fallback to internal route if slug not in registry
         return `<a href="/Toolbox-${slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
-      // Check for docs.neoflix.care URLs — open directly
+      // Check for docs.neoflix.care URLs — resolve to internal Toolbox route if possible
       if (/docs\.neoflix\.care/i.test(url)) {
+        const matched = findSlugFromGitBookUrl(url);
+        if (matched) {
+          return `<a href="/Toolbox-${matched.slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
+        }
+        // Fallback: open externally if no matching slug found
         return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
