@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback, useReducer } from 'react';
 import React from 'react';
-import { useSectionLifecycle } from './useSectionLifecycle';
-import { useTabletLayout } from './useTabletLayout';
-import { useThrottleWithTrailing } from './useDebounce';
-import { visibilityReducer, measurementsReducer, interactionReducer } from '../components/sections/MedicalSection.reducers';
-import { VARIANTS, BASE_INDEX } from '../components/sections/MedicalSection.data';
+import { useSectionLifecycle } from '../../../hooks/useSectionLifecycle';
+import { useTabletLayout } from '../../../hooks/useTabletLayout';
+import { useThrottleWithTrailing } from '../../../hooks/useDebounce';
+import { visibilityReducer, measurementsReducer, interactionReducer } from './MedicalSection.reducers';
+import { VARIANTS, BASE_INDEX } from './MedicalSection.data';
 
 export function useMedicalSection({ inView, variant = 'v2' }) {
   // Memoize config to prevent unnecessary recalculations

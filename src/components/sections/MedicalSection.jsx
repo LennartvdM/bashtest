@@ -1,8 +1,8 @@
 // redeploy marker: 2025-10-31T00:00:00Z
 import React from 'react';
-import { useMedicalSection } from '../../hooks/useMedicalSection.jsx';
-import MedicalTabletLayout from './MedicalTabletLayout';
-import MedicalDesktopLayout from './MedicalDesktopLayout';
+import { useMedicalSection } from './medical/useMedicalSection.jsx';
+import MedicalTabletLayout from './medical/MedicalTabletLayout';
+import MedicalDesktopLayout from './medical/MedicalDesktopLayout';
 
 const MedicalSection = ({ inView, sectionRef, variant = 'v2' }) => {
   const state = useMedicalSection({ inView, variant });
