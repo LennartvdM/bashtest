@@ -6,7 +6,7 @@ export default function Toolbox() {
       <div className="text-center max-w-md px-6">
         <h1 className="text-2xl font-semibold text-slate-200 mb-3">Neoflix Toolbox</h1>
         <p className="text-slate-400 mb-8">
-          The Neoflix Toolbox is hosted on GitBook.
+          The Neoflix Toolbox is hosted externally on GitBook.
         </p>
         <div className="flex flex-col gap-4 items-center">
           <a
