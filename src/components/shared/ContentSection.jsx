@@ -1,13 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-// Link transformation for content (auto-links URLs)
-function transformLinks(text) {
-  if (!text) return '';
-  return text.replace(/(\bhttps?:\/\/\S+)/g, (url) =>
-    `<a href="${url}" style="font-family: Inter, sans-serif; font-weight: 700; font-size: 16px; color: #152536; text-decoration: none; transition: color 150ms;" onmouseover="this.style.color='#529C9C';this.style.textDecoration='underline'" onmouseout="this.style.color='#152536';this.style.textDecoration='none'">${url}</a>`
-  );
-}
+import { renderMarkdown } from '../../utils/renderMarkdown';
 
 /**
  * Individual content section with animations
@@ -30,7 +23,7 @@ export default function ContentSection({
 
   // Support both pre-transformed content and raw content
   const displayContent = rawContent
-    ? transformLinks(rawContent)
+    ? renderMarkdown(rawContent)
     : content || '';
 
   return (
