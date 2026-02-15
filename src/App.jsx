@@ -18,7 +18,7 @@ function AppShell() {
   const isAdmin = location.pathname === '/admin';
   const isToolbox = location.pathname.startsWith('/toolbox');
   const showMapEditor = new URLSearchParams(window.location.search).get('editor') === 'true';
-  const hideNavbar = showMapEditor || isAdmin || isToolbox;
+  const hideNavbar = showMapEditor || isAdmin;
 
   return (
     <ViewTransition>
