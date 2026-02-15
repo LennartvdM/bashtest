@@ -100,7 +100,7 @@ function NavbarFPSCounter() {
 
 const NAV_LINKS = [
   { label: 'Neoflix', to: '/neoflix' },
-  { label: 'Blog', to: '/blog' },
+  { label: 'Publications', to: '/blog' },
   { label: 'Contact', to: '/neoflix#collab' },
   { label: 'Toolbox', to: '/toolbox' },
 ];

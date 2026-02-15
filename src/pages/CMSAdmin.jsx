@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { renderMarkdown } from '../utils/renderMarkdown';
+import { getGroupedPages } from '../data/toolboxPages';
 
 // Video options matching the actual neoflix.js configuration
 const VIDEO_OPTIONS = [
@@ -9,8 +11,6 @@ const VIDEO_OPTIONS = [
   { id: '/videos/blurfocus.mp4', label: 'Focus - Research & Analysis' },
   { id: '/videos/blurcoordination.mp4', label: 'Coordination - Working Together' },
 ];
-
-const GITBOOK_PATTERN = /docs\.neoflix\.care/i;
 
 const DEFAULT_SECTIONS = [
   { id: 'preface', title: 'Preface', textBlock1: '', video: '/videos/blurteam.mp4', textBlock2: null },
@@ -24,65 +24,12 @@ const DEFAULT_SECTIONS = [
 
 const STORAGE_KEY = 'neoflix-cms-sections';
 
-// Extract all GitBook links from markdown text
-const extractGitBookLinks = (text) => {
-  if (!text) return [];
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  const links = [];
-  let match;
-  while ((match = linkRegex.exec(text)) !== null) {
-    const [, label, url] = match;
-    if (GITBOOK_PATTERN.test(url)) {
-      // Extract meaningful slug from GitBook path
-      // e.g., "level-1-fundamentals/2.-planning-your-initiative" -> "Planning_Your_Initiative"
-      const pathParts = url.replace(/^https?:\/\/docs\.neoflix\.care\/?/, '').split('/');
-      const lastPart = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || 'page';
-      // Clean up: remove leading numbers/dots, convert to Title_Case
-      const cleanSlug = lastPart
-        .replace(/^\d+\.-?/, '') // remove leading "2.-" etc
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join('_');
-      links.push({ label, url, slug: cleanSlug, route: `/Toolbox-${cleanSlug}` });
-    }
-  }
-  return links;
-};
-
-// Render markdown with link handling
-const renderMarkdown = (text) => {
-  if (!text) return '';
-  return text
-    .replace(/\n/g, '<br/>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
-      const isGitBook = GITBOOK_PATTERN.test(url);
-      if (isGitBook) {
-        // Generate Toolbox route from GitBook URL
-        const pathParts = url.replace(/^https?:\/\/docs\.neoflix\.care\/?/, '').split('/');
-        const lastPart = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || 'page';
-        const cleanSlug = lastPart
-          .replace(/^\d+\.-?/, '')
-          .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('_');
-        return `<a href="/Toolbox-${cleanSlug}" class="text-teal-400 underline" title="Opens embedded">${label}</a>`;
-      }
-      return `<a href="${url}" target="_blank" rel="noopener" class="text-blue-400 underline" title="Opens new tab">${label} ↗</a>`;
-    });
-};
-
 function TextEditor({ value, onChange, placeholder, rows = 6 }) {
   const textareaRef = useRef(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showLinkPicker, setShowLinkPicker] = useState(false);
 
-  const insertLink = () => {
-    const label = prompt('Link text:');
-    if (!label) return;
-    const url = prompt('URL (GitBook URLs will embed, others open new tab):');
-    if (!url) return;
-
+  const insertMarkdownLink = (label, url) => {
     const textarea = textareaRef.current;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -97,6 +44,34 @@ function TextEditor({ value, onChange, placeholder, rows = 6 }) {
       textarea.focus();
       textarea.setSelectionRange(start + markdown.length, start + markdown.length);
     }, 0);
+  };
+
+  const insertLink = () => {
+    setShowLinkPicker(true);
+  };
+
+  const handleGitBookSelect = (e) => {
+    const slug = e.target.value;
+    if (!slug) return;
+    const grouped = getGroupedPages();
+    let page = null;
+    for (const pages of Object.values(grouped)) {
+      page = pages.find(p => p.slug === slug);
+      if (page) break;
+    }
+    if (page) {
+      insertMarkdownLink(page.label, `/Toolbox-${page.slug}`);
+    }
+    setShowLinkPicker(false);
+  };
+
+  const handleExternalLink = () => {
+    setShowLinkPicker(false);
+    const label = prompt('Link text:');
+    if (!label) return;
+    const url = prompt('URL:');
+    if (!url) return;
+    insertMarkdownLink(label, url);
   };
 
   const insertBold = () => {
@@ -125,12 +100,47 @@ function TextEditor({ value, onChange, placeholder, rows = 6 }) {
     onChange(before + markdown + after);
   };
 
+  const grouped = getGroupedPages();
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-1 text-sm">
-        <button onClick={insertLink} className="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded" title="Insert link">
-          Link
-        </button>
+        <div className="relative">
+          <button onClick={insertLink} className="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded" title="Insert link">
+            Link
+          </button>
+          {showLinkPicker && (
+            <div className="absolute top-full left-0 mt-1 bg-slate-700 rounded-lg shadow-xl p-3 z-50 w-72">
+              <p className="text-xs text-slate-400 mb-2">Choose link type:</p>
+              <select
+                onChange={handleGitBookSelect}
+                defaultValue=""
+                className="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1.5 text-sm mb-2 focus:outline-none focus:border-teal-500"
+              >
+                <option value="">-- GitBook Page --</option>
+                {Object.entries(grouped).map(([group, pages]) => (
+                  <optgroup key={group} label={group}>
+                    {pages.map(page => (
+                      <option key={page.slug} value={page.slug}>{page.label}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <button
+                onClick={handleExternalLink}
+                className="w-full px-2 py-1.5 bg-slate-800 hover:bg-slate-600 rounded text-sm text-left"
+              >
+                External URL...
+              </button>
+              <button
+                onClick={() => setShowLinkPicker(false)}
+                className="w-full px-2 py-1 mt-1 text-xs text-slate-500 hover:text-slate-300"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
         <button onClick={insertBold} className="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded font-bold" title="Bold">
           B
         </button>
@@ -186,12 +196,6 @@ export default function CMSAdmin() {
     }
   }, [sections]);
 
-  // Extract all GitBook links from all sections
-  const embeddedPages = sections.flatMap(s => [
-    ...extractGitBookLinks(s.textBlock1),
-    ...extractGitBookLinks(s.textBlock2)
-  ]).filter((v, i, a) => a.findIndex(t => t.slug === v.slug) === i);
-
   const updateSection = (id, field, value) => {
     setSections(prev => prev.map(s =>
       s.id === id ? { ...s, [field]: value || null } : s
@@ -221,7 +225,6 @@ export default function CMSAdmin() {
 
   const getExportData = () => ({
     sections,
-    embeddedPages,
     exportedAt: new Date().toISOString()
   });
 
@@ -258,9 +261,6 @@ export default function CMSAdmin() {
       <div className="w-72 bg-slate-800 border-r border-slate-700 flex flex-col">
         <div className="p-4 border-b border-slate-700">
           <h1 className="text-lg font-semibold">Neoflix CMS</h1>
-          {embeddedPages.length > 0 && (
-            <p className="text-xs text-slate-400 mt-1">{embeddedPages.length} embedded page{embeddedPages.length !== 1 ? 's' : ''}</p>
-          )}
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
@@ -284,21 +284,6 @@ export default function CMSAdmin() {
             </div>
           ))}
         </div>
-
-        {/* Embedded Pages List */}
-        {embeddedPages.length > 0 && (
-          <div className="border-t border-slate-700 p-3">
-            <p className="text-xs text-slate-400 mb-2 font-medium">Embedded Pages (auto-detected)</p>
-            <div className="space-y-1 max-h-32 overflow-y-auto">
-              {embeddedPages.map(page => (
-                <div key={page.slug} className="text-xs bg-slate-700 rounded px-2 py-1 flex items-center gap-2">
-                  <span className="text-teal-400 shrink-0">{page.route}</span>
-                  <span className="text-slate-500 truncate flex-1">{page.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className="p-3 border-t border-slate-700 space-y-2">
           <button onClick={addSection} className="w-full py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-sm font-medium">
@@ -374,7 +359,7 @@ export default function CMSAdmin() {
             <div className="text-center">
               <p>Select a section to edit</p>
               <p className="text-sm mt-2">Use <code className="bg-slate-800 px-1 rounded">[text](url)</code> for links</p>
-              <p className="text-xs text-slate-600 mt-1">GitBook links (docs.neoflix.care) = embedded pages | Others = new tab</p>
+              <p className="text-xs text-slate-600 mt-1">Use the Link button to insert GitBook or external links</p>
             </div>
           </div>
         )}

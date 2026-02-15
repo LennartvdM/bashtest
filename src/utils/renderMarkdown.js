@@ -1,0 +1,68 @@
+import toolboxPages from '../data/toolboxPages';
+
+/**
+ * Render markdown text to HTML with link handling.
+ *
+ * - [label](/Toolbox-{slug}) or [label](./Toolbox-{slug}) -> internal Toolbox link
+ * - [label](https://docs.neoflix.care/...) -> resolved to internal Toolbox link via registry
+ * - [label](mailto:...) -> email link (no target blank)
+ * - All other URLs -> external link (target="_blank")
+ * - **bold** and *italic* supported
+ * - \n -> <br/>
+ */
+export function renderMarkdown(text) {
+  if (!text) return '';
+
+  return text
+    .replace(/\n/g, '<br/>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
+      // Check for internal Toolbox route patterns: /Toolbox-{slug} or ./Toolbox-{slug} or ./Toolbox_{slug}
+      const toolboxRouteMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
+      if (toolboxRouteMatch) {
+        const slug = toolboxRouteMatch[1].replace(/_/g, '-');
+        return `<a href="/Toolbox-${slug}">${label}</a>`;
+      }
+
+      // Check for docs.neoflix.care URLs — resolve via registry
+      if (/docs\.neoflix\.care/i.test(url)) {
+        const match = findSlugFromGitBookUrl(url);
+        if (match) {
+          return `<a href="/Toolbox-${match.slug}">${label}</a>`;
+        }
+        // Fallback: open GitBook directly if no registry match
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+      }
+
+      // mailto links — no target blank
+      if (url.startsWith('mailto:')) {
+        return `<a href="${url}">${label}</a>`;
+      }
+
+      // External link
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+    });
+}
+
+/**
+ * Try to find a matching slug in the toolboxPages registry from a GitBook URL.
+ * Compares the URL path against registry entries.
+ */
+function findSlugFromGitBookUrl(url) {
+  const normalized = url.replace(/\/+$/, '').toLowerCase();
+
+  for (const page of toolboxPages) {
+    const pageUrl = page.url.replace(/\/+$/, '').toLowerCase();
+    if (normalized === pageUrl) {
+      return page;
+    }
+    // Also match if the path portion matches
+    const pagePath = pageUrl.replace('https://docs.neoflix.care', '');
+    if (pagePath && normalized.endsWith(pagePath)) {
+      return page;
+    }
+  }
+
+  return null;
+}

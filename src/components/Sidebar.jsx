@@ -15,7 +15,6 @@ import { createSidebarMotion, createSectionVariants, scrollToSection, smoothScro
 // CMS-ready data
 import {
   sections as SECTIONS,
-  defaultContent as LONG_LOREM,
   sectionToVideo as SECTION_TO_VIDEO,
   deckSources as DECK_SOURCES,
   animationConfig,
@@ -25,7 +24,7 @@ import {
 // Prepare sections with content
 const sectionsWithContent = SECTIONS.map((s) => ({
   ...s,
-  rawContent: LONG_LOREM,
+  rawContent: s.content,
 }));
 
 export default function SidebarScrollSpyDemo() {
