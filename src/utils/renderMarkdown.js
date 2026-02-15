@@ -22,26 +22,26 @@ export function renderMarkdown(text) {
       const toolboxRouteMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
       if (toolboxRouteMatch) {
         const slug = toolboxRouteMatch[1].replace(/_/g, '-');
-        return `<a href="/Toolbox-${slug}">${label}</a>`;
+        return `<a href="/Toolbox-${slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
       // Check for docs.neoflix.care URLs — resolve via registry
       if (/docs\.neoflix\.care/i.test(url)) {
         const match = findSlugFromGitBookUrl(url);
         if (match) {
-          return `<a href="/Toolbox-${match.slug}">${label}</a>`;
+          return `<a href="/Toolbox-${match.slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
         }
         // Fallback: open GitBook directly if no registry match
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
       // mailto links — no target blank
       if (url.startsWith('mailto:')) {
-        return `<a href="${url}">${label}</a>`;
+        return `<a href="${url}" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
       // External link
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
     });
 }
 
