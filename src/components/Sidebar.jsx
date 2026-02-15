@@ -21,11 +21,24 @@ import {
   pageStyle,
 } from '../data/neoflix';
 
-// Prepare sections with content
-const sectionsWithContent = SECTIONS.map((s) => ({
-  ...s,
-  rawContent: s.content,
-}));
+const CMS_STORAGE_KEY = 'neoflix-cms-sections';
+
+// Load CMS content from localStorage, fall back to default section content
+function loadSectionsWithContent() {
+  try {
+    const saved = localStorage.getItem(CMS_STORAGE_KEY);
+    if (saved) {
+      const cmsSections = JSON.parse(saved);
+      return cmsSections.map((s) => ({
+        ...s,
+        rawContent: [s.textBlock1, s.textBlock2].filter(Boolean).join('\n\n') || s.content || '',
+      }));
+    }
+  } catch (e) {
+    console.error('Error loading CMS content:', e);
+  }
+  return SECTIONS.map((s) => ({ ...s, rawContent: s.content }));
+}
 
 export default function SidebarScrollSpyDemo() {
   // Force remount detection
