@@ -121,11 +121,6 @@ body::-webkit-scrollbar {
     animation: none;
     mix-blend-mode: normal;
   }
-
-  /* Main content area transitions smoothly */
-  main {
-    view-transition-name: main-content;
-  }
 }
 
 @keyframes fade-out {
