@@ -60,7 +60,7 @@ function TextEditor({ value, onChange, placeholder, rows = 6 }) {
       if (page) break;
     }
     if (page) {
-      insertMarkdownLink(page.label, `/Toolbox-${page.slug}`);
+      insertMarkdownLink(page.label, `/toolbox/${page.slug}`);
     }
     setShowLinkPicker(false);
   };

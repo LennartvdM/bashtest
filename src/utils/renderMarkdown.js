@@ -3,8 +3,13 @@ import toolboxPages from '../data/toolboxPages';
 /**
  * Render markdown text to HTML with link handling.
  *
- * - [label](/Toolbox-{slug}) or [label](./Toolbox-{slug}) -> internal Toolbox link
- * - [label](https://docs.neoflix.care/...) -> resolved to internal Toolbox link via registry
+ * Toolbox link patterns (all resolve to internal /toolbox/{slug} routes):
+ * - [label](/Toolbox-{slug})          — legacy format in content data
+ * - [label](./Toolbox-{slug})         — legacy relative format
+ * - [label](/toolbox/{slug})           — new canonical format
+ * - [label](https://docs.neoflix.care/...) — GitBook URL, resolved via registry
+ *
+ * Other links:
  * - [label](mailto:...) -> email link (no target blank)
  * - All other URLs -> external link (target="_blank")
  * - **bold** and *italic* supported
@@ -18,19 +23,24 @@ export function renderMarkdown(text) {
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
-      // Check for internal Toolbox route patterns: /Toolbox-{slug} or ./Toolbox-{slug} or ./Toolbox_{slug}
-      // Resolve to the actual GitBook URL and open directly
-      const toolboxRouteMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
-      if (toolboxRouteMatch) {
-        const slug = toolboxRouteMatch[1].replace(/_/g, '-');
-        return `<a href="/Toolbox-${slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
+      // Legacy format: /Toolbox-{slug} or ./Toolbox-{slug} or ./Toolbox_{slug}
+      const legacyMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
+      if (legacyMatch) {
+        const slug = legacyMatch[1].replace(/_/g, '-');
+        return `<a href="/toolbox/${slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
-      // Check for docs.neoflix.care URLs — resolve to internal Toolbox route if possible
+      // New format: /toolbox/{slug}
+      const newMatch = url.match(/^\/toolbox\/(.+)$/);
+      if (newMatch) {
+        return `<a href="${url}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
+      }
+
+      // GitBook docs URLs — resolve to internal toolbox route if possible
       if (/docs\.neoflix\.care/i.test(url)) {
         const matched = findSlugFromGitBookUrl(url);
         if (matched) {
-          return `<a href="/Toolbox-${matched.slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
+          return `<a href="/toolbox/${matched.slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
         }
         // Fallback: open externally if no matching slug found
         return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;

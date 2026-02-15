@@ -1,23 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPageBySlug } from '../data/toolboxPages';
+
+const LOAD_TIMEOUT_MS = 20000;
 
 export default function ToolboxEmbed() {
   const { slug } = useParams();
   const currentPage = getPageBySlug(slug);
   const [loading, setLoading] = useState(true);
+  const [timedOut, setTimedOut] = useState(false);
+
+  // Timeout: if iframe hasn't loaded after LOAD_TIMEOUT_MS, show fallback
+  useEffect(() => {
+    if (!currentPage) return;
+    const timer = setTimeout(() => {
+      setTimedOut(true);
+      setLoading(false);
+    }, LOAD_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [currentPage]);
 
   if (!currentPage) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-slate-200 mb-4">Page Not Found</h1>
           <p className="text-slate-400 mb-6">
-            The page "{slug}" could not be found.
+            The toolbox page &ldquo;{slug}&rdquo; could not be found.
           </p>
           <Link
             to="/neoflix"
-            className="px-4 py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-white"
+            className="px-4 py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-white transition-colors"
           >
             Back to Neoflix
           </Link>
@@ -27,43 +40,71 @@ export default function ToolboxEmbed() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col">
-      {/* Header bar */}
+    <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
+      {/* Header bar — always visible */}
       <div className="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
           <Link
             to="/neoflix"
-            className="text-slate-400 hover:text-white transition-colors"
+            className="text-slate-400 hover:text-white transition-colors text-sm"
           >
             &larr; Back
           </Link>
-          <h1 className="text-lg font-medium text-slate-200">{currentPage.label}</h1>
+          <h1 className="text-base font-medium text-slate-200 truncate">
+            {currentPage.label}
+          </h1>
         </div>
         <a
           href={currentPage.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-teal-400 hover:text-teal-300 transition-colors"
+          className="text-sm text-teal-400 hover:text-teal-300 transition-colors shrink-0 ml-4"
         >
           Open in GitBook &nearr;
         </a>
       </div>
 
-      {/* Iframe container */}
-      <div className="flex-1 relative">
+      {/* Iframe container — fills remaining height */}
+      <div className="flex-1 relative min-h-0">
+        {/* Loading overlay */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-slate-600 border-t-teal-400 rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-400 text-sm">Loading {currentPage.label}…</p>
+              <p className="text-slate-400 text-sm">Loading {currentPage.label}&hellip;</p>
             </div>
           </div>
         )}
+
+        {/* Timeout message */}
+        {timedOut && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900">
+            <div className="text-center max-w-md px-6">
+              <p className="text-slate-300 text-lg mb-2">This page is taking a while to load.</p>
+              <p className="text-slate-400 text-sm mb-6">
+                The GitBook content may be temporarily unavailable.
+              </p>
+              <a
+                href={currentPage.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-5 py-2.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white transition-colors"
+              >
+                Open directly in GitBook &nearr;
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* The iframe itself */}
         <iframe
           src={currentPage.url}
           title={currentPage.label}
           className="absolute inset-0 w-full h-full border-0"
-          onLoad={() => setLoading(false)}
+          onLoad={() => {
+            setLoading(false);
+            setTimedOut(false);
+          }}
         />
       </div>
     </div>
