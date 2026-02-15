@@ -15,31 +15,17 @@ import { createSidebarMotion, createSectionVariants, scrollToSection, smoothScro
 // CMS-ready data
 import {
   sections as SECTIONS,
-  defaultContent as LONG_LOREM,
   sectionToVideo as SECTION_TO_VIDEO,
   deckSources as DECK_SOURCES,
   animationConfig,
   pageStyle,
 } from '../data/neoflix';
 
-const CMS_STORAGE_KEY = 'neoflix-cms-sections';
-
-// Load CMS content from localStorage, fall back to default lorem ipsum
-function loadSectionsWithContent() {
-  try {
-    const saved = localStorage.getItem(CMS_STORAGE_KEY);
-    if (saved) {
-      const cmsSections = JSON.parse(saved);
-      return cmsSections.map((s) => ({
-        ...s,
-        rawContent: [s.textBlock1, s.textBlock2].filter(Boolean).join('\n\n') || LONG_LOREM,
-      }));
-    }
-  } catch (e) {
-    console.error('Error loading CMS content:', e);
-  }
-  return SECTIONS.map((s) => ({ ...s, rawContent: LONG_LOREM }));
-}
+// Prepare sections with content
+const sectionsWithContent = SECTIONS.map((s) => ({
+  ...s,
+  rawContent: s.content,
+}));
 
 export default function SidebarScrollSpyDemo() {
   // Force remount detection

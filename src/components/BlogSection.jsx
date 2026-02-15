@@ -5,15 +5,14 @@ import React from 'react';
 import { SidebarLayout } from './shared';
 import {
   sections as SECTIONS,
-  defaultContent as LOREM_GIBSON,
   animationConfig,
   pageStyle,
-} from '../data/blog';
+} from '../data/publications';
 
-// Prepare sections with content
+// Sections already have content included
 const sectionsWithContent = SECTIONS.map((s) => ({
   ...s,
-  rawContent: LOREM_GIBSON,
+  rawContent: s.content,
 }));
 
 export default function BlogSection() {

@@ -1,32 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-const GITBOOK_PATTERN = /docs\.neoflix\.care/i;
-
-// Render markdown-style content: [text](url), **bold**, *italic*, newlines
-function transformLinks(text) {
-  if (!text) return '';
-  return text
-    .replace(/\n/g, '<br/>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
-      if (GITBOOK_PATTERN.test(url)) {
-        const pathParts = url.replace(/^https?:\/\/docs\.neoflix\.care\/?/, '').split('/');
-        const lastPart = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || 'page';
-        const cleanSlug = lastPart
-          .replace(/^\d+\.-?/, '')
-          .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('_');
-        return `<a href="/Toolbox-${cleanSlug}" style="font-family: Inter, sans-serif; font-weight: 700; font-size: 16px; color: #529C9C; text-decoration: underline;">${label}</a>`;
-      }
-      return `<a href="${url}" target="_blank" rel="noopener" style="font-family: Inter, sans-serif; font-weight: 700; font-size: 16px; color: #152536; text-decoration: none; transition: color 150ms;" onmouseover="this.style.color='#529C9C';this.style.textDecoration='underline'" onmouseout="this.style.color='#152536';this.style.textDecoration='none'">${label}</a>`;
-    })
-    .replace(/(?<!\bhref=")(https?:\/\/\S+)(?!")/g, (url) =>
-      `<a href="${url}" target="_blank" rel="noopener" style="font-family: Inter, sans-serif; font-weight: 700; font-size: 16px; color: #152536; text-decoration: none; transition: color 150ms;" onmouseover="this.style.color='#529C9C';this.style.textDecoration='underline'" onmouseout="this.style.color='#152536';this.style.textDecoration='none'">${url}</a>`
-    );
-}
+import { renderMarkdown } from '../../utils/renderMarkdown';
 
 /**
  * Individual content section with animations
@@ -49,7 +23,7 @@ export default function ContentSection({
 
   // Support both pre-transformed content and raw content
   const displayContent = rawContent
-    ? transformLinks(rawContent)
+    ? renderMarkdown(rawContent)
     : content || '';
 
   return (
