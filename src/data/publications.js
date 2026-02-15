@@ -1,6 +1,6 @@
 /**
  * Publications Section Data
- * Content for the Publications page (/blog route)
+ * Content for the Publications page (/publications route)
  */
 
 // Section definitions with real content

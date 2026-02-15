@@ -1,4 +1,4 @@
-// BlogSection.jsx
+// PublicationsSection.jsx
 // React 18 · Tailwind CSS 3 · framer-motion 10
 // Refactored to use shared CMS-ready components
 import React from 'react';
@@ -15,7 +15,7 @@ const sectionsWithContent = SECTIONS.map((s) => ({
   rawContent: s.content,
 }));
 
-export default function BlogSection() {
+export default function PublicationsSection() {
   return (
     <div className={`min-h-screen ${pageStyle.backgroundClassName}`}>
       <SidebarLayout
