@@ -1,6 +1,6 @@
 import React from 'react';
-import MedicalCarousel from '../../MedicalCarousel';
-import VideoManager from '../../VideoManager';
+import MedicalCarousel from './MedicalCarousel';
+import VideoManager from './VideoManager';
 import AutoFitHeading from '../../AutoFitHeading';
 import { BLUR_VIDEO_BASE_STYLE, VIDEO_OVERLAY_STYLE, VIDEO_INNER_CONTAINER_STYLE, VIDEO_CONTROLS_HIDDEN_CSS } from './MedicalSection.styles';
 import { BASE_INDEX } from './MedicalSection.data';

@@ -8,7 +8,7 @@ import SidebarScrollSpyDemo from './components/Sidebar';
 import Home from './pages/Home';
 import WorldMapEditor from './components/WorldMapEditor';
 import ViewTransition from './components/ViewTransition';
-import FPSCounter from './components/FPSCounter';
+import FPSCounter from './components/dev/FPSCounter';
 import CMSAdmin from './pages/CMSAdmin';
 import ToolboxEmbed from './components/ToolboxEmbed';
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import TabletBlurBackground from '../../TabletBlurBackground';
-import TabletMedicalCarousel from '../../TabletMedicalCarousel';
-import TabletTravellingBar from '../../TabletTravellingBar';
+import TabletBlurBackground from './TabletBlurBackground';
+import TabletMedicalCarousel from './TabletMedicalCarousel';
+import TabletTravellingBar from './TabletTravellingBar';
 import AutoFitHeading from '../../AutoFitHeading';
 
 export default function MedicalTabletLayout({
