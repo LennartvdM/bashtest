@@ -42,7 +42,6 @@ export default function SidebarScrollSpyDemo() {
     }
   }, []);
 
-  const [sectionsWithContent] = useState(loadSectionsWithContent);
   const sectionIds = sectionsWithContent.map((s) => s.id);
   const active = useScrollSpy(sectionIds);
   const location = useLocation();
