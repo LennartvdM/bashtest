@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Redirect legacy /Toolbox-{slug} URLs to new /toolbox/{slug} format
+[[redirects]]
+  from = "/Toolbox-:slug"
+  to = "/toolbox/:slug"
+  status = 301
+
 # Ensure SPA routing works with react-router on refresh/deep links
 [[redirects]]
   from = "/*"
