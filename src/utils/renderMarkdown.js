@@ -19,19 +19,22 @@ export function renderMarkdown(text) {
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
       // Check for internal Toolbox route patterns: /Toolbox-{slug} or ./Toolbox-{slug} or ./Toolbox_{slug}
+      // Resolve to the actual GitBook URL and open directly
       const toolboxRouteMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
       if (toolboxRouteMatch) {
         const slug = toolboxRouteMatch[1].replace(/_/g, '-');
+        const page = toolboxPages.find(
+          (p) => p.slug.toLowerCase() === slug.toLowerCase()
+        );
+        if (page) {
+          return `<a href="${page.url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
+        }
+        // Fallback to internal route if slug not in registry
         return `<a href="/Toolbox-${slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
-      // Check for docs.neoflix.care URLs — resolve via registry
+      // Check for docs.neoflix.care URLs — open directly
       if (/docs\.neoflix\.care/i.test(url)) {
-        const match = findSlugFromGitBookUrl(url);
-        if (match) {
-          return `<a href="/Toolbox-${match.slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
-        }
-        // Fallback: open GitBook directly if no registry match
         return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 

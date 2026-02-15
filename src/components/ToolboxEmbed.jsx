@@ -1,11 +1,20 @@
+import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getEmbedUrl, getPageBySlug } from '../data/toolboxPages';
+import { getPageBySlug } from '../data/toolboxPages';
 
 export default function ToolboxEmbed() {
   const { slug } = useParams();
-
   const currentPage = getPageBySlug(slug);
-  const embedUrl = currentPage ? getEmbedUrl(slug) : null;
+
+  // Auto-open the GitBook page in the same tab after a short delay
+  useEffect(() => {
+    if (currentPage) {
+      const timer = setTimeout(() => {
+        window.location.href = currentPage.url;
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentPage]);
 
   if (!currentPage) {
     return (
@@ -27,37 +36,26 @@ export default function ToolboxEmbed() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col">
-      {/* Page header with back navigation */}
-      <div className="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="text-center max-w-md px-6">
+        <h1 className="text-2xl font-semibold text-slate-200 mb-3">{currentPage.label}</h1>
+        <p className="text-slate-400 mb-8">
+          Redirecting to the Neoflix Toolbox…
+        </p>
+        <div className="flex flex-col gap-4 items-center">
+          <a
+            href={currentPage.url}
+            className="px-6 py-3 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-medium transition-colors"
+          >
+            Open in Toolbox
+          </a>
           <Link
             to="/neoflix"
-            className="text-slate-400 hover:text-white transition-colors"
+            className="text-slate-400 hover:text-slate-200 text-sm transition-colors"
           >
-            &larr; Back
+            &larr; Back to Neoflix
           </Link>
-          <h1 className="text-lg font-medium text-slate-200">{currentPage.label}</h1>
         </div>
-        <a
-          href={currentPage.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-teal-400 hover:text-teal-300"
-        >
-          Open in GitBook
-        </a>
-      </div>
-
-      {/* GitBook iframe */}
-      <div className="flex-1 relative">
-        <iframe
-          src={embedUrl}
-          className="absolute inset-0 w-full h-full border-0"
-          title={currentPage.label}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          loading="lazy"
-        />
       </div>
     </div>
   );
