@@ -1,5 +1,5 @@
-import SimpleCookieCutterBand from '../SimpleCookieCutterBand';
-import MirroredCookieCutterBand from '../MirroredCookieCutterBand';
+import SimpleCookieCutterBand from '../../SimpleCookieCutterBand';
+import MirroredCookieCutterBand from '../../MirroredCookieCutterBand';
 
 export const BASE_INDEX = 2; // index of the always-visible base video
 
