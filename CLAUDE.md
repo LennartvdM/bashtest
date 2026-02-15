@@ -18,7 +18,17 @@ App.jsx                     → Router: /, /neoflix, /blog, /toolbox, /map-edito
             ContactSection      (lazy)
 ```
 
-MedicalSection.jsx (1486 LOC) is the largest and most complex component — it handles dual desktop/tablet layouts, video carousels, captions, and animated transitions.
+The MedicalSection is the most complex component — it handles dual desktop/tablet layouts, video carousels, captions, and animated transitions. It has been split into focused files:
+
+```
+MedicalSection.jsx          → 17-line shell (picks tablet vs desktop)
+  ├─ useMedicalSection.jsx  → Orchestration hook (all state, effects, handlers)
+  ├─ MedicalTabletLayout.jsx   → Tablet portrait render path (animation JSX)
+  ├─ MedicalDesktopLayout.jsx  → Desktop render path (animation JSX)
+  ├─ MedicalSection.data.js    → VARIANTS config (video URLs, headlines, headers)
+  ├─ MedicalSection.styles.js  → Style constants + CSS
+  └─ MedicalSection.reducers.js → State reducers (visibility, measurements, interaction)
+```
 
 ## File Tiers
 
@@ -30,7 +40,7 @@ MedicalSection.jsx (1486 LOC) is the largest and most complex component — it h
 - `src/components/ScrollSection.jsx` — Section viewport tracking
 
 ### Tier 2 — Page Sections (read when working on a specific section)
-- `src/components/sections/MedicalSection.jsx` — Core medical carousel (V2+V3 base)
+- `src/components/sections/MedicalSection.jsx` — Slim shell, picks tablet vs desktop
 - `src/components/sections/MedicalSectionV2.jsx` — V2 variant wrapper
 - `src/components/sections/MedicalSectionV3.jsx` — V3 variant wrapper
 - `src/components/sections/HeroSection.jsx` — Hero/landing section
@@ -38,6 +48,14 @@ MedicalSection.jsx (1486 LOC) is the largest and most complex component — it h
 - `src/components/sections/ContactSection.jsx` — Contact form section
 - `src/components/sections/SkillsSection.jsx` — Skills display
 - `src/components/sections/ProjectsSection.jsx` — Projects showcase
+
+### Tier 2b — MedicalSection internals (read only the piece you need)
+- `src/hooks/useMedicalSection.jsx` — All state, effects, handlers (the "brain")
+- `src/components/sections/MedicalTabletLayout.jsx` — Tablet portrait animation JSX
+- `src/components/sections/MedicalDesktopLayout.jsx` — Desktop animation JSX
+- `src/components/sections/MedicalSection.data.js` — Video URLs, headlines, header text
+- `src/components/sections/MedicalSection.styles.js` — Style constants + injected CSS
+- `src/components/sections/MedicalSection.reducers.js` — Visibility, measurements, interaction reducers
 
 ### Tier 3 — Shared Components & Hooks (read when debugging layout/behavior)
 - `src/hooks/useTabletLayout.js` — Tablet detection + layout state
