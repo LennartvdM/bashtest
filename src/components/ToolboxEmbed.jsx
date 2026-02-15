@@ -23,10 +23,10 @@ export default function ToolboxEmbed() {
 
   if (!currentPage) {
     return (
-      <div className="h-screen bg-slate-900 flex items-center justify-center">
+      <div className="h-screen bg-[#F5F9FC] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-slate-200 mb-4">Page Not Found</h1>
-          <p className="text-slate-400 mb-6">
+          <h1 className="text-2xl font-semibold text-slate-700 mb-4">Page Not Found</h1>
+          <p className="text-slate-500 mb-6">
             The toolbox page &ldquo;{slug}&rdquo; could not be found.
           </p>
           <Link
@@ -41,14 +41,14 @@ export default function ToolboxEmbed() {
   }
 
   return (
-    <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#F5F9FC] flex flex-col overflow-hidden">
       {/* Iframe container — fills remaining height */}
       <div className="flex-1 relative min-h-0">
         {/* Loading overlay */}
         {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#F5F9FC]">
             <div className="text-center">
-              <div className="w-8 h-8 border-2 border-slate-600 border-t-teal-400 rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-8 h-8 border-2 border-slate-300 border-t-teal-400 rounded-full animate-spin mx-auto mb-4" />
               <p className="text-slate-400 text-sm">Loading {currentPage.label}&hellip;</p>
             </div>
           </div>
@@ -56,9 +56,9 @@ export default function ToolboxEmbed() {
 
         {/* Timeout message */}
         {timedOut && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#F5F9FC]">
             <div className="text-center max-w-md px-6">
-              <p className="text-slate-300 text-lg mb-2">This page is taking a while to load.</p>
+              <p className="text-slate-600 text-lg mb-2">This page is taking a while to load.</p>
               <p className="text-slate-400 text-sm mb-6">
                 The GitBook content may be temporarily unavailable.
               </p>
