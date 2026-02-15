@@ -11,7 +11,7 @@ export default function ToolboxEmbed() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-slate-200 mb-4">Page Not Found</h1>
           <p className="text-slate-400 mb-6">
-            The embedded page "{slug}" could not be found.
+            The page "{slug}" could not be found.
           </p>
           <Link
             to="/neoflix"
@@ -25,29 +25,10 @@ export default function ToolboxEmbed() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-center max-w-md px-6">
-        <h1 className="text-2xl font-semibold text-slate-200 mb-3">{currentPage.label}</h1>
-        <p className="text-slate-400 mb-8">
-          This section is hosted on the Neoflix Toolbox.
-        </p>
-        <div className="flex flex-col gap-4 items-center">
-          <a
-            href={currentPage.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-3 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-medium transition-colors"
-          >
-            Open in Toolbox
-          </a>
-          <Link
-            to="/neoflix"
-            className="text-slate-400 hover:text-slate-200 text-sm transition-colors"
-          >
-            &larr; Back to Neoflix
-          </Link>
-        </div>
-      </div>
-    </div>
+    <iframe
+      src={currentPage.url}
+      title={currentPage.label}
+      style={{ width: '100%', height: '100vh', border: 'none' }}
+    />
   );
 }
