@@ -66,12 +66,9 @@ MedicalSection.jsx (1486 LOC) is the largest and most complex component — it h
 - `src/styles/`, `src/index.css` — Global styles
 - Config files: `vite.config.js`, `tailwind.config.js`, `netlify.toml`, `postcss.config.js`
 
-### Tier 5 — Unused / Dev-only (safe to ignore)
-- `src/components/MedicalCarousel.tsx` — TSX duplicate, not imported
-- `src/components/Table/Table.tsx` — Not imported anywhere
-- `src/components/SectionDebugger.jsx` — Debug overlay, not imported
+### Tier 5 — Dev-only (safe to ignore)
 - `src/components/examples/TabletOptimizedSection.example.jsx` — Example code
-- `src/components/Section.jsx` — Generic section shell, not used by Home
+- `src/components/Section.jsx` — Generic section shell, only used by Toolbox
 - `src/version.js`, `src/version.txt` — Build-time generated
 - `TABLET_BEST_PRACTICES.md` — Reference docs
 
