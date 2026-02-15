@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { renderMarkdown } from '../../utils/renderMarkdown';
 
 /**
@@ -19,12 +20,22 @@ export default function ContentSection({
   className = 'bg-gradient-to-br from-stone-50 to-fuchsia-50',
   style = {},
 }) {
+  const navigate = useNavigate();
   const { id, title, content, rawContent } = section;
 
   // Support both pre-transformed content and raw content
   const displayContent = rawContent
     ? renderMarkdown(rawContent)
     : content || '';
+
+  // Intercept clicks on internal links for SPA navigation
+  const handleContentClick = useCallback((e) => {
+    const link = e.target.closest('a[data-internal]');
+    if (link) {
+      e.preventDefault();
+      navigate(link.getAttribute('href'));
+    }
+  }, [navigate]);
 
   return (
     <motion.section
@@ -63,6 +74,7 @@ export default function ContentSection({
             whiteSpace: 'pre-wrap',
           }}
           dangerouslySetInnerHTML={{ __html: displayContent }}
+          onClick={handleContentClick}
         />
       )}
       {/* Support for custom children via section.children */}
