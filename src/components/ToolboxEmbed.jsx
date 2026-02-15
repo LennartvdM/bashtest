@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPageBySlug } from '../data/toolboxPages';
 
@@ -9,15 +9,16 @@ export default function ToolboxEmbed() {
   const currentPage = getPageBySlug(slug);
   const [loading, setLoading] = useState(true);
   const [timedOut, setTimedOut] = useState(false);
+  const timerRef = useRef(null);
 
   // Timeout: if iframe hasn't loaded after LOAD_TIMEOUT_MS, show fallback
   useEffect(() => {
     if (!currentPage) return;
-    const timer = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setTimedOut(true);
       setLoading(false);
     }, LOAD_TIMEOUT_MS);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timerRef.current);
   }, [currentPage]);
 
   if (!currentPage) {
@@ -41,29 +42,6 @@ export default function ToolboxEmbed() {
 
   return (
     <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
-      {/* Header bar — always visible */}
-      <div className="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <Link
-            to="/neoflix"
-            className="text-slate-400 hover:text-white transition-colors text-sm"
-          >
-            &larr; Back
-          </Link>
-          <h1 className="text-base font-medium text-slate-200 truncate">
-            {currentPage.label}
-          </h1>
-        </div>
-        <a
-          href={currentPage.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-teal-400 hover:text-teal-300 transition-colors shrink-0 ml-4"
-        >
-          Open in GitBook &nearr;
-        </a>
-      </div>
-
       {/* Iframe container — fills remaining height */}
       <div className="flex-1 relative min-h-0">
         {/* Loading overlay */}
@@ -102,6 +80,7 @@ export default function ToolboxEmbed() {
           title={currentPage.label}
           className="absolute inset-0 w-full h-full border-0"
           onLoad={() => {
+            clearTimeout(timerRef.current);
             setLoading(false);
             setTimedOut(false);
           }}
