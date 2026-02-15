@@ -42,7 +42,8 @@ export default function SidebarScrollSpyDemo() {
     }
   }, []);
 
-  const sectionIds = SECTIONS.map((s) => s.id);
+  const [sectionsWithContent] = useState(loadSectionsWithContent);
+  const sectionIds = sectionsWithContent.map((s) => s.id);
   const active = useScrollSpy(sectionIds);
   const location = useLocation();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -115,9 +116,9 @@ export default function SidebarScrollSpyDemo() {
     const prefersDesktop = window.innerWidth >= 768;
     if (!hasHash && prefersDesktop) {
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('nav-activate', { detail: SECTIONS[0].id }));
-        document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        history.replaceState(null, '', `#${SECTIONS[0].id}`);
+        window.dispatchEvent(new CustomEvent('nav-activate', { detail: sectionsWithContent[0].id }));
+        document.getElementById(sectionsWithContent[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        history.replaceState(null, '', `#${sectionsWithContent[0].id}`);
         window.dispatchEvent(new Event('scroll'));
       }, 3500);
     } else if (hasHash) {
@@ -146,7 +147,7 @@ export default function SidebarScrollSpyDemo() {
       return;
     }
 
-    const targetId = location.hash ? location.hash.replace('#', '') : SECTIONS[0].id;
+    const targetId = location.hash ? location.hash.replace('#', '') : sectionsWithContent[0].id;
     const scrollAfterLayout = () => {
       const el = document.getElementById(targetId);
       if (el) {
@@ -260,7 +261,7 @@ export default function SidebarScrollSpyDemo() {
                   className={`sticky top-24 w-72 px-6 pr-10 py-8 rounded-lg shadow-lg select-none ${pageStyle.sidebarClassName}`}
                 >
                   <ul role="list" className="space-y-1">
-                    {SECTIONS.map((s, idx) => (
+                    {sectionsWithContent.map((s, idx) => (
                       <SidebarItem
                         key={s.id}
                         id={s.id}
