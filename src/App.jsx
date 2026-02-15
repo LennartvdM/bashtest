@@ -16,13 +16,13 @@ function AppShell() {
   const location = useLocation();
   const isNeoflix = location.pathname === '/neoflix' || location.pathname.startsWith('/neoflix/');
   const isAdmin = location.pathname === '/admin';
-  const isToolboxEmbed = location.pathname.startsWith('/Toolbox-');
+  const isToolbox = location.pathname === '/toolbox' || location.pathname.startsWith('/Toolbox-');
   const showMapEditor = new URLSearchParams(window.location.search).get('editor') === 'true';
-  const hideNavbar = showMapEditor || isAdmin || isToolboxEmbed;
+  const hideNavbar = showMapEditor || isAdmin || isToolbox;
 
   return (
     <ViewTransition>
-      <div className={`min-h-screen ${isNeoflix || isAdmin || isToolboxEmbed ? '' : 'bg-[#F5F9FC]'}`}>
+      <div className={`min-h-screen ${isNeoflix || isAdmin || isToolbox ? '' : 'bg-[#F5F9FC]'}`}>
         {!hideNavbar && <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
