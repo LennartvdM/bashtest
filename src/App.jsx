@@ -10,13 +10,11 @@ import WorldMapEditor from './components/WorldMapEditor';
 import ViewTransition from './components/ViewTransition';
 import FPSCounter from './components/dev/FPSCounter';
 import CMSAdmin from './pages/CMSAdmin';
-import ToolboxEmbed from './components/ToolboxEmbed';
-
 function AppShell() {
   const location = useLocation();
   const isNeoflix = location.pathname === '/neoflix' || location.pathname.startsWith('/neoflix/');
   const isAdmin = location.pathname === '/admin';
-  const isToolbox = location.pathname === '/toolbox' || location.pathname.startsWith('/Toolbox-');
+  const isToolbox = location.pathname === '/toolbox';
   const showMapEditor = new URLSearchParams(window.location.search).get('editor') === 'true';
   const hideNavbar = showMapEditor || isAdmin || isToolbox;
 
@@ -31,7 +29,6 @@ function AppShell() {
           <Route path="/toolbox" element={<Toolbox />} />
           <Route path="/map-editor" element={<WorldMapEditor />} />
           <Route path="/admin" element={<CMSAdmin />} />
-          <Route path="/Toolbox-:slug" element={<ToolboxEmbed />} />
         </Routes>
         {/* FPS Counter - only visible in development */}
         <FPSCounter position="bottom-left" />

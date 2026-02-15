@@ -1,10 +1,10 @@
-import toolboxPages from '../data/toolboxPages';
+import { getPageBySlug } from '../data/toolboxPages';
 
 /**
  * Render markdown text to HTML with link handling.
  *
- * - [label](/Toolbox-{slug}) or [label](./Toolbox-{slug}) -> internal Toolbox link
- * - [label](https://docs.neoflix.care/...) -> resolved to internal Toolbox link via registry
+ * - [label](/Toolbox-{slug}) or [label](./Toolbox-{slug}) -> opens GitBook page directly (new tab)
+ * - [label](https://docs.neoflix.care/...) -> opens GitBook page directly (new tab)
  * - [label](mailto:...) -> email link (no target blank)
  * - All other URLs -> external link (target="_blank")
  * - **bold** and *italic* supported
@@ -19,20 +19,17 @@ export function renderMarkdown(text) {
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
       // Check for internal Toolbox route patterns: /Toolbox-{slug} or ./Toolbox-{slug} or ./Toolbox_{slug}
-      // Resolve to the actual GitBook URL and open directly
+      // Resolve to the actual GitBook URL and open directly in a new tab
       const toolboxRouteMatch = url.match(/^\.?\/Toolbox[-_](.+)$/);
       if (toolboxRouteMatch) {
         const slug = toolboxRouteMatch[1].replace(/_/g, '-');
-        return `<a href="/Toolbox-${slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
+        const page = getPageBySlug(slug);
+        const href = page ? page.url : `https://docs.neoflix.care`;
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
-      // Check for docs.neoflix.care URLs — resolve to internal Toolbox route if possible
+      // docs.neoflix.care URLs — open directly in a new tab
       if (/docs\.neoflix\.care/i.test(url)) {
-        const matched = findSlugFromGitBookUrl(url);
-        if (matched) {
-          return `<a href="/Toolbox-${matched.slug}" data-internal="true" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
-        }
-        // Fallback: open externally if no matching slug found
         return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
       }
 
@@ -44,26 +41,4 @@ export function renderMarkdown(text) {
       // External link
       return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9;text-decoration:underline">${label}</a>`;
     });
-}
-
-/**
- * Try to find a matching slug in the toolboxPages registry from a GitBook URL.
- * Compares the URL path against registry entries.
- */
-function findSlugFromGitBookUrl(url) {
-  const normalized = url.replace(/\/+$/, '').toLowerCase();
-
-  for (const page of toolboxPages) {
-    const pageUrl = page.url.replace(/\/+$/, '').toLowerCase();
-    if (normalized === pageUrl) {
-      return page;
-    }
-    // Also match if the path portion matches
-    const pagePath = pageUrl.replace('https://docs.neoflix.care', '');
-    if (pagePath && normalized.endsWith(pagePath)) {
-      return page;
-    }
-  }
-
-  return null;
 }
