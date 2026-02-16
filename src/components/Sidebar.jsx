@@ -1,7 +1,7 @@
 // SidebarScrollSpyDemo.jsx (plain JS)
 // React 18 · Tailwind CSS 3 · framer-motion 10
 // Refactored to use shared CMS-ready components
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
@@ -184,9 +184,10 @@ export default function SidebarScrollSpyDemo() {
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
   // Dim article text during video crossfade so it doesn't compete
+  // useLayoutEffect so the dim starts in the same paint frame as the video crossfade
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
@@ -312,7 +313,7 @@ export default function SidebarScrollSpyDemo() {
                   variants={sectionVariants}
                   className=""
                   style={pageStyle.sectionStyle}
-                  contentOpacity={bgTransitioning ? 0.2 : 1}
+                  contentOpacity={bgTransitioning ? 0.5 : 1}
                 />
               ))}
               <div className="h-screen" aria-hidden="true"></div>
