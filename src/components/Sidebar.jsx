@@ -186,17 +186,31 @@ export default function SidebarScrollSpyDemo() {
   // Soften text during video crossfade so it doesn't compete with the background.
   // useLayoutEffect ensures the dim starts in the same paint frame as the crossfade.
   // Each targetIndex change resets the timer, so multi-section scrolls stay dimmed
-  // for the whole journey. Timer (450ms) releases slightly before the 0.6s crossfade
-  // ends — the easeInOut is visually complete by ~80%, so we start the 0.2s fade-back
-  // early to overlap with the tail of the crossfade. Total visible dim after arrival:
-  // ~450ms + 200ms = 650ms, tightly matching the 600ms video crossfade.
+  // for the whole journey. For short hops the 450ms timer releases slightly before
+  // the 0.6s crossfade ends. For long journeys (rapid successive changes) we shorten
+  // the release to 200ms since the user has already been dimmed throughout the scroll
+  // and the destination crossfade is the only one that matters visually.
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
+  const journeyStartRef = useRef(null);
   useLayoutEffect(() => {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
-      const timer = setTimeout(() => setBgTransitioning(false), 450);
+
+      // Track how long this multi-section scroll has been going
+      if (!journeyStartRef.current) {
+        journeyStartRef.current = Date.now();
+      }
+      const elapsed = Date.now() - journeyStartRef.current;
+      // Short hop: 450ms (matches 0.6s crossfade at ~80%)
+      // Long journey: 200ms (user has been dimmed long enough, release quickly)
+      const delay = elapsed > 500 ? 200 : 450;
+
+      const timer = setTimeout(() => {
+        setBgTransitioning(false);
+        journeyStartRef.current = null;
+      }, delay);
       return () => clearTimeout(timer);
     }
   }, [targetIndex]);
