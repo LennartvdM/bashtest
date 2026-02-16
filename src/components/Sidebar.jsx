@@ -190,7 +190,8 @@ export default function SidebarScrollSpyDemo() {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
-      const timer = setTimeout(() => setBgTransitioning(false), 600);
+      // 0.2s fade-out + 0.2s hold + 0.2s fade-in
+      const timer = setTimeout(() => setBgTransitioning(false), 400);
       return () => clearTimeout(timer);
     }
   }, [targetIndex]);
@@ -271,7 +272,7 @@ export default function SidebarScrollSpyDemo() {
       </div>
 
       {/* Foreground content */}
-      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1, opacity: bgTransitioning ? 0.2 : 1, transition: 'opacity 0.3s ease' }}>
+      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1, opacity: bgTransitioning ? 0.2 : 1, transition: 'opacity 0.2s ease' }}>
         <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
           {isMobile && (
             <MobileNav
