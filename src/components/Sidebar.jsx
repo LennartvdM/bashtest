@@ -183,18 +183,20 @@ export default function SidebarScrollSpyDemo() {
   const targetVideo = SECTION_TO_VIDEO[active];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
-  // Soften text during video crossfade so it doesn't compete with the background
+  // Soften text during video crossfade so it doesn't compete with the background.
   // useLayoutEffect ensures the dim starts in the same paint frame as the crossfade.
-  // Subtle enough (0.65) that you don't notice the text dimming — you just notice
-  // the background transition feels smoother. Holds for the full 0.6s crossfade,
-  // then fades back gently over 0.4s so the return is invisible.
+  // Each targetIndex change resets the timer, so multi-section scrolls stay dimmed
+  // for the whole journey. Timer (450ms) releases slightly before the 0.6s crossfade
+  // ends — the easeInOut is visually complete by ~80%, so we start the 0.2s fade-back
+  // early to overlap with the tail of the crossfade. Total visible dim after arrival:
+  // ~450ms + 200ms = 650ms, tightly matching the 600ms video crossfade.
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
   useLayoutEffect(() => {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
-      const timer = setTimeout(() => setBgTransitioning(false), 600);
+      const timer = setTimeout(() => setBgTransitioning(false), 450);
       return () => clearTimeout(timer);
     }
   }, [targetIndex]);
