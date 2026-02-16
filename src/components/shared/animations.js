@@ -68,10 +68,19 @@ export const createSidebarMotion = (options = {}) => {
   };
 };
 
+// Calculate scroll duration based on distance (square root scaling, clamped)
+function getScrollDuration(distance) {
+  const MIN_DURATION = 300;
+  const MAX_DURATION = 1200;
+  const COEFFICIENT = 30;
+  return Math.max(MIN_DURATION, Math.min(MAX_DURATION, COEFFICIENT * Math.sqrt(Math.abs(distance))));
+}
+
 // Custom smooth scroll function with easing
-export function smoothScrollTo(targetY, duration = 1350) {
+export function smoothScrollTo(targetY, duration) {
   const startY = window.scrollY;
   const diff = targetY - startY;
+  if (duration === undefined) duration = getScrollDuration(diff);
   let start;
 
   function easeInOut(t) {
