@@ -84,7 +84,7 @@ export default function SidebarLayout({
       // Account for navbar height (6rem = 96px, matching scroll-mt-24 and sticky top-24)
       const navbarOffset = 96;
       const targetY = rect.top + window.scrollY - navbarOffset;
-      smoothScrollTo(targetY, 1350);
+      smoothScrollTo(targetY);
     }
     history.replaceState(null, '', `#${id}`);
     setIsMobileNavOpen(false);
