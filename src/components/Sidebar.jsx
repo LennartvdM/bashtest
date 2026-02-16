@@ -183,6 +183,18 @@ export default function SidebarScrollSpyDemo() {
   const targetVideo = SECTION_TO_VIDEO[active];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
+  // Dim foreground text during video crossfade so it doesn't compete
+  const [bgTransitioning, setBgTransitioning] = useState(false);
+  const prevTargetIndex = useRef(targetIndex);
+  useEffect(() => {
+    if (targetIndex !== prevTargetIndex.current) {
+      prevTargetIndex.current = targetIndex;
+      setBgTransitioning(true);
+      const timer = setTimeout(() => setBgTransitioning(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [targetIndex]);
+
   return (
     <>
       {/* Video deck carousel backdrop */}
@@ -259,7 +271,7 @@ export default function SidebarScrollSpyDemo() {
       </div>
 
       {/* Foreground content */}
-      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1, opacity: bgTransitioning ? 0.2 : 1, transition: 'opacity 0.3s ease' }}>
         <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
           {isMobile && (
             <MobileNav
