@@ -35,7 +35,7 @@ DO NOT "fix" this to crossfade between A and B.
 The stacking is intentional to avoid ugly transitions.
 */
 
-const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange }) {
+const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter, hoveredIndex, isActive, videoHover, setVideoHover, interactionsEnabled, videos, enableTouchNavigation, onTouchChange, sectionActive = true }) {
   const videoContainerRef = useRef(null);
   const videoRefs = useRef([null, null, null]);
   const [deckLoaded, setDeckLoaded] = React.useState(false);
@@ -51,17 +51,17 @@ const MedicalCarousel = memo(function MedicalCarousel({ current, setVideoCenter,
 
   // Pause/play videos based on visibility - only play the topmost visible video
   // Video 0 is on top, covers 1 and 2. Video 1 covers 2. No need to decode hidden videos.
+  // When section is off-screen, pause ALL videos to free GPU decode.
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      // Only play the current top video - others are covered and don't need to decode
-      if (idx === current || idx === 2) {
+      if (sectionActive && (idx === current || idx === 2)) {
         video.play().catch(() => {});
       } else {
         video.pause();
       }
     });
-  }, [current, deckLoaded]);
+  }, [current, deckLoaded, sectionActive]);
 
   // Throttled center update to reduce resize/scroll handler frequency
   const updateCenter = useCallback(() => {

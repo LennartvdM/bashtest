@@ -59,7 +59,7 @@ export default function MedicalTabletLayout({
         transition: isRotating ? 'none' : 'all 0.3s ease-out',
       }}
     >
-      <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} />
+      <TabletBlurBackground blurVideos={blurVideos} current={currentVideo} fadeDuration={1.2} sectionActive={sectionState === 'entering' || sectionState === 'active'} />
 
       {/* Foreground content wrapper - CSS Grid for smooth orientation adaptation */}
       <div style={{
@@ -131,6 +131,7 @@ export default function MedicalTabletLayout({
               onChange={handleTabletCarouselChange}
               onPauseChange={handleTabletPauseChange}
               style={{ width: '100%', height: '100%' }}
+              sectionActive={sectionState === 'entering' || sectionState === 'active'}
             />
           </div>
         </div>

@@ -12,7 +12,7 @@ import React, { useRef, useEffect, memo } from "react";
  * Performance: Only current video plays; adjacent videos stay paused but buffered
  * for instant transitions. This reduces decode workload by ~66% on low-power devices.
  */
-const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [], current = 0, fadeDuration = 1.2 }) {
+const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [], current = 0, fadeDuration = 1.2, sectionActive = true }) {
   const videoRefs = useRef([null, null, null]);
   const [deckLoaded, setDeckLoaded] = React.useState(false);
 
@@ -24,16 +24,17 @@ const TabletBlurBackground = memo(function TabletBlurBackground({ blurVideos = [
 
   // Pause/play videos - only play the topmost visible video (current) and base (2)
   // Others are stacked underneath and don't need to decode frames
+  // When section is off-screen, pause ALL videos to free GPU decode.
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      if (idx === current || idx === 2) {
+      if (sectionActive && (idx === current || idx === 2)) {
         video.play().catch(() => {});
       } else {
         video.pause();
       }
     });
-  }, [current, deckLoaded]);
+  }, [current, deckLoaded, sectionActive]);
   // Guarantee 3 videos
   const bg = [
     blurVideos[0] || {},

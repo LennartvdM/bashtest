@@ -359,6 +359,7 @@ export default function MedicalDesktopLayout({
                 videos={mainVideos}
                 enableTouchNavigation={isLandscapeTablet}
                 onTouchChange={handleTabletCarouselChange}
+                sectionActive={sectionState === 'entering' || sectionState === 'active'}
               />
             </div>
           </div>
