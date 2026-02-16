@@ -1,7 +1,7 @@
 // SidebarScrollSpyDemo.jsx (plain JS)
 // React 18 · Tailwind CSS 3 · framer-motion 10
 // Refactored to use shared CMS-ready components
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
@@ -183,15 +183,18 @@ export default function SidebarScrollSpyDemo() {
   const targetVideo = SECTION_TO_VIDEO[active];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
-  // Dim article text during video crossfade so it doesn't compete
+  // Soften text during video crossfade so it doesn't compete with the background
+  // useLayoutEffect ensures the dim starts in the same paint frame as the crossfade.
+  // Subtle enough (0.65) that you don't notice the text dimming — you just notice
+  // the background transition feels smoother. Holds for the full 0.6s crossfade,
+  // then fades back gently over 0.4s so the return is invisible.
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
-      // 0.2s fade-out + 0.2s hold + 0.2s fade-in
-      const timer = setTimeout(() => setBgTransitioning(false), 400);
+      const timer = setTimeout(() => setBgTransitioning(false), 600);
       return () => clearTimeout(timer);
     }
   }, [targetIndex]);
@@ -312,7 +315,7 @@ export default function SidebarScrollSpyDemo() {
                   variants={sectionVariants}
                   className=""
                   style={pageStyle.sectionStyle}
-                  contentOpacity={bgTransitioning ? 0.2 : 1}
+                  contentOpacity={bgTransitioning ? 0.65 : 1}
                 />
               ))}
               <div className="h-screen" aria-hidden="true"></div>
