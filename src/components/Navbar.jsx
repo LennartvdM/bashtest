@@ -259,7 +259,7 @@ export default function Navbar() {
   }, [location.pathname, location.hash, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <nav ref={navRef} className="fixed inset-x-0 top-0 z-40 bg-white backdrop-blur border-b border-[#e7dfd7] flex items-center justify-between shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
+    <nav ref={navRef} className="fixed inset-x-0 top-0 z-40 bg-white border-b border-[#e7dfd7] flex items-center justify-between shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
       onLoadCapture={() => {
         try {
           const h = navRef.current?.getBoundingClientRect()?.height || 60;
