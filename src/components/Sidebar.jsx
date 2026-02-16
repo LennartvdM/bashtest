@@ -303,7 +303,7 @@ export default function SidebarScrollSpyDemo() {
                 </motion.aside>
               )}
             </AnimatePresence>
-            <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8" style={{ opacity: bgTransitioning ? 0.2 : 1, transition: 'opacity 0.2s ease' }}>
+            <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
               {sectionsWithContent.map((section, idx) => (
                 <ContentSection
                   key={section.id}
@@ -312,6 +312,7 @@ export default function SidebarScrollSpyDemo() {
                   variants={sectionVariants}
                   className=""
                   style={pageStyle.sectionStyle}
+                  contentOpacity={bgTransitioning ? 0.2 : 1}
                 />
               ))}
               <div className="h-screen" aria-hidden="true"></div>

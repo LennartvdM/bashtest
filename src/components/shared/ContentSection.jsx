@@ -19,6 +19,7 @@ export default function ContentSection({
   variants,
   className = 'bg-gradient-to-br from-stone-50 to-fuchsia-50',
   style = {},
+  contentOpacity,
 }) {
   const navigate = useNavigate();
   const { id, title, content, rawContent } = section;
@@ -48,37 +49,39 @@ export default function ContentSection({
       animate="visible"
       custom={index}
     >
-      <h2
-        className="mb-6 not-prose"
-        style={{
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: 900,
-          fontSize: '40px',
-          color: '#383437',
-          letterSpacing: '-0.01em',
-        }}
-      >
-        {title}
-      </h2>
-      {displayContent && (
-        <p
-          className="mb-4"
+      <div style={contentOpacity != null ? { opacity: contentOpacity, transition: 'opacity 0.2s ease' } : undefined}>
+        <h2
+          className="mb-6 not-prose"
           style={{
             fontFamily: 'Inter, sans-serif',
-            fontWeight: 500,
-            fontSize: '16px',
-            color: '#666666',
-            maxWidth: '28rem',
-            marginLeft: 0,
-            marginRight: 0,
-            whiteSpace: 'pre-wrap',
+            fontWeight: 900,
+            fontSize: '40px',
+            color: '#383437',
+            letterSpacing: '-0.01em',
           }}
-          dangerouslySetInnerHTML={{ __html: displayContent }}
-          onClick={handleContentClick}
-        />
-      )}
-      {/* Support for custom children via section.children */}
-      {section.children}
+        >
+          {title}
+        </h2>
+        {displayContent && (
+          <p
+            className="mb-4"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 500,
+              fontSize: '16px',
+              color: '#666666',
+              maxWidth: '28rem',
+              marginLeft: 0,
+              marginRight: 0,
+              whiteSpace: 'pre-wrap',
+            }}
+            dangerouslySetInnerHTML={{ __html: displayContent }}
+            onClick={handleContentClick}
+          />
+        )}
+        {/* Support for custom children via section.children */}
+        {section.children}
+      </div>
     </motion.section>
   );
 }
