@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
+import useViewTransition from '../hooks/useViewTransition';
 import version from '../version';
 
 // Inline FPS Counter for Navbar
@@ -112,6 +113,19 @@ const NAV_CELL_HEIGHT = 28;
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const transitionNavigate = useViewTransition();
+
+  // Navigate with a view transition when the pathname changes,
+  // plain navigate for same-page hash changes.
+  const handleNavClick = (e, to) => {
+    e.preventDefault();
+    const targetPath = to.split('#')[0] || '/';
+    if (targetPath === location.pathname) {
+      navigate(to);
+    } else {
+      transitionNavigate(to);
+    }
+  };
   const navRef = useRef(null);
   const blobContainerRef = useRef(null);
   const linkRefs = useRef([]);
@@ -267,7 +281,7 @@ export default function Navbar() {
     >
       {/* Logo + FPS Counter */}
       <div className="flex items-center h-full pl-6 pr-4">
-        <div className="cursor-pointer" onClick={() => navigate('/')}>
+        <div className="cursor-pointer" onClick={() => location.pathname === '/' ? null : transitionNavigate('/')}>
           <span className="sr-only">Home</span>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
         </div>
@@ -340,8 +354,9 @@ export default function Navbar() {
                     }}
                   />
                 )}
-                <Link
-                  to={link.to}
+                <a
+                  href={link.to}
+                  onClick={(e) => handleNavClick(e, link.to)}
                   className={`relative z-30 flex items-center justify-center rounded-full transition-colors duration-150 transform-gpu
                     hover:scale-105 focus:scale-105 transition-transform duration-240
                     ${active ? 'text-white font-bold' : isToolbox ? 'text-white font-semibold' : 'text-[#232324] font-semibold'}
@@ -356,11 +371,13 @@ export default function Navbar() {
                     height: navCellHeight,
                     lineHeight: navCellHeight + 'px',
                     userSelect: 'none',
-                    WebkitUserSelect: 'none'
+                    WebkitUserSelect: 'none',
+                    textDecoration: 'none',
+                    color: 'inherit',
                   }}
                 >
                   {link.label}
-                </Link>
+                </a>
               </div>
             );
           })}
