@@ -30,7 +30,7 @@ const sectionsWithContent = SECTIONS.map((s) => ({
 export default function SidebarScrollSpyDemo() {
   // Force remount detection
   useEffect(() => {
-    const expectedVersion = '2025-01-06-neoflix-v3-shared';
+    const expectedVersion = '2026-02-16-neoflix-v4-crossfade-dim';
     const stored = sessionStorage.getItem('neoflix-version');
     if (stored && stored !== expectedVersion) {
       sessionStorage.setItem('neoflix-version', expectedVersion);
