@@ -67,7 +67,7 @@ export default function SidebarScrollSpyDemo() {
     console.log('Deck carousel: Loading videos', DECK_SOURCES);
   }, []);
 
-  // Enforce half-speed playback on all backdrop videos
+  // Enforce half-speed playback on all backdrop videos (only once after load)
   useEffect(() => {
     const root = backdropRef.current;
     if (!root) return;
@@ -83,7 +83,7 @@ export default function SidebarScrollSpyDemo() {
         console.log(`Video ${idx} error:`, err);
       }
     });
-  }, [active, loadedSources]);
+  }, [loadedSources]);
 
   // Unified scroll function
   const scrollToSectionHandler = useCallback((id) => {

@@ -24,7 +24,8 @@ export default function useScrollSpy(ids, offset = 100) {
           idx = i;
         }
       }
-      setActive(els[idx].id);
+      const newId = els[idx].id;
+      setActive(prev => prev === newId ? prev : newId);
     };
 
     const onScroll = () => {
