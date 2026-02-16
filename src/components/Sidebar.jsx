@@ -272,7 +272,7 @@ export default function SidebarScrollSpyDemo() {
       </div>
 
       {/* Foreground content */}
-      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1, opacity: bgTransitioning ? 0.2 : 1, transition: 'opacity 0.2s ease' }}>
+      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1 }}>
         <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
           {isMobile && (
             <MobileNav
@@ -303,7 +303,7 @@ export default function SidebarScrollSpyDemo() {
                 </motion.aside>
               )}
             </AnimatePresence>
-            <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
+            <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8" style={{ opacity: bgTransitioning ? 0.2 : 1, transition: 'opacity 0.2s ease' }}>
               {sectionsWithContent.map((section, idx) => (
                 <ContentSection
                   key={section.id}
