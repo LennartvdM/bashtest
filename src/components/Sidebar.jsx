@@ -183,34 +183,15 @@ export default function SidebarScrollSpyDemo() {
   const targetVideo = SECTION_TO_VIDEO[active];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
-  // Soften text during video crossfade so it doesn't compete with the background.
-  // useLayoutEffect ensures the dim starts in the same paint frame as the crossfade.
-  // Each targetIndex change resets the timer, so multi-section scrolls stay dimmed
-  // for the whole journey. For short hops the 450ms timer releases slightly before
-  // the 0.6s crossfade ends. For long journeys (rapid successive changes) we shorten
-  // the release to 200ms since the user has already been dimmed throughout the scroll
-  // and the destination crossfade is the only one that matters visually.
+  // Brief dim pulse on text when the background changes — just enough to soften
+  // visual competition, not long enough to feel like a "loading" state.
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
-  const journeyStartRef = useRef(null);
   useLayoutEffect(() => {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
-
-      // Track how long this multi-section scroll has been going
-      if (!journeyStartRef.current) {
-        journeyStartRef.current = Date.now();
-      }
-      const elapsed = Date.now() - journeyStartRef.current;
-      // Short hop: 450ms (matches 0.6s crossfade at ~80%)
-      // Long journey: 200ms (user has been dimmed long enough, release quickly)
-      const delay = elapsed > 500 ? 200 : 450;
-
-      const timer = setTimeout(() => {
-        setBgTransitioning(false);
-        journeyStartRef.current = null;
-      }, delay);
+      const timer = setTimeout(() => setBgTransitioning(false), 180);
       return () => clearTimeout(timer);
     }
   }, [targetIndex]);

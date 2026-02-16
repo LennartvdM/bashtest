@@ -49,7 +49,7 @@ export default function ContentSection({
       animate="visible"
       custom={index}
     >
-      <div style={contentOpacity != null ? { opacity: contentOpacity, transition: contentOpacity < 1 ? 'opacity 0.15s ease-in' : 'opacity 0.12s ease-out' } : undefined}>
+      <div style={contentOpacity != null ? { opacity: contentOpacity, transition: contentOpacity < 1 ? 'opacity 0.05s ease-in' : 'opacity 0.1s ease-out' } : undefined}>
         <h2
           className="mb-6 not-prose"
           style={{
