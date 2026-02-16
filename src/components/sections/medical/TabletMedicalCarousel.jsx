@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, memo } from 'react';
 
-const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [], current = 0, onChange, onPauseChange, className, style }) {
+const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [], current = 0, onChange, onPauseChange, className, style, sectionActive = true }) {
   const containerRef = useRef(null);
   const videoRefs = useRef([null, null, null]);
   const [deckLoaded, setDeckLoaded] = React.useState(false);
@@ -13,16 +13,17 @@ const TabletMedicalCarousel = memo(function TabletMedicalCarousel({ videos = [],
 
   // Pause/play videos - only play the topmost visible video (current) and base (2)
   // Others are stacked underneath and don't need to decode frames
+  // When section is off-screen, pause ALL videos to free GPU decode.
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
-      if (idx === current || idx === 2) {
+      if (sectionActive && (idx === current || idx === 2)) {
         video.play().catch(() => {});
       } else {
         video.pause();
       }
     });
-  }, [current, deckLoaded]);
+  }, [current, deckLoaded, sectionActive]);
 
   // Ensure there are 3 valid slides
   const videoSlides = [
