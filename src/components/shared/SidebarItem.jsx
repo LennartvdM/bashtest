@@ -23,11 +23,11 @@ export default function SidebarItem({ id, title, active, onSectionClick }) {
       onMouseLeave={() => setHovered(false)}
     >
       <motion.span
-        layout="size"
         variants={INDICATOR_VARIANTS}
         animate={state}
         transition={indicatorTransition(active || hovered)}
         className="block shrink-0"
+        style={{ willChange: 'width' }}
       />
       <a
         href={`#${id}`}

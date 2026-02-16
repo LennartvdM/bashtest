@@ -228,10 +228,8 @@ export default function Navbar() {
     };
     updateVar();
     window.addEventListener('resize', updateVar);
-    window.addEventListener('scroll', updateVar, { passive: true });
     return () => {
       window.removeEventListener('resize', updateVar);
-      window.removeEventListener('scroll', updateVar);
     };
   }, []);
 
@@ -288,15 +286,15 @@ export default function Navbar() {
             {!isMobile && blob && (
               <motion.div
                 key="blob"
-                initial={{ opacity: 0, left: blob.left, width: blob.width, height: NAV_CELL_HEIGHT }}
+                initial={{ opacity: 0, x: blob.left, width: blob.width, height: NAV_CELL_HEIGHT }}
                 animate={{
                   opacity: blobOpacity,
-                  left: blob.left,
+                  x: blob.left,
                   width: blob.width,
                   height: traveling ? navCellHeight * 0.75 : navCellHeight,
                   transition: {
                     opacity: { duration: 0.18 },
-                    left: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
+                    x: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
                     width: { type: 'spring', stiffness: 360, damping: 50, mass: 1.2, velocity: 6 },
                     height: { duration: 0.18, ease: [0.42, 0, 0.58, 1] },
                   },
@@ -304,14 +302,13 @@ export default function Navbar() {
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 className="absolute flex items-center"
                 style={{
+                  left: 0,
                   borderRadius: '9999px',
                   background: '#d1d5db',
                   zIndex: 1,
                   pointerEvents: 'none',
                   margin: 'auto 0',
-                  left: blob.left,
-                  width: blob.width,
-                  height: traveling ? navCellHeight * 0.75 : navCellHeight,
+                  willChange: 'transform, width, opacity',
                 }}
               />
             )}
