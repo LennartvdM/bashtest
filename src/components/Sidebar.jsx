@@ -183,7 +183,7 @@ export default function SidebarScrollSpyDemo() {
   const targetVideo = SECTION_TO_VIDEO[active];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
-  // Dim foreground text during video crossfade so it doesn't compete
+  // Dim article text during video crossfade so it doesn't compete
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
   useEffect(() => {
