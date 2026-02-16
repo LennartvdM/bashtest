@@ -372,8 +372,6 @@ export default function Navbar() {
                     lineHeight: navCellHeight + 'px',
                     userSelect: 'none',
                     WebkitUserSelect: 'none',
-                    textDecoration: 'none',
-                    color: 'inherit',
                   }}
                 >
                   {link.label}
