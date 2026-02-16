@@ -1,7 +1,7 @@
 // SidebarScrollSpyDemo.jsx (plain JS)
 // React 18 · Tailwind CSS 3 · framer-motion 10
 // Refactored to use shared CMS-ready components
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
@@ -220,6 +220,23 @@ export default function SidebarScrollSpyDemo() {
                 style={{
                   transform: 'scale(1.06)',
                   zIndex: idx,
+                }}
+                onAnimationStart={(definition) => {
+                  // Resume playback before fade-in starts
+                  if (definition?.opacity === 1) {
+                    const vid = backdropRef.current?.querySelectorAll('video')[idx];
+                    if (vid?.paused) {
+                      vid.playbackRate = 0.5;
+                      vid.play().catch(() => {});
+                    }
+                  }
+                }}
+                onAnimationComplete={(definition) => {
+                  // Pause after fade-out completes to free GPU decode
+                  if (definition?.opacity === 0) {
+                    const vid = backdropRef.current?.querySelectorAll('video')[idx];
+                    if (vid && !vid.paused) vid.pause();
+                  }
                 }}
                 onLoadedData={(e) => {
                   const vid = e.target;
