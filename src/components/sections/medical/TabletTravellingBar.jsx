@@ -1,87 +1,53 @@
-import React, { useRef, useEffect, useState, useCallback, memo } from "react";
-import { useThrottleWithTrailing } from "../../../hooks/useDebounce";
+import React, { memo } from "react";
 
 /**
  * TabletTravellingBar
  * Animated underbar for switching captions on tablet.
- * Props:
- * - captions: array of string/JSX
- * - current: number (active index)
- * - onSelect: fn(idx)
- * - style: (optional)
- * - durationMs: number (optional, default 7000) – progress duration
- * - paused: boolean (optional, default false) – pause animation
- * - animationKey: any (optional) – force restart animation
- * - captionsVisible: boolean (optional, default true) – controls staggered entrance animation
- * - shouldTransition: boolean (optional, default true) – enables/disables transitions
+ *
+ * The highlighter is positioned entirely with CSS math (grid + translateY),
+ * making it independent from the caption buttons. It can jump from any
+ * item to any other item in a single smooth motion — no DOM measurement,
+ * no getBoundingClientRect, no resize listeners.
  */
 const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey, captionsVisible = true, shouldTransition = true }) {
-  const containerRef = useRef(null);
-  const buttonRefs = useRef([]);
-  const [bar, setBar] = useState({ top: 0, height: 0 });
-
-  // Throttled bar position update
-  const updateBarPosition = useCallback(() => {
-    const btn = buttonRefs.current[current];
-    const container = containerRef.current;
-    if (btn && container) {
-      const btnRect = btn.getBoundingClientRect();
-      const contRect = container.getBoundingClientRect();
-      setBar({
-        top: btnRect.top - contRect.top,
-        height: btnRect.height,
-      });
-    }
-  }, [current]);
-
-  const throttledUpdateBar = useThrottleWithTrailing(updateBarPosition, 100);
-
-  // Effect: Update bar position when caption or size changes
-  useEffect(() => {
-    updateBarPosition();
-  }, [current, captions.length, updateBarPosition]);
-
-  // Recalculate if container or font resizes - throttled
-  useEffect(() => {
-    window.addEventListener('resize', throttledUpdateBar);
-    return () => window.removeEventListener('resize', throttledUpdateBar);
-  }, [throttledUpdateBar]);
+  const count = captions.length;
 
   return (
     <div
-      ref={containerRef}
       style={{
         position: 'relative',
-        display: 'flex',
-        flexDirection: 'column', // Vertical layout
+        display: 'grid',
+        gridTemplateRows: `repeat(${count}, 1fr)`,
         width: '100%',
         background: 'none',
         ...style
       }}
     >
-      {/* Animated background highlighter box */}
+      {/* Highlighter — positioned via transform math, fully independent of button DOM */}
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          height: bar.height,
           left: 0,
-          width: '100%', // Full width to fill behind caption
-          background: 'rgba(232, 232, 232, 0.9)', // Off-white highlighter color
-          borderRadius: '12px', // Rounded corners
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
-          overflow: 'hidden', // Clip inner loading bar to rounded corners
+          top: 0,
+          width: '100%',
+          height: `calc(100% / ${count})`,
+          background: 'rgba(232, 232, 232, 0.9)',
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          overflow: 'hidden',
           transition: shouldTransition
-            ? `transform 150ms cubic-bezier(0.2, 0, 0, 1), height 150ms cubic-bezier(0.2, 0, 0, 1), opacity 1.2s ease`
+            ? 'transform 420ms cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease'
             : 'none',
-          zIndex: 1, // Positioned behind the text
+          zIndex: 1,
           pointerEvents: 'none',
           willChange: 'transform',
           opacity: captionsVisible ? 1 : 0,
-          transform: captionsVisible ? `translateY(${bar.top}px)` : `translateY(${bar.top + 60}px)`,
+          transform: captionsVisible
+            ? `translateY(${current * 100}%)`
+            : `translateY(calc(${current * 100}% + 60px))`,
         }}
       >
-        {/* Loading bar along bottom edge of the highlighter */}
+        {/* Loading bar along bottom edge */}
         <div
           key={`${animationKey}-${current}`}
           style={{
@@ -99,15 +65,14 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
       {captions.map((caption, idx) => (
         <button
           key={idx}
-          ref={el => buttonRefs.current[idx] = el}
           onClick={() => onSelect(idx)}
           style={{
             width: '100%',
-            padding: '16px 24px', // Adjusted padding for better look
+            padding: '16px 24px',
             background: 'transparent',
             border: 'none',
-            color: idx === current ? '#2a2323' : '#e0e0e0', // Make inactive text brighter
-            fontWeight: idx === current ? 700 : 500, // Adjust font weight
+            color: idx === current ? '#2a2323' : '#e0e0e0',
+            fontWeight: idx === current ? 700 : 500,
             fontSize: 'clamp(16px, 2.4vw, 20px)',
             fontFamily: 'Inter, sans-serif',
             cursor: 'pointer',
@@ -132,6 +97,3 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
 });
 
 export default TabletTravellingBar;
-
-// redeploy marker
-
