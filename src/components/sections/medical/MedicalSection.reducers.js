@@ -21,8 +21,6 @@ export const measurementsReducer = (state, action) => {
   switch (action.type) {
     case 'SET_RECT':
       return { ...state, rect: action.payload };
-    case 'SET_RIGHT_RECT':
-      return { ...state, rightRect: action.payload, rightReady: true };
     case 'SET_CAPTION_TOP':
       return { ...state, captionTop: action.payload };
     case 'SET_HEADER_HEIGHT':

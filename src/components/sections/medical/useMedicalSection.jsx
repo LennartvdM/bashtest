@@ -39,8 +39,6 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   // Measurements state (positions and dimensions)
   const [measurements, dispatchMeasurements] = useReducer(measurementsReducer, {
     rect: { top: 0, height: 0 },
-    rightRect: { top: 0, height: 0 },
-    rightReady: false,
     captionTop: 0,
     headerHeight: 0,
     videoTop: '0px',
@@ -73,7 +71,6 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   const captionsRef = useRef();
   const videoContainerRef = useRef();
   const hoverTimeoutRef = useRef(null);
-  const rightRowRefs = useRef({});
   const rightCaptionsRef = useRef();
   const headerRef = useRef();
   const videoAnchorRef = useRef();
@@ -85,7 +82,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   // Destructure for easier access
   const { header: headerVisible, video: videoVisible, captions: captionsVisible } = visibility;
   const {
-    rightRect, rightReady, captionTop, headerHeight, videoTop,
+    captionTop, headerHeight, videoTop,
     collectionTop, videoAndCaptionTop, biteRect, navbarHeight,
     highlighterLeftPx, highlighterWidthPx
   } = measurements;
@@ -350,15 +347,6 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     }
   }, [sectionState]);
 
-  // Measure right highlighter position
-  useLayoutEffect(() => {
-    const node = rightRowRefs.current[currentVideo];
-    if (node) {
-      const { offsetTop, offsetHeight } = node;
-      dispatchMeasurements({ type: 'SET_RIGHT_RECT', payload: { top: offsetTop, height: offsetHeight } });
-    }
-  }, [currentVideo, hoveredIndex]);
-
   // Position calculations
   useLayoutEffect(() => {
     if (videoAnchorRef.current && captionRef.current && contentAnchorRef.current) {
@@ -545,7 +533,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     // visibility
     headerVisible, videoVisible, captionsVisible,
     // measurements
-    rightRect, rightReady, captionTop, headerHeight, videoTop,
+    captionTop, headerHeight, videoTop,
     collectionTop, videoAndCaptionTop, biteRect, navbarHeight,
     highlighterLeftPx, highlighterWidthPx,
     // interaction
@@ -553,7 +541,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     // individual state
     currentVideo, videoCenter, setVideoCenter, barKey, outlineFullOpacity, highlightOutlineFullOpacity, disableTransitions,
     // refs
-    rowRefs, captionsRef, videoContainerRef, rightRowRefs, rightCaptionsRef,
+    rowRefs, captionsRef, videoContainerRef, rightCaptionsRef,
     headerRef, videoAnchorRef, captionRef, contentAnchorRef, shadedFrameRef, captionButtonRefs,
     // derived
     safeVideoHover, safeHoveredIndex, shouldTransition,
