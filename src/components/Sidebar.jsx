@@ -1,27 +1,17 @@
-// SidebarScrollSpyDemo.jsx (plain JS)
-// React 18 · Tailwind CSS 3 · framer-motion 10
-// Refactored to use shared CMS-ready components
-import React, { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// Neoflix page — video backdrop + shared sidebar layout
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-// Shared components
-import useScrollSpy from '../hooks/useScrollSpy';
-import MobileNav from './MobileNav';
-import SidebarItem from './shared/SidebarItem';
-import ContentSection from './shared/ContentSection';
-import { createSidebarMotion, createSectionVariants, scrollToSection, smoothScrollTo } from './shared/animations';
-
-// CMS-ready data
+import { SidebarLayout } from './shared';
+import { renderMarkdown } from '../utils/renderMarkdown';
 import {
   sections as SECTIONS,
   sectionToVideo as SECTION_TO_VIDEO,
   deckSources as DECK_SOURCES,
-  animationConfig,
   pageStyle,
 } from '../data/neoflix';
 
-// Prepare sections with content
 const sectionsWithContent = SECTIONS.map((s) => ({
   ...s,
   rawContent: s.content,
@@ -42,58 +32,28 @@ export default function SidebarScrollSpyDemo() {
     }
   }, []);
 
-  const sectionIds = sectionsWithContent.map((s) => s.id);
-  const active = useScrollSpy(sectionIds);
   const location = useLocation();
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [loadedSources, setLoadedSources] = useState(() => new Set());
   const backdropRef = useRef(null);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (!mobile) setIsMobileNavOpen(false);
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const [activeSection, setActiveSection] = useState(null);
 
   // Load all videos immediately for deck carousel
-  useEffect(() => {
-    setLoadedSources(new Set(DECK_SOURCES));
-    console.log('Deck carousel: Loading videos', DECK_SOURCES);
-  }, []);
+  const [loadedSources] = useState(() => new Set(DECK_SOURCES));
 
-  // Enforce half-speed playback on all backdrop videos (only once after load)
+  // Enforce half-speed playback on all backdrop videos
   useEffect(() => {
     const root = backdropRef.current;
     if (!root) return;
     const videos = root.querySelectorAll('video');
-    videos.forEach((vid, idx) => {
+    videos.forEach((vid) => {
       try {
         vid.defaultPlaybackRate = 0.5;
         vid.playbackRate = 0.5;
-        if (vid.paused) {
-          vid.play().catch(() => {});
-        }
+        if (vid.paused) vid.play().catch(() => {});
       } catch (err) {
-        console.log(`Video ${idx} error:`, err);
+        // ignore
       }
     });
   }, [loadedSources]);
-
-  // Unified scroll function
-  const scrollToSectionHandler = useCallback((id) => {
-    window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      history.replaceState(null, '', `#${id}`);
-    }
-  }, []);
 
   // Force base background while on Neoflix
   useEffect(() => {
@@ -109,34 +69,6 @@ export default function SidebarScrollSpyDemo() {
     };
   }, []);
 
-  // Auto-scroll on mount
-  useEffect(() => {
-    const hasHash = !!window.location.hash;
-    const prefersDesktop = window.innerWidth >= 768;
-    if (!hasHash && prefersDesktop) {
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('nav-activate', { detail: sectionsWithContent[0].id }));
-        document.getElementById(sectionsWithContent[0].id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        history.replaceState(null, '', `#${sectionsWithContent[0].id}`);
-        window.dispatchEvent(new Event('scroll'));
-      }, 3500);
-    } else if (hasHash) {
-      const targetId = window.location.hash.replace('#', '');
-      window.scrollTo({ top: 0, behavior: 'auto' });
-      setTimeout(() => {
-        const el = document.getElementById(targetId);
-        if (el) {
-          void el.offsetHeight;
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              scrollToSectionHandler(targetId);
-            });
-          });
-        }
-      }, 3500);
-    }
-  }, [scrollToSectionHandler]);
-
   // Handle hash changes while staying on the same page
   const hashEffectRef = useRef(true);
   useEffect(() => {
@@ -145,51 +77,27 @@ export default function SidebarScrollSpyDemo() {
       hashEffectRef.current = false;
       return;
     }
-
-    const targetId = location.hash ? location.hash.replace('#', '') : sectionsWithContent[0].id;
+    const targetId = location.hash
+      ? location.hash.replace('#', '')
+      : sectionsWithContent[0].id;
     const scrollAfterLayout = () => {
       const el = document.getElementById(targetId);
       if (el) {
-        scrollToSectionHandler(targetId);
+        window.dispatchEvent(new CustomEvent('nav-activate', { detail: targetId }));
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', `#${targetId}`);
       } else {
         requestAnimationFrame(scrollAfterLayout);
       }
     };
+    requestAnimationFrame(() => requestAnimationFrame(scrollAfterLayout));
+  }, [location.pathname, location.hash]);
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(scrollAfterLayout);
-    });
-  }, [location.pathname, location.hash, scrollToSectionHandler]);
-
-  const handleSectionClick = (id) => {
-    window.dispatchEvent(new CustomEvent('nav-activate', { detail: id }));
-    const el = document.getElementById(id);
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      // Account for navbar height (6rem = 96px, matching scroll-mt-24 and sticky top-24)
-      const navbarOffset = 96;
-      const targetY = rect.top + window.scrollY - navbarOffset;
-      smoothScrollTo(targetY);
-    }
-    history.replaceState(null, '', `#${id}`);
-    setIsMobileNavOpen(false);
-  };
-
-  // Animation configs from shared
-  const sidebarMotion = createSidebarMotion(animationConfig.sidebar);
-  const sectionVariants = createSectionVariants(animationConfig.section);
-
-  // Get target video for current active section
-  const targetVideo = SECTION_TO_VIDEO[active];
+  // Video deck: determine which card is on top based on active section
+  const targetVideo = SECTION_TO_VIDEO[activeSection];
   const targetIndex = DECK_SOURCES.indexOf(targetVideo);
 
-  // Soften text during video crossfade so it doesn't compete with the background.
-  // useLayoutEffect ensures the dim starts in the same paint frame as the crossfade.
-  // Each targetIndex change resets the timer, so multi-section scrolls stay dimmed
-  // for the whole journey. For short hops the 450ms timer releases slightly before
-  // the 0.6s crossfade ends. For long journeys (rapid successive changes) we shorten
-  // the release to 200ms since the user has already been dimmed throughout the scroll
-  // and the destination crossfade is the only one that matters visually.
+  // Soften text during video crossfade
   const [bgTransitioning, setBgTransitioning] = useState(false);
   const prevTargetIndex = useRef(targetIndex);
   const journeyStartRef = useRef(null);
@@ -197,16 +105,9 @@ export default function SidebarScrollSpyDemo() {
     if (targetIndex !== prevTargetIndex.current) {
       prevTargetIndex.current = targetIndex;
       setBgTransitioning(true);
-
-      // Track how long this multi-section scroll has been going
-      if (!journeyStartRef.current) {
-        journeyStartRef.current = Date.now();
-      }
+      if (!journeyStartRef.current) journeyStartRef.current = Date.now();
       const elapsed = Date.now() - journeyStartRef.current;
-      // Short hop: 450ms (matches 0.6s crossfade at ~80%)
-      // Long journey: 200ms (user has been dimmed long enough, release quickly)
       const delay = elapsed > 500 ? 200 : 450;
-
       const timer = setTimeout(() => {
         setBgTransitioning(false);
         journeyStartRef.current = null;
@@ -215,130 +116,122 @@ export default function SidebarScrollSpyDemo() {
     }
   }, [targetIndex]);
 
-  return (
-    <>
-      {/* Video deck carousel backdrop */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          zIndex: 0,
-          backgroundColor: '#6d625d',
-        }}
+  // Video deck backdrop layer
+  const videoDeck = (
+    <div
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 0, backgroundColor: '#6d625d' }}
+    >
+      <motion.div
+        ref={backdropRef}
+        className="absolute inset-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.0, ease: 'easeOut' }}
       >
-        <motion.div
-          ref={backdropRef}
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.0, ease: 'easeOut' }}
+        {DECK_SOURCES.map((src, idx) => {
+          const isVisible = targetIndex >= 0 ? idx <= targetIndex : true;
+          return (
+            <motion.video
+              key={src}
+              className="absolute inset-0 w-full h-full object-cover"
+              src={src}
+              autoPlay={isVisible}
+              muted
+              loop
+              playsInline
+              preload={isVisible ? 'auto' : 'metadata'}
+              initial={{ opacity: isVisible ? 1 : 0 }}
+              animate={{ opacity: isVisible ? 1 : 0 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              style={{ transform: 'scale(1.06)', zIndex: idx }}
+              onAnimationStart={(def) => {
+                if (def?.opacity === 1) {
+                  const vid = backdropRef.current?.querySelectorAll('video')[idx];
+                  if (vid?.paused) {
+                    vid.playbackRate = 0.5;
+                    vid.play().catch(() => {});
+                  }
+                }
+              }}
+              onAnimationComplete={(def) => {
+                if (def?.opacity === 0) {
+                  const vid = backdropRef.current?.querySelectorAll('video')[idx];
+                  if (vid && !vid.paused) vid.pause();
+                }
+              }}
+              onLoadedData={(e) => {
+                e.target.playbackRate = 0.5;
+                e.target.defaultPlaybackRate = 0.5;
+                if (isVisible) e.target.play().catch(() => {});
+              }}
+              onCanPlay={(e) => {
+                e.target.playbackRate = 0.5;
+                e.target.defaultPlaybackRate = 0.5;
+                if (isVisible) e.target.play().catch(() => {});
+              }}
+            />
+          );
+        })}
+        <div className="absolute inset-0 bg-slate-900/20" />
+      </motion.div>
+    </div>
+  );
+
+  // Custom section renderer that applies content dimming during video transitions
+  const renderNeoflixSection = (section, idx) => {
+    const displayContent = renderMarkdown(section.rawContent || section.content || '');
+    return (
+      <section
+        key={section.id}
+        id={section.id}
+        className="sb-section-card"
+        style={pageStyle.sectionStyle}
+      >
+        <div
+          style={
+            bgTransitioning
+              ? { opacity: 0.65, transition: 'opacity 0.15s ease-in' }
+              : { opacity: 1, transition: 'opacity 0.12s ease-out' }
+          }
         >
-          {/* Deck: all videos stacked, fade out cards above target */}
-          {DECK_SOURCES.map((src, idx) => {
-            const isVisible = targetIndex >= 0 ? idx <= targetIndex : true;
-
-            return (
-              <motion.video
-                key={src}
-                className="absolute inset-0 w-full h-full object-cover"
-                src={src}
-                autoPlay={isVisible}
-                muted
-                loop
-                playsInline
-                preload={isVisible ? 'auto' : 'metadata'}
-                initial={{ opacity: isVisible ? 1 : 0 }}
-                animate={{ opacity: isVisible ? 1 : 0 }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-                style={{
-                  transform: 'scale(1.06)',
-                  zIndex: idx,
-                }}
-                onAnimationStart={(definition) => {
-                  // Resume playback before fade-in starts
-                  if (definition?.opacity === 1) {
-                    const vid = backdropRef.current?.querySelectorAll('video')[idx];
-                    if (vid?.paused) {
-                      vid.playbackRate = 0.5;
-                      vid.play().catch(() => {});
-                    }
-                  }
-                }}
-                onAnimationComplete={(definition) => {
-                  // Pause after fade-out completes to free GPU decode
-                  if (definition?.opacity === 0) {
-                    const vid = backdropRef.current?.querySelectorAll('video')[idx];
-                    if (vid && !vid.paused) vid.pause();
-                  }
-                }}
-                onLoadedData={(e) => {
-                  const vid = e.target;
-                  vid.playbackRate = 0.5;
-                  vid.defaultPlaybackRate = 0.5;
-                  if (isVisible) vid.play().catch(() => {});
-                }}
-                onCanPlay={(e) => {
-                  const vid = e.target;
-                  vid.playbackRate = 0.5;
-                  vid.defaultPlaybackRate = 0.5;
-                  if (isVisible) vid.play().catch(() => {});
-                }}
-              />
-            );
-          })}
-          {/* Readability overlay */}
-          <div className="absolute inset-0 bg-slate-900/20" />
-        </motion.div>
-      </div>
-
-      {/* Foreground content */}
-      <div className="relative min-h-screen" style={{ position: 'relative', zIndex: 1 }}>
-        <main className="mx-auto max-w-6xl px-4 pb-24 pt-16" style={{ scrollPaddingTop: '6rem' }}>
-          {isMobile && (
-            <MobileNav
-              isOpen={isMobileNavOpen}
-              onClose={() => setIsMobileNavOpen(!isMobileNavOpen)}
-              activeSection={active}
-              onSectionClick={handleSectionClick}
+          <h2
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 900,
+              fontSize: '40px',
+              color: '#383437',
+              letterSpacing: '-0.01em',
+              marginBottom: '1.5rem',
+            }}
+          >
+            {section.title}
+          </h2>
+          {displayContent && (
+            <div
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 500,
+                fontSize: '16px',
+                color: '#666666',
+                maxWidth: '28rem',
+                whiteSpace: 'pre-wrap',
+              }}
+              dangerouslySetInnerHTML={{ __html: displayContent }}
             />
           )}
-          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-12 md:gap-8 sm:gap-4 items-start max-w-6xl mx-auto">
-            <AnimatePresence>
-              {!isMobile && (
-                <motion.aside
-                  {...sidebarMotion}
-                  className={`sticky top-24 w-72 px-6 pr-10 py-8 rounded-lg shadow-lg select-none ${pageStyle.sidebarClassName}`}
-                >
-                  <ul role="list" className="space-y-1">
-                    {sectionsWithContent.map((s, idx) => (
-                      <SidebarItem
-                        key={s.id}
-                        id={s.id}
-                        title={idx === 0 ? s.title : `${idx}. ${s.title}`}
-                        active={active === s.id}
-                        onSectionClick={handleSectionClick}
-                      />
-                    ))}
-                  </ul>
-                </motion.aside>
-              )}
-            </AnimatePresence>
-            <article className="space-y-16 rounded-lg px-4 py-14 md:px-10 md:pt-8">
-              {sectionsWithContent.map((section, idx) => (
-                <ContentSection
-                  key={section.id}
-                  section={section}
-                  index={idx}
-                  variants={sectionVariants}
-                  className=""
-                  style={pageStyle.sectionStyle}
-                  contentOpacity={bgTransitioning ? 0.65 : 1}
-                />
-              ))}
-              <div className="h-screen" aria-hidden="true"></div>
-            </article>
-          </div>
-        </main>
-      </div>
-    </>
+        </div>
+      </section>
+    );
+  };
+
+  return (
+    <SidebarLayout
+      sections={sectionsWithContent}
+      backgroundLayer={videoDeck}
+      renderSection={renderNeoflixSection}
+      onActiveChange={setActiveSection}
+      autoScrollDelay={3500}
+    />
   );
 }
