@@ -71,6 +71,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   const captionsRef = useRef();
   const videoContainerRef = useRef();
   const hoverTimeoutRef = useRef(null);
+  const videoDebounceRef = useRef(null);
   const rightCaptionsRef = useRef();
   const headerRef = useRef();
   const videoAnchorRef = useRef();
@@ -426,6 +427,9 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
+      if (videoDebounceRef.current) {
+        clearTimeout(videoDebounceRef.current);
+      }
     };
   }, []);
 
@@ -443,18 +447,32 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     }
 
     if (typeof index === 'number' && index >= 0 && index < headlines.length) {
-      if (index !== currentVideo) setBarKey((k) => k + 1);
-      setCurrentVideo(index);
+      // Update visual hover state immediately (text color feedback)
       dispatchInteraction({ type: 'SET_PAUSED', payload: true });
       dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: index });
+
+      // Debounce the video/highlighter switch so quick passes over
+      // intermediate items don't cause step-by-step ratcheting
+      if (videoDebounceRef.current) {
+        clearTimeout(videoDebounceRef.current);
+      }
+      videoDebounceRef.current = setTimeout(() => {
+        setBarKey((k) => k + 1);
+        setCurrentVideo(index);
+        videoDebounceRef.current = null;
+      }, 80);
     }
-  }, [interactionsEnabled, headlines.length, currentVideo]);
+  }, [interactionsEnabled, headlines.length]);
 
   const handleHoverEnd = useCallback(() => {
     if (!interactionsEnabled) return;
 
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
+    }
+    if (videoDebounceRef.current) {
+      clearTimeout(videoDebounceRef.current);
+      videoDebounceRef.current = null;
     }
 
     hoverTimeoutRef.current = setTimeout(() => {
