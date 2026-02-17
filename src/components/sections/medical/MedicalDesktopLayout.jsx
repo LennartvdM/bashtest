@@ -421,16 +421,17 @@ export default function MedicalDesktopLayout({
                 <>
                   {/* Targeting outline container */}
                   <div
-                    className="absolute transition-all duration-700 ease"
+                    className="absolute"
                     style={{
-                      top: rightRect.top,
+                      top: 0,
                       left: '50%',
                       width: isTabletLayout ? '100%' : 444,
                       height: rightRect.height,
-                      transform: 'translateX(-50%)',
+                      transform: `translateX(-50%) translateY(${rightRect.top}px)`,
+                      willChange: 'transform',
                       zIndex: 5,
                       pointerEvents: 'none',
-                      transition: shouldTransition ? 'all 700ms ease' : 'none',
+                      transition: shouldTransition ? 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), height 600ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
                       display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                     }}
                   >
@@ -471,7 +472,7 @@ export default function MedicalDesktopLayout({
                         opacity: captionsVisible ? 1 : 0,
                         transform: captionsVisible ? 'translate3d(0,0,0)' : (isVideoLeft ? 'translateX(-200px)' : 'translateX(200px)'),
                         transition: shouldTransition
-                          ? `top 0.6s cubic-bezier(0.4, 0, 0.2, 1), height 0.6s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
+                          ? `height 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
                           : 'none',
                         zIndex: 30
                       }}
