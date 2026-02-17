@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useScrollSpy from '../../hooks/useScrollSpy';
 import { smoothScrollTo } from './animations';
 import { renderMarkdown } from '../../utils/renderMarkdown';
@@ -24,11 +24,6 @@ export default function SidebarLayout({
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Refs for highlighter positioning
-  const sidebarRef = useRef(null);
-  const highlighterRef = useRef(null);
-  const highlighterInitialized = useRef(false);
 
   // Responsive handler
   useEffect(() => {
@@ -61,38 +56,8 @@ export default function SidebarLayout({
     }
   }, [autoScrollDelay, sections]);
 
-  // ---------- Highlighter positioning ----------
-  useEffect(() => {
-    if (isMobile) return;
-    const sidebar = sidebarRef.current;
-    const hl = highlighterRef.current;
-    if (!sidebar || !hl) return;
-
-    const activeEl =
-      sidebar.querySelector('.sb-item.active') ||
-      sidebar.querySelector('.sb-divider-clickable.active');
-
-    if (activeEl) {
-      const sidebarRect = sidebar.getBoundingClientRect();
-      const itemRect = activeEl.getBoundingClientRect();
-      const topPos = itemRect.top - sidebarRect.top + sidebar.scrollTop;
-
-      if (!highlighterInitialized.current) {
-        hl.style.transition = 'none';
-        hl.style.top = topPos + 'px';
-        hl.style.height = itemRect.height + 'px';
-        void hl.offsetHeight; // force reflow
-        hl.style.transition = '';
-        highlighterInitialized.current = true;
-      } else {
-        hl.style.top = topPos + 'px';
-        hl.style.height = itemRect.height + 'px';
-      }
-      hl.classList.add('active', 'highlighter-item');
-    } else {
-      hl.classList.remove('active', 'highlighter-item');
-    }
-  }, [active, isMobile]);
+  // Active index for CSS grid highlighter
+  const activeIndex = sections.findIndex((s) => s.id === active);
 
   // ---------- Section click handler ----------
   const handleSectionClick = useCallback(
@@ -200,12 +165,7 @@ export default function SidebarLayout({
 
         <div className="sb-page-grid">
           {/* Sidebar */}
-          <div
-            ref={sidebarRef}
-            className={`sb-sidebar ${drawerOpen ? 'mobile-open' : ''}`}
-          >
-            <div ref={highlighterRef} className="sb-highlighter" />
-
+          <div className={`sb-sidebar ${drawerOpen ? 'mobile-open' : ''}`}>
             {sidebarTitle && (
               <>
                 <h2>{sidebarTitle}</h2>
@@ -213,19 +173,28 @@ export default function SidebarLayout({
               </>
             )}
 
-            {sections.map((s, idx) => (
+            <div
+              className="sb-items-grid"
+              style={{ '--sb-item-count': sections.length }}
+            >
               <div
-                key={s.id}
-                className={`sb-item ${active === s.id ? 'active' : ''}`}
-                data-section-id={s.id}
-                onClick={() => handleSectionClick(s.id)}
-              >
-                <span className="sb-status" />
-                <span className="sb-label">
-                  {idx === 0 ? s.title : `${idx}. ${s.title}`}
-                </span>
-              </div>
-            ))}
+                className={`sb-highlighter${activeIndex >= 0 ? ' active' : ''}`}
+                style={{ '--sb-active-index': activeIndex >= 0 ? activeIndex : 0 }}
+              />
+              {sections.map((s, idx) => (
+                <div
+                  key={s.id}
+                  className={`sb-item ${active === s.id ? 'active' : ''}`}
+                  data-section-id={s.id}
+                  onClick={() => handleSectionClick(s.id)}
+                >
+                  <span className="sb-status" />
+                  <span className="sb-label">
+                    {idx === 0 ? s.title : `${idx}. ${s.title}`}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Content column */}
