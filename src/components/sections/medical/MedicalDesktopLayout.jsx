@@ -38,6 +38,7 @@ export default function MedicalDesktopLayout({
   outlineFullOpacity,
   highlightOutlineFullOpacity,
   disableTransitions,
+  highlighterSnap,
   // derived
   safeVideoHover,
   safeHoveredIndex,
@@ -428,7 +429,7 @@ export default function MedicalDesktopLayout({
                       willChange: 'transform',
                       zIndex: 5,
                       pointerEvents: 'none',
-                      transition: shouldTransition ? 'transform 420ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+                      transition: shouldTransition && !highlighterSnap ? 'transform 420ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                     }}
                   >

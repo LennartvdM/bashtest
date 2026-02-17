@@ -65,6 +65,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
   const [disableTransitions, setDisableTransitions] = useState(false);
+  const [highlighterSnap, setHighlighterSnap] = useState(false);
 
   // All useRef hooks next
   const rowRefs = useRef({});
@@ -96,7 +97,13 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   // Transition control to prevent rewind animations
   const shouldTransition = sectionState === 'entering' || sectionState === 'active';
 
-  // Debug logging
+  // Re-enable transitions after a snap (instant position change)
+  useEffect(() => {
+    if (highlighterSnap) {
+      const id = requestAnimationFrame(() => setHighlighterSnap(false));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [highlighterSnap]);
 
 
   // Animation constants
@@ -457,6 +464,9 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
         clearTimeout(videoDebounceRef.current);
       }
       videoDebounceRef.current = setTimeout(() => {
+        // Snap mode: disable transform transition so the highlighter
+        // teleports to the destination instead of sliding through intermediates
+        setHighlighterSnap(true);
         setBarKey((k) => k + 1);
         setCurrentVideo(index);
         videoDebounceRef.current = null;
@@ -557,7 +567,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     // interaction
     isPaused, hoveredIndex, videoHover, interactionsEnabled,
     // individual state
-    currentVideo, videoCenter, setVideoCenter, barKey, outlineFullOpacity, highlightOutlineFullOpacity, disableTransitions,
+    currentVideo, videoCenter, setVideoCenter, barKey, outlineFullOpacity, highlightOutlineFullOpacity, disableTransitions, highlighterSnap,
     // refs
     rowRefs, captionsRef, videoContainerRef, rightCaptionsRef,
     headerRef, videoAnchorRef, captionRef, contentAnchorRef, shadedFrameRef, captionButtonRefs,
