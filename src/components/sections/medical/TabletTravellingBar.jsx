@@ -72,7 +72,7 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
           overflow: 'hidden', // Clip inner loading bar to rounded corners
           transition: shouldTransition
-            ? `transform 600ms cubic-bezier(0.16, 1, 0.3, 1), height 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease`
+            ? `transform 150ms cubic-bezier(0.2, 0, 0, 1), height 150ms cubic-bezier(0.2, 0, 0, 1), opacity 1.2s ease`
             : 'none',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
