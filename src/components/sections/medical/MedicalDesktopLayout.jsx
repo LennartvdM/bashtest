@@ -38,7 +38,6 @@ export default function MedicalDesktopLayout({
   outlineFullOpacity,
   highlightOutlineFullOpacity,
   disableTransitions,
-  highlighterIndex,
   // derived
   safeVideoHover,
   safeHoveredIndex,
@@ -425,7 +424,7 @@ export default function MedicalDesktopLayout({
                       left: '50%',
                       width: isTabletLayout ? '100%' : 444,
                       height: `calc(100% / ${headlines.length})`,
-                      transform: `translateX(-50%) translateY(${highlighterIndex * 100}%)`,
+                      transform: `translateX(-50%) translateY(${currentVideo * 100}%)`,
                       willChange: 'transform',
                       zIndex: 5,
                       pointerEvents: 'none',
