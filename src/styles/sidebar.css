@@ -181,7 +181,7 @@
   transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sb-item:not(.active):not(.passing):hover .sb-label {
+.sb-item:not(.active):hover .sb-label {
   transform: translateX(3px);
   transition: transform 0.15s ease-out;
 }
@@ -194,19 +194,6 @@
 .sb-item.active:hover .sb-label {
   transform: translateX(-36px) scale(1.12);
   transition: transform 0.15s ease-out;
-}
-
-/* ==========================================================================
-   Passing effect (intermediate items during navigation)
-   ========================================================================== */
-.sb-item.passing .sb-status {
-  transform: translateX(-12px) scale(1.05);
-  transition: transform 0.06s ease-out;
-}
-
-.sb-item.passing .sb-label {
-  transform: translateX(-8px) scale(1.02);
-  transition: transform 0.06s ease-out;
 }
 
 /* ==========================================================================
@@ -534,14 +521,8 @@
     background: rgba(255, 255, 255, 0.5);
   }
 
-  .sb-item:not(.active):not(.passing):hover .sb-label {
+  .sb-item:not(.active):hover .sb-label {
     transform: none;
-  }
-
-  .sb-item.passing .sb-status,
-  .sb-item.passing .sb-label {
-    transform: none;
-    transition: none;
   }
 
   /* Section card — no outcrop on mobile */

@@ -29,7 +29,6 @@ export default function SidebarLayout({
   const sidebarRef = useRef(null);
   const highlighterRef = useRef(null);
   const highlighterInitialized = useRef(false);
-  const prevActiveRef = useRef(active);
 
   // Responsive handler
   useEffect(() => {
@@ -94,44 +93,6 @@ export default function SidebarLayout({
       hl.classList.remove('active', 'highlighter-item');
     }
   }, [active, isMobile]);
-
-  // ---------- Passing effect ----------
-  useEffect(() => {
-    if (isMobile) return;
-    const prev = prevActiveRef.current;
-    prevActiveRef.current = active;
-    if (!prev || prev === active) return;
-
-    const fromIdx = sectionIds.indexOf(prev);
-    const toIdx = sectionIds.indexOf(active);
-    if (fromIdx === -1 || toIdx === -1) return;
-
-    const direction = toIdx > fromIdx ? 1 : -1;
-    const start = Math.min(fromIdx, toIdx) + 1;
-    const end = Math.max(fromIdx, toIdx);
-    const itemCount = end - start;
-    if (itemCount <= 0) return;
-
-    const travelTime = 350;
-    const passingDuration = 40;
-    const delayPerItem = travelTime / (itemCount + 1);
-    const sidebar = sidebarRef.current;
-    if (!sidebar) return;
-
-    for (let i = start; i < end; i++) {
-      const id = sectionIds[i];
-      const item = sidebar.querySelector(`[data-section-id="${id}"]`);
-      if (!item) continue;
-
-      const position = direction > 0 ? (i - start) : (end - 1 - i);
-      const delay = delayPerItem * (position + 1);
-
-      setTimeout(() => {
-        item.classList.add('passing');
-        setTimeout(() => item.classList.remove('passing'), passingDuration);
-      }, delay);
-    }
-  }, [active, isMobile, sectionIds]);
 
   // ---------- Section click handler ----------
   const handleSectionClick = useCallback(
