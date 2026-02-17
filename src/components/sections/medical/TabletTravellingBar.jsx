@@ -19,7 +19,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
   const containerRef = useRef(null);
   const buttonRefs = useRef([]);
   const [bar, setBar] = useState({ top: 0, height: 0 });
-  const [animateTick, setAnimateTick] = useState(0);
 
   // Throttled bar position update
   const updateBarPosition = useCallback(() => {
@@ -48,12 +47,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
     return () => window.removeEventListener('resize', throttledUpdateBar);
   }, [throttledUpdateBar]);
 
-  // Retrigger a tiny spring animation on each move without remounting
-  useEffect(() => {
-    // toggle value so animation-name changes
-    setAnimateTick((t) => (t + 1) % 2);
-  }, [bar.top, current]);
-
   return (
     <div
       ref={containerRef}
@@ -70,7 +63,7 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
       <div
         style={{
           position: 'absolute',
-          top: bar.top,
+          top: 0,
           height: bar.height,
           left: 0,
           width: '100%', // Full width to fill behind caption
@@ -79,13 +72,13 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)', // Subtle shadow
           overflow: 'hidden', // Clip inner loading bar to rounded corners
           transition: shouldTransition
-            ? `top 600ms cubic-bezier(0.18, 0.88, 0.18, 1), height 600ms cubic-bezier(0.18, 0.88, 0.18, 1), opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
+            ? `transform 600ms cubic-bezier(0.16, 1, 0.3, 1), height 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease`
             : 'none',
           zIndex: 1, // Positioned behind the text
           pointerEvents: 'none',
-          animation: animateTick ? 'tabletBarSpring 600ms ease-out' : 'none',
+          willChange: 'transform',
           opacity: captionsVisible ? 1 : 0,
-          transform: captionsVisible ? 'translate3d(0,0,0)' : 'translateY(60px)',
+          transform: captionsVisible ? `translateY(${bar.top}px)` : `translateY(${bar.top + 60}px)`,
         }}
       >
         {/* Loading bar along bottom edge of the highlighter */}
