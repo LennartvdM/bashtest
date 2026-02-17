@@ -23,8 +23,6 @@ export default function MedicalDesktopLayout({
   videoVisible,
   captionsVisible,
   // measurements
-  rightRect,
-  rightReady,
   headerHeight,
   collectionTop,
   videoAndCaptionTop,
@@ -60,7 +58,6 @@ export default function MedicalDesktopLayout({
   gantryFrameStyle,
   // refs
   videoContainerRef,
-  rightRowRefs,
   headerRef,
   videoAnchorRef,
   captionRef,
@@ -416,8 +413,8 @@ export default function MedicalDesktopLayout({
               paddingLeft: 0,
             }}
           >
-            <div className="relative flex flex-col gap-2 items-stretch" style={{ width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
-              {((rightReady && Number.isFinite(currentVideo) && Number.isFinite(rightRect.top) && Number.isFinite(rightRect.height)) || (isLandscapeTablet && sectionState !== 'idle')) && (
+            <div style={{ position: 'relative', display: 'grid', gridTemplateRows: `repeat(${headlines.length}, 1fr)`, width: 'auto', marginLeft: 0, paddingLeft: 0 }}>
+              {sectionState !== 'idle' && sectionState !== 'cleaned' && (
                 <>
                   {/* Targeting outline container */}
                   <div
@@ -426,12 +423,12 @@ export default function MedicalDesktopLayout({
                       top: 0,
                       left: '50%',
                       width: isTabletLayout ? '100%' : 444,
-                      height: rightRect.height,
-                      transform: `translateX(-50%) translateY(${rightRect.top}px)`,
+                      height: `calc(100% / ${headlines.length})`,
+                      transform: `translateX(-50%) translateY(${currentVideo * 100}%)`,
                       willChange: 'transform',
                       zIndex: 5,
                       pointerEvents: 'none',
-                      transition: shouldTransition ? 'transform 150ms cubic-bezier(0.2, 0, 0, 1), height 150ms cubic-bezier(0.2, 0, 0, 1)' : 'none',
+                      transition: shouldTransition ? 'transform 420ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                       display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                     }}
                   >
@@ -461,7 +458,7 @@ export default function MedicalDesktopLayout({
                       className="absolute rounded-xl pointer-events-none"
                       style={{
                         top: 0,
-                        height: rightRect.height,
+                        height: '100%',
                         width: isTabletLayout ? '100%' : 444,
                         left: 0,
                         paddingLeft: 24,
@@ -472,7 +469,7 @@ export default function MedicalDesktopLayout({
                         opacity: captionsVisible ? 1 : 0,
                         transform: captionsVisible ? 'translate3d(0,0,0)' : (isVideoLeft ? 'translateX(-200px)' : 'translateX(200px)'),
                         transition: shouldTransition
-                          ? `height 150ms cubic-bezier(0.2, 0, 0, 1), color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
+                          ? `color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
                           : 'none',
                         zIndex: 30
                       }}
@@ -523,7 +520,6 @@ export default function MedicalDesktopLayout({
               {headlines.map((headline, i) => (
                 <button
                   key={i}
-                  ref={(el) => (rightRowRefs.current[i] = el)}
                   onMouseEnter={interactionsEnabled && !isLandscapeTablet ? () => handleHover(i) : undefined}
                   onMouseLeave={interactionsEnabled && !isLandscapeTablet ? handleHoverEnd : undefined}
                   onClick={interactionsEnabled && isLandscapeTablet ? () => handleLandscapeTabletCaptionClick(i) : undefined}
