@@ -65,14 +65,12 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   const [outlineFullOpacity, setOutlineFullOpacity] = useState(false);
   const [highlightOutlineFullOpacity, setHighlightOutlineFullOpacity] = useState(false);
   const [disableTransitions, setDisableTransitions] = useState(false);
-  const [highlighterSnap, setHighlighterSnap] = useState(false);
 
   // All useRef hooks next
   const rowRefs = useRef({});
   const captionsRef = useRef();
   const videoContainerRef = useRef();
   const hoverTimeoutRef = useRef(null);
-  const videoDebounceRef = useRef(null);
   const rightCaptionsRef = useRef();
   const headerRef = useRef();
   const videoAnchorRef = useRef();
@@ -97,14 +95,8 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
   // Transition control to prevent rewind animations
   const shouldTransition = sectionState === 'entering' || sectionState === 'active';
 
-  // Re-enable transitions after a snap (instant position change)
-  useEffect(() => {
-    if (highlighterSnap) {
-      const id = requestAnimationFrame(() => setHighlighterSnap(false));
-      return () => cancelAnimationFrame(id);
-    }
-  }, [highlighterSnap]);
-
+  // Highlighter follows hover when hovering, falls back to autoplay position
+  const highlighterIndex = safeHoveredIndex !== null ? safeHoveredIndex : currentVideo;
 
   // Animation constants
   const NUDGE_TRANSITION = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s, outline 0.2s ease';
@@ -434,9 +426,6 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
-      if (videoDebounceRef.current) {
-        clearTimeout(videoDebounceRef.current);
-      }
     };
   }, []);
 
@@ -445,6 +434,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     setCurrentVideo(index);
   }, []);
 
+  // Hover only moves the highlighter — video is autoplay-driven
   const handleHover = useCallback((index) => {
     if (!interactionsEnabled) return;
 
@@ -454,23 +444,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     }
 
     if (typeof index === 'number' && index >= 0 && index < headlines.length) {
-      // Update visual hover state immediately (text color feedback)
-      dispatchInteraction({ type: 'SET_PAUSED', payload: true });
       dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: index });
-
-      // Debounce the video/highlighter switch so quick passes over
-      // intermediate items don't cause step-by-step ratcheting
-      if (videoDebounceRef.current) {
-        clearTimeout(videoDebounceRef.current);
-      }
-      videoDebounceRef.current = setTimeout(() => {
-        // Snap mode: disable transform transition so the highlighter
-        // teleports to the destination instead of sliding through intermediates
-        setHighlighterSnap(true);
-        setBarKey((k) => k + 1);
-        setCurrentVideo(index);
-        videoDebounceRef.current = null;
-      }, 80);
     }
   }, [interactionsEnabled, headlines.length]);
 
@@ -480,13 +454,8 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-    if (videoDebounceRef.current) {
-      clearTimeout(videoDebounceRef.current);
-      videoDebounceRef.current = null;
-    }
 
     hoverTimeoutRef.current = setTimeout(() => {
-      dispatchInteraction({ type: 'SET_PAUSED', payload: false });
       dispatchInteraction({ type: 'SET_HOVERED_INDEX', payload: null });
     }, 50);
   }, [interactionsEnabled]);
@@ -567,7 +536,7 @@ export function useMedicalSection({ inView, variant = 'v2' }) {
     // interaction
     isPaused, hoveredIndex, videoHover, interactionsEnabled,
     // individual state
-    currentVideo, videoCenter, setVideoCenter, barKey, outlineFullOpacity, highlightOutlineFullOpacity, disableTransitions, highlighterSnap,
+    currentVideo, videoCenter, setVideoCenter, barKey, outlineFullOpacity, highlightOutlineFullOpacity, disableTransitions, highlighterIndex,
     // refs
     rowRefs, captionsRef, videoContainerRef, rightCaptionsRef,
     headerRef, videoAnchorRef, captionRef, contentAnchorRef, shadedFrameRef, captionButtonRefs,
