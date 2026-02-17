@@ -431,7 +431,7 @@ export default function MedicalDesktopLayout({
                       willChange: 'transform',
                       zIndex: 5,
                       pointerEvents: 'none',
-                      transition: shouldTransition ? 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), height 600ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+                      transition: shouldTransition ? 'transform 150ms cubic-bezier(0.2, 0, 0, 1), height 150ms cubic-bezier(0.2, 0, 0, 1)' : 'none',
                       display: isTabletLayout ? 'none' : undefined, // Only hide for portrait tablet
                     }}
                   >
@@ -472,7 +472,7 @@ export default function MedicalDesktopLayout({
                         opacity: captionsVisible ? 1 : 0,
                         transform: captionsVisible ? 'translate3d(0,0,0)' : (isVideoLeft ? 'translateX(-200px)' : 'translateX(200px)'),
                         transition: shouldTransition
-                          ? `height 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
+                          ? `height 150ms cubic-bezier(0.2, 0, 0, 1), color 0.25s, box-shadow 0.25s, background 0.25s, opacity 1.2s ease, transform 1.2s cubic-bezier(0.4,0,0.2,1)`
                           : 'none',
                         zIndex: 30
                       }}
