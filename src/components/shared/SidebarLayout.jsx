@@ -1,12 +1,20 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useScrollSpy from '../../hooks/useScrollSpy';
 import { smoothScrollTo } from './animations';
 import { renderMarkdown } from '../../utils/renderMarkdown';
 import '../../styles/sidebar.css';
 
 /**
- * Shared layout for sidebar-based article pages.
- * Ported visual style: CSS-based highlighter, passing effect, mobile drawer.
+ * Shared layout for sidebar-based article pages (Neoflix, Publications).
+ *
+ * The sidebar "nav pill" is positioned entirely with CSS math:
+ *   container  — display: grid; repeat(N, 1fr) rows
+ *   pill       — height: calc(100% / N); transform: translateY(index * 100%)
+ *   transition — 420ms cubic-bezier(0.4, 0, 0.2, 1)
+ *
+ * No DOM measurement, no refs, no resize listeners.
+ * CSS transitions handle interruption natively — redirecting from the
+ * current interpolated position to a new target in one smooth motion.
  */
 export default function SidebarLayout({
   sections,
@@ -20,15 +28,11 @@ export default function SidebarLayout({
 }) {
   const sectionIds = sections.map((s) => s.id);
   const active = useScrollSpy(sectionIds);
+  const activeIndex = sectionIds.indexOf(active);
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Refs for highlighter positioning
-  const sidebarRef = useRef(null);
-  const highlighterRef = useRef(null);
-  const highlighterInitialized = useRef(false);
 
   // Responsive handler
   useEffect(() => {
@@ -60,39 +64,6 @@ export default function SidebarLayout({
       return () => clearTimeout(timer);
     }
   }, [autoScrollDelay, sections]);
-
-  // ---------- Highlighter positioning ----------
-  useEffect(() => {
-    if (isMobile) return;
-    const sidebar = sidebarRef.current;
-    const hl = highlighterRef.current;
-    if (!sidebar || !hl) return;
-
-    const activeEl =
-      sidebar.querySelector('.sb-item.active') ||
-      sidebar.querySelector('.sb-divider-clickable.active');
-
-    if (activeEl) {
-      const sidebarRect = sidebar.getBoundingClientRect();
-      const itemRect = activeEl.getBoundingClientRect();
-      const topPos = itemRect.top - sidebarRect.top + sidebar.scrollTop;
-
-      if (!highlighterInitialized.current) {
-        hl.style.transition = 'none';
-        hl.style.top = topPos + 'px';
-        hl.style.height = itemRect.height + 'px';
-        void hl.offsetHeight; // force reflow
-        hl.style.transition = '';
-        highlighterInitialized.current = true;
-      } else {
-        hl.style.top = topPos + 'px';
-        hl.style.height = itemRect.height + 'px';
-      }
-      hl.classList.add('active', 'highlighter-item');
-    } else {
-      hl.classList.remove('active', 'highlighter-item');
-    }
-  }, [active, isMobile]);
 
   // ---------- Section click handler ----------
   const handleSectionClick = useCallback(
@@ -200,12 +171,7 @@ export default function SidebarLayout({
 
         <div className="sb-page-grid">
           {/* Sidebar */}
-          <div
-            ref={sidebarRef}
-            className={`sb-sidebar ${drawerOpen ? 'mobile-open' : ''}`}
-          >
-            <div ref={highlighterRef} className="sb-highlighter" />
-
+          <div className={`sb-sidebar ${drawerOpen ? 'mobile-open' : ''}`}>
             {sidebarTitle && (
               <>
                 <h2>{sidebarTitle}</h2>
@@ -213,19 +179,30 @@ export default function SidebarLayout({
               </>
             )}
 
-            {sections.map((s, idx) => (
-              <div
-                key={s.id}
-                className={`sb-item ${active === s.id ? 'active' : ''}`}
-                data-section-id={s.id}
-                onClick={() => handleSectionClick(s.id)}
-              >
-                <span className="sb-status" />
-                <span className="sb-label">
-                  {idx === 0 ? s.title : `${idx}. ${s.title}`}
-                </span>
-              </div>
-            ))}
+            {/* Nav items grid — pill positioned via CSS calc, no DOM measurement */}
+            <div
+              className="sb-nav-track"
+              style={{
+                '--sb-item-count': sections.length,
+                '--sb-active-index': activeIndex >= 0 ? activeIndex : 0,
+              }}
+            >
+              <div className={`sb-nav-pill${activeIndex >= 0 ? ' active' : ''}`} />
+
+              {sections.map((s, idx) => (
+                <div
+                  key={s.id}
+                  className={`sb-item ${active === s.id ? 'active' : ''}`}
+                  data-section-id={s.id}
+                  onClick={() => handleSectionClick(s.id)}
+                >
+                  <span className="sb-status" />
+                  <span className="sb-label">
+                    {idx === 0 ? s.title : `${idx}. ${s.title}`}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Content column */}
