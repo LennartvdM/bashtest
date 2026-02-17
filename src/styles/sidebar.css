@@ -1,0 +1,589 @@
+/* ==========================================================================
+   Sidebar Layout — ported from survey sidebar, adapted for React SPA
+   ========================================================================== */
+
+/* ---------- CSS custom properties (earth-tone palette) ---------- */
+:root {
+  --sb-salmon: #E8917E;
+  --sb-salmon-rgb: 232, 145, 126;
+  --sb-terracotta: #C9604A;
+  --sb-terracotta-rgb: 201, 96, 74;
+  --sb-sand: #D4C5A9;
+  --sb-sand-rgb: 212, 197, 169;
+  --sb-sand-dark: #B8A88A;
+  --sb-teal: #2A9D8F;
+  --sb-teal-dark: #1E7A6E;
+  --sb-cream: #FFF8F0;
+  --sb-text: #3D3630;
+  --sb-text-rgb: 61, 54, 48;
+  --sb-text-light: #8A7E74;
+  --sb-muted-rgb: 184, 168, 138;
+
+  --sb-sidebar-width: 260px;
+  --sb-sidebar-padding-top: 20px;
+  --sb-divider-height: 1px;
+  --sb-divider-margin: 8px;
+}
+
+/* ==========================================================================
+   Page-level grid
+   ========================================================================== */
+.sb-page-grid {
+  display: grid;
+  grid-template-columns: var(--sb-sidebar-width) 1fr;
+  gap: 0;
+  align-items: start;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  padding-top: 4rem;
+  padding-bottom: 6rem;
+}
+
+/* ==========================================================================
+   Sidebar panel
+   ========================================================================== */
+.sb-sidebar {
+  position: sticky;
+  top: 96px;
+  width: var(--sb-sidebar-width);
+  padding: var(--sb-sidebar-padding-top) 20px;
+  background: linear-gradient(180deg, rgba(var(--sb-salmon-rgb), 0.15) 0%, rgba(var(--sb-sand-rgb), 0.3) 100%);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px 0 0 12px;
+  position: sticky;
+  z-index: 5;
+  overflow: visible;
+  user-select: none;
+}
+
+.sb-sidebar h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sb-text);
+  opacity: 0.55;
+  margin: 0 -20px 0;
+  padding: 0 20px 8px;
+}
+
+/* ==========================================================================
+   Highlighter — animated pill behind the active item
+   ========================================================================== */
+.sb-highlighter {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  right: 8px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 19px 8px 8px 19px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transform: scale(1);
+  transform-origin: right center;
+  transition:
+    top 0.35s ease-in-out,
+    height 0.35s ease-in-out,
+    left 0.35s ease-in-out,
+    border-radius 0.35s ease-in-out,
+    opacity 0.2s ease,
+    transform 0.6s ease-out,
+    box-shadow 0.6s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.sb-highlighter.active {
+  opacity: 1;
+}
+
+.sb-highlighter.highlighter-item {
+  left: -20px;
+  border-radius: 19px 8px 8px 19px;
+}
+
+.sb-highlighter.highlighter-divider {
+  left: -20px;
+  right: 8px;
+  border-radius: 19px 8px 8px 19px;
+}
+
+/* Hover scale when active item is hovered */
+.sb-sidebar:has(.sb-item.active:hover) .sb-highlighter.highlighter-item {
+  transform: scale(1.015);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition:
+    top 0.35s ease-in-out,
+    height 0.35s ease-in-out,
+    left 0.35s ease-in-out,
+    border-radius 0.35s ease-in-out,
+    opacity 0.2s ease,
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+
+/* ==========================================================================
+   Sidebar items
+   ========================================================================== */
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.sb-item:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.sb-item.active {
+  background: transparent;
+}
+
+.sb-item .sb-status {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--sb-sand-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  flex-shrink: 0;
+  transition:
+    transform 0.6s ease-out,
+    background 0.3s ease-out;
+}
+
+.sb-item.active .sb-status {
+  transform: translateX(-42px) scale(1.15);
+  background: var(--sb-teal);
+}
+
+.sb-item.active:hover .sb-status {
+  transition: transform 0.15s ease-out;
+  transform: translateX(-46px) scale(1.18);
+}
+
+.sb-item .sb-label {
+  font-size: 13px;
+  color: var(--sb-text);
+  transition: transform 0.6s ease-out;
+}
+
+.sb-item:not(.active):not(.passing):hover .sb-label {
+  transform: translateX(3px);
+  transition: transform 0.15s ease-out;
+}
+
+.sb-item.active .sb-label {
+  font-weight: 600;
+  transform: translateX(-32px) scale(1.1);
+}
+
+.sb-item.active:hover .sb-label {
+  transform: translateX(-36px) scale(1.12);
+  transition: transform 0.15s ease-out;
+}
+
+/* ==========================================================================
+   Passing effect (intermediate items during navigation)
+   ========================================================================== */
+.sb-item.passing .sb-status {
+  transform: translateX(-12px) scale(1.05);
+  transition: transform 0.06s ease-out;
+}
+
+.sb-item.passing .sb-label {
+  transform: translateX(-8px) scale(1.02);
+  transition: transform 0.06s ease-out;
+}
+
+/* ==========================================================================
+   Dividers
+   ========================================================================== */
+.sb-divider-full {
+  height: var(--sb-divider-height);
+  background: rgba(var(--sb-muted-rgb), 0.3);
+  margin: var(--sb-divider-margin) -20px;
+}
+
+.sb-divider-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sb-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 0 6px;
+  margin: 8px auto 0;
+  width: 80%;
+  border-top: 1px solid rgba(var(--sb-muted-rgb), 0.3);
+  text-align: center;
+}
+
+.sb-divider-sub.sb-divider-clickable {
+  cursor: pointer;
+  transition: all 0.35s ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+.sb-divider-sub.sb-divider-clickable:hover {
+  color: var(--sb-terracotta);
+}
+
+.sb-divider-sub.sb-divider-clickable.active {
+  color: var(--sb-terracotta);
+}
+
+.sb-divider-sub.sb-divider-clickable.active:hover {
+  transform: scale(1.03);
+}
+
+/* ==========================================================================
+   Content column & outcrop
+   ========================================================================== */
+.sb-content-column {
+  position: relative;
+  padding: 0 0 0 0;
+}
+
+.sb-content-column article {
+  padding: 0 1rem 0 2.5rem;
+}
+
+/* Individual content section with outcrop extending behind sidebar */
+.sb-section-card {
+  position: relative;
+  scroll-margin-top: 96px;
+  margin-bottom: 2rem;
+  border-radius: 0 16px 16px 0;
+  border: 1px solid #e7dfd7;
+  border-left: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, rgba(250, 250, 249, 0.92), rgba(253, 244, 255, 0.92));
+}
+
+/* The outcrop — extends the card's background behind the sidebar */
+.sb-section-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--sb-sidebar-width) + 2.5rem);
+  transform: translateX(calc(-1 * (var(--sb-sidebar-width) + 2.5rem)));
+  background: inherit;
+  border-radius: 16px 0 0 16px;
+  border: 1px solid #e7dfd7;
+  border-right: none;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* The sidebar sits above the outcrops */
+.sb-sidebar {
+  z-index: 5;
+}
+
+/* ==========================================================================
+   Mobile menu button
+   ========================================================================== */
+.sb-mobile-menu-btn {
+  display: none;
+}
+
+.sb-mobile-overlay {
+  display: none;
+}
+
+/* ==========================================================================
+   Sidebar enter animation (CSS-based, replaces Framer Motion)
+   ========================================================================== */
+@keyframes sb-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sb-sidebar {
+  animation: sb-slide-in 0.8s ease-out 0.6s both;
+}
+
+/* Section stagger fade-in */
+@keyframes sb-section-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sb-section-card {
+  opacity: 0;
+  animation: sb-section-fade-in 1s ease-out both;
+}
+
+.sb-section-card:nth-child(1) { animation-delay: 0.2s; }
+.sb-section-card:nth-child(2) { animation-delay: 0.45s; }
+.sb-section-card:nth-child(3) { animation-delay: 0.7s; }
+.sb-section-card:nth-child(4) { animation-delay: 0.95s; }
+.sb-section-card:nth-child(5) { animation-delay: 1.2s; }
+.sb-section-card:nth-child(6) { animation-delay: 1.45s; }
+.sb-section-card:nth-child(7) { animation-delay: 1.7s; }
+.sb-section-card:nth-child(8) { animation-delay: 1.95s; }
+.sb-section-card:nth-child(9) { animation-delay: 2.2s; }
+.sb-section-card:nth-child(10) { animation-delay: 2.45s; }
+
+/* ==========================================================================
+   Mobile (<=768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  .sb-page-grid {
+    display: block;
+    padding-top: 2rem;
+  }
+
+  /* ---------- Mobile menu button ---------- */
+  .sb-mobile-menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    position: fixed;
+    left: -24px;
+    top: 50svh;
+    transform: translateY(-50%);
+    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--sb-salmon) 0%, var(--sb-terracotta) 100%);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow:
+      0 4px 20px rgba(var(--sb-terracotta-rgb), 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sb-mobile-menu-btn:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow:
+      0 6px 24px rgba(var(--sb-terracotta-rgb), 0.5),
+      0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .sb-mobile-menu-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .sb-hamburger-line {
+    width: 20px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    display: block;
+  }
+
+  .sb-mobile-menu-btn.active .sb-hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .sb-mobile-menu-btn.active .sb-hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .sb-mobile-menu-btn.active .sb-hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* ---------- Overlay ---------- */
+  .sb-mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(var(--sb-text-rgb), 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .sb-mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ---------- Sidebar as mobile drawer ---------- */
+  .sb-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    padding: 24px 20px;
+    background: linear-gradient(180deg, var(--sb-cream) 0%, var(--sb-sand) 100%);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+    border-radius: 0 20px 20px 0;
+    animation: none;
+    opacity: 1;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--sb-muted-rgb), 0.5) transparent;
+  }
+
+  .sb-sidebar::-webkit-scrollbar { width: 6px; }
+  .sb-sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sb-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(var(--sb-muted-rgb), 0.5);
+    border-radius: 3px;
+  }
+
+  .sb-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sb-sidebar::before {
+    content: 'Tap outside to close';
+    display: block;
+    font-size: 11px;
+    color: var(--sb-text-light);
+    text-align: center;
+    padding: 8px 0 16px;
+    margin: -8px -20px 12px;
+    border-bottom: 1px solid rgba(var(--sb-muted-rgb), 0.3);
+    opacity: 0.7;
+  }
+
+  /* Hide highlighter on mobile */
+  .sb-highlighter {
+    display: none;
+  }
+
+  /* Mobile item overrides */
+  .sb-item {
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    min-height: 48px;
+    border-radius: 12px;
+  }
+
+  .sb-item .sb-label {
+    font-size: 14px;
+    transform: none;
+  }
+
+  .sb-item .sb-status {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+    transform: none;
+  }
+
+  .sb-item.active {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .sb-item.active .sb-status {
+    transform: none;
+    background: var(--sb-teal);
+  }
+
+  .sb-item.active .sb-label {
+    transform: none;
+    font-weight: 600;
+  }
+
+  .sb-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .sb-item:not(.active):not(.passing):hover .sb-label {
+    transform: none;
+  }
+
+  .sb-item.passing .sb-status,
+  .sb-item.passing .sb-label {
+    transform: none;
+    transition: none;
+  }
+
+  /* Section card — no outcrop on mobile */
+  .sb-section-card {
+    border-radius: 16px;
+    border-left: 1px solid #e7dfd7;
+    margin: 0 0.5rem 1.5rem;
+  }
+
+  .sb-section-card::before {
+    display: none;
+  }
+
+  .sb-content-column article {
+    padding: 0;
+  }
+
+  body.sb-drawer-open {
+    overflow: hidden;
+    touch-action: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .sb-mobile-menu-btn {
+    left: -22px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .sb-hamburger-line {
+    width: 18px;
+  }
+
+  .sb-sidebar {
+    width: 260px;
+  }
+}
+
+/* ==========================================================================
+   Spacer at bottom of content for scroll-spy alignment
+   ========================================================================== */
+.sb-scroll-spacer {
+  height: 100vh;
+}
