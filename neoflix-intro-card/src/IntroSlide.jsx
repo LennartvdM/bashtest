@@ -135,7 +135,7 @@ export default function IntroSlide({
             flexDirection: "column",
             alignItems: isMobile ? "center" : "flex-start",
             ...(isDesktop
-              ? { transform: "translateX(-50%)", position: "relative", left: "50%" }
+              ? { margin: "0 auto" }
               : {}),
           }}
           initial={{ opacity: 0.001, scale: 1 }}
