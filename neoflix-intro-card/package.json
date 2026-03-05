@@ -1,0 +1,22 @@
+{
+  "name": "neoflix-intro-card",
+  "version": "1.0.0",
+  "description": "Neoflix animated intro card — logo with spring-physics ring unfurl, cycling headline, and hero section layout.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./NeoflixLogo": "./src/NeoflixLogo.mjs",
+    "./RecordReflectRefine": "./src/RecordReflectRefine.mjs",
+    "./IntroSlide": "./src/IntroSlide.mjs"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "framer-motion": ">=11.0.0"
+  },
+  "files": [
+    "src/"
+  ],
+  "license": "UNLICENSED"
+}
