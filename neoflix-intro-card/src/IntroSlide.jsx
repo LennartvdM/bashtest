@@ -81,7 +81,7 @@ export default function IntroSlide({
         height: fullHeight ? "100vh" : "auto",
         minHeight: fullHeight ? "100vh" : undefined,
         backgroundColor,
-        overflow: "hidden",
+        overflow: "visible",
         display: "flex",
         flexDirection: "column",
         scrollSnapAlign: "start",

@@ -139,6 +139,7 @@ export default function NeoflixLogo({
         position: "relative",
         width: 935,
         height: 287,
+        aspectRatio: "935 / 287",
         overflow: "visible",
         cursor: assembled ? "pointer" : "default",
         ...style,
@@ -154,9 +155,9 @@ export default function NeoflixLogo({
       <motion.div
         style={{
           position: "absolute",
-          left: -43,
-          top: -43,
-          bottom: -42,
+          left: "-4.6%",
+          top: "-15%",
+          bottom: "-14.6%",
           aspectRatio: "1 / 1",
           color,
           zIndex: 1,
@@ -171,9 +172,9 @@ export default function NeoflixLogo({
       <motion.div
         style={{
           position: "absolute",
-          left: -43,
-          top: -42,
-          bottom: -43,
+          left: "-4.6%",
+          top: "-14.6%",
+          bottom: "-15%",
           aspectRatio: "1 / 1",
           color,
           zIndex: 1,
