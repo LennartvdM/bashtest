@@ -18,8 +18,8 @@
  */
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import NeoflixLogo from "./NeoflixLogo.mjs";
-import RecordReflectRefine from "./RecordReflectRefine.mjs";
+import NeoflixLogo from "./NeoflixLogo.jsx";
+import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
 // Entrance animation springs
 const ENTRANCE_LOGO = {
