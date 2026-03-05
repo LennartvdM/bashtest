@@ -2,9 +2,8 @@ import React, { lazy, Suspense } from 'react';
 import ScrollSnap from '../components/ScrollSnap';
 import SectionManager from '../components/SectionManager';
 
-// Eagerly load the intro and hero sections for fast initial paint
+// Eagerly load the intro section for fast initial paint
 import IntroSection from '../components/sections/IntroSection';
-import HeroSection from '../components/sections/HeroSection';
 
 // Lazy load heavy sections to reduce initial bundle and defer loading
 const MedicalSectionV2 = lazy(() => import('../components/sections/MedicalSectionV2'));
@@ -27,7 +26,6 @@ const LazyContact = (props) => <LazySection component={ContactSection} {...props
 
 const sections = [
   { name: 'intro', component: IntroSection },
-  { name: 'one', component: HeroSection },
   { name: 'two', component: LazyMedicalV2 },
   { name: 'three', component: LazyMedicalV3 },
   { name: 'four', component: LazyWorldMap },
