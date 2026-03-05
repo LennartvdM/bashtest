@@ -88,7 +88,7 @@ export default function RecordReflectRefine({
         justifyContent: "center",
         gap: 20,
         maxWidth: 2018,
-        width: isMobile ? "auto" : 717,
+        width: isMobile ? "auto" : "100%",
         cursor: "pointer",
         userSelect: "none",
         WebkitUserSelect: "none",
