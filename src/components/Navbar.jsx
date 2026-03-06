@@ -110,6 +110,37 @@ const BLOB_HEIGHT_FULL = 32;
 const BLOB_HEIGHT_FLAT = 8;
 const NAV_CELL_HEIGHT = 28;
 
+function FaviconLogo({ onClick }) {
+  const [spinKey, setSpinKey] = useState(0);
+
+  const handleClick = () => {
+    setSpinKey(k => k + 1);
+    onClick?.();
+  };
+
+  return (
+    <motion.div
+      className="cursor-pointer"
+      onClick={handleClick}
+      whileHover={{ scale: 1.15, rotate: 8 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+    >
+      <motion.img
+        key={spinKey}
+        src="/favicon.svg"
+        alt="Home"
+        width="32"
+        height="32"
+        initial={spinKey > 0 ? { rotate: 0 } : false}
+        animate={spinKey > 0 ? { rotate: 360 } : {}}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+      />
+      <span className="sr-only">Home</span>
+    </motion.div>
+  );
+}
+
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -281,10 +312,7 @@ export default function Navbar() {
     >
       {/* Logo + FPS Counter */}
       <div className="flex items-center h-full pl-6 pr-4">
-        <div className="cursor-pointer" onClick={() => location.pathname === '/' ? null : transitionNavigate('/')}>
-          <span className="sr-only">Home</span>
-          <img src="/favicon.svg" alt="Home" width="32" height="32" />
-        </div>
+        <FaviconLogo onClick={() => location.pathname === '/' ? null : transitionNavigate('/')} />
         <NavbarFPSCounter />
       </div>
       {/* Inline links (snug on tablet) */}
