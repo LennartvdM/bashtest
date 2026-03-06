@@ -63,7 +63,7 @@ export default function HeroScrollCue({ onClick }) {
       tabIndex={0}
       aria-label="Scroll to next section"
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick?.(); }}
-      style={{ bottom: '-75px', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
+      style={{ bottom: '0', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
     >
       {/* Shared path defs */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
@@ -73,7 +73,7 @@ export default function HeroScrollCue({ onClick }) {
         </defs>
       </svg>
 
-      <div style={{ position: 'relative', width: 160, height: 220 }}>
+      <div style={{ position: 'relative', width: 160, height: 190, overflow: 'hidden' }}>
 
         {/* Layer 1 — top, cut by invisible cutter */}
         <div style={{
