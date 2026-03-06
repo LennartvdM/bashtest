@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useViewport } from '../hooks/useViewport';
+import HeroScrollCue from './HeroScrollCue';
 
 const NAV_FALLBACK = 60;
 
@@ -332,7 +332,7 @@ const ScrollSnap = ({ children }) => {
         {children}
       </div>
 
-      {/* Arrow navigation styles */}
+      {/* ── SectionDotNav: right-side vertical dots + up/down arrows ── */}
       <style>{`
         .arrow-btn {
           width: 56px;
@@ -453,52 +453,11 @@ const ScrollSnap = ({ children }) => {
         </button>
       </nav>
 
-      {createPortal(
-        <>
-          <style>{`
-            @keyframes scrollCueChevron {
-              0%, 100% { opacity: 0.25; transform: translateY(0); }
-              50% { opacity: 1; transform: translateY(3px); }
-            }
-          `}</style>
-          <div
-            onClick={() => scrollToIndex(1)}
-            role="button"
-            tabIndex={0}
-            aria-label="Scroll down to begin"
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToIndex(1); }}
-            style={{
-              position: 'fixed',
-              bottom: 40,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 10,
-              zIndex: 9999,
-              cursor: 'pointer',
-              transition: 'opacity 0.4s ease',
-              opacity: currentIndex === 0 ? 1 : 0,
-              pointerEvents: currentIndex === 0 ? 'auto' : 'none',
-            }}
-          >
-            <span style={{
-              color: 'rgba(0,0,0,0.40)',
-              fontSize: '0.7rem',
-              fontWeight: 500,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-            }}>Scroll to explore</span>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <svg viewBox="0 0 24 24" style={{ width: 28, height: 28, fill: 'none', stroke: 'rgba(0,0,0,0.30)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', animation: 'scrollCueChevron 2s ease-in-out infinite' }}><polyline points="6 9 12 15 18 9" /></svg>
-              <svg viewBox="0 0 24 24" style={{ width: 28, height: 28, fill: 'none', stroke: 'rgba(0,0,0,0.30)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -14, animation: 'scrollCueChevron 2s ease-in-out 0.3s infinite' }}><polyline points="6 9 12 15 18 9" /></svg>
-              <svg viewBox="0 0 24 24" style={{ width: 28, height: 28, fill: 'none', stroke: 'rgba(0,0,0,0.30)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -14, animation: 'scrollCueChevron 2s ease-in-out 0.6s infinite' }}><polyline points="6 9 12 15 18 9" /></svg>
-            </div>
-          </div>
-        </>,
-        document.body
-      )}
+      {/* ── HeroScrollCue: bottom-center "Scroll to explore" (hero only) ── */}
+      <HeroScrollCue
+        visible={currentIndex === 0}
+        onScroll={() => scrollToIndex(1)}
+      />
 
     </div>
   );
