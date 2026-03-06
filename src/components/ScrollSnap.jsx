@@ -413,12 +413,39 @@ const ScrollSnap = ({ children }) => {
         .arrow-dot:hover:not(.active) {
           background: rgba(255,255,255,0.5);
         }
+
+        /* Dark variant for light-backdrop sections (e.g. hero) */
+        .arrow-nav-dark .arrow-btn {
+          border-color: rgba(0,0,0,0.18);
+          background: rgba(0,0,0,0.05);
+        }
+        .arrow-nav-dark .arrow-btn:hover {
+          background: rgba(0,0,0,0.10);
+          border-color: rgba(0,0,0,0.30);
+        }
+        .arrow-nav-dark .arrow-btn svg {
+          stroke: rgba(0,0,0,0.45);
+        }
+        .arrow-nav-dark .arrow-btn::before {
+          border-color: rgba(0,0,0,0.12);
+        }
+        .arrow-nav-dark .arrow-dot {
+          background: rgba(0,0,0,0.15);
+        }
+        .arrow-nav-dark .arrow-dot.active {
+          background: rgba(0,0,0,0.45);
+          box-shadow: 0 0 8px rgba(0,0,0,0.15);
+        }
+        .arrow-nav-dark .arrow-dot:hover:not(.active) {
+          background: rgba(0,0,0,0.25);
+        }
+
         .scroll-hint {
           position: fixed;
           bottom: 32px;
           left: 50%;
           transform: translateX(-50%);
-          color: rgba(255,255,255,0.6);
+          color: rgba(0,0,0,0.4);
           font-size: 0.8rem;
           letter-spacing: 0.12em;
           text-transform: uppercase;
@@ -433,7 +460,7 @@ const ScrollSnap = ({ children }) => {
       `}</style>
 
       <nav
-        className="fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center"
+        className={`fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center${currentIndex === 0 ? ' arrow-nav-dark' : ''}`}
         style={{ gap: '12px' }}
       >
         <button
