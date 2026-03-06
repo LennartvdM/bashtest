@@ -3,13 +3,10 @@ import React, { useEffect, useRef } from 'react';
 export default function HeroScrollCue({ onClick }) {
   const blueRef = useRef(null);
   const redRef = useRef(null);
-  const yellowRef = useRef(null);
   const bS0 = useRef(null);
   const bS1 = useRef(null);
   const rS0 = useRef(null);
   const rS1 = useRef(null);
-  const yS0 = useRef(null);
-  const yS1 = useRef(null);
   const rafId = useRef(null);
 
   useEffect(() => {
@@ -26,19 +23,15 @@ export default function HeroScrollCue({ onClick }) {
       const cutterY = pos(t, 0);
       const blueY = pos(t, 0.15);
       const redY = pos(t, 0.3);
-      const yellowY = pos(t, 0.45);
 
       if (blueRef.current)
         blueRef.current.setAttribute('transform', `translate(0, ${(0 + cutterY) - (18 + blueY)})`);
       if (redRef.current)
         redRef.current.setAttribute('transform', `translate(0, ${(18 + blueY) - (63 + redY)})`);
-      if (yellowRef.current)
-        yellowRef.current.setAttribute('transform', `translate(0, ${(63 + redY) - (108 + yellowY)})`);
 
       const stops = [
         { s0: bS0.current, s1: bS1.current, delay: 0.15 },
         { s0: rS0.current, s1: rS1.current, delay: 0.3 },
-        { s0: yS0.current, s1: yS1.current, delay: 0.45 },
       ];
 
       for (const s of stops) {
@@ -70,7 +63,7 @@ export default function HeroScrollCue({ onClick }) {
       tabIndex={0}
       aria-label="Scroll to next section"
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick?.(); }}
-      style={{ bottom: '-80px', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
+      style={{ bottom: '-75px', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
     >
       {/* Shared path defs */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
@@ -80,7 +73,7 @@ export default function HeroScrollCue({ onClick }) {
         </defs>
       </svg>
 
-      <div style={{ position: 'relative', width: 160, height: 280 }}>
+      <div style={{ position: 'relative', width: 160, height: 220 }}>
 
         {/* Layer 1 — top, cut by invisible cutter */}
         <div style={{
@@ -104,7 +97,7 @@ export default function HeroScrollCue({ onClick }) {
           </svg>
         </div>
 
-        {/* Layer 2 — middle, cut by layer 1 */}
+        {/* Layer 2 — bottom, cut by layer 1 */}
         <div style={{
           position: 'absolute', left: 0, top: 63, width: 160, height: 150,
           zIndex: 2, animation: 'hsc-bob 2.4s ease-in-out infinite 0.3s',
@@ -123,28 +116,6 @@ export default function HeroScrollCue({ onClick }) {
               </linearGradient>
             </defs>
             <use href="#hs-tall" fill="url(#hsc-g2)" mask="url(#hsc-m2)" />
-          </svg>
-        </div>
-
-        {/* Layer 3 — bottom, cut by layer 2 */}
-        <div style={{
-          position: 'absolute', left: 0, top: 108, width: 160, height: 150,
-          zIndex: 1, animation: 'hsc-bob 2.4s ease-in-out infinite 0.45s',
-        }}>
-          <svg viewBox="0 0 160 150" width="160" height="150" style={{ overflow: 'visible' }}>
-            <defs>
-              <mask id="hsc-m3">
-                <use href="#hs-tall" fill="white" />
-                <g ref={yellowRef}>
-                  <use href="#hs-tall" fill="black" stroke="black" strokeWidth="10" strokeLinejoin="round" />
-                </g>
-              </mask>
-              <linearGradient id="hsc-g3" x1="0" y1="0" x2="1" y2="1">
-                <stop ref={yS0} offset="0%" stopColor="rgba(160,160,160,0.5)" />
-                <stop ref={yS1} offset="100%" stopColor="rgba(190,190,190,0.35)" />
-              </linearGradient>
-            </defs>
-            <use href="#hs-tall" fill="url(#hsc-g3)" mask="url(#hsc-m3)" />
           </svg>
         </div>
 
