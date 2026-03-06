@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useRef, useEffect } from "react";
 
 /**
  * TabletTravellingBar
@@ -8,9 +8,43 @@ import React, { memo } from "react";
  * making it independent from the caption buttons. It can jump from any
  * item to any other item in a single smooth motion — no DOM measurement,
  * no getBoundingClientRect, no resize listeners.
+ *
+ * An SVG <mask> punches circular holes in the highlighter wherever it
+ * overlaps with the SectionDotNav arrow buttons, so the background video
+ * shows through the transparent button areas instead of the gray bar.
  */
+const MASK_ID = 'ttb-btn-mask';
+
 const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey, captionsVisible = true, shouldTransition = true }) {
   const count = captions.length;
+  const highlighterRef = useRef(null);
+  const circle1Ref = useRef(null);
+  const circle2Ref = useRef(null);
+  const rafRef = useRef(null);
+
+  // Continuously sync mask circles with SectionDotNav button positions
+  useEffect(() => {
+    const refs = [circle1Ref, circle2Ref];
+    const update = () => {
+      const el = highlighterRef.current;
+      if (el) {
+        const hRect = el.getBoundingClientRect();
+        const buttons = document.querySelectorAll('.arrow-btn');
+        for (let i = 0; i < refs.length; i++) {
+          const circleEl = refs[i].current;
+          const btn = buttons[i];
+          if (!circleEl || !btn) continue;
+          const bRect = btn.getBoundingClientRect();
+          circleEl.setAttribute('cx', bRect.left + bRect.width / 2 - hRect.left);
+          circleEl.setAttribute('cy', bRect.top + bRect.height / 2 - hRect.top);
+          circleEl.setAttribute('r', Math.max(bRect.width, bRect.height) / 2 + 2);
+        }
+      }
+      rafRef.current = requestAnimationFrame(update);
+    };
+    rafRef.current = requestAnimationFrame(update);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
 
   return (
     <div
@@ -23,8 +57,20 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
         ...style
       }}
     >
+      {/* SVG mask: white rect = visible everywhere, black circles = invisible at button areas */}
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <mask id={MASK_ID} x="-9999" y="-9999" width="99999" height="99999" maskUnits="userSpaceOnUse">
+            <rect x="-9999" y="-9999" width="99999" height="99999" fill="white" />
+            <circle ref={circle1Ref} cx="0" cy="0" r="0" fill="black" />
+            <circle ref={circle2Ref} cx="0" cy="0" r="0" fill="black" />
+          </mask>
+        </defs>
+      </svg>
+
       {/* Highlighter — positioned via transform math, fully independent of button DOM */}
       <div
+        ref={highlighterRef}
         style={{
           position: 'absolute',
           left: 0,
@@ -45,6 +91,8 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           transform: captionsVisible
             ? `translateY(${current * 100}%)`
             : `translateY(calc(${current * 100}% + 60px))`,
+          mask: `url(#${MASK_ID})`,
+          WebkitMask: `url(#${MASK_ID})`,
         }}
       >
         {/* Loading bar along bottom edge */}
