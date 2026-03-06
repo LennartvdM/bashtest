@@ -414,53 +414,71 @@ const ScrollSnap = ({ children }) => {
           background: rgba(255,255,255,0.5);
         }
 
-        /* Dark variant for light-backdrop sections (e.g. hero) */
-        .arrow-nav-dark .arrow-btn {
-          border-color: rgba(0,0,0,0.18);
-          background: rgba(0,0,0,0.05);
-        }
-        .arrow-nav-dark .arrow-btn:hover {
-          background: rgba(0,0,0,0.10);
-          border-color: rgba(0,0,0,0.30);
-        }
-        .arrow-nav-dark .arrow-btn svg {
-          stroke: rgba(0,0,0,0.45);
-        }
-        .arrow-nav-dark .arrow-btn::before {
-          border-color: rgba(0,0,0,0.12);
-        }
-        .arrow-nav-dark .arrow-dot {
-          background: rgba(0,0,0,0.15);
-        }
-        .arrow-nav-dark .arrow-dot.active {
-          background: rgba(0,0,0,0.45);
-          box-shadow: 0 0 8px rgba(0,0,0,0.15);
-        }
-        .arrow-nav-dark .arrow-dot:hover:not(.active) {
-          background: rgba(0,0,0,0.25);
-        }
-
-        .scroll-hint {
+        /* Hero scroll cue — large bottom-center indicator, first slide only */
+        .hero-scroll-cue {
           position: fixed;
-          bottom: 32px;
+          bottom: 40px;
           left: 50%;
           transform: translateX(-50%);
-          color: rgba(0,0,0,0.4);
-          font-size: 0.8rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          animation: fadeHint 4s ease-in-out forwards;
-          pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
           z-index: 100;
+          cursor: pointer;
+          transition: opacity 0.4s ease;
         }
-        @keyframes fadeHint {
-          0%, 60% { opacity: 1; }
-          100% { opacity: 0; }
+        .hero-scroll-cue.cue-hidden {
+          opacity: 0;
+          pointer-events: none;
+        }
+        .hero-scroll-cue .cue-label {
+          color: rgba(0,0,0,0.40);
+          font-size: 0.7rem;
+          font-weight: 500;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+        .hero-scroll-cue .cue-chevrons {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0;
+        }
+        .hero-scroll-cue .cue-chevrons svg {
+          width: 28px;
+          height: 28px;
+          fill: none;
+          stroke: rgba(0,0,0,0.30);
+          stroke-width: 2;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .hero-scroll-cue .cue-chevrons svg:nth-child(1) {
+          animation: chevronFade 2s ease-in-out infinite;
+        }
+        .hero-scroll-cue .cue-chevrons svg:nth-child(2) {
+          margin-top: -14px;
+          animation: chevronFade 2s ease-in-out 0.3s infinite;
+        }
+        .hero-scroll-cue .cue-chevrons svg:nth-child(3) {
+          margin-top: -14px;
+          animation: chevronFade 2s ease-in-out 0.6s infinite;
+        }
+        @keyframes chevronFade {
+          0%, 100% { opacity: 0.25; transform: translateY(0); }
+          50% { opacity: 1; transform: translateY(3px); }
+        }
+        .hero-scroll-cue:hover .cue-chevrons svg {
+          stroke: rgba(0,0,0,0.55);
+        }
+        .hero-scroll-cue:hover .cue-label {
+          color: rgba(0,0,0,0.6);
         }
       `}</style>
 
       <nav
-        className={`fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center${currentIndex === 0 ? ' arrow-nav-dark' : ''}`}
+        className="fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center"
         style={{ gap: '12px' }}
       >
         <button
@@ -496,7 +514,21 @@ const ScrollSnap = ({ children }) => {
         </button>
       </nav>
 
-      <div className="scroll-hint">Scroll to explore</div>
+      <div
+        className={`hero-scroll-cue${currentIndex !== 0 ? ' cue-hidden' : ''}`}
+        onClick={() => scrollToIndex(1)}
+        role="button"
+        tabIndex={0}
+        aria-label="Scroll down to begin"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToIndex(1); }}
+      >
+        <span className="cue-label">Scroll to explore</span>
+        <div className="cue-chevrons">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+        </div>
+      </div>
     </div>
   );
 };
