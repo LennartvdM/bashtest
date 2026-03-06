@@ -38,9 +38,9 @@ export default function HeroScrollCue({ visible, onScroll }) {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <svg viewBox="0 0 32 14" style={{ width: 48, height: 14, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round', animation: 'heroScrollCueChevron 2s ease-in-out infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
-          <svg viewBox="0 0 32 14" style={{ width: 48, height: 14, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -6, animation: 'heroScrollCueChevron 2s ease-in-out 0.3s infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
-          <svg viewBox="0 0 32 14" style={{ width: 48, height: 14, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -6, animation: 'heroScrollCueChevron 2s ease-in-out 0.6s infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
+          <svg viewBox="0 0 32 14" style={{ width: 160, height: 46, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', animation: 'heroScrollCueChevron 2s ease-in-out infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
+          <svg viewBox="0 0 32 14" style={{ width: 160, height: 46, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -24, animation: 'heroScrollCueChevron 2s ease-in-out 0.3s infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
+          <svg viewBox="0 0 32 14" style={{ width: 160, height: 46, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -24, animation: 'heroScrollCueChevron 2s ease-in-out 0.6s infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
         </div>
       </div>
     </>,
