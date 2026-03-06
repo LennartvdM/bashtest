@@ -85,6 +85,8 @@ export default function HeroScrollCue({ visible, onScroll }) {
           position: relative;
           width: 160px;
           height: 320px;
+          transform: scale(0.4);
+          transform-origin: top center;
         }
         .hsc-layer {
           position: absolute;
@@ -120,7 +122,7 @@ export default function HeroScrollCue({ visible, onScroll }) {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onScroll(); }}
         style={{
           position: 'fixed',
-          bottom: 40,
+          bottom: 10,
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
