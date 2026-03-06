@@ -64,7 +64,7 @@ export default function HeroScrollCue({ onClick }) {
 
   return (
     <div
-      className="absolute bottom-0 left-1/2 cursor-pointer z-20"
+      className="absolute bottom-0 left-1/2 cursor-pointer z-20 pointer-events-auto"
       onClick={onClick}
       role="button"
       tabIndex={0}
