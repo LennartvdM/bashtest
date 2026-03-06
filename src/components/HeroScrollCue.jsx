@@ -85,8 +85,8 @@ export default function HeroScrollCue({ visible, onScroll }) {
           position: relative;
           width: 160px;
           height: 320px;
-          transform: scale(0.8);
-          transform-origin: bottom center;
+          transform: scale(0.4);
+          transform-origin: top center;
         }
         .hsc-layer {
           position: absolute;
