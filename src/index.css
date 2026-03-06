@@ -111,8 +111,8 @@ body::-webkit-scrollbar {
     mix-blend-mode: normal;
   }
 
-  /* Keep navbar persistent during transitions — scoped to top navbar only */
-  nav.fixed.inset-x-0.top-0 {
+  /* Keep navbar persistent during transitions */
+  nav {
     view-transition-name: navbar;
   }
 

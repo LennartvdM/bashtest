@@ -199,21 +199,6 @@ const ScrollSnap = ({ children }) => {
     };
   }, [scrollToIndex, refreshSections]);
 
-  // MutationObserver: reliably detect sections even if children mount after initial render
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return undefined;
-
-    refreshSections();
-
-    const observer = new MutationObserver(() => {
-      refreshSections();
-    });
-    observer.observe(container, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, [refreshSections]);
-
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
@@ -321,22 +306,34 @@ const ScrollSnap = ({ children }) => {
     };
   }, [currentBreakpoint, refreshSections]);
 
-  // Render the arrow nav via portal to document.body — bypasses all parent CSS
-  const arrowNav = (
-    <>
+  return (
+    <div className="relative w-full">
+      <div
+        ref={containerRef}
+        className="w-full overflow-y-auto"
+        data-current-index={currentIndex}
+        data-section-count={sectionCount}
+        data-rotating={isRotating ? 'true' : 'false'}
+        style={{
+          height: 'var(--app-viewport-height, 100svh)',
+          width: '100%',
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehaviorY: 'none',
+          // NO scrollPaddingTop - sections start at y=0 consistently
+          // Content within sections must account for navbar offset
+          // CRITICAL: Disable scroll-snap-type during rotation to prevent oscillation
+          // This is the CSS-level fix that allows smooth rotation handling
+          scrollSnapType: isRotating ? 'none' : 'y mandatory',
+          scrollBehavior: isRotating ? 'auto' : 'smooth',
+          // Prevent layout shifts during orientation changes
+          willChange: 'scroll-position',
+        }}
+      >
+        {children}
+      </div>
+
+      {/* Arrow navigation styles */}
       <style>{`
-        .scrollsnap-arrows {
-          position: fixed;
-          right: 28px;
-          top: 50%;
-          transform: translateY(-50%);
-          z-index: 9999;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          pointer-events: auto;
-        }
         .arrow-btn {
           width: 56px;
           height: 56px;
@@ -352,7 +349,6 @@ const ScrollSnap = ({ children }) => {
           transition: all 0.25s ease;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         .arrow-btn:hover {
           background: rgba(255,255,255,0.2);
@@ -374,7 +370,6 @@ const ScrollSnap = ({ children }) => {
           stroke-width: 3;
           stroke-linecap: round;
           stroke-linejoin: round;
-          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
         }
         .arrow-btn.up svg {
           animation: bounceUp 1.8s ease-in-out infinite;
@@ -408,13 +403,12 @@ const ScrollSnap = ({ children }) => {
           height: 8px;
           border-radius: 50%;
           background: rgba(255,255,255,0.25);
-          box-shadow: 0 0 3px rgba(0,0,0,0.4);
           transition: all 0.35s ease;
           cursor: pointer;
         }
         .arrow-dot.active {
           background: #fff;
-          box-shadow: 0 0 8px rgba(255,255,255,0.5), 0 0 3px rgba(0,0,0,0.4);
+          box-shadow: 0 0 8px rgba(255,255,255,0.5);
           transform: scale(1.3);
         }
         .arrow-dot:hover:not(.active) {
@@ -422,10 +416,9 @@ const ScrollSnap = ({ children }) => {
         }
       `}</style>
 
-      <div
-        className="scrollsnap-arrows"
-        role="navigation"
-        aria-label="Section navigation"
+      <nav
+        className="fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center"
+        style={{ gap: '12px' }}
       >
         <button
           type="button"
@@ -436,7 +429,7 @@ const ScrollSnap = ({ children }) => {
           <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15" /></svg>
         </button>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <div className="flex flex-col items-center" style={{ gap: '8px' }}>
           {Array.from({ length: sectionCount }, (_, i) => (
             <div
               key={i}
@@ -458,37 +451,55 @@ const ScrollSnap = ({ children }) => {
         >
           <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
         </button>
-      </div>
-    </>
-  );
+      </nav>
 
-  return (
-    <div className="relative w-full">
-      <div
-        ref={containerRef}
-        className="w-full overflow-y-auto"
-        data-current-index={currentIndex}
-        data-section-count={sectionCount}
-        data-rotating={isRotating ? 'true' : 'false'}
-        style={{
-          height: 'var(--app-viewport-height, 100svh)',
-          width: '100%',
-          WebkitOverflowScrolling: 'touch',
-          overscrollBehaviorY: 'none',
-          // NO scrollPaddingTop - sections start at y=0 consistently
-          // Content within sections must account for navbar offset
-          // CRITICAL: Disable scroll-snap-type during rotation to prevent oscillation
-          // This is the CSS-level fix that allows smooth rotation handling
-          scrollSnapType: isRotating ? 'none' : 'y mandatory',
-          scrollBehavior: isRotating ? 'auto' : 'smooth',
-          // Prevent layout shifts during orientation changes
-          willChange: 'scroll-position',
-        }}
-      >
-        {children}
-      </div>
+      {createPortal(
+        <>
+          <style>{`
+            @keyframes scrollCueChevron {
+              0%, 100% { opacity: 0.25; transform: translateY(0); }
+              50% { opacity: 1; transform: translateY(3px); }
+            }
+          `}</style>
+          <div
+            onClick={() => scrollToIndex(1)}
+            role="button"
+            tabIndex={0}
+            aria-label="Scroll down to begin"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToIndex(1); }}
+            style={{
+              position: 'fixed',
+              bottom: 40,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 10,
+              zIndex: 9999,
+              cursor: 'pointer',
+              transition: 'opacity 0.4s ease',
+              opacity: currentIndex === 0 ? 1 : 0,
+              pointerEvents: currentIndex === 0 ? 'auto' : 'none',
+            }}
+          >
+            <span style={{
+              color: 'rgba(0,0,0,0.40)',
+              fontSize: '0.7rem',
+              fontWeight: 500,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+            }}>Scroll to explore</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" style={{ width: 28, height: 28, fill: 'none', stroke: 'rgba(0,0,0,0.30)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', animation: 'scrollCueChevron 2s ease-in-out infinite' }}><polyline points="6 9 12 15 18 9" /></svg>
+              <svg viewBox="0 0 24 24" style={{ width: 28, height: 28, fill: 'none', stroke: 'rgba(0,0,0,0.30)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -14, animation: 'scrollCueChevron 2s ease-in-out 0.3s infinite' }}><polyline points="6 9 12 15 18 9" /></svg>
+              <svg viewBox="0 0 24 24" style={{ width: 28, height: 28, fill: 'none', stroke: 'rgba(0,0,0,0.30)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -14, animation: 'scrollCueChevron 2s ease-in-out 0.6s infinite' }}><polyline points="6 9 12 15 18 9" /></svg>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
 
-      {createPortal(arrowNav, document.body)}
     </div>
   );
 };
