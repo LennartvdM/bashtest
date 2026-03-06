@@ -37,11 +37,34 @@ export default function HeroScrollCue({ visible, onScroll }) {
           pointerEvents: visible ? 'auto' : 'none',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <svg viewBox="0 0 32 14" width="160" height="46" style={{ display: 'block', flexShrink: 0, minWidth: 160, minHeight: 46, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', animation: 'heroScrollCueChevron 2s ease-in-out infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
-          <svg viewBox="0 0 32 14" width="160" height="46" style={{ display: 'block', flexShrink: 0, minWidth: 160, minHeight: 46, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -24, animation: 'heroScrollCueChevron 2s ease-in-out 0.3s infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
-          <svg viewBox="0 0 32 14" width="160" height="46" style={{ display: 'block', flexShrink: 0, minWidth: 160, minHeight: 46, fill: 'none', stroke: 'rgba(0,0,0,0.35)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', marginTop: -24, animation: 'heroScrollCueChevron 2s ease-in-out 0.6s infinite' }}><polyline points="4 3 16 11 28 3" /></svg>
-        </div>
+        {/*
+          3 chevrons built from negative space:
+          4 overlapping filled downward-pointing triangles (rgba fill).
+          The thin gaps between them read as chevron "strokes".
+          A mask clips to a soft rounded-rect so edges aren't harsh.
+        */}
+        <svg
+          viewBox="0 0 120 80"
+          width="160"
+          height="107"
+          style={{
+            display: 'block',
+            flexShrink: 0,
+            minWidth: 160,
+            minHeight: 107,
+            animation: 'heroScrollCueChevron 2s ease-in-out infinite',
+          }}
+        >
+          {/* 4 filled triangles stacked — gaps between them = 3 chevrons */}
+          {/* Triangle 1 (top) */}
+          <polygon points="10,0 60,22 110,0" fill="rgba(0,0,0,0.28)" />
+          {/* Triangle 2 */}
+          <polygon points="10,20 60,42 110,20" fill="rgba(0,0,0,0.28)" />
+          {/* Triangle 3 */}
+          <polygon points="10,40 60,62 110,40" fill="rgba(0,0,0,0.28)" />
+          {/* Triangle 4 (bottom) */}
+          <polygon points="10,60 60,82 110,60" fill="rgba(0,0,0,0.28)" />
+        </svg>
       </div>
     </>,
     document.body
