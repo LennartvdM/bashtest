@@ -25,6 +25,7 @@ const ScrollSnap = ({ children }) => {
     if (typeof window === 'undefined') return 'desktop';
     return window.innerWidth >= BREAKPOINT_WIDTH ? 'desktop' : 'tablet';
   });
+  const [dotNavTop, setDotNavTop] = useState(null); // null = default 50%
 
   const navHeight = useCallback(() => {
     if (typeof window === 'undefined') return NAV_FALLBACK;
@@ -233,11 +234,15 @@ const ScrollSnap = ({ children }) => {
         setCurrentIndex(closestIndex);
         currentIndexRef.current = closestIndex;
       }
+
+      // Update dot nav position on scroll (carousel position changes as sections scroll)
+      if (dotNavRafRef.current) cancelAnimationFrame(dotNavRafRef.current);
+      dotNavRafRef.current = requestAnimationFrame(updateDotNavPosition);
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll, { passive: true });
-  }, [children, refreshSections]);
+  }, [children, refreshSections, updateDotNavPosition]);
 
   useEffect(() => {
     const restoreSection = () => {
@@ -305,6 +310,27 @@ const ScrollSnap = ({ children }) => {
       window.removeEventListener('resize', handleBreakpointChange);
     };
   }, [currentBreakpoint, refreshSections]);
+
+  // Align dot nav vertically to the carousel in sections that have one
+  const dotNavRafRef = useRef(null);
+  const updateDotNavPosition = useCallback(() => {
+    const activeSection = sectionsRef.current[currentIndexRef.current];
+    if (!activeSection) { setDotNavTop(null); return; }
+    const target = activeSection.querySelector('[data-dot-nav-target]');
+    if (!target) { setDotNavTop(null); return; }
+    const rect = target.getBoundingClientRect();
+    // Only update if the element is actually visible (has dimensions)
+    if (rect.height === 0) { setDotNavTop(null); return; }
+    const centerY = rect.top + rect.height / 2;
+    setDotNavTop(centerY);
+  }, []);
+
+  useEffect(() => {
+    // Measure immediately + after a delay (for lazy-loaded/animated sections)
+    updateDotNavPosition();
+    const delayId = setTimeout(updateDotNavPosition, 500);
+    return () => clearTimeout(delayId);
+  }, [currentIndex, updateDotNavPosition]);
 
   return (
     <div className="relative w-full">
@@ -430,8 +456,13 @@ const ScrollSnap = ({ children }) => {
       `}</style>
 
       <nav
-        className="fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center"
-        style={{ gap: '12px' }}
+        className="fixed right-7 z-50 flex flex-col items-center"
+        style={{
+          gap: '12px',
+          top: dotNavTop != null ? `${dotNavTop}px` : '50%',
+          transform: 'translateY(-50%)',
+          transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
       >
         <button
           type="button"

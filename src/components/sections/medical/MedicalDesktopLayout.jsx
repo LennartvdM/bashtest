@@ -228,6 +228,7 @@ export default function MedicalDesktopLayout({
         <div
           ref={videoAnchorRef}
           data-testid="video-anchor"
+          data-dot-nav-target
           style={{
             position: isTabletLayout ? 'relative' : 'absolute',
             ...(isTabletLayout

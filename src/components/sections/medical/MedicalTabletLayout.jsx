@@ -109,7 +109,7 @@ export default function MedicalTabletLayout({
         </div>
 
         {/* Video Container */}
-        <div style={{
+        <div data-dot-nav-target style={{
           width: contentWidth,
           transition: isRotating ? 'none' : 'width 0.3s ease-out',
         }}>
