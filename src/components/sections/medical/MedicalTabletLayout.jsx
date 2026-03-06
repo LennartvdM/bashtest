@@ -45,7 +45,7 @@ export default function MedicalTabletLayout({
     : 'min(92vw, clamp(260px, 60vh, 480px))'; // Portrait: use more width
   const captionWidth = isTabletLandscape
     ? 'min(75vw, 520px)'
-    : 'min(520px, 90vw)';
+    : 'min(520px, calc(100vw - 120px))';
   const contentGap = isTabletLandscape ? 16 : 24;
 
   return (

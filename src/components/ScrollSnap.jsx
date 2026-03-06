@@ -388,6 +388,7 @@ const ScrollSnap = ({ children }) => {
           transition: all 0.25s ease;
           position: relative;
           overflow: hidden;
+          box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.65);
         }
         .arrow-btn:hover {
           background: rgba(255,255,255,0.2);
