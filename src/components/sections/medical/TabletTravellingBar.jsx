@@ -34,6 +34,10 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           const circleEl = refs[i].current;
           const btn = buttons[i];
           if (!circleEl || !btn) continue;
+          if (btn.classList.contains('arrow-hidden')) {
+            circleEl.setAttribute('r', '0');
+            continue;
+          }
           const bRect = btn.getBoundingClientRect();
           circleEl.setAttribute('cx', bRect.left + bRect.width / 2 - hRect.left);
           circleEl.setAttribute('cy', bRect.top + bRect.height / 2 - hRect.top);
@@ -57,17 +61,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
         ...style
       }}
     >
-      {/* SVG mask: white rect = visible everywhere, black circles = invisible at button areas */}
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          <mask id={MASK_ID} x="-9999" y="-9999" width="99999" height="99999" maskUnits="userSpaceOnUse">
-            <rect x="-9999" y="-9999" width="99999" height="99999" fill="white" />
-            <circle ref={circle1Ref} cx="0" cy="0" r="0" fill="black" />
-            <circle ref={circle2Ref} cx="0" cy="0" r="0" fill="black" />
-          </mask>
-        </defs>
-      </svg>
-
       {/* Highlighter — positioned via transform math, fully independent of button DOM */}
       <div
         ref={highlighterRef}
@@ -77,7 +70,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           top: 0,
           width: '100%',
           height: `calc(100% / ${count})`,
-          background: 'rgba(232, 232, 232, 0.9)',
           borderRadius: '12px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
           overflow: 'hidden',
@@ -91,10 +83,19 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           transform: captionsVisible
             ? `translateY(${current * 100}%)`
             : `translateY(calc(${current * 100}% + 60px))`,
-          mask: `url(#${MASK_ID})`,
-          WebkitMask: `url(#${MASK_ID})`,
         }}
       >
+        {/* SVG background with mask: white rect = visible, black circles = invisible at button areas */}
+        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, display: 'block' }}>
+          <defs>
+            <mask id={MASK_ID}>
+              <rect width="100%" height="100%" fill="white" />
+              <circle ref={circle1Ref} cx="0" cy="0" r="0" fill="black" />
+              <circle ref={circle2Ref} cx="0" cy="0" r="0" fill="black" />
+            </mask>
+          </defs>
+          <rect width="100%" height="100%" fill="rgba(232, 232, 232, 0.9)" mask={`url(#${MASK_ID})`} />
+        </svg>
         {/* Loading bar along bottom edge */}
         <div
           key={`${animationKey}-${current}`}
