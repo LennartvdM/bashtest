@@ -283,7 +283,7 @@ export default function Navbar() {
       <div className="flex items-center h-full pl-6 pr-4">
         <div className="cursor-pointer" onClick={() => location.pathname === '/' ? null : transitionNavigate('/')}>
           <span className="sr-only">Home</span>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
+          <img src="/favicon.svg" alt="Home" width="32" height="32" />
         </div>
         <NavbarFPSCounter />
       </div>
