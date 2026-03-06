@@ -310,7 +310,7 @@ const ScrollSnap = ({ children }) => {
     <div className="relative w-full">
       <div
         ref={containerRef}
-        className="w-full overflow-y-auto"
+        className="relative w-full overflow-y-auto"
         data-current-index={currentIndex}
         data-section-count={sectionCount}
         data-rotating={isRotating ? 'true' : 'false'}
@@ -330,6 +330,19 @@ const ScrollSnap = ({ children }) => {
         }}
       >
         {children}
+
+        {/* HeroScrollCue: positioned inside the scroll container so it scrolls with content.
+            Absolutely positioned at the bottom of the first section (viewport height). */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: 'var(--frozen-viewport-height, var(--app-viewport-height, 100dvh))',
+          pointerEvents: 'none',
+        }}>
+          <HeroScrollCue onClick={() => scrollToIndex(1)} />
+        </div>
       </div>
 
       {/* ── SectionDotNav: right-side vertical dots + up/down arrows ── */}
@@ -452,11 +465,6 @@ const ScrollSnap = ({ children }) => {
           <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
         </button>
       </nav>
-
-      {/* ── HeroScrollCue: bottom-center "Scroll to explore" (hero only) ── */}
-      <HeroScrollCue
-        onClick={() => scrollToIndex(1)}
-      />
 
     </div>
   );
