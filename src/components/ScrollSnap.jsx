@@ -334,11 +334,11 @@ const ScrollSnap = ({ children }) => {
       {/* Arrow navigation styles */}
       <style>{`
         .arrow-btn {
-          width: 46px;
-          height: 46px;
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.35);
-          background: rgba(255,255,255,0.08);
+          border: 3px solid rgba(255,255,255,0.45);
+          background: rgba(255,255,255,0.10);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
           cursor: pointer;
@@ -351,7 +351,7 @@ const ScrollSnap = ({ children }) => {
         }
         .arrow-btn:hover {
           background: rgba(255,255,255,0.2);
-          border-color: rgba(255,255,255,0.6);
+          border-color: rgba(255,255,255,0.7);
           transform: scale(1.1);
         }
         .arrow-btn:active {
@@ -362,11 +362,11 @@ const ScrollSnap = ({ children }) => {
           pointer-events: none;
         }
         .arrow-btn svg {
-          width: 20px;
-          height: 20px;
+          width: 26px;
+          height: 26px;
           fill: none;
           stroke: #fff;
-          stroke-width: 2.5;
+          stroke-width: 3;
           stroke-linecap: round;
           stroke-linejoin: round;
         }
@@ -387,9 +387,9 @@ const ScrollSnap = ({ children }) => {
         .arrow-btn::before {
           content: '';
           position: absolute;
-          inset: -4px;
+          inset: -5px;
           border-radius: 50%;
-          border: 1.5px solid rgba(255,255,255,0.3);
+          border: 2px solid rgba(255,255,255,0.3);
           animation: pulse-ring 2.5s ease-out infinite;
         }
         @keyframes pulse-ring {
@@ -412,68 +412,6 @@ const ScrollSnap = ({ children }) => {
         }
         .arrow-dot:hover:not(.active) {
           background: rgba(255,255,255,0.5);
-        }
-
-        /* Hero scroll cue — large bottom-center indicator, first slide only */
-        .hero-scroll-cue {
-          position: fixed;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-          z-index: 100;
-          cursor: pointer;
-          transition: opacity 0.4s ease;
-        }
-        .hero-scroll-cue.cue-hidden {
-          opacity: 0;
-          pointer-events: none;
-        }
-        .hero-scroll-cue .cue-label {
-          color: rgba(0,0,0,0.40);
-          font-size: 0.7rem;
-          font-weight: 500;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-        }
-        .hero-scroll-cue .cue-chevrons {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0;
-        }
-        .hero-scroll-cue .cue-chevrons svg {
-          width: 28px;
-          height: 28px;
-          fill: none;
-          stroke: rgba(0,0,0,0.30);
-          stroke-width: 2;
-          stroke-linecap: round;
-          stroke-linejoin: round;
-        }
-        .hero-scroll-cue .cue-chevrons svg:nth-child(1) {
-          animation: chevronFade 2s ease-in-out infinite;
-        }
-        .hero-scroll-cue .cue-chevrons svg:nth-child(2) {
-          margin-top: -14px;
-          animation: chevronFade 2s ease-in-out 0.3s infinite;
-        }
-        .hero-scroll-cue .cue-chevrons svg:nth-child(3) {
-          margin-top: -14px;
-          animation: chevronFade 2s ease-in-out 0.6s infinite;
-        }
-        @keyframes chevronFade {
-          0%, 100% { opacity: 0.25; transform: translateY(0); }
-          50% { opacity: 1; transform: translateY(3px); }
-        }
-        .hero-scroll-cue:hover .cue-chevrons svg {
-          stroke: rgba(0,0,0,0.55);
-        }
-        .hero-scroll-cue:hover .cue-label {
-          color: rgba(0,0,0,0.6);
         }
       `}</style>
 
@@ -514,21 +452,6 @@ const ScrollSnap = ({ children }) => {
         </button>
       </nav>
 
-      <div
-        className={`hero-scroll-cue${currentIndex !== 0 ? ' cue-hidden' : ''}`}
-        onClick={() => scrollToIndex(1)}
-        role="button"
-        tabIndex={0}
-        aria-label="Scroll down to begin"
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToIndex(1); }}
-      >
-        <span className="cue-label">Scroll to explore</span>
-        <div className="cue-chevrons">
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
-        </div>
-      </div>
     </div>
   );
 };
