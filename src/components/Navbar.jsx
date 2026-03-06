@@ -301,6 +301,24 @@ export default function Navbar() {
     }
   }, [location.pathname, location.hash, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const scrollToTop = useCallback(() => {
+    const container = document.querySelector('[data-current-index]');
+    if (!container) return;
+    // Temporarily disable scroll-snap so we get a fluid scroll without intermediate stops
+    container.style.scrollSnapType = 'none';
+    container.scrollTo({ top: 0, behavior: 'smooth' });
+    // Re-enable scroll-snap after the scroll animation finishes
+    const restore = () => {
+      container.style.scrollSnapType = '';
+      container.removeEventListener('scrollend', restore);
+    };
+    container.addEventListener('scrollend', restore, { once: true });
+    // Fallback for browsers without scrollend support
+    setTimeout(() => {
+      container.style.scrollSnapType = '';
+    }, 1000);
+  }, []);
+
   return (
     <nav ref={navRef} className="fixed inset-x-0 top-0 z-40 bg-white border-b border-[#e7dfd7] flex items-center justify-between shadow-[0_2px_2px_0_rgba(0,0,0,0.08)]" style={{height: 60}}
       onLoadCapture={() => {
@@ -312,7 +330,7 @@ export default function Navbar() {
     >
       {/* Logo + FPS Counter */}
       <div className="flex items-center h-full pl-6 pr-4">
-        <FaviconLogo onClick={() => location.pathname === '/' ? null : transitionNavigate('/')} />
+        <FaviconLogo onClick={() => location.pathname === '/' ? scrollToTop() : transitionNavigate('/')} />
         <NavbarFPSCounter />
       </div>
       {/* Inline links (snug on tablet) */}
