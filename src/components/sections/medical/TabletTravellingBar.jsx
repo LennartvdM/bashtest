@@ -41,8 +41,8 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           zIndex: 1,
           pointerEvents: 'none',
           willChange: 'transform',
-          maskImage: 'linear-gradient(to right, black calc(100% - 40px), transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 40px), transparent)',
+          maskImage: 'radial-gradient(circle 31px at calc(50% + 50vw - 1.75rem - 28px) 50%, transparent 100%, black 100%)',
+          WebkitMaskImage: 'radial-gradient(circle 31px at calc(50% + 50vw - 1.75rem - 28px) 50%, transparent 100%, black 100%)',
           opacity: captionsVisible ? 1 : 0,
           transform: captionsVisible
             ? `translateY(${current * 100}%)`
