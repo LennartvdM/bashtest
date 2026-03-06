@@ -455,8 +455,7 @@ const ScrollSnap = ({ children }) => {
 
       {/* ── HeroScrollCue: bottom-center "Scroll to explore" (hero only) ── */}
       <HeroScrollCue
-        visible={currentIndex === 0}
-        onScroll={() => scrollToIndex(1)}
+        onClick={() => scrollToIndex(1)}
       />
 
     </div>
