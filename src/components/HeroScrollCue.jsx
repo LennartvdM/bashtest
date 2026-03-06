@@ -64,13 +64,13 @@ export default function HeroScrollCue({ onClick }) {
 
   return (
     <div
-      className="absolute bottom-0 left-1/2 cursor-pointer z-20 pointer-events-auto"
+      className="absolute left-1/2 cursor-pointer z-20 pointer-events-auto"
       onClick={onClick}
       role="button"
       tabIndex={0}
       aria-label="Scroll to next section"
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick?.(); }}
-      style={{ transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
+      style={{ bottom: '-80px', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
     >
       {/* Shared path defs */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
