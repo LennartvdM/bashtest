@@ -18,8 +18,8 @@
  */
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import NeoflixLogo from "./NeoflixLogo.mjs";
-import RecordReflectRefine from "./RecordReflectRefine.mjs";
+import NeoflixLogo from "./NeoflixLogo.jsx";
+import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
 // Entrance animation springs
 const ENTRANCE_LOGO = {
@@ -81,7 +81,7 @@ export default function IntroSlide({
         height: fullHeight ? "100vh" : "auto",
         minHeight: fullHeight ? "100vh" : undefined,
         backgroundColor,
-        overflow: "hidden",
+        overflow: "visible",
         display: "flex",
         flexDirection: "column",
         scrollSnapAlign: "start",
@@ -135,7 +135,7 @@ export default function IntroSlide({
             flexDirection: "column",
             alignItems: isMobile ? "center" : "flex-start",
             ...(isDesktop
-              ? { transform: "translateX(-50%)", position: "relative", left: "50%" }
+              ? { margin: "0 auto" }
               : {}),
           }}
           initial={{ opacity: 0.001, scale: 1 }}
