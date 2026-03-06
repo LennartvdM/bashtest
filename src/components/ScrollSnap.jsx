@@ -331,24 +331,145 @@ const ScrollSnap = ({ children }) => {
         {children}
       </div>
 
-      <div className="fixed right-4 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-2">
+      {/* Arrow navigation styles */}
+      <style>{`
+        .arrow-btn {
+          width: 46px;
+          height: 46px;
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.35);
+          background: rgba(255,255,255,0.08);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.25s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .arrow-btn:hover {
+          background: rgba(255,255,255,0.2);
+          border-color: rgba(255,255,255,0.6);
+          transform: scale(1.1);
+        }
+        .arrow-btn:active {
+          transform: scale(0.95);
+        }
+        .arrow-btn.arrow-hidden {
+          opacity: 0;
+          pointer-events: none;
+        }
+        .arrow-btn svg {
+          width: 20px;
+          height: 20px;
+          fill: none;
+          stroke: #fff;
+          stroke-width: 2.5;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .arrow-btn.up svg {
+          animation: bounceUp 1.8s ease-in-out infinite;
+        }
+        .arrow-btn.down svg {
+          animation: bounceDown 1.8s ease-in-out infinite;
+        }
+        @keyframes bounceUp {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes bounceDown {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(5px); }
+        }
+        .arrow-btn::before {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(255,255,255,0.3);
+          animation: pulse-ring 2.5s ease-out infinite;
+        }
+        @keyframes pulse-ring {
+          0% { transform: scale(1); opacity: 0.6; }
+          70% { transform: scale(1.35); opacity: 0; }
+          100% { transform: scale(1.35); opacity: 0; }
+        }
+        .arrow-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.25);
+          transition: all 0.35s ease;
+          cursor: pointer;
+        }
+        .arrow-dot.active {
+          background: #fff;
+          box-shadow: 0 0 8px rgba(255,255,255,0.5);
+          transform: scale(1.3);
+        }
+        .arrow-dot:hover:not(.active) {
+          background: rgba(255,255,255,0.5);
+        }
+        .scroll-hint {
+          position: fixed;
+          bottom: 32px;
+          left: 50%;
+          transform: translateX(-50%);
+          color: rgba(255,255,255,0.6);
+          font-size: 0.8rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          animation: fadeHint 4s ease-in-out forwards;
+          pointer-events: none;
+          z-index: 100;
+        }
+        @keyframes fadeHint {
+          0%, 60% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+      `}</style>
+
+      <nav
+        className="fixed right-7 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center"
+        style={{ gap: '12px' }}
+      >
         <button
           type="button"
+          className={`arrow-btn up${currentIndex <= 0 ? ' arrow-hidden' : ''}`}
           onClick={() => scrollToIndex(currentIndex - 1)}
-          className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={currentIndex <= 0}
+          aria-label="Scroll up"
         >
-          Up
+          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15" /></svg>
         </button>
+
+        <div className="flex flex-col items-center" style={{ gap: '8px' }}>
+          {Array.from({ length: sectionCount }, (_, i) => (
+            <div
+              key={i}
+              className={`arrow-dot${i === currentIndex ? ' active' : ''}`}
+              onClick={() => scrollToIndex(i)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Go to section ${i + 1}`}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToIndex(i); }}
+            />
+          ))}
+        </div>
+
         <button
           type="button"
+          className={`arrow-btn down${currentIndex >= sectionCount - 1 ? ' arrow-hidden' : ''}`}
           onClick={() => scrollToIndex(currentIndex + 1)}
-          className="rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-gray-300 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={currentIndex >= sectionCount - 1}
+          aria-label="Scroll down"
         >
-          Down
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
         </button>
-      </div>
+      </nav>
+
+      <div className="scroll-hint">Scroll to explore</div>
     </div>
   );
 };
