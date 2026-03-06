@@ -200,6 +200,20 @@ const ScrollSnap = ({ children }) => {
     };
   }, [scrollToIndex, refreshSections]);
 
+  // Align dot nav vertically to the carousel in sections that have one
+  const dotNavRafRef = useRef(null);
+  const updateDotNavPosition = useCallback(() => {
+    const activeSection = sectionsRef.current[currentIndexRef.current];
+    if (!activeSection) { setDotNavTop(null); return; }
+    const target = activeSection.querySelector('[data-dot-nav-target]');
+    if (!target) { setDotNavTop(null); return; }
+    const rect = target.getBoundingClientRect();
+    // Only update if the element is actually visible (has dimensions)
+    if (rect.height === 0) { setDotNavTop(null); return; }
+    const centerY = rect.top + rect.height / 2;
+    setDotNavTop(centerY);
+  }, []);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
@@ -310,20 +324,6 @@ const ScrollSnap = ({ children }) => {
       window.removeEventListener('resize', handleBreakpointChange);
     };
   }, [currentBreakpoint, refreshSections]);
-
-  // Align dot nav vertically to the carousel in sections that have one
-  const dotNavRafRef = useRef(null);
-  const updateDotNavPosition = useCallback(() => {
-    const activeSection = sectionsRef.current[currentIndexRef.current];
-    if (!activeSection) { setDotNavTop(null); return; }
-    const target = activeSection.querySelector('[data-dot-nav-target]');
-    if (!target) { setDotNavTop(null); return; }
-    const rect = target.getBoundingClientRect();
-    // Only update if the element is actually visible (has dimensions)
-    if (rect.height === 0) { setDotNavTop(null); return; }
-    const centerY = rect.top + rect.height / 2;
-    setDotNavTop(centerY);
-  }, []);
 
   useEffect(() => {
     // Measure immediately + after a delay (for lazy-loaded/animated sections)
