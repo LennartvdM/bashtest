@@ -150,12 +150,12 @@ export default function NeoflixLogo({
   const INNER = {
     splayed: cal.innerSplayed ?? INNER_RING.splayed,
     assembled: INNER_RING.assembled,
-    hover: cal.innerHover ?? INNER_RING.hover,
+    hover: INNER_RING.hover,
   };
   const OUTER = {
     splayed: cal.outerSplayed ?? OUTER_RING.splayed,
     assembled: OUTER_RING.assembled,
-    hover: cal.outerHover ?? OUTER_RING.hover,
+    hover: OUTER_RING.hover,
   };
   const IMPULSE = {
     inner: cal.clatterInner ?? CLATTER_IMPULSE.inner,

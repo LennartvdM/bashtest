@@ -31,6 +31,15 @@ const DROP_DEFAULT = {
   ease: [0.22, 0, 1, 1],
 };
 
+// Bounce spring — drives the vertical bounce after the drop tween lands.
+// High stiffness + moderate damping = snappy bounces that decay quickly.
+const BOUNCE_SPRING_DEFAULT = {
+  type: "spring",
+  damping: 8,
+  mass: 1.5,
+  stiffness: 300,
+};
+
 // Headline — gentle fade + rise, timed relative to drop landing.
 const HEADLINE_TRANSITION_DEFAULT = {
   type: "tween",
@@ -104,14 +113,28 @@ export default function IntroSlide({
   const dropStartY = cal.dropStartY ?? -600;
   const headlineDuration = cal.headlineDuration ?? 0.8;
   const headlineStartY = cal.headlineStartY ?? 16;
-  const hoverScale = cal.hoverScale ?? 1.01;
-  const hoverY = cal.hoverY ?? -4;
   const logoMarginBottom = cal.logoMarginBottom ?? (isMobile ? 40 : 60);
+
+  // Bounce parameters
+  const bounceHeight = cal.bounceHeight ?? -40;
+  const bounceDamping = cal.bounceDamping ?? BOUNCE_SPRING_DEFAULT.damping;
+  const bounceMass = cal.bounceMass ?? BOUNCE_SPRING_DEFAULT.mass;
+  const bounceStiffness = cal.bounceStiffness ?? BOUNCE_SPRING_DEFAULT.stiffness;
+  const squashX = cal.squashX ?? 1.0;
+  const squashY = cal.squashY ?? 1.0;
+  const squashDuration = cal.squashDuration ?? 0.08;
 
   const DROP = useMemo(() => ({
     ...DROP_DEFAULT,
     duration: dropDuration,
   }), [dropDuration]);
+
+  const BOUNCE_SPRING = useMemo(() => ({
+    type: "spring",
+    damping: bounceDamping,
+    mass: bounceMass,
+    stiffness: bounceStiffness,
+  }), [bounceDamping, bounceMass, bounceStiffness]);
 
   const HEADLINE_TRANSITION = useMemo(() => ({
     ...HEADLINE_TRANSITION_DEFAULT,
@@ -120,6 +143,27 @@ export default function IntroSlide({
 
   const readyToDrop = useReadyToDrop(readyDelay);
   const [showHeadline, setShowHeadline] = useState(false);
+  // Drop phases: "waiting" → "dropping" → "impact" → "bouncing" → "settled"
+  // - waiting: logo at dropStartY, waiting for readyToDrop
+  // - dropping: tween from dropStartY → 0 (gravity)
+  // - impact: instantly set y to bounceHeight + apply squash (one frame)
+  // - bouncing: spring from bounceHeight → 0 (the satisfying bounce)
+  // - settled: done
+  const [dropPhase, setDropPhase] = useState("waiting");
+
+  // Start the drop when ready
+  useEffect(() => {
+    if (readyToDrop && dropPhase === "waiting") {
+      setDropPhase("dropping");
+    }
+  }, [readyToDrop, dropPhase]);
+
+  // Impact → bouncing: after one frame at impulse position, let spring take over
+  useEffect(() => {
+    if (dropPhase !== "impact") return;
+    const id = requestAnimationFrame(() => setDropPhase("bouncing"));
+    return () => cancelAnimationFrame(id);
+  }, [dropPhase]);
 
   // Show headline after drop lands
   useEffect(() => {
@@ -166,7 +210,7 @@ export default function IntroSlide({
           padding: isMobile ? "0 16px" : "0 40px",
         }}
       >
-        {/* Logo — drops from above, lands firm, ring clatter on impact */}
+        {/* Logo — drops from above, bounces on landing, ring clatter on impact */}
         <motion.div
           style={{
             width: logoDimensions.width,
@@ -175,11 +219,36 @@ export default function IntroSlide({
             display: "flex",
             justifyContent: "center",
             marginBottom: logoMarginBottom,
+            transformOrigin: "center bottom",
           }}
-          initial={{ opacity: 1, y: dropStartY }}
-          animate={readyToDrop ? { opacity: 1, y: 0 } : { opacity: 1, y: dropStartY }}
-          transition={readyToDrop ? DROP : { duration: 0 }}
-          whileHover={{ scale: hoverScale, y: hoverY }}
+          initial={{ opacity: 1, y: dropStartY, scaleX: 1, scaleY: 1 }}
+          animate={
+            dropPhase === "dropping"
+              ? { opacity: 1, y: 0, scaleX: 1, scaleY: 1 }
+              : dropPhase === "impact"
+                ? { opacity: 1, y: bounceHeight, scaleX: squashX, scaleY: squashY }
+                : dropPhase === "bouncing"
+                  ? { opacity: 1, y: 0, scaleX: 1, scaleY: 1 }
+                  : dropPhase === "settled"
+                    ? { opacity: 1, y: 0, scaleX: 1, scaleY: 1 }
+                    : { opacity: 1, y: dropStartY, scaleX: 1, scaleY: 1 }
+          }
+          transition={
+            dropPhase === "dropping"
+              ? DROP
+              : dropPhase === "impact"
+                ? { duration: squashDuration }
+                : dropPhase === "bouncing"
+                  ? BOUNCE_SPRING
+                  : { duration: 0 }
+          }
+          onAnimationComplete={() => {
+            if (dropPhase === "dropping") {
+              setDropPhase("impact");
+            } else if (dropPhase === "bouncing") {
+              setDropPhase("settled");
+            }
+          }}
         >
           <NeoflixLogo
             autoPlayDelay={cal.autoPlayDelay ?? 300}
