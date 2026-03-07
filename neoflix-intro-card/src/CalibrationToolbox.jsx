@@ -21,22 +21,18 @@ export const DEFAULT_PARAMS = {
   readyDelay: 300,       // useReadyToDrop minDelayMs
   headlineDelay: 2400,   // ms after readyToDrop to show headline
 
-  // Drop tween
-  dropDuration: 0.38,
+  // Drop physics (rigid-body simulation)
   dropStartY: -600,
+  dropGravity: 2800,        // px/s²
+  dropRestitution: 0.45,    // coefficient of restitution (0=dead stop, 1=perfect bounce)
+  dropTilt: 2,              // initial tilt in degrees (positive = clockwise)
+  dropSpin: 0,              // initial angular velocity in deg/s
+  dropHalfWidth: 200,       // effective half-width for corner contact (px)
+  dropAngularDamping: 0.02, // continuous angular friction per second
 
   // Headline tween
   headlineDuration: 0.8,
   headlineStartY: 16,
-
-  // Bounce (on landing)
-  bounceHeight: -40,
-  bounceDamping: 8,
-  bounceMass: 1.5,
-  bounceStiffness: 300,
-  squashX: 1.0,
-  squashY: 1.0,
-  squashDuration: 0.08,
 
   // NeoflixLogo — assembly spring (SPRING_HEAVY)
   assemblyDamping: 24,
@@ -75,11 +71,16 @@ export const DEFAULT_PARAMS = {
 
 const SECTIONS = [
   {
-    label: "Drop",
+    label: "Drop physics",
     keys: [
       { key: "readyDelay", label: "Ready delay", min: 0, max: 1000, step: 50, unit: "ms" },
-      { key: "dropDuration", label: "Duration", min: 0.1, max: 1.5, step: 0.02, unit: "s" },
       { key: "dropStartY", label: "Start Y", min: -1200, max: 0, step: 10, unit: "px" },
+      { key: "dropGravity", label: "Gravity", min: 500, max: 6000, step: 100, unit: "px/s²" },
+      { key: "dropRestitution", label: "Restitution", min: 0, max: 0.95, step: 0.01 },
+      { key: "dropTilt", label: "Initial tilt", min: -15, max: 15, step: 0.5, unit: "°" },
+      { key: "dropSpin", label: "Initial spin", min: -90, max: 90, step: 1, unit: "°/s" },
+      { key: "dropHalfWidth", label: "Half-width", min: 50, max: 500, step: 10, unit: "px" },
+      { key: "dropAngularDamping", label: "Ang. damping", min: 0, max: 0.2, step: 0.005 },
     ],
   },
   {
@@ -118,18 +119,6 @@ const SECTIONS = [
       { key: "headlineDuration", label: "Duration", min: 0.1, max: 2, step: 0.05, unit: "s" },
       { key: "headlineStartY", label: "Start Y", min: 0, max: 60, step: 1, unit: "px" },
       { key: "cycleDelay", label: "Cycle delay", min: 500, max: 5000, step: 100, unit: "ms" },
-    ],
-  },
-  {
-    label: "Bounce",
-    keys: [
-      { key: "bounceHeight", label: "Height", min: -120, max: 0, step: 1, unit: "px" },
-      { key: "bounceDamping", label: "Damping", min: 1, max: 30, step: 0.5 },
-      { key: "bounceMass", label: "Mass", min: 0.1, max: 10, step: 0.1 },
-      { key: "bounceStiffness", label: "Stiffness", min: 50, max: 800, step: 10 },
-      { key: "squashX", label: "Squash X", min: 0.9, max: 1.2, step: 0.005 },
-      { key: "squashY", label: "Squash Y", min: 0.8, max: 1.1, step: 0.005 },
-      { key: "squashDuration", label: "Squash dur", min: 0.01, max: 0.3, step: 0.01, unit: "s" },
     ],
   },
 ];
