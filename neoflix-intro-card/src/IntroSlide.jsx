@@ -21,7 +21,16 @@ import { motion } from "framer-motion";
 import NeoflixLogo from "./NeoflixLogo.jsx";
 import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
-// Entrance animation springs
+// Drop entrance spring — bouncy landing with 2-3 visible bounces
+const DROP_SPRING = {
+  type: "spring",
+  damping: 13,
+  mass: 1.4,
+  stiffness: 260,
+  delay: 0.5,
+};
+
+// Fade entrance spring (fallback when drop is disabled)
 const ENTRANCE_LOGO = {
   type: "spring",
   damping: 30,
@@ -35,7 +44,7 @@ const ENTRANCE_HEADLINE = {
   damping: 30,
   mass: 1,
   stiffness: 400,
-  delay: 1.0,
+  delay: 1.3,
 };
 
 /**
@@ -81,7 +90,7 @@ export default function IntroSlide({
         height: fullHeight ? "100vh" : "auto",
         minHeight: fullHeight ? "100vh" : undefined,
         backgroundColor,
-        overflow: "visible",
+        overflow: "clip",
         display: "flex",
         flexDirection: "column",
         scrollSnapAlign: "start",
@@ -104,7 +113,7 @@ export default function IntroSlide({
           padding: isMobile ? "0 16px" : "0 40px",
         }}
       >
-        {/* Logo — centered, with entrance animation */}
+        {/* Logo — centered, drops from above with bouncy landing */}
         <motion.div
           style={{
             width: logoDimensions.width,
@@ -114,13 +123,15 @@ export default function IntroSlide({
             justifyContent: "center",
             marginBottom: isMobile ? 40 : 60,
           }}
-          initial={{ opacity: 0.001, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={ENTRANCE_LOGO}
+          initial={{ opacity: 1, y: -600 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={DROP_SPRING}
           whileHover={{ scale: 1.01, y: -4 }}
         >
           <NeoflixLogo
-            autoPlayDelay={1000}
+            autoPlayDelay={300}
+            enableClatter
+            clatterDelay={1100}
             style={{ width: "100%", height: "auto" }}
             {...logoProps}
           />

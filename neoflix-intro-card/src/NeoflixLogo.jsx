@@ -29,6 +29,14 @@ const SPRING_HEAVY = {
   stiffness: 500,
 };
 
+/** Quick, snappy spring for clatter oscillations. */
+const SPRING_CLATTER = {
+  type: "spring",
+  damping: 14,
+  mass: 1.5,
+  stiffness: 900,
+};
+
 /** Standard entrance spring. */
 const SPRING_ENTRANCE = {
   type: "spring",
@@ -43,6 +51,17 @@ const SPRING_ENTRANCE = {
 
 const INNER_RING = { splayed: -62, assembled: 0, hover: -6 };
 const OUTER_RING = { splayed: 97, assembled: 0, hover: 5 };
+
+// Clatter sequence — dampening ring oscillations triggered by drop impact.
+// Values are ~35-45% of hover amplitude, decaying over ~500ms.
+const CLATTER_STEPS = [
+  { inner: -2.8, outer: 2.2, ms: 0 },
+  { inner: 2.0, outer: -1.6, ms: 140 },
+  { inner: -1.4, outer: 1.1, ms: 260 },
+  { inner: 0.9, outer: -0.7, ms: 360 },
+  { inner: -0.4, outer: 0.3, ms: 440 },
+  { inner: 0, outer: 0, ms: 510 },
+];
 
 // ---------------------------------------------------------------------------
 // SVG markup
@@ -95,6 +114,8 @@ export const NEOFLIX_LOGO_FULL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" vi
  * @param {string}   [props.color="#48c1c4"]         - Teal color for ring SVGs
  * @param {string}   [props.wordmarkColor="#1c3664"]  - Dark blue for the wordmark
  * @param {number}   [props.autoPlayDelay=400]        - ms before the unfurl animation fires
+ * @param {boolean}  [props.enableClatter=false]      - Enable drop-impact clatter on rings
+ * @param {number}   [props.clatterDelay=1400]        - ms after mount to start clatter
  * @param {Function} [props.onClick]                  - Called on click (before "explode")
  * @param {string}   [props.className]
  * @param {Object}   [props.style]
@@ -103,18 +124,44 @@ export default function NeoflixLogo({
   color = "#48c1c4",
   wordmarkColor = "#1c3664",
   autoPlayDelay = 400,
+  enableClatter = false,
+  clatterDelay = 1400,
   onClick,
   className = "",
   style = {},
 }) {
   const [assembled, setAssembled] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [clatterOffset, setClatterOffset] = useState({ inner: 0, outer: 0 });
+  const [isClatterPhase, setIsClatterPhase] = useState(false);
+  const clatterTimers = useRef([]);
 
   // Auto-unfurl after mount
   useEffect(() => {
     const timer = setTimeout(() => setAssembled(true), autoPlayDelay);
     return () => clearTimeout(timer);
   }, [autoPlayDelay]);
+
+  // Clatter sequence — dampening ring oscillations after drop impact
+  useEffect(() => {
+    if (!enableClatter) return;
+    const startTimer = setTimeout(() => {
+      setIsClatterPhase(true);
+      CLATTER_STEPS.forEach(({ inner, outer, ms }, i) => {
+        const t = setTimeout(() => {
+          setClatterOffset({ inner, outer });
+          if (i === CLATTER_STEPS.length - 1) {
+            setIsClatterPhase(false);
+          }
+        }, ms);
+        clatterTimers.current.push(t);
+      });
+    }, clatterDelay);
+    return () => {
+      clearTimeout(startTimer);
+      clatterTimers.current.forEach(clearTimeout);
+    };
+  }, [enableClatter, clatterDelay]);
 
   // Click: explode apart, then reassemble
   const handleClick = useCallback(() => {
@@ -123,14 +170,16 @@ export default function NeoflixLogo({
     setTimeout(() => setAssembled(true), autoPlayDelay);
   }, [onClick, autoPlayDelay]);
 
-  // Compute target rotations
-  const innerTarget = !assembled
+  // Compute target rotations (base + clatter offset)
+  const innerTarget = (!assembled
     ? INNER_RING.splayed
-    : hovered ? INNER_RING.hover : INNER_RING.assembled;
+    : hovered ? INNER_RING.hover : INNER_RING.assembled) + clatterOffset.inner;
 
-  const outerTarget = !assembled
+  const outerTarget = (!assembled
     ? OUTER_RING.splayed
-    : hovered ? OUTER_RING.hover : OUTER_RING.assembled;
+    : hovered ? OUTER_RING.hover : OUTER_RING.assembled) + clatterOffset.outer;
+
+  const ringTransition = isClatterPhase ? SPRING_CLATTER : SPRING_HEAVY;
 
   return (
     <motion.div
@@ -147,9 +196,9 @@ export default function NeoflixLogo({
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
       onTap={handleClick}
-      initial={{ opacity: 0.001, scale: 1.01 }}
+      initial={enableClatter ? { opacity: 1 } : { opacity: 0.001, scale: 1.01 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={SPRING_ENTRANCE}
+      transition={enableClatter ? { duration: 0 } : SPRING_ENTRANCE}
     >
       {/* Inner Ring */}
       <motion.div
@@ -163,7 +212,7 @@ export default function NeoflixLogo({
           zIndex: 1,
         }}
         animate={{ rotate: innerTarget }}
-        transition={SPRING_HEAVY}
+        transition={ringTransition}
       >
         <InnerRingSVG />
       </motion.div>
@@ -180,7 +229,7 @@ export default function NeoflixLogo({
           zIndex: 1,
         }}
         animate={{ rotate: outerTarget }}
-        transition={SPRING_HEAVY}
+        transition={ringTransition}
       >
         <OuterRingSVG />
       </motion.div>
