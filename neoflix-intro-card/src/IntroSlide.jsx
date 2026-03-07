@@ -16,38 +16,54 @@
  *
  * Dependencies: React 18+, framer-motion 11+
  */
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import NeoflixLogo from "./NeoflixLogo.jsx";
 import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
 // Drop — gravity-like fall with firm landing.
 // Aggressive ease-in: slow start, accelerates hard into the ground.
-// Short duration so the impact feels sudden. Ring clatter sells the weight.
+// No delay here — we gate the animation via state (see useReadyToDrop).
 const DROP = {
   type: "tween",
   duration: 0.38,
   ease: [0.12, 0, 0.9, 1],
-  delay: 0.6,
 };
 
-// Fade entrance spring (fallback when drop is disabled)
-const ENTRANCE_LOGO = {
-  type: "spring",
-  damping: 30,
-  mass: 1,
-  stiffness: 400,
-  delay: 0.9,
-};
-
-// Headline — appears well after the logo has settled and the viewer has taken it in.
-// Gentle fade + subtle rise, not a spring bounce.
-const ENTRANCE_HEADLINE = {
+// Headline — gentle fade + rise, timed relative to drop landing.
+const HEADLINE_TRANSITION = {
   type: "tween",
   duration: 0.8,
   ease: [0.25, 0.1, 0.25, 1],
-  delay: 3.0,
 };
+
+/**
+ * Wait until the browser can actually paint smoothly before triggering the
+ * drop. On first load the main thread is busy with JS parsing, font loading,
+ * layout — a tween started during that window will stutter through dropped
+ * frames. We chain two rAFs (guarantees at least one
+ * real
+ * paint has
+ * happened) then add a small setTimeout so late-running tasks clear out.
+ */
+function useReadyToDrop(minDelayMs = 300) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const id = setTimeout(() => { if (!cancelled) setReady(true); }, minDelayMs);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        cancelled = () => clearTimeout(id); // stash for cleanup
+      });
+    });
+    return () => {
+      if (typeof cancelled === "function") cancelled();
+      cancelled = true;
+    };
+  }, [minDelayMs]);
+  return ready;
+}
 
 /**
  * @param {Object} props
@@ -76,6 +92,15 @@ export default function IntroSlide({
 }) {
   const isMobile = variant === "mobile";
   const isDesktop = variant === "desktop";
+  const readyToDrop = useReadyToDrop(300);
+  const [showHeadline, setShowHeadline] = useState(false);
+
+  // Show headline ~2s after drop lands (drop is 0.38s, settle + breathe)
+  useEffect(() => {
+    if (!readyToDrop) return;
+    const id = setTimeout(() => setShowHeadline(true), 2400);
+    return () => clearTimeout(id);
+  }, [readyToDrop]);
 
   const logoDimensions = useMemo(() => {
     if (isMobile) return { width: "99.5vw", height: 242 };
@@ -126,14 +151,14 @@ export default function IntroSlide({
             marginBottom: isMobile ? 40 : 60,
           }}
           initial={{ opacity: 1, y: -600 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={DROP}
+          animate={readyToDrop ? { opacity: 1, y: 0 } : { opacity: 1, y: -600 }}
+          transition={readyToDrop ? DROP : { duration: 0 }}
           whileHover={{ scale: 1.01, y: -4 }}
         >
           <NeoflixLogo
             autoPlayDelay={300}
-            enableClatter
-            clatterDelay={980}
+            enableClatter={readyToDrop}
+            clatterDelay={380}
             style={{ width: "100%", height: "auto" }}
             {...logoProps}
           />
@@ -152,8 +177,8 @@ export default function IntroSlide({
               : {}),
           }}
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={ENTRANCE_HEADLINE}
+          animate={showHeadline ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          transition={showHeadline ? HEADLINE_TRANSITION : { duration: 0 }}
         >
           <RecordReflectRefine
             variant={isMobile ? "mobile" : "desktop"}
