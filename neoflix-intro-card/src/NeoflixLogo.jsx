@@ -130,7 +130,7 @@ export default function NeoflixLogo({
   className = "",
   style = {},
 }) {
-  const [assembled, setAssembled] = useState(false);
+  const [assembled, setAssembled] = useState(enableClatter);
   const [hovered, setHovered] = useState(false);
   const [clatterOffset, setClatterOffset] = useState({ inner: 0, outer: 0 });
   const [isClatterPhase, setIsClatterPhase] = useState(false);
