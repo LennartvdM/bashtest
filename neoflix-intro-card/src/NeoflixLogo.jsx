@@ -29,12 +29,11 @@ const SPRING_HEAVY = {
   stiffness: 500,
 };
 
-/** Quick, snappy spring for clatter oscillations. */
-const SPRING_CLATTER = {
-  type: "spring",
-  damping: 14,
-  mass: 1.5,
-  stiffness: 900,
+/** Hard snap for clatter — each hit lands instantly, no smoothing. */
+const TWEEN_CLATTER = {
+  type: "tween",
+  duration: 0.06,
+  ease: "easeOut",
 };
 
 /** Standard entrance spring. */
@@ -52,15 +51,15 @@ const SPRING_ENTRANCE = {
 const INNER_RING = { splayed: -62, assembled: 0, hover: -6 };
 const OUTER_RING = { splayed: 97, assembled: 0, hover: 5 };
 
-// Clatter sequence — dampening ring oscillations triggered by drop impact.
-// Values are ~35-45% of hover amplitude, decaying over ~500ms.
+// Clatter sequence — sharp ring jolts on drop impact, decaying fast.
+// First hit is big and immediate, subsequent hits are tighter and quicker.
 const CLATTER_STEPS = [
-  { inner: -2.8, outer: 2.2, ms: 0 },
-  { inner: 2.0, outer: -1.6, ms: 140 },
-  { inner: -1.4, outer: 1.1, ms: 260 },
-  { inner: 0.9, outer: -0.7, ms: 360 },
-  { inner: -0.4, outer: 0.3, ms: 440 },
-  { inner: 0, outer: 0, ms: 510 },
+  { inner: -7,   outer: 5.5,  ms: 0 },
+  { inner: 4.5,  outer: -3.5, ms: 80 },
+  { inner: -2.8, outer: 2.2,  ms: 150 },
+  { inner: 1.5,  outer: -1.2, ms: 210 },
+  { inner: -0.6, outer: 0.5,  ms: 260 },
+  { inner: 0,    outer: 0,    ms: 310 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -179,7 +178,7 @@ export default function NeoflixLogo({
     ? OUTER_RING.splayed
     : hovered ? OUTER_RING.hover : OUTER_RING.assembled) + clatterOffset.outer;
 
-  const ringTransition = isClatterPhase ? SPRING_CLATTER : SPRING_HEAVY;
+  const ringTransition = isClatterPhase ? TWEEN_CLATTER : SPRING_HEAVY;
 
   return (
     <motion.div
