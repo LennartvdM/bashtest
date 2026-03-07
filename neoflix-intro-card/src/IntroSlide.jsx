@@ -21,13 +21,14 @@ import { motion } from "framer-motion";
 import NeoflixLogo from "./NeoflixLogo.jsx";
 import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
-// Drop — heavy, gravity-like slam.
-// Near-zero initial velocity, then pure acceleration into the ground.
-// Shorter duration = faster impact = more weight.
+// Drop — still accelerating when it hits the ground.
+// Gentle ease-in, no ease-out: velocity is increasing at impact.
+// Feels like it was heading toward terminal velocity but the floor
+// interrupted. Not a dramatic gravity plunge — just a slight pickup.
 const DROP = {
   type: "tween",
-  duration: 0.34,
-  ease: [0.08, 0, 0.95, 1],
+  duration: 0.38,
+  ease: [0.22, 0, 1, 1],
 };
 
 // Headline — gentle fade + rise, timed relative to drop landing.
