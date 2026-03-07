@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import MedicalCarousel from './MedicalCarousel';
 import VideoManager from './VideoManager';
 import AutoFitHeading from '../../AutoFitHeading';
@@ -72,6 +72,39 @@ export default function MedicalDesktopLayout({
   handleLandscapeTabletTouchStart,
   handleLandscapeTabletTouchEnd,
 }) {
+  const lineRef = useRef(null);
+  const lineCircle1Ref = useRef(null);
+  const lineCircle2Ref = useRef(null);
+  const lineRafRef = useRef(null);
+
+  // Sync mask circles on the horizontal line with SectionDotNav arrow buttons
+  useEffect(() => {
+    const refs = [lineCircle1Ref, lineCircle2Ref];
+    const update = () => {
+      const svg = lineRef.current;
+      if (svg) {
+        const sRect = svg.getBoundingClientRect();
+        const buttons = document.querySelectorAll('.arrow-btn');
+        for (let i = 0; i < refs.length; i++) {
+          const circleEl = refs[i].current;
+          const btn = buttons[i];
+          if (!circleEl || !btn) continue;
+          if (btn.classList.contains('arrow-hidden')) {
+            circleEl.setAttribute('r', '0');
+            continue;
+          }
+          const bRect = btn.getBoundingClientRect();
+          circleEl.setAttribute('cx', bRect.left + bRect.width / 2 - sRect.left);
+          circleEl.setAttribute('cy', bRect.top + bRect.height / 2 - sRect.top);
+          circleEl.setAttribute('r', Math.max(bRect.width, bRect.height) / 2 + 2);
+        }
+      }
+      lineRafRef.current = requestAnimationFrame(update);
+    };
+    lineRafRef.current = requestAnimationFrame(update);
+    return () => { if (lineRafRef.current) cancelAnimationFrame(lineRafRef.current); };
+  }, []);
+
   return (
     <div
       key={layoutKey}
@@ -498,22 +531,40 @@ export default function MedicalDesktopLayout({
                           onAnimationEnd={handleBarEnd}
                         />
                       </div>
-                      {/* Horizontal line - flush with highlighter edge */}
-                      <div
-                        className="absolute"
-                        style={{
-                          top: '50%',
-                          left: isVideoLeft ? 0 : '100%',
-                          width: isVideoLeft ? '100vw' : 'max(0px, calc(50vw - 560px))',
-                          height: 5,
-                          background: '#e0e0e0',
-                          mixBlendMode: 'screen',
-                          pointerEvents: 'none',
-                          transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
-                          opacity: 0.2,
-                          display: (isTabletLayout || isLandscapeTablet) ? 'none' : undefined,
-                        }}
-                      />
+                      {/* Horizontal line - SVG with mask to punch out arrow buttons */}
+                      {!(isTabletLayout || isLandscapeTablet) && (
+                        <svg
+                          ref={lineRef}
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: isVideoLeft ? 0 : '100%',
+                            width: isVideoLeft ? '100vw' : '100vw',
+                            height: 80,
+                            pointerEvents: 'none',
+                            transform: isVideoLeft ? 'translateY(-50%) translateX(-100%)' : 'translateY(-50%)',
+                            overflow: 'visible',
+                          }}
+                        >
+                          <defs>
+                            <mask id="desktop-line-mask">
+                              <rect width="100%" height="100%" fill="white" />
+                              <circle ref={lineCircle1Ref} cx="0" cy="0" r="0" fill="black" />
+                              <circle ref={lineCircle2Ref} cx="0" cy="0" r="0" fill="black" />
+                            </mask>
+                          </defs>
+                          <rect
+                            x="0"
+                            y="37.5"
+                            width="100%"
+                            height="5"
+                            fill="#e0e0e0"
+                            opacity="0.2"
+                            style={{ mixBlendMode: 'screen' }}
+                            mask="url(#desktop-line-mask)"
+                          />
+                        </svg>
+                      )}
                     </div>
                   </div>
                 </>
