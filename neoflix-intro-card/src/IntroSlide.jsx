@@ -102,11 +102,11 @@ export default function IntroSlide({
 
   // Drop physics (vibe-mapped)
   const dropStartY = cal.dropStartY ?? -600;
-  const dropGravity = cal.dropGravity ?? 2800;
-  const dropHalfWidth = cal.dropHalfWidth ?? 200;
-  const dropBounciness = cal.dropBounciness ?? 0.3;
-  const dropWobble = cal.dropWobble ?? 0.2;
-  const dropSnap = cal.dropSnap ?? 0.7;
+  const dropGravity = cal.dropGravity ?? 1400;
+  const dropHalfWidth = cal.dropHalfWidth ?? 300;
+  const dropBounciness = cal.dropBounciness ?? 1;
+  const dropWobble = cal.dropWobble ?? 0.75;
+  const dropSnap = cal.dropSnap ?? 4.15;
 
   const HEADLINE_TRANSITION = useMemo(() => ({
     ...HEADLINE_TRANSITION_DEFAULT,
