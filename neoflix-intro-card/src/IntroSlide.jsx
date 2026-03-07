@@ -22,12 +22,12 @@ import NeoflixLogo from "./NeoflixLogo.jsx";
 import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
 // Drop — gravity-like fall with firm landing.
-// Tween with ease-in: accelerates like a falling object, stops dead on impact.
-// No spring = no overshoot through the floor. The ring clatter sells the impact.
+// Aggressive ease-in: slow start, accelerates hard into the ground.
+// Short duration so the impact feels sudden. Ring clatter sells the weight.
 const DROP = {
   type: "tween",
-  duration: 0.5,
-  ease: [0.55, 0, 1, 1],
+  duration: 0.38,
+  ease: [0.12, 0, 0.9, 1],
   delay: 0.6,
 };
 
@@ -133,7 +133,7 @@ export default function IntroSlide({
           <NeoflixLogo
             autoPlayDelay={300}
             enableClatter
-            clatterDelay={1100}
+            clatterDelay={980}
             style={{ width: "100%", height: "auto" }}
             {...logoProps}
           />
