@@ -26,6 +26,7 @@ const ScrollSnap = ({ children }) => {
     return window.innerWidth >= BREAKPOINT_WIDTH ? 'desktop' : 'tablet';
   });
   const [dotNavTop, setDotNavTop] = useState(null); // null = default 50%
+  const [dotNavReady, setDotNavReady] = useState(false);
 
   const navHeight = useCallback(() => {
     if (typeof window === 'undefined') return NAV_FALLBACK;
@@ -332,6 +333,13 @@ const ScrollSnap = ({ children }) => {
     return () => clearTimeout(delayId);
   }, [currentIndex, updateDotNavPosition]);
 
+  // Delay-mount dot nav — invisible (white-on-white) on intro slide anyway
+  useEffect(() => {
+    if (currentIndex > 0) { setDotNavReady(true); return; }
+    const id = setTimeout(() => setDotNavReady(true), 3000);
+    return () => clearTimeout(id);
+  }, [currentIndex]);
+
   return (
     <div className="relative w-full">
       <div
@@ -372,6 +380,7 @@ const ScrollSnap = ({ children }) => {
       </div>
 
       {/* ── SectionDotNav: right-side vertical dots + up/down arrows ── */}
+      {dotNavReady && (<>
       <style>{`
         .arrow-btn {
           width: 56px;
@@ -496,6 +505,7 @@ const ScrollSnap = ({ children }) => {
           <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
         </button>
       </nav>
+      </>)}
 
     </div>
   );
