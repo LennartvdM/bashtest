@@ -333,6 +333,13 @@ const ScrollSnap = ({ children }) => {
     return () => clearTimeout(delayId);
   }, [currentIndex, updateDotNavPosition]);
 
+  // Listen for home button click to scroll to top
+  useEffect(() => {
+    const handleGoToTop = () => scrollToIndex(0);
+    window.addEventListener('scrollsnap:go-to-top', handleGoToTop);
+    return () => window.removeEventListener('scrollsnap:go-to-top', handleGoToTop);
+  }, [scrollToIndex]);
+
   // Delay-mount dot nav — invisible (white-on-white) on intro slide anyway
   useEffect(() => {
     if (currentIndex > 0) { setDotNavReady(true); return; }
