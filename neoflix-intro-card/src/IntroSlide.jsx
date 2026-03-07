@@ -25,14 +25,14 @@ import RecordReflectRefine from "./RecordReflectRefine.jsx";
 // Gentle ease-in, no ease-out: velocity is increasing at impact.
 // Feels like it was heading toward terminal velocity but the floor
 // interrupted. Not a dramatic gravity plunge — just a slight pickup.
-const DROP = {
+const DROP_DEFAULT = {
   type: "tween",
   duration: 0.38,
   ease: [0.22, 0, 1, 1],
 };
 
 // Headline — gentle fade + rise, timed relative to drop landing.
-const HEADLINE_TRANSITION = {
+const HEADLINE_TRANSITION_DEFAULT = {
   type: "tween",
   duration: 0.8,
   ease: [0.25, 0.1, 0.25, 1],
@@ -78,6 +78,7 @@ function useReadyToDrop(minDelayMs = 300) {
  * @param {boolean}         [props.fullHeight=true]                - Use 100vh (scroll-snap)
  * @param {string}          [props.className]
  * @param {Object}          [props.style]
+ * @param {Object}          [props.calibration]                  - Calibration overrides (from CalibrationToolbox)
  */
 export default function IntroSlide({
   navbar = null,
@@ -90,18 +91,42 @@ export default function IntroSlide({
   fullHeight = true,
   className = "",
   style = {},
+  calibration,
 }) {
   const isMobile = variant === "mobile";
   const isDesktop = variant === "desktop";
-  const readyToDrop = useReadyToDrop(300);
+
+  // Calibration overrides
+  const cal = calibration || {};
+  const readyDelay = cal.readyDelay ?? 300;
+  const headlineDelay = cal.headlineDelay ?? 2400;
+  const dropDuration = cal.dropDuration ?? 0.38;
+  const dropStartY = cal.dropStartY ?? -600;
+  const headlineDuration = cal.headlineDuration ?? 0.8;
+  const headlineStartY = cal.headlineStartY ?? 16;
+  const hoverScale = cal.hoverScale ?? 1.01;
+  const hoverY = cal.hoverY ?? -4;
+  const logoMarginBottom = cal.logoMarginBottom ?? (isMobile ? 40 : 60);
+
+  const DROP = useMemo(() => ({
+    ...DROP_DEFAULT,
+    duration: dropDuration,
+  }), [dropDuration]);
+
+  const HEADLINE_TRANSITION = useMemo(() => ({
+    ...HEADLINE_TRANSITION_DEFAULT,
+    duration: headlineDuration,
+  }), [headlineDuration]);
+
+  const readyToDrop = useReadyToDrop(readyDelay);
   const [showHeadline, setShowHeadline] = useState(false);
 
-  // Show headline ~2s after drop lands (drop is 0.38s, settle + breathe)
+  // Show headline after drop lands
   useEffect(() => {
     if (!readyToDrop) return;
-    const id = setTimeout(() => setShowHeadline(true), 2400);
+    const id = setTimeout(() => setShowHeadline(true), headlineDelay);
     return () => clearTimeout(id);
-  }, [readyToDrop]);
+  }, [readyToDrop, headlineDelay]);
 
   const logoDimensions = useMemo(() => {
     if (isMobile) return { width: "99.5vw", height: 242 };
@@ -149,18 +174,19 @@ export default function IntroSlide({
             position: "relative",
             display: "flex",
             justifyContent: "center",
-            marginBottom: isMobile ? 40 : 60,
+            marginBottom: logoMarginBottom,
           }}
-          initial={{ opacity: 1, y: -600 }}
-          animate={readyToDrop ? { opacity: 1, y: 0 } : { opacity: 1, y: -600 }}
+          initial={{ opacity: 1, y: dropStartY }}
+          animate={readyToDrop ? { opacity: 1, y: 0 } : { opacity: 1, y: dropStartY }}
           transition={readyToDrop ? DROP : { duration: 0 }}
-          whileHover={{ scale: 1.01, y: -4 }}
+          whileHover={{ scale: hoverScale, y: hoverY }}
         >
           <NeoflixLogo
-            autoPlayDelay={300}
+            autoPlayDelay={cal.autoPlayDelay ?? 300}
             ready={readyToDrop}
             enableClatter
-            clatterDelay={340}
+            clatterDelay={cal.clatterDelay ?? 340}
+            calibration={calibration}
             style={{ width: "100%", height: "auto" }}
             {...logoProps}
           />
@@ -178,13 +204,14 @@ export default function IntroSlide({
               ? { margin: "0 auto" }
               : {}),
           }}
-          initial={{ opacity: 0, y: 16 }}
-          animate={showHeadline ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: headlineStartY }}
+          animate={showHeadline ? { opacity: 1, y: 0 } : { opacity: 0, y: headlineStartY }}
           transition={showHeadline ? HEADLINE_TRANSITION : { duration: 0 }}
         >
           <RecordReflectRefine
             variant={isMobile ? "mobile" : "desktop"}
             showSubtitle={!isMobile}
+            cycleDelay={cal.cycleDelay}
             {...headlineProps}
           />
 
