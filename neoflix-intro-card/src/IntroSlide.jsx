@@ -21,13 +21,13 @@ import { motion } from "framer-motion";
 import NeoflixLogo from "./NeoflixLogo.jsx";
 import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
-// Drop — gravity-like fall with firm landing.
-// Aggressive ease-in: slow start, accelerates hard into the ground.
-// No delay here — we gate the animation via state (see useReadyToDrop).
+// Drop — heavy, gravity-like slam.
+// Near-zero initial velocity, then pure acceleration into the ground.
+// Shorter duration = faster impact = more weight.
 const DROP = {
   type: "tween",
-  duration: 0.38,
-  ease: [0.12, 0, 0.9, 1],
+  duration: 0.34,
+  ease: [0.08, 0, 0.95, 1],
 };
 
 // Headline — gentle fade + rise, timed relative to drop landing.
@@ -159,7 +159,7 @@ export default function IntroSlide({
             autoPlayDelay={300}
             ready={readyToDrop}
             enableClatter
-            clatterDelay={380}
+            clatterDelay={340}
             style={{ width: "100%", height: "auto" }}
             {...logoProps}
           />

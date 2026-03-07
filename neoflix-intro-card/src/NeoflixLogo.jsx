@@ -29,12 +29,18 @@ const SPRING_HEAVY = {
   stiffness: 500,
 };
 
-/** Clatter spring — low damping so it oscillates naturally, decaying over time. */
+/**
+ * Clatter spring — depleting sine wave.
+ * High mass = slow, hefty oscillation.
+ * Low damping = many oscillations before settling.
+ * Moderate stiffness = strong restoring force.
+ * This produces a heavy, ringing clatter that decays naturally.
+ */
 const SPRING_CLATTER = {
   type: "spring",
-  damping: 6,
-  mass: 1,
-  stiffness: 600,
+  damping: 4,
+  mass: 3,
+  stiffness: 350,
 };
 
 /** Standard entrance spring. */
@@ -52,9 +58,9 @@ const SPRING_ENTRANCE = {
 const INNER_RING = { splayed: -62, assembled: 0, hover: -6 };
 const OUTER_RING = { splayed: 97, assembled: 0, hover: 5 };
 
-// Clatter impulse — initial jolt applied on drop impact.
-// SPRING_CLATTER's low damping makes the rings oscillate and decay naturally.
-const CLATTER_IMPULSE = { inner: -8, outer: 6 };
+// Clatter impulse — the initial jolt on drop impact.
+// Big amplitude that the depleting-sine spring decays to zero.
+const CLATTER_IMPULSE = { inner: -18, outer: 14 };
 
 // ---------------------------------------------------------------------------
 // SVG markup
@@ -131,28 +137,44 @@ export default function NeoflixLogo({
   const [isClatterPhase, setIsClatterPhase] = useState(false);
 
   // Auto-unfurl — gated on `ready` so it won't fire during first-load jank.
-  // Defaults to ready=true for standalone usage (backwards compatible).
+  // When enableClatter is true, rings start assembled (no wiggle during drop).
+  // The clatter impact is what introduces rotation, not the unfurl.
   useEffect(() => {
     if (!ready) return;
+    if (enableClatter) {
+      // Start assembled immediately — no splayed→assembled transition during fall
+      setAssembled(true);
+      return;
+    }
     const timer = setTimeout(() => setAssembled(true), autoPlayDelay);
     return () => clearTimeout(timer);
-  }, [autoPlayDelay, ready]);
+  }, [autoPlayDelay, ready, enableClatter]);
 
-  // Clatter — apply a single impulse offset, then immediately target 0.
-  // SPRING_CLATTER's low damping makes it oscillate and decay naturally.
+  // Clatter — on drop impact, snap rings to impulse offset, then spring back to 0.
+  // The depleting sine wave comes from SPRING_CLATTER: high mass + low damping
+  // means the rings overshoot, oscillate, and decay like a struck bell.
   useEffect(() => {
     if (!enableClatter || !ready) return;
+    let cancelled = false;
     const startTimer = setTimeout(() => {
+      if (cancelled) return;
+      // 1. Snap to impulse position (no transition — instant displacement)
       setClatterOffset(CLATTER_IMPULSE);
       setIsClatterPhase(true);
-      // On next frame, set target back to 0 — the spring overshoots and oscillates
-      requestAnimationFrame(() => {
+      // 2. After a brief hold (one frame rendered at impulse), target 0.
+      //    The spring's low damping creates the depleting sine wave.
+      const holdTimer = setTimeout(() => {
+        if (cancelled) return;
         setClatterOffset({ inner: 0, outer: 0 });
-        // Keep clatter spring active long enough for oscillations to decay
-        setTimeout(() => setIsClatterPhase(false), 800);
-      });
+        // Keep clatter spring active long enough for full decay
+        setTimeout(() => { if (!cancelled) setIsClatterPhase(false); }, 2000);
+      }, 50);
+      return () => clearTimeout(holdTimer);
     }, clatterDelay);
-    return () => clearTimeout(startTimer);
+    return () => {
+      cancelled = true;
+      clearTimeout(startTimer);
+    };
   }, [enableClatter, clatterDelay, ready]);
 
   // Click: explode apart, then reassemble
