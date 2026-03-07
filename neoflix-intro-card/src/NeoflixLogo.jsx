@@ -30,17 +30,16 @@ const SPRING_HEAVY = {
 };
 
 /**
- * Clatter spring — depleting sine wave.
- * High mass = slow, hefty oscillation.
- * Low damping = many oscillations before settling.
- * Moderate stiffness = strong restoring force.
- * This produces a heavy, ringing clatter that decays naturally.
+ * Clatter spring — windvane hit by a passing car.
+ * Very high mass = slow, lazy oscillation.
+ * Moderate damping = dies out after a few swings, not ringy.
+ * Low stiffness = gentle restoring pull, unhurried return.
  */
 const SPRING_CLATTER = {
   type: "spring",
-  damping: 4,
-  mass: 3,
-  stiffness: 350,
+  damping: 8,
+  mass: 6,
+  stiffness: 120,
 };
 
 /** Standard entrance spring. */
@@ -58,9 +57,9 @@ const SPRING_ENTRANCE = {
 const INNER_RING = { splayed: -62, assembled: 0, hover: -6 };
 const OUTER_RING = { splayed: 97, assembled: 0, hover: 5 };
 
-// Clatter impulse — the initial jolt on drop impact.
-// Big amplitude that the depleting-sine spring decays to zero.
-const CLATTER_IMPULSE = { inner: -18, outer: 14 };
+// Clatter impulse — subtle nudge on drop impact.
+// Low amplitude, but the heavy spring makes it sway slowly.
+const CLATTER_IMPULSE = { inner: -5, outer: 4 };
 
 // ---------------------------------------------------------------------------
 // SVG markup
