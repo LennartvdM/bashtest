@@ -3,8 +3,6 @@ import { createPortal } from 'react-dom';
 import { IntroSlide, CalibrationToolbox } from 'neoflix-intro-card';
 import { useTabletLayout } from '../../hooks/useTabletLayout';
 
-const DEV_MODE = import.meta.env.DEV;
-
 const IntroSection = () => {
   const { isDesktop, isTablet, isTouchDevice, width } = useTabletLayout();
   const [calibration, setCalibration] = useState(null);
@@ -34,7 +32,7 @@ const IntroSection = () => {
         style={{ width: '100%', height: '100%' }}
         calibration={calibration}
       />
-      {DEV_MODE && createPortal(
+      {createPortal(
         <CalibrationToolbox onChange={handleCalibrationChange} />,
         document.body
       )}
