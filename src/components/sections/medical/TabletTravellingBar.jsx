@@ -12,56 +12,44 @@ import React, { memo, useRef, useEffect } from "react";
  * An SVG <mask> punches circular holes in the highlighter wherever it
  * overlaps with the SectionDotNav arrow buttons, so the background video
  * shows through the transparent button areas instead of the gray bar.
+ * The mask is applied natively inside SVG (not via CSS mask on HTML)
+ * for WebKit compatibility.
  */
 const MASK_ID = 'ttb-btn-mask';
 
 const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey, captionsVisible = true, shouldTransition = true }) {
   const count = captions.length;
   const highlighterRef = useRef(null);
-  const maskRef = useRef(null);
+  const circle1Ref = useRef(null);
+  const circle2Ref = useRef(null);
   const rafRef = useRef(null);
 
-  // Continuously sync mask circles with all SectionDotNav elements (arrows + dots)
+  // Continuously sync mask circles with SectionDotNav arrow button positions
   useEffect(() => {
-    const circles = [];
-    const svgNS = 'http://www.w3.org/2000/svg';
-
+    const refs = [circle1Ref, circle2Ref];
     const update = () => {
       const el = highlighterRef.current;
-      const maskEl = maskRef.current;
-      if (el && maskEl) {
+      if (el) {
         const hRect = el.getBoundingClientRect();
-        // Gather all nav elements: arrow buttons and dots
-        const navItems = document.querySelectorAll('.arrow-btn, .arrow-dot');
-        // Ensure we have enough circle elements in the mask
-        while (circles.length < navItems.length) {
-          const c = document.createElementNS(svgNS, 'circle');
-          c.setAttribute('fill', 'black');
-          maskEl.appendChild(c);
-          circles.push(c);
-        }
-        // Hide excess circles
-        for (let i = navItems.length; i < circles.length; i++) {
-          circles[i].setAttribute('r', '0');
-        }
-        // Position each circle over its corresponding nav element
-        for (let i = 0; i < navItems.length; i++) {
-          const bRect = navItems[i].getBoundingClientRect();
-          const cx = bRect.left + bRect.width / 2 - hRect.left;
-          const cy = bRect.top + bRect.height / 2 - hRect.top;
-          const r = Math.max(bRect.width, bRect.height) / 2 + 2;
-          circles[i].setAttribute('cx', cx);
-          circles[i].setAttribute('cy', cy);
-          circles[i].setAttribute('r', r);
+        const buttons = document.querySelectorAll('.arrow-btn');
+        for (let i = 0; i < refs.length; i++) {
+          const circleEl = refs[i].current;
+          const btn = buttons[i];
+          if (!circleEl || !btn) continue;
+          if (btn.classList.contains('arrow-hidden')) {
+            circleEl.setAttribute('r', '0');
+            continue;
+          }
+          const bRect = btn.getBoundingClientRect();
+          circleEl.setAttribute('cx', bRect.left + bRect.width / 2 - hRect.left);
+          circleEl.setAttribute('cy', bRect.top + bRect.height / 2 - hRect.top);
+          circleEl.setAttribute('r', Math.max(bRect.width, bRect.height) / 2 + 2);
         }
       }
       rafRef.current = requestAnimationFrame(update);
     };
     rafRef.current = requestAnimationFrame(update);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      circles.length = 0;
-    };
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
 
   return (
@@ -75,15 +63,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
         ...style
       }}
     >
-      {/* SVG mask: white rect = visible everywhere, black circles added dynamically for each nav element */}
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          <mask ref={maskRef} id={MASK_ID} x="-9999" y="-9999" width="99999" height="99999" maskUnits="userSpaceOnUse">
-            <rect x="-9999" y="-9999" width="99999" height="99999" fill="white" />
-          </mask>
-        </defs>
-      </svg>
-
       {/* Highlighter — positioned via transform math, fully independent of button DOM */}
       <div
         ref={highlighterRef}
@@ -93,7 +72,6 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           top: 0,
           width: '100%',
           height: `calc(100% / ${count})`,
-          background: 'rgba(232, 232, 232, 0.9)',
           borderRadius: '12px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
           overflow: 'hidden',
@@ -107,10 +85,19 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
           transform: captionsVisible
             ? `translateY(${current * 100}%)`
             : `translateY(calc(${current * 100}% + 60px))`,
-          mask: `url(#${MASK_ID})`,
-          WebkitMask: `url(#${MASK_ID})`,
         }}
       >
+        {/* SVG background with native mask: white rect = visible, black circles = invisible at arrow buttons */}
+        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, display: 'block' }}>
+          <defs>
+            <mask id={MASK_ID}>
+              <rect width="100%" height="100%" fill="white" />
+              <circle ref={circle1Ref} cx="0" cy="0" r="0" fill="black" />
+              <circle ref={circle2Ref} cx="0" cy="0" r="0" fill="black" />
+            </mask>
+          </defs>
+          <rect width="100%" height="100%" fill="rgba(232, 232, 232, 0.9)" mask={`url(#${MASK_ID})`} />
+        </svg>
         {/* Loading bar along bottom edge */}
         <div
           key={`${animationKey}-${current}`}
