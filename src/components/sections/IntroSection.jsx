@@ -1,20 +1,9 @@
-import React, { useState, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { IntroSlide, CalibrationToolbox } from 'neoflix-intro-card';
+import React from 'react';
+import { IntroSlide } from 'neoflix-intro-card';
 import { useTabletLayout } from '../../hooks/useTabletLayout';
 
 const IntroSection = () => {
-  const { isDesktop, isTablet, isTouchDevice, width } = useTabletLayout();
-  const [calibration, setCalibration] = useState(null);
-  const [replayKey, setReplayKey] = useState(0);
-
-  const handleCalibrationChange = useCallback((params) => {
-    const { _replayKey, ...rest } = params;
-    if (_replayKey !== undefined && _replayKey !== replayKey) {
-      setReplayKey(_replayKey);
-    }
-    setCalibration(rest);
-  }, [replayKey]);
+  const { isTablet, isTouchDevice, width } = useTabletLayout();
 
   let variant = 'desktop';
   if (isTouchDevice && width < 600) {
@@ -24,19 +13,11 @@ const IntroSection = () => {
   }
 
   return (
-    <>
-      <IntroSlide
-        key={replayKey}
-        variant={variant}
-        fullHeight={false}
-        style={{ width: '100%', height: '100%' }}
-        calibration={calibration}
-      />
-      {createPortal(
-        <CalibrationToolbox onChange={handleCalibrationChange} />,
-        document.body
-      )}
-    </>
+    <IntroSlide
+      variant={variant}
+      fullHeight={false}
+      style={{ width: '100%', height: '100%' }}
+    />
   );
 };
 
