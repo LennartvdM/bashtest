@@ -50,16 +50,16 @@ function useReadyToDrop(minDelayMs = 300) {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
+    let timerId;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const id = setTimeout(() => { if (!cancelled) setReady(true); }, minDelayMs);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        cancelled = () => clearTimeout(id); // stash for cleanup
+        if (cancelled) return;
+        timerId = setTimeout(() => { if (!cancelled) setReady(true); }, minDelayMs);
       });
     });
     return () => {
-      if (typeof cancelled === "function") cancelled();
       cancelled = true;
+      clearTimeout(timerId);
     };
   }, [minDelayMs]);
   return ready;
