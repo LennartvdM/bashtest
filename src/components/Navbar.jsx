@@ -312,7 +312,13 @@ export default function Navbar() {
     >
       {/* Logo + FPS Counter */}
       <div className="flex items-center h-full pl-6 pr-4">
-        <FaviconLogo onClick={() => location.pathname === '/' ? null : transitionNavigate('/')} />
+        <FaviconLogo onClick={() => {
+          if (location.pathname === '/') {
+            window.dispatchEvent(new CustomEvent('scrollsnap:go-to-top'));
+          } else {
+            transitionNavigate('/');
+          }
+        }} />
         <NavbarFPSCounter />
       </div>
       {/* Inline links (snug on tablet) */}
