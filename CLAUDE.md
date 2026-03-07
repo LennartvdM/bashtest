@@ -126,6 +126,14 @@ sections/
 - `src/version.js`, `src/version.txt` — Build-time generated
 - `docs/TABLET_BEST_PRACTICES.md` — Reference docs
 
+## Do NOT modify (unless explicitly asked)
+- `src/components/sections/medical/TabletTravellingBar.jsx` — Tablet progress indicator, stable
+- `src/components/sections/medical/MedicalTabletLayout.jsx` — Tablet portrait render path, stable
+- `src/components/sections/medical/TabletMedicalCarousel.jsx` — Tablet video carousel, stable
+- `src/components/sections/medical/TabletBlurBackground.jsx` — Tablet blurred video backgrounds, stable
+
+The three breakpoints (desktop, tablet landscape, tablet portrait) are wildly different layouts. A bug in one breakpoint does **not** mean the other breakpoints need changes. Always confirm which breakpoint is affected before editing.
+
 ## Key Patterns
 - **Tablet-first**: Most components branch on `useTabletLayout()` for separate desktop/tablet rendering paths
 - **Scroll-snap sections**: Each full-screen section is a `ScrollSection` inside `ScrollSnap`
