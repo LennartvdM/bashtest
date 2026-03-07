@@ -29,9 +29,14 @@ export const DEFAULT_PARAMS = {
   headlineDuration: 0.8,
   headlineStartY: 16,
 
-  // Logo hover
-  hoverScale: 1.01,
-  hoverY: -4,
+  // Bounce (on landing)
+  bounceHeight: -40,
+  bounceDamping: 8,
+  bounceMass: 1.5,
+  bounceStiffness: 300,
+  squashX: 1.0,
+  squashY: 1.0,
+  squashDuration: 0.08,
 
   // NeoflixLogo — assembly spring (SPRING_HEAVY)
   assemblyDamping: 24,
@@ -116,11 +121,15 @@ const SECTIONS = [
     ],
   },
   {
-    label: "Hover / Layout",
+    label: "Bounce",
     keys: [
-      { key: "hoverScale", label: "Hover scale", min: 1, max: 1.1, step: 0.005 },
-      { key: "hoverY", label: "Hover Y", min: -20, max: 0, step: 1, unit: "px" },
-      { key: "logoMarginBottom", label: "Logo margin-b", min: 0, max: 120, step: 5, unit: "px" },
+      { key: "bounceHeight", label: "Height", min: -120, max: 0, step: 1, unit: "px" },
+      { key: "bounceDamping", label: "Damping", min: 1, max: 30, step: 0.5 },
+      { key: "bounceMass", label: "Mass", min: 0.1, max: 10, step: 0.1 },
+      { key: "bounceStiffness", label: "Stiffness", min: 50, max: 800, step: 10 },
+      { key: "squashX", label: "Squash X", min: 0.9, max: 1.2, step: 0.005 },
+      { key: "squashY", label: "Squash Y", min: 0.8, max: 1.1, step: 0.005 },
+      { key: "squashDuration", label: "Squash dur", min: 0.01, max: 0.3, step: 0.01, unit: "s" },
     ],
   },
 ];
