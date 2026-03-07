@@ -336,7 +336,7 @@ const ScrollSnap = ({ children }) => {
   // Delay-mount dot nav — invisible (white-on-white) on intro slide anyway
   useEffect(() => {
     if (currentIndex > 0) { setDotNavReady(true); return; }
-    const id = setTimeout(() => setDotNavReady(true), 3000);
+    const id = setTimeout(() => setDotNavReady(true), 600);
     return () => clearTimeout(id);
   }, [currentIndex]);
 
