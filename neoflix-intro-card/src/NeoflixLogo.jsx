@@ -14,7 +14,7 @@
  *
  * Dependencies: React 18+, framer-motion 11+
  */
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
 // ---------------------------------------------------------------------------
@@ -29,11 +29,12 @@ const SPRING_HEAVY = {
   stiffness: 500,
 };
 
-/** Hard snap for clatter — each hit lands instantly, no smoothing. */
-const TWEEN_CLATTER = {
-  type: "tween",
-  duration: 0.06,
-  ease: "easeOut",
+/** Clatter spring — low damping so it oscillates naturally, decaying over time. */
+const SPRING_CLATTER = {
+  type: "spring",
+  damping: 6,
+  mass: 1,
+  stiffness: 600,
 };
 
 /** Standard entrance spring. */
@@ -51,16 +52,9 @@ const SPRING_ENTRANCE = {
 const INNER_RING = { splayed: -62, assembled: 0, hover: -6 };
 const OUTER_RING = { splayed: 97, assembled: 0, hover: 5 };
 
-// Clatter sequence — sharp ring jolts on drop impact, decaying fast.
-// First hit is big and immediate, subsequent hits are tighter and quicker.
-const CLATTER_STEPS = [
-  { inner: -7,   outer: 5.5,  ms: 0 },
-  { inner: 4.5,  outer: -3.5, ms: 80 },
-  { inner: -2.8, outer: 2.2,  ms: 150 },
-  { inner: 1.5,  outer: -1.2, ms: 210 },
-  { inner: -0.6, outer: 0.5,  ms: 260 },
-  { inner: 0,    outer: 0,    ms: 310 },
-];
+// Clatter impulse — initial jolt applied on drop impact.
+// SPRING_CLATTER's low damping makes the rings oscillate and decay naturally.
+const CLATTER_IMPULSE = { inner: -8, outer: 6 };
 
 // ---------------------------------------------------------------------------
 // SVG markup
@@ -135,7 +129,6 @@ export default function NeoflixLogo({
   const [hovered, setHovered] = useState(false);
   const [clatterOffset, setClatterOffset] = useState({ inner: 0, outer: 0 });
   const [isClatterPhase, setIsClatterPhase] = useState(false);
-  const clatterTimers = useRef([]);
 
   // Auto-unfurl — gated on `ready` so it won't fire during first-load jank.
   // Defaults to ready=true for standalone usage (backwards compatible).
@@ -145,26 +138,22 @@ export default function NeoflixLogo({
     return () => clearTimeout(timer);
   }, [autoPlayDelay, ready]);
 
-  // Clatter sequence — dampening ring oscillations after drop impact
+  // Clatter — apply a single impulse offset, then immediately target 0.
+  // SPRING_CLATTER's low damping makes it oscillate and decay naturally.
   useEffect(() => {
     if (!enableClatter || !ready) return;
     const startTimer = setTimeout(() => {
+      setClatterOffset(CLATTER_IMPULSE);
       setIsClatterPhase(true);
-      CLATTER_STEPS.forEach(({ inner, outer, ms }, i) => {
-        const t = setTimeout(() => {
-          setClatterOffset({ inner, outer });
-          if (i === CLATTER_STEPS.length - 1) {
-            setIsClatterPhase(false);
-          }
-        }, ms);
-        clatterTimers.current.push(t);
+      // On next frame, set target back to 0 — the spring overshoots and oscillates
+      requestAnimationFrame(() => {
+        setClatterOffset({ inner: 0, outer: 0 });
+        // Keep clatter spring active long enough for oscillations to decay
+        setTimeout(() => setIsClatterPhase(false), 800);
       });
     }, clatterDelay);
-    return () => {
-      clearTimeout(startTimer);
-      clatterTimers.current.forEach(clearTimeout);
-    };
-  }, [enableClatter, clatterDelay]);
+    return () => clearTimeout(startTimer);
+  }, [enableClatter, clatterDelay, ready]);
 
   // Click: explode apart, then reassemble
   const handleClick = useCallback(() => {
@@ -182,7 +171,7 @@ export default function NeoflixLogo({
     ? OUTER_RING.splayed
     : hovered ? OUTER_RING.hover : OUTER_RING.assembled) + clatterOffset.outer;
 
-  const ringTransition = isClatterPhase ? TWEEN_CLATTER : SPRING_HEAVY;
+  const ringTransition = isClatterPhase ? SPRING_CLATTER : SPRING_HEAVY;
 
   return (
     <motion.div
