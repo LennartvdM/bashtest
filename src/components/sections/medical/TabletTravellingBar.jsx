@@ -18,32 +18,50 @@ const MASK_ID = 'ttb-btn-mask';
 const TabletTravellingBar = memo(function TabletTravellingBar({ captions, current, onSelect, style, durationMs = 7000, paused = false, animationKey, captionsVisible = true, shouldTransition = true }) {
   const count = captions.length;
   const highlighterRef = useRef(null);
-  const circle1Ref = useRef(null);
-  const circle2Ref = useRef(null);
+  const maskRef = useRef(null);
   const rafRef = useRef(null);
 
-  // Continuously sync mask circles with SectionDotNav button positions
+  // Continuously sync mask circles with all SectionDotNav elements (arrows + dots)
   useEffect(() => {
-    const refs = [circle1Ref, circle2Ref];
+    const circles = [];
+    const svgNS = 'http://www.w3.org/2000/svg';
+
     const update = () => {
       const el = highlighterRef.current;
-      if (el) {
+      const maskEl = maskRef.current;
+      if (el && maskEl) {
         const hRect = el.getBoundingClientRect();
-        const buttons = document.querySelectorAll('.arrow-btn');
-        for (let i = 0; i < refs.length; i++) {
-          const circleEl = refs[i].current;
-          const btn = buttons[i];
-          if (!circleEl || !btn) continue;
-          const bRect = btn.getBoundingClientRect();
-          circleEl.setAttribute('cx', bRect.left + bRect.width / 2 - hRect.left);
-          circleEl.setAttribute('cy', bRect.top + bRect.height / 2 - hRect.top);
-          circleEl.setAttribute('r', Math.max(bRect.width, bRect.height) / 2 + 2);
+        // Gather all nav elements: arrow buttons and dots
+        const navItems = document.querySelectorAll('.arrow-btn, .arrow-dot');
+        // Ensure we have enough circle elements in the mask
+        while (circles.length < navItems.length) {
+          const c = document.createElementNS(svgNS, 'circle');
+          c.setAttribute('fill', 'black');
+          maskEl.appendChild(c);
+          circles.push(c);
+        }
+        // Hide excess circles
+        for (let i = navItems.length; i < circles.length; i++) {
+          circles[i].setAttribute('r', '0');
+        }
+        // Position each circle over its corresponding nav element
+        for (let i = 0; i < navItems.length; i++) {
+          const bRect = navItems[i].getBoundingClientRect();
+          const cx = bRect.left + bRect.width / 2 - hRect.left;
+          const cy = bRect.top + bRect.height / 2 - hRect.top;
+          const r = Math.max(bRect.width, bRect.height) / 2 + 2;
+          circles[i].setAttribute('cx', cx);
+          circles[i].setAttribute('cy', cy);
+          circles[i].setAttribute('r', r);
         }
       }
       rafRef.current = requestAnimationFrame(update);
     };
     rafRef.current = requestAnimationFrame(update);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      circles.length = 0;
+    };
   }, []);
 
   return (
@@ -57,13 +75,11 @@ const TabletTravellingBar = memo(function TabletTravellingBar({ captions, curren
         ...style
       }}
     >
-      {/* SVG mask: white rect = visible everywhere, black circles = invisible at button areas */}
+      {/* SVG mask: white rect = visible everywhere, black circles added dynamically for each nav element */}
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
-          <mask id={MASK_ID} x="-9999" y="-9999" width="99999" height="99999" maskUnits="userSpaceOnUse">
+          <mask ref={maskRef} id={MASK_ID} x="-9999" y="-9999" width="99999" height="99999" maskUnits="userSpaceOnUse">
             <rect x="-9999" y="-9999" width="99999" height="99999" fill="white" />
-            <circle ref={circle1Ref} cx="0" cy="0" r="0" fill="black" />
-            <circle ref={circle2Ref} cx="0" cy="0" r="0" fill="black" />
           </mask>
         </defs>
       </svg>
