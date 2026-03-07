@@ -504,7 +504,7 @@ export default function MedicalDesktopLayout({
                         style={{
                           top: '50%',
                           left: isVideoLeft ? 0 : '100%',
-                          width: '100vw',
+                          width: isVideoLeft ? '100vw' : 'max(0px, calc(50vw - 560px))',
                           height: 5,
                           background: '#e0e0e0',
                           mixBlendMode: 'screen',
