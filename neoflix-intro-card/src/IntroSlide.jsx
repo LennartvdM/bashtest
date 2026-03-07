@@ -21,13 +21,14 @@ import { motion } from "framer-motion";
 import NeoflixLogo from "./NeoflixLogo.jsx";
 import RecordReflectRefine from "./RecordReflectRefine.jsx";
 
-// Drop entrance spring — bouncy landing with 2-3 visible bounces
-const DROP_SPRING = {
-  type: "spring",
-  damping: 13,
-  mass: 1.4,
-  stiffness: 260,
-  delay: 0.5,
+// Drop — gravity-like fall with firm landing.
+// Tween with ease-in: accelerates like a falling object, stops dead on impact.
+// No spring = no overshoot through the floor. The ring clatter sells the impact.
+const DROP = {
+  type: "tween",
+  duration: 0.5,
+  ease: [0.55, 0, 1, 1],
+  delay: 0.6,
 };
 
 // Fade entrance spring (fallback when drop is disabled)
@@ -39,12 +40,13 @@ const ENTRANCE_LOGO = {
   delay: 0.9,
 };
 
+// Headline — appears well after the logo has settled and the viewer has taken it in.
+// Gentle fade + subtle rise, not a spring bounce.
 const ENTRANCE_HEADLINE = {
-  type: "spring",
-  damping: 30,
-  mass: 1,
-  stiffness: 400,
-  delay: 1.3,
+  type: "tween",
+  duration: 0.8,
+  ease: [0.25, 0.1, 0.25, 1],
+  delay: 3.0,
 };
 
 /**
@@ -113,7 +115,7 @@ export default function IntroSlide({
           padding: isMobile ? "0 16px" : "0 40px",
         }}
       >
-        {/* Logo — centered, drops from above with bouncy landing */}
+        {/* Logo — drops from above, lands firm, ring clatter on impact */}
         <motion.div
           style={{
             width: logoDimensions.width,
@@ -125,7 +127,7 @@ export default function IntroSlide({
           }}
           initial={{ opacity: 1, y: -600 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={DROP_SPRING}
+          transition={DROP}
           whileHover={{ scale: 1.01, y: -4 }}
         >
           <NeoflixLogo
@@ -149,8 +151,8 @@ export default function IntroSlide({
               ? { margin: "0 auto" }
               : {}),
           }}
-          initial={{ opacity: 0.001, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={ENTRANCE_HEADLINE}
         >
           <RecordReflectRefine
