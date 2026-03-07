@@ -21,14 +21,13 @@ export const DEFAULT_PARAMS = {
   readyDelay: 300,       // useReadyToDrop minDelayMs
   headlineDelay: 2400,   // ms after readyToDrop to show headline
 
-  // Drop physics (rigid-body simulation)
+  // Drop physics (vibe-mapped)
   dropStartY: -600,
   dropGravity: 2800,        // px/s²
-  dropRestitution: 0.45,    // coefficient of restitution (0=dead stop, 1=perfect bounce)
-  dropTilt: 2,              // initial tilt in degrees (positive = clockwise)
-  dropSpin: 0,              // initial angular velocity in deg/s
   dropHalfWidth: 200,       // effective half-width for corner contact (px)
-  dropAngularDamping: 0.02, // continuous angular friction per second
+  dropBounciness: 0.3,      // 0–1: how much life the drop has
+  dropWobble: 0.2,          // 0–1: how much rotational play
+  dropSnap: 0.7,            // 0–1: how quickly it locks into final pose
 
   // Headline tween
   headlineDuration: 0.8,
@@ -71,16 +70,15 @@ export const DEFAULT_PARAMS = {
 
 const SECTIONS = [
   {
-    label: "Drop physics",
+    label: "Drop vibe",
     keys: [
+      { key: "dropBounciness", label: "Bounciness", min: 0, max: 1, step: 0.05 },
+      { key: "dropWobble", label: "Wobble", min: 0, max: 1, step: 0.05 },
+      { key: "dropSnap", label: "Snap", min: 0, max: 1, step: 0.05 },
       { key: "readyDelay", label: "Ready delay", min: 0, max: 1000, step: 50, unit: "ms" },
       { key: "dropStartY", label: "Start Y", min: -1200, max: 0, step: 10, unit: "px" },
       { key: "dropGravity", label: "Gravity", min: 500, max: 6000, step: 100, unit: "px/s²" },
-      { key: "dropRestitution", label: "Restitution", min: 0, max: 0.95, step: 0.01 },
-      { key: "dropTilt", label: "Initial tilt", min: -15, max: 15, step: 0.5, unit: "°" },
-      { key: "dropSpin", label: "Initial spin", min: -90, max: 90, step: 1, unit: "°/s" },
       { key: "dropHalfWidth", label: "Half-width", min: 50, max: 500, step: 10, unit: "px" },
-      { key: "dropAngularDamping", label: "Ang. damping", min: 0, max: 0.2, step: 0.005 },
     ],
   },
   {
