@@ -265,10 +265,6 @@ export default function CalibrationToolbox({ onChange, defaultParams }) {
 // ---------------------------------------------------------------------------
 
 function SliderRow({ label, unit = "", value, min, max, step, isDefault, onChange, onReset }) {
-  const display = Number.isInteger(step) || step >= 1
-    ? value
-    : value.toFixed(step < 0.01 ? 3 : 2);
-
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, height: 22 }}>
       <span
@@ -292,13 +288,39 @@ function SliderRow({ label, unit = "", value, min, max, step, isDefault, onChang
         min={min}
         max={max}
         step={step}
-        value={value}
+        value={Math.max(min, Math.min(max, value))}
         onChange={(e) => onChange(parseFloat(e.target.value))}
         style={{ flex: 1, height: 4, accentColor: "#48c1c4", cursor: "pointer" }}
       />
-      <span style={{ width: 52, textAlign: "right", fontSize: 10, color: isDefault ? "#666" : "#ccc", flexShrink: 0 }}>
-        {display}{unit}
-      </span>
+      <input
+        type="number"
+        value={value}
+        step={step}
+        onChange={(e) => {
+          const v = parseFloat(e.target.value);
+          if (!isNaN(v)) onChange(v);
+        }}
+        style={{
+          width: 52,
+          fontSize: 10,
+          color: isDefault ? "#666" : "#ccc",
+          backgroundColor: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 3,
+          textAlign: "right",
+          padding: "1px 4px",
+          height: 18,
+          flexShrink: 0,
+          fontFamily: "inherit",
+          outline: "none",
+        }}
+        title={`Type any value${unit ? ` (${unit})` : ""}`}
+      />
+      {unit && (
+        <span style={{ fontSize: 9, color: "#666", flexShrink: 0, width: 14 }}>
+          {unit}
+        </span>
+      )}
     </div>
   );
 }
