@@ -30,16 +30,16 @@ const SPRING_HEAVY = {
 };
 
 /**
- * Clatter spring — windvane hit by a passing car.
- * Very high mass = slow, lazy oscillation.
- * Moderate damping = dies out after a few swings, not ringy.
- * Low stiffness = gentle restoring pull, unhurried return.
+ * Clatter spring — hefty mechanical impact.
+ * High mass = weighty, slow oscillation period.
+ * Low damping = rings out for several swings before settling.
+ * Moderate stiffness = strong enough snap-back to create visible oscillation.
  */
 const SPRING_CLATTER = {
   type: "spring",
-  damping: 8,
-  mass: 6,
-  stiffness: 120,
+  damping: 4,
+  mass: 5,
+  stiffness: 200,
 };
 
 /** Standard entrance spring. */
@@ -57,9 +57,8 @@ const SPRING_ENTRANCE = {
 const INNER_RING = { splayed: -62, assembled: 0, hover: -6 };
 const OUTER_RING = { splayed: 97, assembled: 0, hover: 5 };
 
-// Clatter impulse — subtle nudge on drop impact.
-// Low amplitude, but the heavy spring makes it sway slowly.
-const CLATTER_IMPULSE = { inner: -5, outer: 4 };
+// Clatter impulse — hefty jolt on drop impact.
+const CLATTER_IMPULSE = { inner: -14, outer: 11 };
 
 // ---------------------------------------------------------------------------
 // SVG markup
