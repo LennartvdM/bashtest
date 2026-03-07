@@ -125,10 +125,42 @@ export default function NeoflixLogo({
   ready = true,
   enableClatter = false,
   clatterDelay = 1400,
+  calibration,
   onClick,
   className = "",
   style = {},
 }) {
+  // Calibration overrides for spring configs and ring rotations
+  const cal = calibration || {};
+
+  const SPRING_HEAVY_CAL = cal.assemblyDamping != null ? {
+    type: "spring",
+    damping: cal.assemblyDamping ?? SPRING_HEAVY.damping,
+    mass: cal.assemblyMass ?? SPRING_HEAVY.mass,
+    stiffness: cal.assemblyStiffness ?? SPRING_HEAVY.stiffness,
+  } : SPRING_HEAVY;
+
+  const SPRING_CLATTER_CAL = cal.clatterDamping != null ? {
+    type: "spring",
+    damping: cal.clatterDamping ?? SPRING_CLATTER.damping,
+    mass: cal.clatterMass ?? SPRING_CLATTER.mass,
+    stiffness: cal.clatterStiffness ?? SPRING_CLATTER.stiffness,
+  } : SPRING_CLATTER;
+
+  const INNER = {
+    splayed: cal.innerSplayed ?? INNER_RING.splayed,
+    assembled: INNER_RING.assembled,
+    hover: cal.innerHover ?? INNER_RING.hover,
+  };
+  const OUTER = {
+    splayed: cal.outerSplayed ?? OUTER_RING.splayed,
+    assembled: OUTER_RING.assembled,
+    hover: cal.outerHover ?? OUTER_RING.hover,
+  };
+  const IMPULSE = {
+    inner: cal.clatterInner ?? CLATTER_IMPULSE.inner,
+    outer: cal.clatterOuter ?? CLATTER_IMPULSE.outer,
+  };
   const [assembled, setAssembled] = useState(enableClatter);
   const [hovered, setHovered] = useState(false);
   const [clatterOffset, setClatterOffset] = useState({ inner: 0, outer: 0 });
@@ -157,7 +189,7 @@ export default function NeoflixLogo({
     const startTimer = setTimeout(() => {
       if (cancelled) return;
       // 1. Snap to impulse position (no transition — instant displacement)
-      setClatterOffset(CLATTER_IMPULSE);
+      setClatterOffset(IMPULSE);
       setIsClatterPhase(true);
       // 2. After a brief hold (one frame rendered at impulse), target 0.
       //    The spring's low damping creates the depleting sine wave.
@@ -184,14 +216,14 @@ export default function NeoflixLogo({
 
   // Compute target rotations (base + clatter offset)
   const innerTarget = (!assembled
-    ? INNER_RING.splayed
-    : hovered ? INNER_RING.hover : INNER_RING.assembled) + clatterOffset.inner;
+    ? INNER.splayed
+    : hovered ? INNER.hover : INNER.assembled) + clatterOffset.inner;
 
   const outerTarget = (!assembled
-    ? OUTER_RING.splayed
-    : hovered ? OUTER_RING.hover : OUTER_RING.assembled) + clatterOffset.outer;
+    ? OUTER.splayed
+    : hovered ? OUTER.hover : OUTER.assembled) + clatterOffset.outer;
 
-  const ringTransition = isClatterPhase ? SPRING_CLATTER : SPRING_HEAVY;
+  const ringTransition = isClatterPhase ? SPRING_CLATTER_CAL : SPRING_HEAVY_CAL;
 
   return (
     <motion.div
