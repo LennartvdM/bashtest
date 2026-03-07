@@ -100,14 +100,13 @@ export default function IntroSlide({
   const headlineDuration = cal.headlineDuration ?? 0.8;
   const logoMarginBottom = cal.logoMarginBottom ?? (isMobile ? 40 : 60);
 
-  // Physics parameters
+  // Drop physics (vibe-mapped)
   const dropStartY = cal.dropStartY ?? -600;
   const dropGravity = cal.dropGravity ?? 2800;
-  const dropRestitution = cal.dropRestitution ?? 0.45;
-  const dropTilt = cal.dropTilt ?? 2;
-  const dropSpin = cal.dropSpin ?? 0;
   const dropHalfWidth = cal.dropHalfWidth ?? 200;
-  const dropAngularDamping = cal.dropAngularDamping ?? 0.02;
+  const dropBounciness = cal.dropBounciness ?? 0.3;
+  const dropWobble = cal.dropWobble ?? 0.2;
+  const dropSnap = cal.dropSnap ?? 0.7;
 
   const HEADLINE_TRANSITION = useMemo(() => ({
     ...HEADLINE_TRANSITION_DEFAULT,
@@ -124,16 +123,15 @@ export default function IntroSlide({
     setImpacted(true);
   }, []);
 
-  // Physics-driven drop animation
+  // Physics-driven drop animation (vibe-mapped)
   const { settled } = useDropPhysics(logoContainerRef, {
     enabled: readyToDrop,
+    bounciness: dropBounciness,
+    wobble: dropWobble,
+    snap: dropSnap,
     gravity: dropGravity,
-    restitution: dropRestitution,
-    initialY: dropStartY,
-    initialTilt: dropTilt,
-    initialSpin: dropSpin,
+    startY: dropStartY,
     halfWidth: dropHalfWidth,
-    angularDamping: dropAngularDamping,
     onImpact: handleImpact,
   });
 
@@ -194,7 +192,7 @@ export default function IntroSlide({
             marginBottom: logoMarginBottom,
             transformOrigin: "center bottom",
             // Start off-screen; useDropPhysics takes over immediately
-            transform: `translateY(${dropStartY}px) rotate(${dropTilt}deg)`,
+            transform: `translateY(${dropStartY}px)`,
           }}
         >
           <NeoflixLogo
