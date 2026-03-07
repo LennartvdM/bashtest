@@ -157,7 +157,8 @@ export default function IntroSlide({
         >
           <NeoflixLogo
             autoPlayDelay={300}
-            enableClatter={readyToDrop}
+            ready={readyToDrop}
+            enableClatter
             clatterDelay={380}
             style={{ width: "100%", height: "auto" }}
             {...logoProps}

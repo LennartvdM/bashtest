@@ -113,8 +113,9 @@ export const NEOFLIX_LOGO_FULL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" vi
  * @param {string}   [props.color="#48c1c4"]         - Teal color for ring SVGs
  * @param {string}   [props.wordmarkColor="#1c3664"]  - Dark blue for the wordmark
  * @param {number}   [props.autoPlayDelay=400]        - ms before the unfurl animation fires
+ * @param {boolean}  [props.ready=true]               - Gate all animations (unfurl, clatter) until true
  * @param {boolean}  [props.enableClatter=false]      - Enable drop-impact clatter on rings
- * @param {number}   [props.clatterDelay=1400]        - ms after mount to start clatter
+ * @param {number}   [props.clatterDelay=1400]        - ms after ready+enableClatter to start clatter
  * @param {Function} [props.onClick]                  - Called on click (before "explode")
  * @param {string}   [props.className]
  * @param {Object}   [props.style]
@@ -123,6 +124,7 @@ export default function NeoflixLogo({
   color = "#48c1c4",
   wordmarkColor = "#1c3664",
   autoPlayDelay = 400,
+  ready = true,
   enableClatter = false,
   clatterDelay = 1400,
   onClick,
@@ -135,15 +137,17 @@ export default function NeoflixLogo({
   const [isClatterPhase, setIsClatterPhase] = useState(false);
   const clatterTimers = useRef([]);
 
-  // Auto-unfurl after mount
+  // Auto-unfurl — gated on `ready` so it won't fire during first-load jank.
+  // Defaults to ready=true for standalone usage (backwards compatible).
   useEffect(() => {
+    if (!ready) return;
     const timer = setTimeout(() => setAssembled(true), autoPlayDelay);
     return () => clearTimeout(timer);
-  }, [autoPlayDelay]);
+  }, [autoPlayDelay, ready]);
 
   // Clatter sequence — dampening ring oscillations after drop impact
   useEffect(() => {
-    if (!enableClatter) return;
+    if (!enableClatter || !ready) return;
     const startTimer = setTimeout(() => {
       setIsClatterPhase(true);
       CLATTER_STEPS.forEach(({ inner, outer, ms }, i) => {
@@ -196,7 +200,7 @@ export default function NeoflixLogo({
       onHoverEnd={() => setHovered(false)}
       onTap={handleClick}
       initial={enableClatter ? { opacity: 1 } : { opacity: 0.001, scale: 1.01 }}
-      animate={{ opacity: 1, scale: 1 }}
+      animate={ready ? { opacity: 1, scale: 1 } : undefined}
       transition={enableClatter ? { duration: 0 } : SPRING_ENTRANCE}
     >
       {/* Inner Ring */}
