@@ -1,16 +1,21 @@
 /**
- * RecordReflectRefine — Cycling headline component.
+ * RecordReflectRefine — Cycling headline component with intro reveal.
  *
- * Cycles through 3 states every 1800ms, highlighting one word at a time in teal.
- * Clicking advances to the next word immediately.
+ * Intro phase: words appear one at a time, each highlighted in teal.
+ *   Step 1: "Record," (teal)
+ *   Step 2: "Record," (dark) + "Reflect," (teal)
+ *   Step 3: "Record," (dark) + "Reflect," (dark) + "Refine:" (teal)
+ *
+ * Then continues cycling all three words with the teal highlight.
+ * After the first full cycle completes, fires onFirstCycleComplete.
  *
  * Two variants:
- *   - "desktop": 62px bold headline + 47px subtitle, width: 717px
+ *   - "desktop": 62px bold headline + 47px subtitle
  *   - "mobile": 62px bold headline only, narrower, centered
  *
- * Dependencies: React 18+, framer-motion 11+
+ * Dependencies: React 18+
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const CYCLE_DELAY_MS = 1800;
 
@@ -25,20 +30,6 @@ const WORDS = [
   { text: " Refine:", id: 2 },
 ];
 
-/**
- * @param {Object} props
- * @param {number}   [props.cycleDelay=1800]     - ms between word highlights
- * @param {string}   [props.tealColor]            - Override teal highlight color
- * @param {string}   [props.darkColor]            - Override dark text color
- * @param {string}   [props.greyColor]            - Override grey subtitle color
- * @param {boolean}  [props.showSubtitle=true]    - Show the subtitle line
- * @param {string}   [props.subtitle]             - Override subtitle text
- * @param {string}   [props.variant="desktop"]    - "desktop" or "mobile"
- * @param {boolean}  [props.autoPlay=true]        - Whether to auto-cycle
- * @param {Function} [props.onVariantChange]      - Callback when active word changes
- * @param {string}   [props.className]
- * @param {Object}   [props.style]
- */
 export default function RecordReflectRefine({
   cycleDelay = CYCLE_DELAY_MS,
   tealColor = TEAL,
@@ -49,34 +40,90 @@ export default function RecordReflectRefine({
   variant = "desktop",
   autoPlay = true,
   onVariantChange,
+  onFirstCycleComplete,
   className = "",
   style = {},
 }) {
+  // introStep: 0 = nothing visible, 1/2/3 = that many words revealed
+  const [introStep, setIntroStep] = useState(0);
+  const [introComplete, setIntroComplete] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showSubtitleText, setShowSubtitleText] = useState(false);
+  const firstCycleFired = useRef(false);
 
-  // Auto-cycle through the 3 words
+  // Phase 1: Intro reveal — words appear one at a time
   useEffect(() => {
-    if (!autoPlay) return;
+    if (!autoPlay || introComplete) return;
+    const timer = setInterval(() => {
+      setIntroStep((prev) => {
+        if (prev >= 3) {
+          clearInterval(timer);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, cycleDelay);
+    return () => clearInterval(timer);
+  }, [cycleDelay, autoPlay, introComplete]);
+
+  // Transition from intro to cycling after all 3 words are revealed
+  useEffect(() => {
+    if (introStep < 3 || introComplete) return;
+    const timer = setTimeout(() => {
+      setIntroComplete(true);
+      setActiveIndex(0);
+    }, cycleDelay);
+    return () => clearTimeout(timer);
+  }, [introStep, introComplete, cycleDelay]);
+
+  // Phase 2: Post-intro cycling
+  useEffect(() => {
+    if (!autoPlay || !introComplete) return;
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % 3;
         onVariantChange?.(next);
+        // First time we cycle back to 0 = first full cycle done
+        if (next === 0 && !firstCycleFired.current) {
+          firstCycleFired.current = true;
+          setShowSubtitleText(true);
+          onFirstCycleComplete?.();
+        }
         return next;
       });
     }, cycleDelay);
     return () => clearInterval(timer);
-  }, [cycleDelay, autoPlay, onVariantChange]);
+  }, [cycleDelay, autoPlay, introComplete, onVariantChange, onFirstCycleComplete]);
 
-  // Click advances to next word
   const handleClick = useCallback(() => {
+    if (!introComplete) {
+      setIntroStep((prev) => Math.min(prev + 1, 3));
+      return;
+    }
     setActiveIndex((prev) => {
       const next = (prev + 1) % 3;
       onVariantChange?.(next);
       return next;
     });
-  }, [onVariantChange]);
+  }, [introComplete, onVariantChange]);
 
   const isMobile = variant === "mobile";
+
+  const getWordStyle = (wordId) => {
+    if (!introComplete) {
+      // Intro: word not yet revealed
+      if (wordId >= introStep) {
+        return { opacity: 0, color: darkColor };
+      }
+      // Revealed — teal if it's the most recently revealed word
+      return {
+        opacity: 1,
+        color: wordId === introStep - 1 ? tealColor : darkColor,
+      };
+    }
+    // Cycling phase: all visible, one highlighted
+    return { opacity: 1, color: activeIndex === wordId ? tealColor : darkColor };
+  };
 
   return (
     <div
@@ -110,18 +157,22 @@ export default function RecordReflectRefine({
           wordWrap: isMobile ? undefined : "break-word",
         }}
       >
-        {WORDS.map((word) => (
-          <span
-            key={word.id}
-            style={{
-              color: activeIndex === word.id ? tealColor : darkColor,
-              fontWeight: 700,
-              transition: "color 0s",
-            }}
-          >
-            {word.text}
-          </span>
-        ))}
+        {WORDS.map((word) => {
+          const ws = getWordStyle(word.id);
+          return (
+            <span
+              key={word.id}
+              style={{
+                color: ws.color,
+                opacity: ws.opacity,
+                fontWeight: 700,
+                transition: "opacity 0.4s ease-out, color 0s",
+              }}
+            >
+              {word.text}
+            </span>
+          );
+        })}
       </h1>
 
       {showSubtitle && !isMobile && (
@@ -135,6 +186,8 @@ export default function RecordReflectRefine({
             color: greyColor,
             margin: 0,
             lineHeight: 1.2,
+            opacity: showSubtitleText ? 1 : 0,
+            transition: "opacity 0.8s ease-out",
           }}
         >
           {subtitle}
