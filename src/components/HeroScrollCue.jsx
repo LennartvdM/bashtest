@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function HeroScrollCue({ onClick }) {
+  const [visible, setVisible] = useState(false);
   const blueRef = useRef(null);
   const redRef = useRef(null);
   const bS0 = useRef(null);
@@ -8,6 +9,16 @@ export default function HeroScrollCue({ onClick }) {
   const rS0 = useRef(null);
   const rS1 = useRef(null);
   const rafId = useRef(null);
+
+  // Fade in shortly after the "Improve patient..." subtitle appears
+  useEffect(() => {
+    const handleSubtitle = () => {
+      const id = setTimeout(() => setVisible(true), 600);
+      return () => clearTimeout(id);
+    };
+    window.addEventListener('intro:subtitle-shown', handleSubtitle);
+    return () => window.removeEventListener('intro:subtitle-shown', handleSubtitle);
+  }, []);
 
   useEffect(() => {
     const lerp = (a, b, t) => a + (b - a) * t;
@@ -63,7 +74,7 @@ export default function HeroScrollCue({ onClick }) {
       tabIndex={0}
       aria-label="Scroll to next section"
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick?.(); }}
-      style={{ bottom: '0', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom' }}
+      style={{ bottom: '0', transform: 'translateX(-50%) scale(0.7)', transformOrigin: 'center bottom', opacity: visible ? 1 : 0, transition: 'opacity 0.6s ease-out' }}
     >
       {/* Shared path defs */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>

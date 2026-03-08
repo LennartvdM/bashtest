@@ -19,6 +19,7 @@ const IntroSection = ({ inView }) => {
   return (
     <IntroSlide
       variant={variant}
+      backgroundColor="#F5F9FC"
       fullHeight={false}
       style={{ width: '100%', height: '100%' }}
     />
