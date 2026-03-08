@@ -53,8 +53,12 @@ export default function RecordReflectRefine({
 
   // Phase 1: Intro reveal — words appear one at a time
   // Only starts when `started` is true (parent headline area is visible)
+  // First word appears immediately (no empty cycle), then subsequent words
+  // appear at cycleDelay intervals.
   useEffect(() => {
     if (!started || introComplete) return;
+    // Show first word immediately — no dead time after headline fades in
+    setIntroStep(1);
     const timer = setInterval(() => {
       setIntroStep((prev) => {
         if (prev >= 3) {
