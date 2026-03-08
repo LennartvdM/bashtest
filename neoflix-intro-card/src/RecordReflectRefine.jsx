@@ -82,6 +82,8 @@ export default function RecordReflectRefine({
         firstCycleFired.current = true;
         setShowSubtitleText(true);
         onFirstCycleComplete?.();
+        // Signal that the subtitle ("Improve patient...") is now visible
+        window.dispatchEvent(new CustomEvent('intro:subtitle-shown'));
       }
     }, cycleDelay);
     return () => clearTimeout(timer);
