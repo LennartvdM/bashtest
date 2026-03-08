@@ -10,7 +10,6 @@
  *   |  Record, Reflect, Refine:                |
  *   |  Improve patient care through            |
  *   |  video reflection.                       |
- *   |                  ˅˅                      |
  *   +-----------------------------------------+
  *
  * The navbar is a render prop / slot — pass your own component via `navbar`.
@@ -63,65 +62,6 @@ function useReadyToDrop(minDelayMs = 300) {
   return ready;
 }
 
-/** Double-chevron scroll indicator */
-function ScrollChevrons({ visible }) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 32,
-        left: "50%",
-        transform: "translateX(-50%)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 0,
-        opacity: visible ? 1 : 0,
-        transition: "opacity 1s ease-out",
-        pointerEvents: visible ? "auto" : "none",
-      }}
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="rgb(82, 156, 156)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{
-          animation: visible ? "introChevronBounce 1.8s ease-in-out infinite" : "none",
-        }}
-      >
-        <polyline points="6 9 12 15 18 9" />
-      </svg>
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="rgb(82, 156, 156)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{
-          marginTop: -12,
-          animation: visible ? "introChevronBounce 1.8s ease-in-out infinite 0.15s" : "none",
-        }}
-      >
-        <polyline points="6 9 12 15 18 9" />
-      </svg>
-      <style>{`
-        @keyframes introChevronBounce {
-          0%, 100% { transform: translateY(0); opacity: 1; }
-          50% { transform: translateY(6px); opacity: 0.6; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
 /**
  * @param {Object} props
  * @param {React.ReactNode} [props.navbar]                         - Navbar component (slot)
@@ -159,7 +99,6 @@ export default function IntroSlide({
   const headlineStartY = cal.headlineStartY ?? 16;
   const headlineDuration = cal.headlineDuration ?? 0.8;
   const logoMarginBottom = cal.logoMarginBottom ?? (isMobile ? 40 : 60);
-  const chevronDelay = cal.chevronDelay ?? 3000; // ms after subtitle appears
 
   // Drop physics (vibe-mapped)
   const dropStartY = cal.dropStartY ?? -600;
@@ -177,7 +116,6 @@ export default function IntroSlide({
   const readyToDrop = useReadyToDrop(readyDelay);
   const [showHeadline, setShowHeadline] = useState(false);
   const [impacted, setImpacted] = useState(false);
-  const [showChevrons, setShowChevrons] = useState(false);
 
   const logoContainerRef = useRef(null);
 
@@ -203,12 +141,6 @@ export default function IntroSlide({
     const id = setTimeout(() => setShowHeadline(true), headlineDelay);
     return () => clearTimeout(id);
   }, [readyToDrop, headlineDelay]);
-
-  // When the first word cycle completes, start chevron timer
-  const handleFirstCycleComplete = useCallback(() => {
-    const id = setTimeout(() => setShowChevrons(true), chevronDelay);
-    return () => clearTimeout(id);
-  }, [chevronDelay]);
 
   const logoDimensions = useMemo(() => {
     if (isMobile) return { width: "99.5vw", height: 242 };
@@ -293,8 +225,8 @@ export default function IntroSlide({
           <RecordReflectRefine
             variant={isMobile ? "mobile" : "desktop"}
             showSubtitle={!isMobile}
+            started={showHeadline}
             cycleDelay={cal.cycleDelay}
-            onFirstCycleComplete={handleFirstCycleComplete}
             {...headlineProps}
           />
 
@@ -316,9 +248,6 @@ export default function IntroSlide({
           )}
         </motion.div>
       </div>
-
-      {/* Scroll-down chevrons */}
-      <ScrollChevrons visible={showChevrons} />
     </section>
   );
 }
