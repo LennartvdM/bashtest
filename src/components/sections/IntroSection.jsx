@@ -21,7 +21,11 @@ const IntroSection = ({ inView }) => {
       variant={variant}
       backgroundColor="#F5F9FC"
       fullHeight={false}
-      style={{ width: '100%', height: '100%' }}
+      style={{
+        width: '100%',
+        height: '100%',
+        background: 'linear-gradient(to top, #FFFFFF, #F5F9FC)',
+      }}
     />
   );
 };
