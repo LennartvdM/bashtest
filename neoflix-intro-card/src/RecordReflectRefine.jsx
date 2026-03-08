@@ -116,18 +116,19 @@ export default function RecordReflectRefine({
 
   const getWordStyle = (wordId) => {
     if (!introComplete) {
-      // Intro: word not yet revealed
+      // Intro: word not yet revealed — hidden with downward offset
       if (wordId >= introStep) {
-        return { opacity: 0, color: darkColor };
+        return { opacity: 0, color: darkColor, transform: "translateY(16px)" };
       }
-      // Revealed — teal if it's the most recently revealed word
+      // Revealed — slide up into place, teal if most recently revealed
       return {
         opacity: 1,
         color: wordId === introStep - 1 ? tealColor : darkColor,
+        transform: "translateY(0)",
       };
     }
     // Cycling phase: all visible, one highlighted
-    return { opacity: 1, color: activeIndex === wordId ? tealColor : darkColor };
+    return { opacity: 1, color: activeIndex === wordId ? tealColor : darkColor, transform: "translateY(0)" };
   };
 
   return (
@@ -168,10 +169,12 @@ export default function RecordReflectRefine({
             <span
               key={word.id}
               style={{
+                display: "inline-block",
                 color: ws.color,
                 opacity: ws.opacity,
+                transform: ws.transform,
                 fontWeight: 700,
-                transition: "opacity 0.4s ease-out, color 0s",
+                transition: "opacity 0.4s ease-out, color 0.4s ease-out, transform 0.5s ease-out",
               }}
             >
               {word.text}
@@ -192,7 +195,8 @@ export default function RecordReflectRefine({
             margin: 0,
             lineHeight: 1.2,
             opacity: showSubtitleText ? 1 : 0,
-            transition: "opacity 0.8s ease-out",
+            transform: showSubtitleText ? "translateY(0)" : "translateY(16px)",
+            transition: "opacity 0.8s ease-out, transform 0.6s ease-out",
           }}
         >
           {subtitle}
