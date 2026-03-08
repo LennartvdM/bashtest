@@ -6,8 +6,8 @@
  *   Step 2: "Record," (dark) + "Reflect," (teal)
  *   Step 3: "Record," (dark) + "Reflect," (dark) + "Refine:" (teal)
  *
- * Then continues cycling all three words with the teal highlight.
- * After the first full cycle completes, fires onFirstCycleComplete.
+ * After the intro reveal completes, fires onFirstCycleComplete, then
+ * continues cycling all three words with the teal highlight.
  *
  * Two variants:
  *   - "desktop": 62px bold headline + 47px subtitle
@@ -38,7 +38,7 @@ export default function RecordReflectRefine({
   showSubtitle = true,
   subtitle = "Improve patient care through video reflection.",
   variant = "desktop",
-  autoPlay = true,
+  started = true,
   onVariantChange,
   onFirstCycleComplete,
   className = "",
@@ -52,8 +52,9 @@ export default function RecordReflectRefine({
   const firstCycleFired = useRef(false);
 
   // Phase 1: Intro reveal — words appear one at a time
+  // Only starts when `started` is true (parent headline area is visible)
   useEffect(() => {
-    if (!autoPlay || introComplete) return;
+    if (!started || introComplete) return;
     const timer = setInterval(() => {
       setIntroStep((prev) => {
         if (prev >= 3) {
@@ -64,36 +65,36 @@ export default function RecordReflectRefine({
       });
     }, cycleDelay);
     return () => clearInterval(timer);
-  }, [cycleDelay, autoPlay, introComplete]);
+  }, [cycleDelay, started, introComplete]);
 
-  // Transition from intro to cycling after all 3 words are revealed
+  // When all 3 words are revealed: show subtitle, fire callback, then start cycling
   useEffect(() => {
     if (introStep < 3 || introComplete) return;
     const timer = setTimeout(() => {
       setIntroComplete(true);
       setActiveIndex(0);
+      // The intro reveal IS the first cycle
+      if (!firstCycleFired.current) {
+        firstCycleFired.current = true;
+        setShowSubtitleText(true);
+        onFirstCycleComplete?.();
+      }
     }, cycleDelay);
     return () => clearTimeout(timer);
-  }, [introStep, introComplete, cycleDelay]);
+  }, [introStep, introComplete, cycleDelay, onFirstCycleComplete]);
 
   // Phase 2: Post-intro cycling
   useEffect(() => {
-    if (!autoPlay || !introComplete) return;
+    if (!started || !introComplete) return;
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % 3;
         onVariantChange?.(next);
-        // First time we cycle back to 0 = first full cycle done
-        if (next === 0 && !firstCycleFired.current) {
-          firstCycleFired.current = true;
-          setShowSubtitleText(true);
-          onFirstCycleComplete?.();
-        }
         return next;
       });
     }, cycleDelay);
     return () => clearInterval(timer);
-  }, [cycleDelay, autoPlay, introComplete, onVariantChange, onFirstCycleComplete]);
+  }, [cycleDelay, started, introComplete, onVariantChange]);
 
   const handleClick = useCallback(() => {
     if (!introComplete) {
