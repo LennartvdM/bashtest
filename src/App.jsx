@@ -7,7 +7,6 @@ import Toolbox from './pages/Toolbox';
 import SidebarScrollSpyDemo from './components/Sidebar';
 import Home from './pages/Home';
 import WorldMapEditor from './components/WorldMapEditor';
-import FPSCounter from './components/dev/FPSCounter';
 import CMSAdmin from './pages/CMSAdmin';
 import ToolboxEmbed from './components/ToolboxEmbed';
 
@@ -31,8 +30,6 @@ function AppShell() {
         <Route path="/admin" element={<CMSAdmin />} />
         <Route path="/toolbox/:slug" element={<ToolboxEmbed />} />
       </Routes>
-      {/* FPS Counter - only visible in development */}
-      <FPSCounter position="bottom-left" />
     </div>
   );
 }
