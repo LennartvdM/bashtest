@@ -58,7 +58,7 @@ export const DEFAULT_PARAMS = {
   clatterDelay: 340,
 
   // RecordReflectRefine
-  cycleDelay: 1800,
+  cycleDelay: 1260,
 
   // Logo margin
   logoMarginBottom: 60,
