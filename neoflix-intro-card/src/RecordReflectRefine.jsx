@@ -17,7 +17,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const CYCLE_DELAY_MS = 1800;
+const CYCLE_DELAY_MS = 1260;
 
 // Color tokens
 const TEAL = "rgb(82, 156, 156)";
@@ -176,7 +176,7 @@ export default function RecordReflectRefine({
                 opacity: ws.opacity,
                 transform: ws.transform,
                 fontWeight: 700,
-                transition: "opacity 0.4s ease-out, color 0.4s ease-out, transform 0.5s ease-out",
+                transition: "opacity 0.28s ease-out, color 0.28s ease-out, transform 0.35s ease-out",
               }}
             >
               {word.text}
@@ -198,7 +198,7 @@ export default function RecordReflectRefine({
             lineHeight: 1.2,
             opacity: showSubtitleText ? 1 : 0,
             transform: showSubtitleText ? "translateY(0)" : "translateY(16px)",
-            transition: "opacity 0.8s ease-out, transform 0.6s ease-out",
+            transition: "opacity 0.56s ease-out, transform 0.42s ease-out",
           }}
         >
           {subtitle}
